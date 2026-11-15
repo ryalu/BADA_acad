@@ -1,7 +1,17 @@
 -- ============================================================================
 -- BADA English (바다 영어) PostgreSQL Schema
--- 로컬 PostgreSQL 또는 클라우드 PostgreSQL (Supabase, Neon, Railway, RDS) 공용
+-- 로컬 PostgreSQL 및 클라우드 PostgreSQL (Railway, Supabase, Neon, RDS) 공용
 -- ============================================================================
+
+CREATE TABLE IF NOT EXISTS teachers (
+  id VARCHAR(80) PRIMARY KEY,
+  name VARCHAR(80) NOT NULL,
+  role VARCHAR(40) NOT NULL DEFAULT 'teacher',
+  title_label VARCHAR(80) NOT NULL DEFAULT '담임 강사',
+  email VARCHAR(120) UNIQUE NOT NULL,
+  password_hash VARCHAR(128) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 CREATE TABLE IF NOT EXISTS books (
   id VARCHAR(120) PRIMARY KEY,
@@ -35,9 +45,12 @@ CREATE TABLE IF NOT EXISTS users (
   age INTEGER NOT NULL,
   level VARCHAR(40) NOT NULL,
   current_book_id VARCHAR(120) NOT NULL,
-  progress_w1 INTEGER DEFAULT 100,
-  progress_w2 INTEGER DEFAULT 100,
-  progress_w3 INTEGER DEFAULT 90,
+  pin_code VARCHAR(10) NOT NULL DEFAULT '1234',
+  teacher_id VARCHAR(80) NOT NULL DEFAULT 'tch_emma',
+  classcard_level INTEGER NOT NULL DEFAULT 2,
+  progress_w1 INTEGER DEFAULT 0,
+  progress_w2 INTEGER DEFAULT 0,
+  progress_w3 INTEGER DEFAULT 0,
   progress_w4 INTEGER DEFAULT 0,
   audio_w1_url TEXT NOT NULL,
   audio_w4_url TEXT NOT NULL,
@@ -48,6 +61,11 @@ CREATE TABLE IF NOT EXISTS users (
   strengths_json JSONB NOT NULL,
   weaknesses_json JSONB NOT NULL
 );
+
+-- Safe schema migration for existing deployments
+ALTER TABLE users ADD COLUMN IF NOT EXISTS pin_code VARCHAR(10) NOT NULL DEFAULT '1234';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS teacher_id VARCHAR(80) NOT NULL DEFAULT 'tch_emma';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS classcard_level INTEGER NOT NULL DEFAULT 2;
 
 CREATE TABLE IF NOT EXISTS cache_audit_logs (
   id SERIAL PRIMARY KEY,
@@ -60,4 +78,3 @@ CREATE TABLE IF NOT EXISTS cache_audit_logs (
 
 CREATE INDEX IF NOT EXISTS idx_books_text_hash ON books(text_hash);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON cache_audit_logs(timestamp DESC);
-

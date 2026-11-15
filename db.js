@@ -1,8 +1,9 @@
 /**
  * BADA 영어 Database Layer (PostgreSQL Primary + SQLite Auto-Fallback)
  * - Supports Local PostgreSQL & Cloud PostgreSQL (Supabase, Neon, Railway, RDS) via `DATABASE_URL` or `PG*` env vars.
- * - Automatically creates tables and seeds initial data on startup.
- * - Falls back seamlessly to Node.js built-in SQLite if PostgreSQL is not yet configured or unreachable.
+ * - Automatically creates tables, runs safe column migrations, and seeds initial data on startup.
+ * - Supports Student Registration/Assignment (auto-resetting to Week 1 on new book assignment),
+ *   Student 4-digit PIN authentication, and Director/Teacher password authentication & management.
  */
 
 const fs = require("node:fs");
@@ -30,6 +31,40 @@ function loadDotEnv() {
 }
 
 loadDotEnv();
+
+function hashPassword(pw) {
+  return crypto
+    .createHash("sha256")
+    .update(`bada_salt_v1:${String(pw || "").trim()}`)
+    .digest("hex");
+}
+
+function hashText(text) {
+  return crypto
+    .createHash("sha256")
+    .update(text.trim().replace(/\s+/g, " ").toLowerCase())
+    .digest("hex")
+    .slice(0, 24);
+}
+
+const INITIAL_TEACHERS = [
+  {
+    id: "tch_director",
+    name: "원장님 (총괄)",
+    role: "director",
+    title_label: "원장 · 최고관리자",
+    email: "director@bada.kr",
+    password: process.env.DIRECTOR_PASSWORD || "bada1234"
+  },
+  {
+    id: "tch_emma",
+    name: "Teacher Emma",
+    role: "teacher",
+    title_label: "원어민 스피킹 코치",
+    email: "emma@bada.kr",
+    password: "1234"
+  }
+];
 
 const INITIAL_BOOKS = [
   {
@@ -73,6 +108,9 @@ const INITIAL_USERS = [
     age: 9,
     level: "Level 2",
     current_book_id: "bada_level2_ocean_friends",
+    pin_code: "1234",
+    teacher_id: "tch_emma",
+    classcard_level: 2,
     progress_w1: 100,
     progress_w2: 100,
     progress_w3: 90,
@@ -104,6 +142,9 @@ const INITIAL_USERS = [
     age: 11,
     level: "Level 4",
     current_book_id: "bada_level2_ocean_friends",
+    pin_code: "1234",
+    teacher_id: "tch_emma",
+    classcard_level: 4,
     progress_w1: 100,
     progress_w2: 85,
     progress_w3: 0,
@@ -132,6 +173,9 @@ const INITIAL_USERS = [
     age: 13,
     level: "Level 7",
     current_book_id: "bada_level6_deep_currents",
+    pin_code: "1234",
+    teacher_id: "tch_emma",
+    classcard_level: 7,
     progress_w1: 100,
     progress_w2: 100,
     progress_w3: 100,
@@ -154,12 +198,20 @@ const INITIAL_USERS = [
   }
 ];
 
-function hashText(text) {
-  return crypto
-    .createHash("sha256")
-    .update(text.trim().replace(/\s+/g, " ").toLowerCase())
-    .digest("hex")
-    .slice(0, 24);
+function mapGradeLabelToGroupAndAge(gradeLabel) {
+  const label = String(gradeLabel || "초등 2학년");
+  if (label.includes("6학년")) return { grade_group: "grade_6", age: 13 };
+  if (label.includes("5학년")) return { grade_group: "grade_4_plus", age: 12 };
+  if (label.includes("4학년")) return { grade_group: "grade_4_plus", age: 11 };
+  if (label.includes("3학년")) return { grade_group: "grade_4_plus", age: 10 };
+  if (label.includes("1학년") || label.includes("미취학")) return { grade_group: "grade_1_2", age: 8 };
+  return { grade_group: "grade_1_2", age: 9 };
+}
+
+function mapLevelToDefaultClasscard(levelStr) {
+  const m = String(levelStr || "").match(/(\d+)/);
+  if (!m) return 1;
+  return Math.min(26, Math.max(1, Number(m[1])));
 }
 
 // ============================================================================
@@ -170,6 +222,16 @@ const sqliteDb = new DatabaseSync(DB_PATH);
 
 function initSqliteDatabase() {
   sqliteDb.exec(`
+    CREATE TABLE IF NOT EXISTS teachers (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'teacher',
+      title_label TEXT NOT NULL DEFAULT '전담 코칭 강사',
+      email TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS books (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -202,9 +264,12 @@ function initSqliteDatabase() {
       age INTEGER NOT NULL,
       level TEXT NOT NULL,
       current_book_id TEXT NOT NULL,
-      progress_w1 INTEGER DEFAULT 100,
-      progress_w2 INTEGER DEFAULT 100,
-      progress_w3 INTEGER DEFAULT 90,
+      pin_code TEXT NOT NULL DEFAULT '1234',
+      teacher_id TEXT DEFAULT 'tch_emma',
+      classcard_level INTEGER DEFAULT 2,
+      progress_w1 INTEGER DEFAULT 0,
+      progress_w2 INTEGER DEFAULT 0,
+      progress_w3 INTEGER DEFAULT 0,
       progress_w4 INTEGER DEFAULT 0,
       audio_w1_url TEXT NOT NULL,
       audio_w4_url TEXT NOT NULL,
@@ -226,6 +291,32 @@ function initSqliteDatabase() {
     );
   `);
 
+  // Safe column migrations for existing SQLite files
+  const alterStmts = [
+    "ALTER TABLE users ADD COLUMN pin_code TEXT NOT NULL DEFAULT '1234'",
+    "ALTER TABLE users ADD COLUMN teacher_id TEXT DEFAULT 'tch_emma'",
+    "ALTER TABLE users ADD COLUMN classcard_level INTEGER DEFAULT 2"
+  ];
+  for (const sql of alterStmts) {
+    try {
+      sqliteDb.exec(sql);
+    } catch (_) {
+      // Column already exists
+    }
+  }
+
+  const teacherCount = sqliteDb.prepare("SELECT COUNT(*) AS cnt FROM teachers").get().cnt;
+  if (teacherCount === 0) {
+    const insertTeacher = sqliteDb.prepare(`
+      INSERT INTO teachers (id, name, role, title_label, email, password_hash, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    const now = new Date().toISOString();
+    for (const t of INITIAL_TEACHERS) {
+      insertTeacher.run(t.id, t.name, t.role, t.title_label, t.email, hashPassword(t.password), now);
+    }
+  }
+
   const bookCount = sqliteDb.prepare("SELECT COUNT(*) AS cnt FROM books").get().cnt;
   if (bookCount === 0) {
     const insertBook = sqliteDb.prepare(`
@@ -241,14 +332,16 @@ function initSqliteDatabase() {
     const insertUser = sqliteDb.prepare(`
       INSERT INTO users (
         id, name, grade_label, grade_group, age, level, current_book_id,
+        pin_code, teacher_id, classcard_level,
         progress_w1, progress_w2, progress_w3, progress_w4,
         audio_w1_url, audio_w4_url, w1_wpm, w4_wpm, w1_accuracy, w4_accuracy,
         strengths_json, weaknesses_json
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     for (const u of INITIAL_USERS) {
       insertUser.run(
         u.id, u.name, u.grade_label, u.grade_group, u.age, u.level, u.current_book_id,
+        u.pin_code || "1234", u.teacher_id || "tch_emma", u.classcard_level || 2,
         u.progress_w1, u.progress_w2, u.progress_w3, u.progress_w4,
         u.audio_w1_url, u.audio_w4_url, u.w1_wpm, u.w4_wpm, u.w1_accuracy, u.w4_accuracy,
         JSON.stringify(u.strengths), JSON.stringify(u.weaknesses)
@@ -366,6 +459,19 @@ async function initPostgresPoolIfConfigured() {
     const schemaSql = fs.readFileSync(path.join(__dirname, "schema.postgres.sql"), "utf8");
     await candidatePool.query(schemaSql);
 
+    // Seed Teachers if empty
+    const tRes = await candidatePool.query("SELECT COUNT(*)::int AS cnt FROM teachers");
+    if (tRes.rows[0].cnt === 0) {
+      for (const t of INITIAL_TEACHERS) {
+        await candidatePool.query(
+          `INSERT INTO teachers (id, name, role, title_label, email, password_hash)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           ON CONFLICT (id) DO NOTHING`,
+          [t.id, t.name, t.role, t.title_label, t.email, hashPassword(t.password)]
+        );
+      }
+    }
+
     const { rows } = await candidatePool.query("SELECT COUNT(*)::int AS cnt FROM books");
     if (rows[0].cnt === 0) {
       for (const b of INITIAL_BOOKS) {
@@ -398,13 +504,15 @@ async function initPostgresPoolIfConfigured() {
         await candidatePool.query(
           `INSERT INTO users (
              id, name, grade_label, grade_group, age, level, current_book_id,
+             pin_code, teacher_id, classcard_level,
              progress_w1, progress_w2, progress_w3, progress_w4,
              audio_w1_url, audio_w4_url, w1_wpm, w4_wpm, w1_accuracy, w4_accuracy,
              strengths_json, weaknesses_json
-           ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18::jsonb,$19::jsonb)
+           ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21::jsonb,$22::jsonb)
            ON CONFLICT (id) DO NOTHING`,
           [
             u.id, u.name, u.grade_label, u.grade_group, u.age, u.level, u.current_book_id,
+            u.pin_code || "1234", u.teacher_id || "tch_emma", u.classcard_level || 2,
             u.progress_w1, u.progress_w2, u.progress_w3, u.progress_w4,
             u.audio_w1_url, u.audio_w4_url, u.w1_wpm, u.w4_wpm, u.w1_accuracy, u.w4_accuracy,
             JSON.stringify(u.strengths), JSON.stringify(u.weaknesses)
@@ -423,20 +531,29 @@ async function initPostgresPoolIfConfigured() {
   }
 }
 
+function formatUserRow(u) {
+  return {
+    ...u,
+    pin_code: u.pin_code || "1234",
+    teacher_id: u.teacher_id || "tch_emma",
+    classcard_level: Number(u.classcard_level) || mapLevelToDefaultClasscard(u.level),
+    strengths: typeof u.strengths_json === "string" ? JSON.parse(u.strengths_json) : (u.strengths_json || []),
+    weaknesses: typeof u.weaknesses_json === "string" ? JSON.parse(u.weaknesses_json) : (u.weaknesses_json || [])
+  };
+}
+
 async function getAllBootstrapData() {
   if (pgPool) {
-    const usersRes = await pgPool.query("SELECT * FROM users ORDER BY age ASC");
+    const usersRes = await pgPool.query("SELECT * FROM users ORDER BY age ASC, name ASC");
+    const teachersRes = await pgPool.query(
+      "SELECT id, name, role, title_label, email, created_at FROM teachers ORDER BY CASE WHEN role = 'director' THEN 0 ELSE 1 END, created_at ASC"
+    );
     const booksRes = await pgPool.query("SELECT * FROM books");
     const vcRes = await pgPool.query("SELECT * FROM vocab_chunks");
     const logsRes = await pgPool.query("SELECT * FROM cache_audit_logs ORDER BY id DESC LIMIT 12");
 
     const vcMap = new Map(vcRes.rows.map((r) => [r.text_hash, r]));
-
-    const users = usersRes.rows.map((u) => ({
-      ...u,
-      strengths: typeof u.strengths_json === "string" ? JSON.parse(u.strengths_json) : u.strengths_json,
-      weaknesses: typeof u.weaknesses_json === "string" ? JSON.parse(u.weaknesses_json) : u.weaknesses_json
-    }));
+    const users = usersRes.rows.map(formatUserRow);
 
     const books = booksRes.rows.map((b) => {
       const vc = vcMap.get(b.text_hash);
@@ -453,15 +570,14 @@ async function getAllBootstrapData() {
       };
     });
 
-    return { users, books, auditLogs: logsRes.rows, dbEngine: activeDbEngine };
+    return { users, teachers: teachersRes.rows, books, auditLogs: logsRes.rows, dbEngine: activeDbEngine };
   }
 
   // SQLite fallback
-  const users = sqliteDb.prepare("SELECT * FROM users").all().map((u) => ({
-    ...u,
-    strengths: JSON.parse(u.strengths_json),
-    weaknesses: JSON.parse(u.weaknesses_json)
-  }));
+  const users = sqliteDb.prepare("SELECT * FROM users ORDER BY age ASC, name ASC").all().map(formatUserRow);
+  const teachers = sqliteDb
+    .prepare("SELECT id, name, role, title_label, email, created_at FROM teachers ORDER BY CASE WHEN role = 'director' THEN 0 ELSE 1 END, created_at ASC")
+    .all();
 
   const books = sqliteDb.prepare("SELECT * FROM books").all().map((b) => {
     const vc = sqliteDb.prepare("SELECT * FROM vocab_chunks WHERE text_hash = ?").get(b.text_hash);
@@ -475,7 +591,346 @@ async function getAllBootstrapData() {
   });
 
   const auditLogs = sqliteDb.prepare("SELECT * FROM cache_audit_logs ORDER BY id DESC LIMIT 12").all();
-  return { users, books, auditLogs, dbEngine: activeDbEngine };
+  return { users, teachers, books, auditLogs, dbEngine: activeDbEngine };
+}
+
+// ============================================================================
+// AUTHENTICATION & MANAGEMENT FUNCTIONS
+// ============================================================================
+
+async function verifyStudentPin(userId, pinCode) {
+  const cleanPin = String(pinCode || "").trim();
+  if (pgPool) {
+    const { rows } = await pgPool.query("SELECT * FROM users WHERE id = $1", [userId]);
+    if (rows.length === 0) return { ok: false, error: "등록된 학생을 찾을 수 없습니다." };
+    const student = formatUserRow(rows[0]);
+    if (student.pin_code !== cleanPin) {
+      return { ok: false, error: "출석 PIN 번호 4자리가 일치하지 않습니다. (기본값: 1234)" };
+    }
+    return { ok: true, user: student };
+  }
+
+  const row = sqliteDb.prepare("SELECT * FROM users WHERE id = ?").get(userId);
+  if (!row) return { ok: false, error: "등록된 학생을 찾을 수 없습니다." };
+  const student = formatUserRow(row);
+  if (student.pin_code !== cleanPin) {
+    return { ok: false, error: "출석 PIN 번호 4자리가 일치하지 않습니다. (기본값: 1234)" };
+  }
+  return { ok: true, user: student };
+}
+
+async function verifyTeacherLogin(teacherId, password) {
+  const inputHash = hashPassword(password);
+  if (pgPool) {
+    const { rows } = await pgPool.query("SELECT * FROM teachers WHERE id = $1", [teacherId]);
+    if (rows.length === 0) return { ok: false, error: "선생님 계정을 찾을 수 없습니다." };
+    const t = rows[0];
+    if (t.password_hash !== inputHash) {
+      return { ok: false, error: "비밀번호가 올바르지 않습니다." };
+    }
+    return {
+      ok: true,
+      teacher: {
+        id: t.id,
+        name: t.name,
+        role: t.role,
+        title_label: t.title_label,
+        email: t.email
+      }
+    };
+  }
+
+  const t = sqliteDb.prepare("SELECT * FROM teachers WHERE id = ?").get(teacherId);
+  if (!t) return { ok: false, error: "선생님 계정을 찾을 수 없습니다." };
+  if (t.password_hash !== inputHash) {
+    return { ok: false, error: "비밀번호가 올바르지 않습니다." };
+  }
+  return {
+    ok: true,
+    teacher: {
+      id: t.id,
+      name: t.name,
+      role: t.role,
+      title_label: t.title_label,
+      email: t.email
+    }
+  };
+}
+
+async function createStudent(payload) {
+  const name = String(payload.name || "").trim().slice(0, 30);
+  if (!name) throw new Error("학생 이름을 입력해 주세요.");
+
+  const grade_label = String(payload.grade_label || "초등 2학년").trim().slice(0, 30);
+  const { grade_group, age } = mapGradeLabelToGroupAndAge(grade_label);
+  const level = String(payload.level || "Level 2").trim().slice(0, 30);
+  const current_book_id = String(payload.current_book_id || "bada_level2_ocean_friends").trim();
+  const pin_code = String(payload.pin_code || "1234").replace(/[^0-9]/g, "").slice(0, 4) || "1234";
+  const teacher_id = String(payload.teacher_id || "tch_emma").trim();
+  const classcard_level = Math.min(26, Math.max(1, Number(payload.classcard_level) || mapLevelToDefaultClasscard(level)));
+
+  const id = `stu_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+  const defaultStrengths = [{ tag: "신규 배정 (1주차 문장 쉐도잉 시작)", count: 1, type: "chunk" }];
+  const defaultWeaknesses = [{ tag: "첫 1주차 원서 발화 데이터 수집 대기 중", count: 1, type: "fluency" }];
+  const audioW1 = `storage://bada-audio/${id}/week1_word_hesitant.wav`;
+  const audioW4 = `storage://bada-audio/${id}/week4_full_fluent.wav`;
+
+  if (pgPool) {
+    await pgPool.query(
+      `INSERT INTO users (
+         id, name, grade_label, grade_group, age, level, current_book_id,
+         pin_code, teacher_id, classcard_level,
+         progress_w1, progress_w2, progress_w3, progress_w4,
+         audio_w1_url, audio_w4_url, w1_wpm, w4_wpm, w1_accuracy, w4_accuracy,
+         strengths_json, weaknesses_json
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, 0,0,0,0, $11,$12, 36,90,65,95, $13::jsonb,$14::jsonb)`,
+      [
+        id, name, grade_label, grade_group, age, level, current_book_id,
+        pin_code, teacher_id, classcard_level,
+        audioW1, audioW4,
+        JSON.stringify(defaultStrengths), JSON.stringify(defaultWeaknesses)
+      ]
+    );
+    const { rows } = await pgPool.query("SELECT * FROM users WHERE id = $1", [id]);
+    return formatUserRow(rows[0]);
+  }
+
+  sqliteDb.prepare(`
+    INSERT INTO users (
+      id, name, grade_label, grade_group, age, level, current_book_id,
+      pin_code, teacher_id, classcard_level,
+      progress_w1, progress_w2, progress_w3, progress_w4,
+      audio_w1_url, audio_w4_url, w1_wpm, w4_wpm, w1_accuracy, w4_accuracy,
+      strengths_json, weaknesses_json
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0, ?, ?, 36, 90, 65, 95, ?, ?)
+  `).run(
+    id, name, grade_label, grade_group, age, level, current_book_id,
+    pin_code, teacher_id, classcard_level,
+    audioW1, audioW4,
+    JSON.stringify(defaultStrengths), JSON.stringify(defaultWeaknesses)
+  );
+
+  const created = sqliteDb.prepare("SELECT * FROM users WHERE id = ?").get(id);
+  return formatUserRow(created);
+}
+
+/**
+ * Updates student level, grade, assigned book, classcard level, teacher, or PIN.
+ * IMPORTANT RULE (User Confirmed #3):
+ * When a new book (`current_book_id`) is assigned (different from previous book) OR `resetProgress === true`,
+ * automatically reset `progress_w1, progress_w2, progress_w3, progress_w4` to `0` so the student starts fresh at Week 1!
+ */
+async function updateStudentAssignment(payload) {
+  const userId = String(payload.userId || "").trim();
+  if (!userId) throw new Error("학생 ID가 필요합니다.");
+
+  if (pgPool) {
+    const existingRes = await pgPool.query("SELECT * FROM users WHERE id = $1", [userId]);
+    if (existingRes.rows.length === 0) throw new Error("학생을 찾을 수 없습니다.");
+    const prev = existingRes.rows[0];
+
+    const nextGradeLabel = payload.grade_label ? String(payload.grade_label).trim() : prev.grade_label;
+    const { grade_group, age } = payload.grade_label
+      ? mapGradeLabelToGroupAndAge(nextGradeLabel)
+      : { grade_group: prev.grade_group, age: prev.age };
+    const nextLevel = payload.level ? String(payload.level).trim() : prev.level;
+    const nextBookId = payload.current_book_id ? String(payload.current_book_id).trim() : prev.current_book_id;
+    const nextPin = payload.pin_code
+      ? String(payload.pin_code).replace(/[^0-9]/g, "").slice(0, 4) || prev.pin_code || "1234"
+      : prev.pin_code || "1234";
+    const nextTeacherId = payload.teacher_id ? String(payload.teacher_id).trim() : (prev.teacher_id || "tch_emma");
+    const nextClasscard = payload.classcard_level !== undefined
+      ? Math.min(26, Math.max(1, Number(payload.classcard_level) || 1))
+      : (prev.classcard_level || mapLevelToDefaultClasscard(nextLevel));
+
+    const bookChanged = nextBookId !== prev.current_book_id;
+    const shouldResetWeek1 = bookChanged || Boolean(payload.resetProgress);
+
+    const w1 = shouldResetWeek1 ? 0 : prev.progress_w1;
+    const w2 = shouldResetWeek1 ? 0 : prev.progress_w2;
+    const w3 = shouldResetWeek1 ? 0 : prev.progress_w3;
+    const w4 = shouldResetWeek1 ? 0 : prev.progress_w4;
+
+    await pgPool.query(
+      `UPDATE users
+       SET grade_label = $1, grade_group = $2, age = $3, level = $4, current_book_id = $5,
+           pin_code = $6, teacher_id = $7, classcard_level = $8,
+           progress_w1 = $9, progress_w2 = $10, progress_w3 = $11, progress_w4 = $12
+       WHERE id = $13`,
+      [
+        nextGradeLabel, grade_group, age, nextLevel, nextBookId,
+        nextPin, nextTeacherId, nextClasscard,
+        w1, w2, w3, w4,
+        userId
+      ]
+    );
+
+    const updatedRes = await pgPool.query("SELECT * FROM users WHERE id = $1", [userId]);
+    return {
+      user: formatUserRow(updatedRes.rows[0]),
+      bookChanged,
+      resetToWeek1: shouldResetWeek1
+    };
+  }
+
+  // SQLite
+  const prev = sqliteDb.prepare("SELECT * FROM users WHERE id = ?").get(userId);
+  if (!prev) throw new Error("학생을 찾을 수 없습니다.");
+
+  const nextGradeLabel = payload.grade_label ? String(payload.grade_label).trim() : prev.grade_label;
+  const { grade_group, age } = payload.grade_label
+    ? mapGradeLabelToGroupAndAge(nextGradeLabel)
+    : { grade_group: prev.grade_group, age: prev.age };
+  const nextLevel = payload.level ? String(payload.level).trim() : prev.level;
+  const nextBookId = payload.current_book_id ? String(payload.current_book_id).trim() : prev.current_book_id;
+  const nextPin = payload.pin_code
+    ? String(payload.pin_code).replace(/[^0-9]/g, "").slice(0, 4) || prev.pin_code || "1234"
+    : prev.pin_code || "1234";
+  const nextTeacherId = payload.teacher_id ? String(payload.teacher_id).trim() : (prev.teacher_id || "tch_emma");
+  const nextClasscard = payload.classcard_level !== undefined
+    ? Math.min(26, Math.max(1, Number(payload.classcard_level) || 1))
+    : (prev.classcard_level || mapLevelToDefaultClasscard(nextLevel));
+
+  const bookChanged = nextBookId !== prev.current_book_id;
+  const shouldResetWeek1 = bookChanged || Boolean(payload.resetProgress);
+
+  const w1 = shouldResetWeek1 ? 0 : prev.progress_w1;
+  const w2 = shouldResetWeek1 ? 0 : prev.progress_w2;
+  const w3 = shouldResetWeek1 ? 0 : prev.progress_w3;
+  const w4 = shouldResetWeek1 ? 0 : prev.progress_w4;
+
+  sqliteDb.prepare(`
+    UPDATE users
+    SET grade_label = ?, grade_group = ?, age = ?, level = ?, current_book_id = ?,
+        pin_code = ?, teacher_id = ?, classcard_level = ?,
+        progress_w1 = ?, progress_w2 = ?, progress_w3 = ?, progress_w4 = ?
+    WHERE id = ?
+  `).run(
+    nextGradeLabel, grade_group, age, nextLevel, nextBookId,
+    nextPin, nextTeacherId, nextClasscard,
+    w1, w2, w3, w4,
+    userId
+  );
+
+  const updated = sqliteDb.prepare("SELECT * FROM users WHERE id = ?").get(userId);
+  return {
+    user: formatUserRow(updated),
+    bookChanged,
+    resetToWeek1: shouldResetWeek1
+  };
+}
+
+async function deleteStudent(userId) {
+  const cleanId = String(userId || "").trim();
+  if (!cleanId) throw new Error("삭제할 학생 ID가 필요합니다.");
+  if (pgPool) {
+    await pgPool.query("DELETE FROM users WHERE id = $1", [cleanId]);
+    return { deletedId: cleanId };
+  }
+  sqliteDb.prepare("DELETE FROM users WHERE id = ?").run(cleanId);
+  return { deletedId: cleanId };
+}
+
+async function createTeacher(payload) {
+  const name = String(payload.name || "").trim().slice(0, 40);
+  if (!name) throw new Error("선생님 성함을 입력해 주세요.");
+  const role = payload.role === "director" ? "director" : "teacher";
+  const title_label = String(payload.title_label || "전담 코칭 강사").trim().slice(0, 40);
+  const email = String(payload.email || "teacher@bada.kr").trim().slice(0, 80);
+  const rawPassword = String(payload.password || "1234").trim();
+  if (rawPassword.length < 4) throw new Error("비밀번호는 최소 4자리 이상이어야 합니다.");
+
+  const id = `tch_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 5)}`;
+  const password_hash = hashPassword(rawPassword);
+  const now = new Date().toISOString();
+
+  if (pgPool) {
+    await pgPool.query(
+      `INSERT INTO teachers (id, name, role, title_label, email, password_hash)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [id, name, role, title_label, email, password_hash]
+    );
+    const { rows } = await pgPool.query(
+      "SELECT id, name, role, title_label, email, created_at FROM teachers WHERE id = $1",
+      [id]
+    );
+    return rows[0];
+  }
+
+  sqliteDb.prepare(`
+    INSERT INTO teachers (id, name, role, title_label, email, password_hash, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(id, name, role, title_label, email, password_hash, now);
+
+  return sqliteDb.prepare("SELECT id, name, role, title_label, email, created_at FROM teachers WHERE id = ?").get(id);
+}
+
+async function deleteTeacher(teacherId) {
+  const cleanId = String(teacherId || "").trim();
+  if (!cleanId) throw new Error("삭제할 강사 ID가 필요합니다.");
+  if (cleanId === "tch_director") {
+    throw new Error("원장님(최고관리자) 기본 계정은 삭제할 수 없습니다.");
+  }
+  if (pgPool) {
+    await pgPool.query("DELETE FROM teachers WHERE id = $1", [cleanId]);
+    return { deletedId: cleanId };
+  }
+  sqliteDb.prepare("DELETE FROM teachers WHERE id = ?").run(cleanId);
+  return { deletedId: cleanId };
+}
+
+async function createBook(payload) {
+  const title = String(payload.title || "").trim().slice(0, 120);
+  const subtitle_kr = String(payload.subtitle_kr || "신규 등록 영어 원서").trim().slice(0, 120);
+  const level = String(payload.level || "Level 2").trim().slice(0, 40);
+  const grade_recommended = String(payload.grade_recommended || "초등 전학년").trim().slice(0, 60);
+  const full_text = String(payload.full_text || "").trim().slice(0, 5000);
+  const cover_theme = ["aqua", "coral", "mint"].includes(payload.cover_theme) ? payload.cover_theme : "aqua";
+
+  if (!title || !full_text) {
+    throw new Error("원서 제목과 본문 텍스트를 모두 입력해 주세요.");
+  }
+
+  const tHash = hashText(full_text);
+  const id = `bada_${level.toLowerCase().replace(/[^a-z0-9]/g, "")}_${tHash.slice(0, 6)}`;
+
+  if (pgPool) {
+    await pgPool.query(
+      `INSERT INTO books (id, title, subtitle_kr, level, grade_recommended, full_text, text_hash, cover_theme)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (id) DO UPDATE SET
+         title = EXCLUDED.title,
+         subtitle_kr = EXCLUDED.subtitle_kr,
+         level = EXCLUDED.level,
+         grade_recommended = EXCLUDED.grade_recommended,
+         full_text = EXCLUDED.full_text,
+         text_hash = EXCLUDED.text_hash`,
+      [id, title, subtitle_kr, level, grade_recommended, full_text, tHash, cover_theme]
+    );
+  } else {
+    sqliteDb.prepare(`
+      INSERT OR REPLACE INTO books (id, title, subtitle_kr, level, grade_recommended, full_text, text_hash, cover_theme)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(id, title, subtitle_kr, level, grade_recommended, full_text, tHash, cover_theme);
+  }
+
+  const analysis = await getOrExtractVocabAndChunks(full_text, level, id);
+  return {
+    book: {
+      id,
+      title,
+      subtitle_kr,
+      level,
+      grade_recommended,
+      full_text,
+      text_hash: tHash,
+      cover_theme,
+      vocab: analysis.vocab,
+      chunks: analysis.chunks,
+      core_expressions: analysis.core_expressions
+    },
+    analysis
+  };
 }
 
 async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = null, isSeed = false) {
@@ -575,7 +1030,7 @@ async function updateUserProgress(userId, weekNumber, progressVal, audioUrl) {
       await pgPool.query(`UPDATE users SET ${audioCol} = $1 WHERE id = $2`, [audioUrl, userId]);
     }
     const { rows } = await pgPool.query("SELECT * FROM users WHERE id = $1", [userId]);
-    return rows[0];
+    return formatUserRow(rows[0]);
   }
 
   sqliteDb.prepare(`UPDATE users SET ${col} = ? WHERE id = ?`).run(safeProg, userId);
@@ -583,7 +1038,7 @@ async function updateUserProgress(userId, weekNumber, progressVal, audioUrl) {
     const audioCol = weekNumber === 1 ? "audio_w1_url" : "audio_w4_url";
     sqliteDb.prepare(`UPDATE users SET ${audioCol} = ? WHERE id = ?`).run(audioUrl, userId);
   }
-  return sqliteDb.prepare("SELECT * FROM users WHERE id = ?").get(userId);
+  return formatUserRow(sqliteDb.prepare("SELECT * FROM users WHERE id = ?").get(userId));
 }
 
 function getDbEngineInfo() {
@@ -601,5 +1056,13 @@ module.exports = {
   getDbEngineInfo,
   getAllBootstrapData,
   getOrExtractVocabAndChunks,
-  updateUserProgress
+  updateUserProgress,
+  verifyStudentPin,
+  verifyTeacherLogin,
+  createStudent,
+  updateStudentAssignment,
+  deleteStudent,
+  createTeacher,
+  deleteTeacher,
+  createBook
 };

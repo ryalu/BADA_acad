@@ -232,13 +232,32 @@ const FALLBACK_AUDIT_LOGS = [
   }
 ];
 
+const FALLBACK_TEACHERS = [
+  {
+    id: "tch_director",
+    name: "원장님 (총괄)",
+    role: "director",
+    title_label: "원장 · 최고관리자",
+    email: "director@bada.kr"
+  },
+  {
+    id: "tch_emma",
+    name: "Teacher Emma",
+    role: "teacher",
+    title_label: "원어민 스피킹 코치",
+    email: "emma@bada.kr"
+  }
+];
+
 const state = {
   users: [...FALLBACK_USERS],
+  teachers: [...FALLBACK_TEACHERS],
   books: [...FALLBACK_BOOKS],
   auditLogs: [...FALLBACK_AUDIT_LOGS],
   popoMasterSpec: FALLBACK_POPO_SPEC,
   currentUserId: "stu_hajun",
   currentBookId: "bada_level2_ocean_friends",
+  loggedTeacher: { ...FALLBACK_TEACHERS[0] },
   currentWeek: 1,
   currentMode: "student",
   g4Phase: "w1_oral",
@@ -305,18 +324,11 @@ async function initApp() {
     if (res.ok) {
       const data = await res.json();
       if (data.users && data.users.length) {
-        state.users = data.users.map((u) => {
-          if (u.id === "stu_hajun") {
-            return { ...u, progress_w1: 100, progress_w2: 100, progress_w3: 90, progress_w4: 0 };
-          }
-          if (u.id === "stu_seoyeon") {
-            return { ...u, progress_w1: 100, progress_w2: 85, progress_w3: 0, progress_w4: 0 };
-          }
-          if (u.id === "stu_jiho") {
-            return { ...u, progress_w1: 100, progress_w2: 100, progress_w3: 100, progress_w4: 85 };
-          }
-          return u;
-        });
+        state.users = data.users;
+      }
+      if (data.teachers && data.teachers.length) {
+        state.teachers = data.teachers;
+        state.loggedTeacher = data.teachers[0];
       }
       if (data.books && data.books.length) state.books = data.books;
       if (data.auditLogs && data.auditLogs.length) state.auditLogs = data.auditLogs;
@@ -326,7 +338,9 @@ async function initApp() {
     // Runs seamlessly using built-in FALLBACK_USERS and FALLBACK_BOOKS
   }
 
+  renderDynamicSelectorsAndEntry();
   bindNavigationEvents();
+  bindAuthAndAdminManagementEvents();
   populateClassCardLevels();
   syncAllViews();
   applyRouteFromUrl(window.location.pathname, window.location.search, false);
@@ -516,6 +530,9 @@ function selectActiveStudent(userId) {
   if (user && user.current_book_id) {
     state.currentBookId = user.current_book_id;
   }
+  if (user && user.classcard_level) {
+    state.classCardLevel = Number(user.classcard_level) || 2;
+  }
   const studentSelect = document.getElementById("studentSelect");
   const teacherStudentSelect = document.getElementById("teacherStudentSelect");
   const bookSelect = document.getElementById("bookSelect");
@@ -536,33 +553,197 @@ function selectActiveStudent(userId) {
   }
 }
 
-function bindNavigationEvents() {
-  // Entry Portal: Student profile cards
-  document.querySelectorAll(".entry-stu-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      const uid = card.getAttribute("data-entry-user");
-      selectActiveStudent(uid);
-      playOceanBubbleSound(560, 0.14);
+function renderDynamicSelectorsAndEntry() {
+  // 1. Entry Student Cards (#entryStudentCards)
+  const entryCards = document.getElementById("entryStudentCards");
+  if (entryCards) {
+    entryCards.innerHTML = "";
+    state.users.forEach((u) => {
+      const uBook = state.books.find((b) => b.id === u.current_book_id) || state.books[0];
+      const isAct = u.id === state.currentUserId;
+      const activeWk = getStudentCurrentWeek(u);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `entry-stu-card ${isAct ? "active" : ""}`;
+      btn.setAttribute("data-entry-user", u.id);
+      btn.innerHTML = `
+        <div class="stu-card-left">
+          <strong>🧒 ${u.name} 대원 (${u.grade_label} · ${u.level})</strong>
+          <span>배정 원서: 《${uBook ? uBook.title : ""}》 · 현재 ${activeWk}주차 진행 중 · 클카 Lv.${u.classcard_level || 2}</span>
+        </div>
+        <span class="stu-select-badge">${isAct ? "선택됨 ✓" : "선택하기"}</span>
+      `;
+      btn.addEventListener("click", () => {
+        selectActiveStudent(u.id);
+        const pinInput = document.getElementById("entryStudentPinInput");
+        if (pinInput) pinInput.value = u.pin_code || "1234";
+        playOceanBubbleSound(560, 0.14);
+      });
+      entryCards.appendChild(btn);
+    });
+  }
+
+  // 2. Entry Teacher Select & Registration Teacher Select
+  const entryTchSel = document.getElementById("entryTeacherSelect");
+  const regStuTchSel = document.getElementById("regStuTeacher");
+  if (entryTchSel) {
+    const curVal = entryTchSel.value || "tch_director";
+    entryTchSel.innerHTML = "";
+    state.teachers.forEach((t) => {
+      const opt = document.createElement("option");
+      opt.value = t.id;
+      opt.textContent = `${t.role === "director" ? "👑" : "👩‍🏫"} ${t.name} · ${t.title_label}`;
+      if (t.id === curVal) opt.selected = true;
+      entryTchSel.appendChild(opt);
+    });
+  }
+  if (regStuTchSel) {
+    regStuTchSel.innerHTML = "";
+    state.teachers.forEach((t) => {
+      const opt = document.createElement("option");
+      opt.value = t.id;
+      opt.textContent = `${t.role === "director" ? "👑" : "👩‍🏫"} ${t.name} (${t.title_label})`;
+      if (t.id === "tch_emma") opt.selected = true;
+      regStuTchSel.appendChild(opt);
+    });
+  }
+
+  // 3. Book Dropdowns (#regStuBook, #bookSelect)
+  const regBookSel = document.getElementById("regStuBook");
+  const bookSel = document.getElementById("bookSelect");
+  [regBookSel, bookSel].forEach((sel) => {
+    if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = "";
+    state.books.forEach((b) => {
+      const opt = document.createElement("option");
+      opt.value = b.id;
+      opt.textContent = `[${b.level}] ${b.title} (${b.subtitle_kr || ""})`;
+      if (b.id === prev) opt.selected = true;
+      sel.appendChild(opt);
     });
   });
 
-  // Entry Portal: Enter Student App / Teacher SaaS buttons
+  // 4. Student Dropdowns (#teacherStudentSelect, #studentSelect)
+  const tchStuSel = document.getElementById("teacherStudentSelect");
+  const stuSel = document.getElementById("studentSelect");
+  [tchStuSel, stuSel].forEach((sel) => {
+    if (!sel) return;
+    sel.innerHTML = "";
+    state.users.forEach((u) => {
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.textContent = `${u.name} (${u.grade_label} · ${u.level})`;
+      if (u.id === state.currentUserId) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+function bindNavigationEvents() {
+  // Entry Portal: Student PIN Login -> /student
   const btnEnterStudent = document.getElementById("btnEnterStudentApp");
   if (btnEnterStudent) {
-    btnEnterStudent.addEventListener("click", () => navigateToRoute("/student"));
+    btnEnterStudent.addEventListener("click", async () => {
+      const pinInput = document.getElementById("entryStudentPinInput");
+      const msgEl = document.getElementById("entryStudentAuthMsg");
+      const pinCode = (pinInput ? pinInput.value : "1234").trim();
+
+      try {
+        const res = await fetch("/api/auth/student", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: state.currentUserId, pinCode })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          if (msgEl) {
+            msgEl.textContent = `❌ ${data.error || "출석 PIN 번호가 일치하지 않습니다."}`;
+            msgEl.className = "entry-auth-feedback error";
+          }
+          playOceanBubbleSound(320, 0.18);
+          return;
+        }
+        if (msgEl) msgEl.className = "entry-auth-feedback hidden";
+        selectActiveStudent(data.user.id);
+        navigateToRoute("/student");
+      } catch (_) {
+        // Standalone fallback
+        navigateToRoute("/student");
+      }
+    });
+  }
+
+  // Entry Portal: Teacher / Director Password Login -> /teacher
+  async function attemptTeacherLoginAndNavigate(targetTeacherPage = "home") {
+    const sel = document.getElementById("entryTeacherSelect");
+    const pwInput = document.getElementById("entryTeacherPasswordInput");
+    const msgEl = document.getElementById("entryTeacherAuthMsg");
+    const teacherId = sel ? sel.value : "tch_director";
+    const password = pwInput ? pwInput.value.trim() : "";
+
+    try {
+      const res = await fetch("/api/auth/teacher", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teacherId, password })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        if (msgEl) {
+          msgEl.textContent = `❌ ${data.error || "비밀번호가 올바르지 않습니다."}`;
+          msgEl.className = "entry-auth-feedback error";
+        }
+        playOceanBubbleSound(320, 0.18);
+        return;
+      }
+      if (msgEl) msgEl.className = "entry-auth-feedback hidden";
+      state.loggedTeacher = data.teacher;
+      syncLoggedTeacherUI();
+      navigateToRoute(targetTeacherPage === "home" ? "/teacher" : `/teacher/${targetTeacherPage}`);
+    } catch (_) {
+      const found = state.teachers.find((t) => t.id === teacherId) || state.teachers[0];
+      state.loggedTeacher = found;
+      syncLoggedTeacherUI();
+      navigateToRoute(targetTeacherPage === "home" ? "/teacher" : `/teacher/${targetTeacherPage}`);
+    }
   }
 
   const btnEnterTeacher = document.getElementById("btnEnterTeacherApp");
   if (btnEnterTeacher) {
-    btnEnterTeacher.addEventListener("click", () => navigateToRoute("/teacher"));
+    btnEnterTeacher.addEventListener("click", () => attemptTeacherLoginAndNavigate("home"));
   }
 
   document.querySelectorAll("[data-goto-teacher]").forEach((row) => {
     row.addEventListener("click", () => {
       const page = row.getAttribute("data-goto-teacher");
-      navigateToRoute(page === "home" ? "/teacher" : `/teacher/${page}`);
+      attemptTeacherLoginAndNavigate(page);
     });
   });
+
+  // Quick-fill password helper buttons on Entry Screen
+  const entryTchSel = document.getElementById("entryTeacherSelect");
+  const entryTchPw = document.getElementById("entryTeacherPasswordInput");
+  if (entryTchSel && entryTchPw) {
+    entryTchSel.addEventListener("change", () => {
+      entryTchPw.value = entryTchSel.value === "tch_director" ? "bada1234" : "1234";
+    });
+  }
+  const btnQuickDir = document.getElementById("btnQuickFillDirectorPw");
+  if (btnQuickDir && entryTchSel && entryTchPw) {
+    btnQuickDir.addEventListener("click", () => {
+      entryTchSel.value = "tch_director";
+      entryTchPw.value = "bada1234";
+    });
+  }
+  const btnQuickTch = document.getElementById("btnQuickFillTeacherPw");
+  if (btnQuickTch && entryTchSel && entryTchPw) {
+    btnQuickTch.addEventListener("click", () => {
+      const firstTch = state.teachers.find((t) => t.role !== "director") || state.teachers[0];
+      if (firstTch) entryTchSel.value = firstTch.id;
+      entryTchPw.value = "1234";
+    });
+  }
 
   // Student App GNB tabs
   document.querySelectorAll(".stu-nav-tab").forEach((btn) => {
@@ -714,8 +895,15 @@ function activateGradeTab(gradeGroup) {
 function renderStudentMapHome(user, book) {
   const gradeBadge = document.getElementById("studentHeaderGradeBadge");
   const bookSub = document.getElementById("studentHeaderBookSub");
+  const lockedUserBadge = document.getElementById("studentLockedUserBadge");
+  const lockedBookBadge = document.getElementById("studentLockedBookBadge");
+  const fixedCcBadge = document.getElementById("g12CurrentLevelFixedBadge");
+
   if (gradeBadge) gradeBadge.textContent = `${user.grade_label} · ${user.level}`;
   if (bookSub) bookSub.textContent = book.title;
+  if (lockedUserBadge) lockedUserBadge.textContent = `🧒 ${user.name} (${user.grade_label} · ${user.level})`;
+  if (lockedBookBadge) lockedBookBadge.textContent = `📖 ${book.title}`;
+  if (fixedCcBadge) fixedCcBadge.textContent = `나의 현재 레벨: Level ${user.classcard_level || 2} / 26`;
 
   const activeWk = getStudentCurrentWeek(user);
 
@@ -745,31 +933,31 @@ function renderStudentMapHome(user, book) {
   const missionCopyByWeek = {
     1: {
       badge: "🔥 나의 현재 진도 · 1주차 물방울 단어 탐험",
-      title: `${user.name} 대원! 오늘은 1주차 '포포의 물방울 단어'를 클릭해 소리와 뜻을 익혀볼까요?`,
-      desc: "원서 속 핵심 단어를 터치하면 포포가 숨구멍에서 물방울 단어 카드를 뿜어내요!",
-      btn: "🐬 나의 현재 진도 (1주차 단어 탐험) 시작하기 ➔"
+      title: `${user.name} 대원! 오늘은 1주차 '포포의 물방울 단어'와 원서 첫 문장을 읽어볼까요?`,
+      desc: "배정된 원서 《" + book.title + "》을 펼치고 단어 뜻과 문장을 한 줄씩 소리 내어 읽어봐요!",
+      btn: "🐬 나의 현재 진도 (1주차 원서 책 펼치기) ➔"
     },
     2: {
-      badge: "🔥 나의 현재 진도 · 2주차 바다 유리 파도 낭독",
-      title: `${user.name} 대원! 오늘은 2주차 '바다 유리 파도 타기'에서 의미 단위 호흡으로 읽어볼까요?`,
-      desc: "포포가 유영하는 아쿠아 하이라이트 속도에 맞춰 의미 단위로 끊어 읽기를 연습해요!",
-      btn: "🐬 나의 현재 진도 (2주차 파도 낭독) 시작하기 ➔"
+      badge: "🔥 나의 현재 진도 · 2주차 파도 타기 낭독",
+      title: `${user.name} 대원! 오늘은 2주차 원서 문장을 의미 단위 호흡으로 읽어볼까요?`,
+      desc: "포포와 함께 단어 뜻 툴팁을 확인하고 플래시카드와 스피킹 질문까지 완주해 봐요!",
+      btn: "🐬 나의 현재 진도 (2주차 원서 책 펼치기) ➔"
     },
     3: {
       badge: "🔥 나의 현재 진도 · 3주차 포포와의 바다 대화",
       title: `${user.name} 대원! 오늘은 3주차 '포포와의 대화'에서 진주조개 마이크로 문장을 말해볼까요?`,
-      desc: "이번 달 원서 《" + book.title + "》의 핵심 표현 3문장을 말하면 포포가 공중제비로 응원해요!",
-      btn: "🐬 나의 현재 진도 (3주차 스피킹) 시작하기 ➔"
+      desc: "이번 달 원서 《" + book.title + "》의 핵심 표현을 말하면 포포가 공중제비로 응원해요!",
+      btn: "🐬 나의 현재 진도 (3주차 원서 책 펼치기) ➔"
     },
     4: {
       badge: "🔥 나의 현재 진도 · 4주차 전체 스토리 & 보물 상자",
       title: `${user.name} 대원! 오늘은 4주차 '전체 스토리 낭독'으로 황금 보물 상자를 열어볼까요?`,
-      desc: "청크 슬래시 없이 진짜 원서 텍스트를 처음부터 끝까지 원어민 호흡으로 낭독해요!",
-      btn: "🐬 나의 현재 진도 (4주차 전체 낭독) 시작하기 ➔"
+      desc: "진짜 원서 텍스트를 처음부터 끝까지 원어민 호흡으로 멋지게 완성해요!",
+      btn: "🐬 나의 현재 진도 (4주차 전체 낭독) ➔"
     }
   };
 
-  const curMission = missionCopyByWeek[activeWk] || missionCopyByWeek[3];
+  const curMission = missionCopyByWeek[activeWk] || missionCopyByWeek[1];
   if (mBadge) mBadge.textContent = curMission.badge;
   if (mTitle) mTitle.textContent = curMission.title;
   if (mDesc) mDesc.textContent = curMission.desc;
@@ -781,31 +969,129 @@ function renderStudentMapHome(user, book) {
   const hbLevel = document.getElementById("homeBookLevelBadge");
   const hbTitle = document.getElementById("homeBookTitle");
   const hbSub = document.getElementById("homeBookSubtitle");
-  if (hbLevel) hbLevel.textContent = `현재 탐험 중 · ${book.level}`;
+  if (hbLevel) hbLevel.textContent = `배정된 원서 · ${book.level}`;
   if (hbTitle) hbTitle.textContent = book.title;
-  if (hbSub) hbSub.textContent = `${book.subtitle_kr || ""} · 핵심 어휘 ${(book.vocab || []).length}개 · 호흡 청크 ${(book.chunks || []).length}개`;
+  if (hbSub) hbSub.textContent = `${book.subtitle_kr || ""} · 핵심 어휘 ${(book.vocab || []).length}개`;
 
   const gCardTitle = document.getElementById("homeGradeCardTitle");
   const gCardDesc = document.getElementById("homeGradeCardDesc");
   const gNavLabel = document.getElementById("stuNavCurriculumLabel");
   if (user.grade_group === "grade_1_2") {
     if (gCardTitle) gCardTitle.textContent = "🌱 초등 1~2학년 맞춤 20분 집중 훈련소";
-    if (gCardDesc) gCardDesc.textContent = "통문자 인식 파닉스(10분) + 초등필수 클카 26레벨(20분) 스피드 훈련 코스입니다.";
-    if (gNavLabel) gNavLabel.textContent = "학년별 훈련소 (초1~2 · 20분)";
+    if (gCardDesc) gCardDesc.textContent = `통문자 파닉스(10분) + 클카 Level ${user.classcard_level || 2}(20분) 코스입니다.`;
+    if (gNavLabel) gNavLabel.textContent = "맞춤 훈련 놀이터";
   } else if (user.grade_group === "grade_4_plus") {
     if (gCardTitle) gCardTitle.textContent = "🌊 초등 4학년 이상 맞춤 40분 심화 훈련소";
     if (gCardDesc) gCardDesc.textContent = "1~5형식 패턴 기반 구두 반복 ➔ 가이드 쓰기 ➔ 백지 발화/영작 40분 코스입니다.";
-    if (gNavLabel) gNavLabel.textContent = "학년별 훈련소 (초4+ · 40분)";
+    if (gNavLabel) gNavLabel.textContent = "맞춤 훈련 놀이터";
   } else {
     if (gCardTitle) gCardTitle.textContent = "🎓 초등 6학년 중등 내신 문법 특화 훈련소";
-    if (gCardDesc) gCardDesc.textContent = "40분 1~5형식 코스에 더해 수동태(be+p.p.)와 간접의문문 어순 모듈이 활성화됩니다.";
-    if (gNavLabel) gNavLabel.textContent = "학년별 훈련소 (초6 문법특화)";
+    if (gCardDesc) gCardDesc.textContent = "수동태(be+p.p.)와 간접의문문 어순 모듈이 활성화됩니다.";
+    if (gNavLabel) gNavLabel.textContent = "맞춤 훈련 놀이터";
   }
 
   const w1Metric = document.getElementById("homeW1Metric");
   const w4Metric = document.getElementById("homeW4Metric");
   if (w1Metric) w1Metric.textContent = `${user.w1_wpm} WPM · ${user.w1_accuracy}%`;
   if (w4Metric) w4Metric.textContent = `${user.w4_wpm} WPM · ${user.w4_accuracy}%`;
+}
+
+const ALL_BADA_LEVELS = [
+  "Pre-Level",
+  "Level 1",
+  "Level 2",
+  "Level 3",
+  "Level 4",
+  "Level 5",
+  "Level 6",
+  "Level 7",
+  "Level 8"
+];
+
+function syncLoggedTeacherUI() {
+  const t = state.loggedTeacher || state.teachers[0] || FALLBACK_TEACHERS[0];
+  const isDirector = t.role === "director";
+
+  const nameBadge = document.getElementById("loggedTeacherNameBadge");
+  const roleBadge = document.getElementById("loggedTeacherRoleBadge");
+  const kpiStudents = document.getElementById("kpiTotalStudents");
+  const kpiBreak = document.getElementById("kpiStudentBreakdown");
+  const kpiBooks = document.getElementById("kpiTotalBooks");
+  const kpiTeachers = document.getElementById("kpiTotalTeachers");
+  const kpiRole = document.getElementById("kpiCurrentLoginRole");
+
+  if (nameBadge) nameBadge.textContent = `${isDirector ? "👑" : "👩‍🏫"} ${t.name}`;
+  if (roleBadge) roleBadge.textContent = `${t.title_label} · 온라인`;
+  if (kpiStudents) kpiStudents.textContent = `${state.users.length}명`;
+  if (kpiBreak) {
+    const g12 = state.users.filter((u) => u.grade_group === "grade_1_2").length;
+    const g4 = state.users.filter((u) => u.grade_group === "grade_4_plus").length;
+    const g6 = state.users.filter((u) => u.grade_group === "grade_6").length;
+    kpiBreak.textContent = `초1~2 ${g12}명 · 초3~5 ${g4}명 · 초6 ${g6}명`;
+  }
+  if (kpiBooks) kpiBooks.textContent = `${state.books.length}권`;
+  if (kpiTeachers) kpiTeachers.textContent = `${state.teachers.length}명`;
+  if (kpiRole) kpiRole.textContent = `현재 접속: ${t.name}`;
+
+  const lockedNotice = document.getElementById("directorLockedNotice");
+  const unlockedBody = document.getElementById("directorUnlockedBody");
+  const accessBadge = document.getElementById("directorAccessBadge");
+  if (lockedNotice) lockedNotice.classList.toggle("hidden", isDirector);
+  if (unlockedBody) unlockedBody.classList.toggle("hidden", !isDirector);
+  if (accessBadge) {
+    accessBadge.textContent = isDirector
+      ? "👑 원장님(최고관리자) 권한 활성됨"
+      : "🔒 일반 강사 모드 (원장님 비밀번호 입력 시 해제)";
+  }
+
+  renderDirectorTeachersList();
+}
+
+function renderDirectorTeachersList() {
+  const container = document.getElementById("teacherAccountsList");
+  if (!container) return;
+  container.innerHTML = "";
+
+  state.teachers.forEach((t) => {
+    const isDir = t.role === "director";
+    const card = document.createElement("div");
+    card.className = `teacher-account-card ${isDir ? "is-director" : ""}`;
+    card.innerHTML = `
+      <div>
+        <strong>${isDir ? "👑" : "👩‍🏫"} ${t.name}</strong>
+        <div style="font-size:12px;color:#475569;margin-top:2px;">${t.title_label} · <code>${t.email}</code></div>
+      </div>
+      <div>
+        ${
+          t.id === "tch_director"
+            ? `<span class="saas-pill">기본 최고관리자</span>`
+            : `<button type="button" class="saas-btn coral-btn" data-delete-teacher="${t.id}" style="padding:6px 10px;font-size:12px;">🗑️ 삭제</button>`
+        }
+      </div>
+    `;
+
+    const delBtn = card.querySelector("[data-delete-teacher]");
+    if (delBtn) {
+      delBtn.addEventListener("click", async () => {
+        try {
+          const res = await fetch("/api/teachers/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ teacherId: t.id })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            state.teachers = data.teachers;
+            renderDynamicSelectorsAndEntry();
+            syncLoggedTeacherUI();
+            playOceanBubbleSound(620, 0.16);
+          }
+        } catch (_) {}
+      });
+    }
+
+    container.appendChild(card);
+  });
 }
 
 function renderTeacherRoster() {
@@ -815,27 +1101,64 @@ function renderTeacherRoster() {
 
   state.users.forEach((u) => {
     const uBook = state.books.find((b) => b.id === u.current_book_id) || state.books[0];
-    const growthPct = Math.round(((u.w4_wpm - u.w1_wpm) / u.w1_wpm) * 100);
+    const assignedTch = state.teachers.find((t) => t.id === u.teacher_id) || state.teachers[1] || state.teachers[0];
+    const growthPct = Math.round(((u.w4_wpm - u.w1_wpm) / Math.max(1, u.w1_wpm)) * 100);
     const isAct = u.id === state.currentUserId;
+    const activeWk = getStudentCurrentWeek(u);
 
     const row = document.createElement("div");
     row.className = `roster-student-row ${isAct ? "active-row" : ""}`;
 
-    const trackLabel =
-      u.grade_group === "grade_1_2"
-        ? "초1~2 20분 코스 (파닉스+클카 26Lv)"
-        : u.grade_group === "grade_4_plus"
-        ? "초4+ 40분 코스 (1~5형식 패턴)"
-        : "초6 중등문법 특화 (수동태·간접의문문)";
+    const levelOptionsHtml = ALL_BADA_LEVELS.map(
+      (lv) => `<option value="${lv}" ${u.level === lv ? "selected" : ""}>${lv}</option>`
+    ).join("");
+
+    const bookOptionsHtml = state.books
+      .map(
+        (b) =>
+          `<option value="${b.id}" ${u.current_book_id === b.id ? "selected" : ""}>[${b.level}] ${b.title}</option>`
+      )
+      .join("");
 
     row.innerHTML = `
       <div class="roster-col-main">
-        <strong>${u.name} (${u.grade_label} · ${u.level})</strong>
-        <span>${trackLabel}</span>
+        <strong>🧒 ${u.name} (${u.grade_label} · ${u.level})</strong>
+        <span>담당: ${assignedTch ? assignedTch.name : "Teacher Emma"} · 출석PIN: <code>${u.pin_code || "1234"}</code> · 클카 Lv.${u.classcard_level || 2}</span>
+        <div class="roster-assign-controls">
+          <label class="roster-inline-field">
+            <span>등급:</span>
+            <select class="roster-inline-select" data-edit-level="${u.id}">
+              ${levelOptionsHtml}
+            </select>
+          </label>
+          <label class="roster-inline-field">
+            <span>배정 원서:</span>
+            <select class="roster-inline-select" data-edit-book="${u.id}">
+              ${bookOptionsHtml}
+            </select>
+          </label>
+          <label class="roster-inline-field">
+            <span>클카Lv:</span>
+            <input type="number" class="roster-inline-input cc-mini" data-edit-cc="${u.id}" min="1" max="26" value="${u.classcard_level || 2}" />
+          </label>
+          <label class="roster-inline-field">
+            <span>PIN:</span>
+            <input type="text" class="roster-inline-input pin-mini" data-edit-pin="${u.id}" maxlength="4" value="${u.pin_code || "1234"}" />
+          </label>
+          <button type="button" class="saas-btn emerald-btn" data-save-assign="${u.id}" style="padding:5px 10px;font-size:12px;">
+            💾 배정 저장 (새 원서 변경 시 1주차 자동 시작)
+          </button>
+          <button type="button" class="saas-btn" data-reset-w1="${u.id}" style="padding:5px 9px;font-size:11.5px;" title="현재 원서 그대로 1주차부터 다시 시작">
+            🔄 1주차 초기화
+          </button>
+          <button type="button" class="saas-btn coral-btn" data-delete-stu="${u.id}" style="padding:5px 9px;font-size:11.5px;">
+            🗑️ 학생 삭제
+          </button>
+        </div>
       </div>
       <div class="roster-col-book">
-        <strong>원서: ${uBook.title}</strong>
-        <span>진도율 — W1: ${u.progress_w1}% | W2: ${u.progress_w2}% | W3: ${u.progress_w3}% | W4: ${u.progress_w4}%</span>
+        <strong>📖 현재 원서: ${uBook ? uBook.title : ""}</strong>
+        <span>🔥 현재 <strong>${activeWk}주차</strong> 진행 중 — W1: ${u.progress_w1}% | W2: ${u.progress_w2}% | W3: ${u.progress_w3}% | W4: ${u.progress_w4}%</span>
       </div>
       <div class="roster-col-audio">
         <strong>유창성: ${u.w1_wpm} WPM ➔ ${u.w4_wpm} WPM (+${growthPct}%)</strong>
@@ -845,10 +1168,114 @@ function renderTeacherRoster() {
         </div>
       </div>
       <div class="roster-actions-col">
-        <button type="button" class="saas-btn" data-roster-coach="${u.id}">🎥 화상수업 코칭룸 입장 ➔</button>
+        <button type="button" class="saas-btn" data-roster-coach="${u.id}">🎥 화상수업 코칭룸 ➔</button>
         <button type="button" class="saas-btn coral-btn" data-roster-report="${u.id}">💌 리포트 발송</button>
       </div>
     `;
+
+    // Save Level & Book Assignment (Auto-resets to Week 1 when book changes!)
+    const saveBtn = row.querySelector(`[data-save-assign="${u.id}"]`);
+    if (saveBtn) {
+      saveBtn.addEventListener("click", async () => {
+        const nextLevel = row.querySelector(`[data-edit-level="${u.id}"]`).value;
+        const nextBookId = row.querySelector(`[data-edit-book="${u.id}"]`).value;
+        const nextCc = Number(row.querySelector(`[data-edit-cc="${u.id}"]`).value) || 2;
+        const nextPin = row.querySelector(`[data-edit-pin="${u.id}"]`).value.trim() || "1234";
+
+        try {
+          const res = await fetch("/api/students/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: u.id,
+              level: nextLevel,
+              current_book_id: nextBookId,
+              classcard_level: nextCc,
+              pin_code: nextPin
+            })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            state.users = data.users;
+            if (state.currentUserId === u.id) {
+              state.currentBookId = nextBookId;
+              state.classCardLevel = nextCc;
+              state.storyCompletedSentences.clear();
+              state.storySentenceIdx = 0;
+            }
+            renderDynamicSelectorsAndEntry();
+            syncAllViews();
+            playOceanBubbleSound(820, 0.22);
+
+            const fb = document.getElementById("regStuFeedbackMsg");
+            if (fb) {
+              const newBookObj = state.books.find((b) => b.id === nextBookId);
+              fb.classList.remove("hidden");
+              fb.textContent = data.bookChanged
+                ? `✅ [${u.name}] 대원에게 새 원서 《${newBookObj ? newBookObj.title : nextBookId}》(${nextLevel})가 배정되어 진도가 자동으로 1주차(0%)부터 새로 시작됩니다!`
+                : `✅ [${u.name}] 대원의 등급(${nextLevel}) · 클카(Lv.${nextCc}) · 출석번호(${nextPin}) 정보가 저장되었습니다!`;
+            }
+          }
+        } catch (_) {}
+      });
+    }
+
+    // Explicit Reset to Week 1 button
+    const resetW1Btn = row.querySelector(`[data-reset-w1="${u.id}"]`);
+    if (resetW1Btn) {
+      resetW1Btn.addEventListener("click", async () => {
+        try {
+          const res = await fetch("/api/students/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: u.id, resetProgress: true })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            state.users = data.users;
+            state.storyCompletedSentences.clear();
+            state.storySentenceIdx = 0;
+            renderDynamicSelectorsAndEntry();
+            syncAllViews();
+            playOceanBubbleSound(760, 0.2);
+            const fb = document.getElementById("regStuFeedbackMsg");
+            if (fb) {
+              fb.classList.remove("hidden");
+              fb.textContent = `🔄 [${u.name}] 대원의 원서 진도가 1주차(0%) 초기 상태로 리셋되었습니다!`;
+            }
+          }
+        } catch (_) {}
+      });
+    }
+
+    // Delete student button
+    const delStuBtn = row.querySelector(`[data-delete-stu="${u.id}"]`);
+    if (delStuBtn) {
+      delStuBtn.addEventListener("click", async () => {
+        if (state.users.length <= 1) {
+          alert("최소 1명의 학생 프로필은 유지되어야 합니다.");
+          return;
+        }
+        try {
+          const res = await fetch("/api/students/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: u.id })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            state.users = data.users;
+            if (state.currentUserId === u.id && state.users[0]) {
+              state.currentUserId = state.users[0].id;
+              state.currentBookId = state.users[0].current_book_id;
+            }
+            renderDynamicSelectorsAndEntry();
+            syncAllViews();
+            playOceanBubbleSound(520, 0.16);
+          }
+        } catch (_) {}
+      });
+    }
 
     row.querySelectorAll("[data-roster-play]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -881,6 +1308,188 @@ function renderTeacherRoster() {
   });
 }
 
+function bindAuthAndAdminManagementEvents() {
+  // 1. Register New Student (#btnRegisterNewStudent)
+  const btnRegStu = document.getElementById("btnRegisterNewStudent");
+  if (btnRegStu) {
+    btnRegStu.addEventListener("click", async () => {
+      const nameInput = document.getElementById("regStuName");
+      const gradeSel = document.getElementById("regStuGrade");
+      const levelSel = document.getElementById("regStuLevel");
+      const bookSel = document.getElementById("regStuBook");
+      const ccInput = document.getElementById("regStuClasscard");
+      const tchSel = document.getElementById("regStuTeacher");
+      const pinInput = document.getElementById("regStuPin");
+      const fb = document.getElementById("regStuFeedbackMsg");
+
+      const name = (nameInput ? nameInput.value : "").trim();
+      if (!name) {
+        if (fb) {
+          fb.classList.remove("hidden");
+          fb.textContent = "⚠️ 등록할 학생의 이름을 입력해 주세요.";
+        }
+        return;
+      }
+
+      const payload = {
+        name,
+        grade_label: gradeSel ? gradeSel.value : "초등 2학년",
+        level: levelSel ? levelSel.value : "Level 2",
+        current_book_id: bookSel ? bookSel.value : state.books[0].id,
+        classcard_level: ccInput ? Number(ccInput.value) || 2 : 2,
+        teacher_id: tchSel ? tchSel.value : "tch_emma",
+        pin_code: pinInput ? pinInput.value.trim() || "1234" : "1234"
+      };
+
+      try {
+        const res = await fetch("/api/students/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          state.users = data.users;
+          if (nameInput) nameInput.value = "";
+          renderDynamicSelectorsAndEntry();
+          selectActiveStudent(data.student.id);
+          playOceanBubbleSound(860, 0.25);
+
+          if (fb) {
+            const assignedBook = state.books.find((b) => b.id === data.student.current_book_id);
+            fb.classList.remove("hidden");
+            fb.textContent = `🎉 신규 학생 [${data.student.name}] (${data.student.grade_label} · ${data.student.level}) 등록 완료! 배정 원서 《${assignedBook ? assignedBook.title : ""}》 1주차(0%)부터 자동 시작됩니다. (출석번호: ${data.student.pin_code})`;
+          }
+        }
+      } catch (_) {}
+    });
+  }
+
+  // 2. Inline Director Unlock inside /teacher (#btnInlineUnlockDirector)
+  const btnUnlockDir = document.getElementById("btnInlineUnlockDirector");
+  if (btnUnlockDir) {
+    btnUnlockDir.addEventListener("click", async () => {
+      const pwInput = document.getElementById("inlineDirectorPwInput");
+      const password = pwInput ? pwInput.value.trim() : "bada1234";
+      try {
+        const res = await fetch("/api/auth/teacher", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ teacherId: "tch_director", password })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          state.loggedTeacher = data.teacher;
+          syncLoggedTeacherUI();
+          playOceanBubbleSound(840, 0.2);
+        } else {
+          alert(data.error || "원장님 비밀번호가 일치하지 않습니다.");
+        }
+      } catch (_) {}
+    });
+  }
+
+  // 3. Director: Register New Teacher (#btnRegisterNewTeacher)
+  const btnRegTch = document.getElementById("btnRegisterNewTeacher");
+  if (btnRegTch) {
+    btnRegTch.addEventListener("click", async () => {
+      const nameInput = document.getElementById("regTchName");
+      const titleInput = document.getElementById("regTchTitle");
+      const emailInput = document.getElementById("regTchEmail");
+      const pwInput = document.getElementById("regTchPassword");
+      const roleSel = document.getElementById("regTchRole");
+      const fb = document.getElementById("regTchFeedbackMsg");
+
+      const name = (nameInput ? nameInput.value : "").trim();
+      if (!name) {
+        if (fb) {
+          fb.classList.remove("hidden");
+          fb.textContent = "⚠️ 등록할 선생님 성함을 입력해 주세요.";
+        }
+        return;
+      }
+
+      const payload = {
+        name,
+        title_label: titleInput ? titleInput.value.trim() || "전담 코칭 강사" : "전담 코칭 강사",
+        email: emailInput ? emailInput.value.trim() || "teacher@bada.kr" : "teacher@bada.kr",
+        password: pwInput ? pwInput.value.trim() || "1234" : "1234",
+        role: roleSel ? roleSel.value : "teacher"
+      };
+
+      try {
+        const res = await fetch("/api/teachers/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          state.teachers = data.teachers;
+          if (nameInput) nameInput.value = "";
+          if (emailInput) emailInput.value = "";
+          renderDynamicSelectorsAndEntry();
+          syncLoggedTeacherUI();
+          playOceanBubbleSound(840, 0.22);
+          if (fb) {
+            fb.classList.remove("hidden");
+            fb.textContent = `✅ [${data.teacher.name}] 선생님 계정이 등록되었습니다! 초기 화면(/)에서 비밀번호(${payload.password})로 로그인할 수 있습니다.`;
+          }
+        }
+      } catch (_) {}
+    });
+  }
+
+  // 4. Register New Book to DB in /teacher/database (#btnRegisterNewBookToDb)
+  const btnRegBook = document.getElementById("btnRegisterNewBookToDb");
+  if (btnRegBook) {
+    btnRegBook.addEventListener("click", async () => {
+      const titleInput = document.getElementById("dbNewBookTitle");
+      const subInput = document.getElementById("dbNewBookSubtitle");
+      const levelSel = document.getElementById("dbNewBookLevel");
+      const gradeInput = document.getElementById("dbNewBookGrade");
+      const textInput = document.getElementById("dbTestTextInput");
+      const resBox = document.getElementById("dbAnalyzeResultBox");
+
+      const title = (titleInput ? titleInput.value : "").trim() || `Popo's New Ocean Story #${state.books.length + 1}`;
+      const subtitle_kr = (subInput ? subInput.value : "").trim() || "포포의 새로운 바다 원서 모험";
+      const level = levelSel ? levelSel.value : "Level 2";
+      const grade_recommended = (gradeInput ? gradeInput.value : "").trim() || "초등 전학년";
+      const full_text = (textInput ? textInput.value : "").trim();
+
+      if (!full_text) {
+        if (resBox) resBox.innerHTML = `<strong style="color:#dc2626;">⚠️ 원서 본문 영어 텍스트를 입력해 주세요.</strong>`;
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/books/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, subtitle_kr, level, grade_recommended, full_text })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          state.books = data.books;
+          state.auditLogs = data.auditLogs || state.auditLogs;
+          renderDynamicSelectorsAndEntry();
+          syncAllViews();
+          playOceanBubbleSound(880, 0.25);
+
+          if (resBox) {
+            resBox.innerHTML = `
+              <div style="padding:10px;background:#ecfdf5;border:1.5px solid #34d399;border-radius:12px;">
+                <strong style="color:#047857;">📚 신규 원서 《${data.book.title}》 (${data.book.level}) DB 정식 등록 완료!</strong><br/>
+                <span>이제 [01. 강사 홈 & 학생 관리]에서 학생들에게 이 원서를 즉시 배정할 수 있습니다.</span>
+              </div>
+            `;
+          }
+        }
+      } catch (_) {}
+    });
+  }
+}
+
 function syncAllViews() {
   const user = getCurrentUser();
   const book = getCurrentBook();
@@ -897,6 +1506,7 @@ function syncAllViews() {
 
   syncCurrentWeekPlayer(user);
   syncCurrentGradeCurriculum(user);
+  syncLoggedTeacherUI();
 
   renderStudentMapHome(user, book);
   renderSequentialLearnPlayer(book, user);

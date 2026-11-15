@@ -12,7 +12,15 @@ const {
   getDbEngineInfo,
   getAllBootstrapData,
   getOrExtractVocabAndChunks,
-  updateUserProgress
+  updateUserProgress,
+  verifyStudentPin,
+  verifyTeacherLogin,
+  createStudent,
+  updateStudentAssignment,
+  deleteStudent,
+  createTeacher,
+  deleteTeacher,
+  createBook
 } = require("./db");
 const {
   POPO_MASTER_PROMPT_SPEC,
@@ -136,6 +144,91 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    // 1-A. Student PIN Authentication
+    if (pathname === "/api/auth/student" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      const userId = String(body.userId || "").trim();
+      const pinCode = String(body.pinCode || "").trim();
+      const authRes = await verifyStudentPin(userId, pinCode);
+      if (!authRes.ok) {
+        return sendJson(res, 401, { ok: false, error: authRes.error });
+      }
+      return sendJson(res, 200, { ok: true, user: authRes.user });
+    }
+
+    // 1-B. Teacher / Director Password Authentication
+    if (pathname === "/api/auth/teacher" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      const teacherId = String(body.teacherId || "").trim();
+      const password = String(body.password || "").trim();
+      const authRes = await verifyTeacherLogin(teacherId, password);
+      if (!authRes.ok) {
+        return sendJson(res, 401, { ok: false, error: authRes.error });
+      }
+      return sendJson(res, 200, { ok: true, teacher: authRes.teacher });
+    }
+
+    // 1-C. Student Registration & Assignment CRUD
+    if (pathname === "/api/students/create" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      try {
+        const student = await createStudent(body);
+        const bootstrap = await getAllBootstrapData();
+        return sendJson(res, 200, { ok: true, student, users: bootstrap.users });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/students/update" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      try {
+        const result = await updateStudentAssignment(body);
+        const bootstrap = await getAllBootstrapData();
+        return sendJson(res, 200, {
+          ok: true,
+          ...result,
+          users: bootstrap.users
+        });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/students/delete" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      try {
+        await deleteStudent(body.userId);
+        const bootstrap = await getAllBootstrapData();
+        return sendJson(res, 200, { ok: true, users: bootstrap.users });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    // 1-D. Director Teacher Registration & Management CRUD
+    if (pathname === "/api/teachers/create" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      try {
+        const teacher = await createTeacher(body);
+        const bootstrap = await getAllBootstrapData();
+        return sendJson(res, 200, { ok: true, teacher, teachers: bootstrap.teachers });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/teachers/delete" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      try {
+        await deleteTeacher(body.teacherId);
+        const bootstrap = await getAllBootstrapData();
+        return sendJson(res, 200, { ok: true, teachers: bootstrap.teachers });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
     // 2. Vocab & Chunk DB Deduplication Optimization endpoint
     if (pathname === "/api/books/analyze" && req.method === "POST") {
       const body = await parseJsonBody(req);
@@ -151,6 +244,24 @@ const server = http.createServer(async (req, res) => {
         result,
         auditLogs: updatedBootstrap.auditLogs
       });
+    }
+
+    // 2-B. Register New Book into DB (so it appears in Student Assignment Dropdown)
+    if (pathname === "/api/books/create" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      try {
+        const created = await createBook(body);
+        const updatedBootstrap = await getAllBootstrapData();
+        return sendJson(res, 200, {
+          ok: true,
+          book: created.book,
+          analysis: created.analysis,
+          books: updatedBootstrap.books,
+          auditLogs: updatedBootstrap.auditLogs
+        });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
     }
 
     // 3. Week 3 Popo Speaking Feedback endpoint
