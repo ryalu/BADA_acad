@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: bada-english-web
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bada-postgres-db
+          property: connectionString
+
+databases:
+  - name: bada-postgres-db
+    databaseName: bada_english
+    user: bada_admin
+    plan: free
+

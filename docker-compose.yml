@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bada-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${PGPASSWORD:-postgres}
+      POSTGRES_DB: bada_english
+    ports:
+      - "5432:5432"
+    volumes:
+      - bada_pgdata:/var/lib/postgresql/data
+      - ./schema.postgres.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+
+  bada-web:
+    build: .
+    container_name: bada-english-web
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://postgres:${PGPASSWORD:-postgres}@postgres:5432/bada_english
+
+volumes:
+  bada_pgdata:
+

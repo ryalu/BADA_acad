@@ -1,0 +1,8 @@
+node_modules
+.git
+.agents
+.env
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.pen

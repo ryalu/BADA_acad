@@ -1,0 +1,17 @@
+{
+  "name": "bada-english-platform",
+  "version": "1.0.0",
+  "description": "BADA 영어 - 4주 완성 수준별 영어 원서 읽기 & 스피킹 웹 서비스 (아기 고래 포포와 함께하는 바다 탐험)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --no-warnings server.js",
+    "dev": "node --no-warnings --watch server.js",
+    "db:init": "node --no-warnings scripts/init-postgres.js"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

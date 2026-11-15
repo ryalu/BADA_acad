@@ -1,0 +1,12 @@
+node_modules/
+.agents/
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.pen
+.DS_Store
+Thumbs.db
+

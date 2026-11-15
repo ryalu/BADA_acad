@@ -1,0 +1,240 @@
+/**
+ * BADA 영어 Web Service Server (Production & Security Hardened)
+ * Serves the 3D Kid-Friendly Student App (/student), Teacher SaaS Backoffice (/teacher),
+ * and PostgreSQL/SQLite Dual-Engine REST APIs.
+ */
+
+const http = require("node:http");
+const fs = require("node:fs");
+const path = require("node:path");
+const {
+  initPostgresPoolIfConfigured,
+  getDbEngineInfo,
+  getAllBootstrapData,
+  getOrExtractVocabAndChunks,
+  updateUserProgress
+} = require("./db");
+const {
+  POPO_MASTER_PROMPT_SPEC,
+  evaluatePopoSpeech,
+  generateTeacherQuestions
+} = require("./ai-engine");
+
+const PORT = Number(process.env.PORT) || 3000;
+const HOST = process.env.HOST || "0.0.0.0";
+const PUBLIC_DIR = path.resolve(__dirname, "public");
+
+const MIME_TYPES = {
+  ".html": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "application/javascript; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".ico": "image/x-icon",
+  ".woff2": "font/woff2"
+};
+
+// Security Headers applied to every response
+const SECURITY_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "SAMEORIGIN",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "microphone=(self), camera=(), geolocation=()"
+};
+
+// Lightweight per-IP rate limiter for write/compute endpoints (60 POST requests / minute)
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX_POST = 60;
+
+function checkRateLimit(req) {
+  const forwarded = req.headers["x-forwarded-for"];
+  const ip = (typeof forwarded === "string" ? forwarded.split(",")[0].trim() : req.socket.remoteAddress) || "unknown";
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now - entry.start > RATE_LIMIT_WINDOW_MS) {
+    rateLimitMap.set(ip, { start: now, count: 1 });
+    return true;
+  }
+  entry.count += 1;
+  return entry.count <= RATE_LIMIT_MAX_POST;
+}
+
+function sendJson(res, statusCode, payload) {
+  const allowedOrigin = process.env.ALLOWED_ORIGIN || "*";
+  res.writeHead(statusCode, {
+    ...SECURITY_HEADERS,
+    "Content-Type": "application/json; charset=utf-8",
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type"
+  });
+  res.end(JSON.stringify(payload, null, 2));
+}
+
+function parseJsonBody(req) {
+  return new Promise((resolve, reject) => {
+    let raw = "";
+    req.on("data", (chunk) => {
+      raw += chunk;
+      // Strict 100KB payload limit to prevent DoS memory exhaustion
+      if (raw.length > 100 * 1024) {
+        req.destroy();
+        reject(new Error("Payload too large"));
+      }
+    });
+    req.on("end", () => {
+      if (!raw) return resolve({});
+      try {
+        resolve(JSON.parse(raw));
+      } catch (err) {
+        reject(new Error("Invalid JSON body"));
+      }
+    });
+    req.on("error", reject);
+  });
+}
+
+const server = http.createServer(async (req, res) => {
+  try {
+    if (req.method === "OPTIONS") {
+      return sendJson(res, 200, { ok: true });
+    }
+
+    if (req.method === "POST" && !checkRateLimit(req)) {
+      return sendJson(res, 429, { error: "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요." });
+    }
+
+    const urlObj = new URL(req.url, `http://${req.headers.host || "localhost"}`);
+    let pathname = "/";
+    try {
+      pathname = decodeURIComponent(urlObj.pathname);
+    } catch (_) {
+      return sendJson(res, 400, { error: "Bad Request" });
+    }
+
+    // 0. Health check endpoint for cloud deployment (Railway / Render / Docker)
+    if (pathname === "/api/health" && req.method === "GET") {
+      return sendJson(res, 200, {
+        status: "ok",
+        service: "bada-english-platform",
+        ...getDbEngineInfo(),
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // 1. Bootstrap endpoint
+    if (pathname === "/api/bootstrap" && req.method === "GET") {
+      const data = await getAllBootstrapData();
+      return sendJson(res, 200, {
+        ...data,
+        popoMasterSpec: POPO_MASTER_PROMPT_SPEC
+      });
+    }
+
+    // 2. Vocab & Chunk DB Deduplication Optimization endpoint
+    if (pathname === "/api/books/analyze" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      const rawText = String(body.text || "").trim().slice(0, 5000);
+      if (!rawText) {
+        return sendJson(res, 400, { error: "원서 텍스트를 입력해 주세요." });
+      }
+      const safeLevel = String(body.level || "Level 2").slice(0, 40);
+      const safeBookId = body.bookId ? String(body.bookId).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) : null;
+      const result = await getOrExtractVocabAndChunks(rawText, safeLevel, safeBookId);
+      const updatedBootstrap = await getAllBootstrapData();
+      return sendJson(res, 200, {
+        result,
+        auditLogs: updatedBootstrap.auditLogs
+      });
+    }
+
+    // 3. Week 3 Popo Speaking Feedback endpoint
+    if (pathname === "/api/popo/feedback" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      const feedback = evaluatePopoSpeech({
+        transcript: String(body.transcript || "").slice(0, 300),
+        bookId: String(body.bookId || "").slice(0, 80),
+        targetChunk: String(body.targetChunk || "").slice(0, 120),
+        popoQuestion: String(body.popoQuestion || "").slice(0, 300)
+      });
+      return sendJson(res, 200, feedback);
+    }
+
+    // 4. Student weekly progress & audio URL update endpoint
+    if (pathname === "/api/users/progress" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      const safeUserId = String(body.userId || "stu_hajun").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 60);
+      const safeWeek = Math.min(4, Math.max(1, Number(body.week) || 1));
+      const safeProgress = Math.min(100, Math.max(0, Number(body.progress) || 100));
+      let safeAudioUrl = null;
+      if (typeof body.audioUrl === "string" && /^(storage:\/\/bada-audio\/|https:\/\/)[a-zA-Z0-9/_.-]+$/.test(body.audioUrl)) {
+        safeAudioUrl = body.audioUrl.slice(0, 250);
+      }
+      const updatedUser = await updateUserProgress(safeUserId, safeWeek, safeProgress, safeAudioUrl);
+      return sendJson(res, 200, { user: updatedUser });
+    }
+
+    // 5. Teacher SaaS 4th-Week AI Recommended Questions endpoint
+    if (pathname === "/api/teacher/questions" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      const questions = generateTeacherQuestions({
+        studentName: String(body.studentName || "김하준").slice(0, 40),
+        bookTitle: String(body.bookTitle || "Popo and the Ocean Friends").slice(0, 120),
+        weakPoints: Array.isArray(body.weakPoints) ? body.weakPoints.slice(0, 10) : [],
+        strongPoints: Array.isArray(body.strongPoints) ? body.strongPoints.slice(0, 10) : []
+      });
+      return sendJson(res, 200, { questions });
+    }
+
+    // Static file serving with strict directory boundary enforcement
+    const relTarget = pathname === "/" ? "index.html" : pathname.replace(/^[/\\]+/, "");
+    const absPath = path.resolve(PUBLIC_DIR, relTarget);
+
+    if (!absPath.startsWith(PUBLIC_DIR + path.sep) && absPath !== path.join(PUBLIC_DIR, "index.html")) {
+      res.writeHead(403, { ...SECURITY_HEADERS, "Content-Type": "text/plain; charset=utf-8" });
+      res.end("Forbidden");
+      return;
+    }
+
+    if (fs.existsSync(absPath) && fs.statSync(absPath).isFile()) {
+      const ext = path.extname(absPath).toLowerCase();
+      const contentType = MIME_TYPES[ext] || "application/octet-stream";
+      const headers = { ...SECURITY_HEADERS, "Content-Type": contentType };
+      if ([".jpg", ".jpeg", ".png", ".webp", ".svg", ".woff2"].includes(ext)) {
+        headers["Cache-Control"] = "public, max-age=86400";
+      }
+      res.writeHead(200, headers);
+      fs.createReadStream(absPath).pipe(res);
+      return;
+    }
+
+    // Fallback to index.html for SPA routes (/student, /student/learn, /student/curriculum, /teacher/*)
+    const indexPath = path.join(PUBLIC_DIR, "index.html");
+    if (fs.existsSync(indexPath)) {
+      res.writeHead(200, { ...SECURITY_HEADERS, "Content-Type": "text/html; charset=utf-8" });
+      fs.createReadStream(indexPath).pipe(res);
+      return;
+    }
+
+    res.writeHead(404, { ...SECURITY_HEADERS, "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Not Found");
+  } catch (err) {
+    console.error("Server error:", err);
+    sendJson(res, 500, { error: "Internal Server Error" });
+  }
+});
+
+async function startServer() {
+  await initPostgresPoolIfConfigured();
+  const info = getDbEngineInfo();
+  server.listen(PORT, HOST, () => {
+    console.log(`🌊 BADA 영어 웹 서비스가 실행되었습니다: http://localhost:${PORT} (DB Engine: ${info.engine.toUpperCase()})`);
+  });
+}
+
+startServer();
