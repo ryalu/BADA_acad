@@ -93,6 +93,13 @@ CREATE TABLE IF NOT EXISTS student_recordings (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS tts_audio_cache (
+  cache_key VARCHAR(255) PRIMARY KEY,
+  content_type VARCHAR(60) NOT NULL DEFAULT 'audio/mpeg',
+  audio_bytes BYTEA NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE INDEX IF NOT EXISTS idx_books_text_hash ON books(text_hash);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON cache_audit_logs(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_student_recordings_user ON student_recordings(user_id, created_at DESC);

@@ -299,6 +299,13 @@ function initSqliteDatabase() {
       ai_feedback_json TEXT NOT NULL DEFAULT '{}',
       created_at TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS tts_audio_cache (
+      cache_key TEXT PRIMARY KEY,
+      content_type TEXT NOT NULL DEFAULT 'audio/mpeg',
+      audio_bytes BLOB NOT NULL,
+      created_at TEXT NOT NULL
+    );
   `);
 
   // Safe column migrations for existing SQLite files
@@ -1472,6 +1479,39 @@ async function listStudentRecordings(userId) {
   }));
 }
 
+async function getCachedTtsAudio(cacheKey) {
+  if (pgPool) {
+    const { rows } = await pgPool.query(
+      "SELECT audio_bytes FROM tts_audio_cache WHERE cache_key = $1 LIMIT 1",
+      [cacheKey]
+    );
+    return rows[0]?.audio_bytes || null;
+  }
+  const row = sqliteDb
+    .prepare("SELECT audio_bytes FROM tts_audio_cache WHERE cache_key = ? LIMIT 1")
+    .get(cacheKey);
+  return row?.audio_bytes ? Buffer.from(row.audio_bytes) : null;
+}
+
+async function saveCachedTtsAudio(cacheKey, audioBuf) {
+  if (!audioBuf || !audioBuf.length) return;
+  if (pgPool) {
+    await pgPool.query(
+      `INSERT INTO tts_audio_cache (cache_key, content_type, audio_bytes)
+       VALUES ($1, 'audio/mpeg', $2)
+       ON CONFLICT (cache_key) DO NOTHING`,
+      [cacheKey, audioBuf]
+    );
+    return;
+  }
+  sqliteDb
+    .prepare(
+      `INSERT OR IGNORE INTO tts_audio_cache (cache_key, content_type, audio_bytes, created_at)
+       VALUES (?, 'audio/mpeg', ?, ?)`
+    )
+    .run(cacheKey, audioBuf, new Date().toISOString());
+}
+
 function getDbEngineInfo() {
   return {
     engine: activeDbEngine,
@@ -1498,5 +1538,7 @@ module.exports = {
   createBook,
   reanalyzeAllBooksWithLLM,
   saveStudentRecording,
-  listStudentRecordings
+  listStudentRecordings,
+  getCachedTtsAudio,
+  saveCachedTtsAudio
 };

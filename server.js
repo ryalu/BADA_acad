@@ -23,7 +23,9 @@ const {
   createBook,
   reanalyzeAllBooksWithLLM,
   saveStudentRecording,
-  listStudentRecordings
+  listStudentRecordings,
+  getCachedTtsAudio,
+  saveCachedTtsAudio
 } = require("./db");
 const {
   POPO_MASTER_PROMPT_SPEC,
@@ -370,8 +372,10 @@ const server = http.createServer(async (req, res) => {
       const speed = isSingleWord
         ? Math.min(1.05, Math.max(0.84, rawSpeed))
         : Math.min(1.12, Math.max(0.75, rawSpeed));
-      const voice = String(body.voice || process.env.OPENAI_TTS_VOICE || "coral");
-      const cacheKey = `v2|${voice}|${speed.toFixed(2)}|${text}`;
+      const voice = String(body.voice || process.env.OPENAI_TTS_VOICE || "shimmer");
+      const crypto = require("node:crypto");
+      const rawKey = `v3|${voice}|${speed.toFixed(2)}|${text}`;
+      const cacheKey = crypto.createHash("sha256").update(rawKey).digest("hex");
       if (!global.__badaTtsCache) global.__badaTtsCache = new Map();
       const cache = global.__badaTtsCache;
 
@@ -385,9 +389,23 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
+      // Check permanent PostgreSQL / SQLite TTS cache before calling OpenAI
+      const dbAudio = await getCachedTtsAudio(cacheKey);
+      if (dbAudio) {
+        if (cache.size >= 200) cache.delete(cache.keys().next().value);
+        cache.set(cacheKey, dbAudio);
+        res.writeHead(200, {
+          ...SECURITY_HEADERS,
+          "Content-Type": "audio/mpeg",
+          "Cache-Control": "public, max-age=86400"
+        });
+        res.end(dbAudio);
+        return;
+      }
+
       const instructions = isSingleWord
-        ? "Speak as a warm, cheerful elementary English teacher. Pronounce this single word clearly, crisply, and at a bright, confident volume so young phonics beginners can hear every consonant and vowel sound distinctly."
-        : "Read aloud like a warm, expressive children's picture-book storyteller. Use natural melody, friendly enthusiasm, gentle pauses at commas, and clear articulation for young elementary learners.";
+        ? "Speak with a bright, sweet, youthful voice like a friendly young older-sister or teen storyteller. Pronounce this single English word clearly, crisply, and at a cheerful, confident volume so elementary phonics beginners can hear every sound distinctly."
+        : "Read aloud with a bright, sweet, youthful voice like a friendly young storyteller reading a picture book to kids. Use lively natural melody, gentle pauses at commas, warm enthusiasm, and crisp articulation.";
 
       let ttsRes = await fetch("https://api.openai.com/v1/audio/speech", {
         method: "POST",
@@ -432,6 +450,7 @@ const server = http.createServer(async (req, res) => {
         cache.delete(oldestKey);
       }
       cache.set(cacheKey, audioBuf);
+      saveCachedTtsAudio(cacheKey, audioBuf).catch(() => {});
 
       res.writeHead(200, {
         ...SECURITY_HEADERS,
