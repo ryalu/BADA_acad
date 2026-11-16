@@ -275,7 +275,9 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
   const currentIllustration =
     (book.page_illustrations || []).find((p) => Number(p.page_index) === pageIdx) ||
     (book.page_illustrations || [])[pageIdx];
+  const illustrationImageUrl = currentIllustration?.image_url || "";
   const safeIllustrationSvg =
+    !illustrationImageUrl &&
     currentIllustration?.svg &&
     currentIllustration.svg.includes("<svg") &&
     !/<script|on[a-z]+\s*=/i.test(currentIllustration.svg)
@@ -746,7 +748,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
       };
 
   return (
-    <div className="flex flex-col justify-between gap-3 h-[calc(100vh-132px)] min-h-[540px] max-h-[780px]">
+    <div className="flex flex-col justify-between gap-2.5 h-[calc(100vh-88px)] min-h-[580px]">
       {/* Clean Hairline Header Strip (No outer card box) */}
       <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#e8dfd1] shrink-0">
         <div>
@@ -834,22 +836,66 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
         </div>
       )}
 
-      {/* Real 3D Open Hardcover Storybook */}
-      <div className="flex-1 min-h-0 bg-[#2d3646] p-2.5 md:p-3.5 rounded-[26px] shadow-[0_20px_45px_-15px_rgba(30,41,59,0.45)] border border-[#1f2633] flex flex-col">
-        <div className="book-stage relative flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[8px_1fr_6px_1fr_8px] rounded-xl overflow-hidden bg-[#f9f5eb]">
+      {/* Open Picture-Book Spread (No black border · 2/3 Illustration + 1/3 Story Text) */}
+      <div className="book-stage relative flex-1 min-h-0 rounded-2xl shadow-[0_18px_44px_-12px_rgba(92,74,48,0.22)] border border-[#e5dcc9] bg-[#fdfaf2] overflow-hidden flex flex-col">
+        {/* TOP 2/3: Full-Spread Picture-Book Illustration */}
+        {(illustrationImageUrl || safeIllustrationSvg) && (
+          <div className="relative flex-[1.55] min-h-[220px] w-full overflow-hidden border-b border-[#e8dfd1] bg-[#eef7fa]">
+            {illustrationImageUrl ? (
+              <img
+                src={illustrationImageUrl}
+                alt={currentIllustration?.scene_caption_kr || book.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div
+                className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:object-cover"
+                dangerouslySetInnerHTML={{ __html: safeIllustrationSvg }}
+              />
+            )}
+            {/* Subtle vertical spine fold shadow across the double-page illustration */}
+            <div className="hidden md:block pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 w-8 bg-gradient-to-r from-transparent via-stone-900/18 to-transparent" />
+
+            {/* Subtle visual word tags & caption overlay */}
+            <div className="absolute inset-x-0 bottom-0 px-4 py-2 bg-gradient-to-t from-slate-950/55 via-slate-950/20 to-transparent flex flex-wrap items-center justify-between gap-2">
+              {currentIllustration?.scene_caption_kr ? (
+                <span className="text-xs font-semibold text-white drop-shadow">
+                  {currentIllustration.scene_caption_kr}
+                </span>
+              ) : (
+                <span />
+              )}
+              {currentIllustration?.key_objects && currentIllustration.key_objects.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {currentIllustration.key_objects.map((obj) => (
+                    <span
+                      key={obj}
+                      className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/90 text-slate-800 shadow-xs"
+                    >
+                      {obj}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* BOTTOM 1/3: Left (English Text) | Spine | Right (Korean Translation) */}
+        <div className="relative flex-1 min-h-[180px] grid grid-cols-1 md:grid-cols-[8px_1fr_4px_1fr_8px] overflow-hidden">
           {/* Left Stacked Paper Thickness */}
-          <div className="hidden md:block book-edges-left border-r border-[#dfd6c3]" />
+          <div className="hidden md:block book-edges-left border-r border-[#e5dcc9]" />
 
           {/* LEFT PAGE: English Original Text */}
-          <div className="bg-[#fdfaf2] book-gutter-left px-6 py-5 md:px-8 md:py-6 flex flex-col justify-between overflow-y-auto">
-            <div className="flex items-center justify-between pb-2 border-b border-[#ece4d3]">
+          <div className="bg-[#fdfaf2] book-gutter-left px-5 py-3.5 md:px-7 md:py-4 flex flex-col justify-between overflow-y-auto">
+            <div className="flex items-center justify-between pb-1.5 border-b border-[#ece4d3]">
               <span className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">
-                English Story
+                English · p. {pageIdx * 2 + 1}
               </span>
-              <span className="text-xs text-stone-400">단어에 마우스를 올리면 뜻이 보입니다</span>
+              <span className="text-[11px] text-stone-400">단어에 마우스를 올리면 뜻이 보입니다</span>
             </div>
 
-            <div className="my-auto py-3 space-y-5">
+            <div className="my-auto py-2 space-y-2.5">
               {currentSpread.sentences.map((s) => {
                 const isActSent = s.sentenceIndex === sentenceIdx;
                 const isDoneSent = completedSentences.has(s.sentenceIndex);
@@ -977,42 +1023,15 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
           {/* REALISTIC CENTER BOOK SPINE CREASE */}
           <div className="hidden md:block bg-gradient-to-r from-[#d2c8b4] via-[#9e937e] to-[#d2c8b4]" />
 
-          {/* RIGHT PAGE: Page Illustration + Korean Translation & Word/Chunk Bar */}
-          <div className="bg-[#faf6ea] book-gutter-right px-6 py-5 md:px-8 md:py-6 flex flex-col justify-between border-t md:border-t-0 border-[#e5dfd2] overflow-y-auto">
-            <div className="flex items-center justify-between pb-2 border-b border-[#ece4d3]">
+          {/* RIGHT PAGE: Korean Translation & Word/Chunk Bar */}
+          <div className="bg-[#faf6ea] book-gutter-right px-5 py-3.5 md:px-7 md:py-4 flex flex-col justify-between border-t md:border-t-0 border-[#e5dfd2] overflow-y-auto">
+            <div className="flex items-center justify-between pb-1.5 border-b border-[#ece4d3]">
               <span className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">
-                장면 그림 &amp; 우리말 해석
+                우리말 해석 · p. {pageIdx * 2 + 2}
               </span>
-              <span className="text-xs text-stone-400">p. {pageIdx * 2 + 2}</span>
             </div>
 
-            {safeIllustrationSvg && (
-              <div className="mt-3 mb-2 space-y-1.5 shrink-0">
-                <div
-                  className="w-full h-[126px] md:h-[138px] rounded-xl overflow-hidden border border-[#e5dcc9] bg-white/70 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"
-                  dangerouslySetInnerHTML={{ __html: safeIllustrationSvg }}
-                />
-                <div className="flex flex-wrap items-center justify-between gap-1.5 text-[11px]">
-                  {currentIllustration?.scene_caption_kr && (
-                    <span className="text-stone-500 font-medium">{currentIllustration.scene_caption_kr}</span>
-                  )}
-                  {currentIllustration?.key_objects && currentIllustration.key_objects.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1">
-                      {currentIllustration.key_objects.map((obj) => (
-                        <span
-                          key={obj}
-                          className="px-2 py-0.5 rounded-full bg-amber-100/80 text-amber-900 font-bold"
-                        >
-                          {obj}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="my-auto py-3 space-y-5 divide-y divide-[#ece4d3]/80">
+            <div className="my-auto py-2 space-y-2.5 divide-y divide-[#ece4d3]/80">
               {currentSpread.sentences.map((s) => {
                 const isActSent = s.sentenceIndex === sentenceIdx;
                 return (
@@ -1073,20 +1092,20 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
           </div>
 
           {/* Right Stacked Paper Thickness */}
-          <div className="hidden md:block book-edges-right border-l border-[#dfd6c3]" />
-
-          {/* 3D Turning Paper Leaf Overlay ("샤락" page flip) */}
-          {flipLeaf && (
-            <div
-              key={flipLeaf.key}
-              className={`hidden md:block pointer-events-none absolute inset-y-0 z-30 ${
-                flipLeaf.dir === "next"
-                  ? "left-1/2 right-2 book-leaf-next bg-gradient-to-l from-[#f5eedf] via-[#fdfaf2] to-[#ede4d1] border-l border-[#d8ceb8]"
-                  : "left-2 right-1/2 book-leaf-prev bg-gradient-to-r from-[#f5eedf] via-[#fdfaf2] to-[#ede4d1] border-r border-[#d8ceb8]"
-              }`}
-            />
-          )}
+          <div className="hidden md:block book-edges-right border-l border-[#e5dcc9]" />
         </div>
+
+        {/* 3D Turning Paper Leaf Overlay ("샤락" page flip across full picture-book spread) */}
+        {flipLeaf && (
+          <div
+            key={flipLeaf.key}
+            className={`hidden md:block pointer-events-none absolute inset-y-0 z-30 ${
+              flipLeaf.dir === "next"
+                ? "left-1/2 right-2 book-leaf-next bg-gradient-to-l from-[#f5eedf] via-[#fdfaf2] to-[#ede4d1] border-l border-[#d8ceb8]"
+                : "left-2 right-1/2 book-leaf-prev bg-gradient-to-r from-[#f5eedf] via-[#fdfaf2] to-[#ede4d1] border-r border-[#d8ceb8]"
+            }`}
+          />
+        )}
       </div>
 
       {/* Bottom Controls: Page Turn + Voice Recognition Status & Buttons */}

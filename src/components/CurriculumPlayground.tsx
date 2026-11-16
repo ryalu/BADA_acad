@@ -73,7 +73,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
 
   return (
     <div className="space-y-5">
-      <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 flex items-center justify-between">
+      <div className="pb-3 border-b border-[#e8dfd1] flex items-center justify-between">
         <button
           type="button"
           onClick={subview === "hub" ? onBackHome : () => setSubview("hub")}
@@ -88,7 +88,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
       </div>
 
       {subview === "hub" && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+        <div className="py-2 space-y-5">
           <div>
             <h2 className="text-xl font-bold text-slate-900">
               {user.level} · {user.grade_label} 맞춤 집중 훈련소
@@ -173,7 +173,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
       )}
 
       {subview === "phonics" && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+        <div className="py-2 space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <span className="text-xs font-bold text-sky-700">{phonicsModule.tierLabel} · 레벨 맞춤 파닉스</span>
@@ -262,7 +262,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
       )}
 
       {subview === "classcard" && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+        <div className="py-2 space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <button
@@ -429,7 +429,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
       )}
 
       {subview === "upper" && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+        <div className="py-2 space-y-5">
           <div className="flex items-center gap-2">
             <Layers className="w-5 h-5 text-sky-600" />
             <h2 className="text-lg font-bold text-slate-900">

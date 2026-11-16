@@ -916,18 +916,16 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
       body: JSON.stringify({
         model: process.env.OPENAI_MODEL || "gpt-4o-mini",
         temperature: 0.35,
-        max_tokens: 10000,
+        max_tokens: 4000,
         response_format: { type: "json_object" },
         messages: [
           {
             role: "system",
             content:
-              "You are a children's picture-book SVG illustrator for BADA English. " +
-              "For EACH page provided, return a cute, expressive, colorful children's storybook SVG illustration (`viewBox=\"0 0 360 150\"`, `xmlns=\"http://www.w3.org/2000/svg\"`) so young elementary students can understand the English words visually just by looking at the picture! " +
-              "CRITICAL RULES: " +
-              "1) Visually draw EVERY concrete noun/animal/object/place mentioned on that page (for example, if 'starfish' and 'sandy floor' appear, draw a cute smiling orange starfish resting on a warm sandy floor; if 'baby whale' and 'coral reef' appear, draw cute blue whale Popo swimming over colorful coral; if 'turtle', 'treasure chest', 'tree', 'owl', 'school', 'puppy', draw them clearly with friendly eyes!). " +
-              "2) Use clean rounded SVG primitives (<rect>, <circle>, <ellipse>, <path>, <polygon>) with soft pastel storybook colors and gradients. Keep each SVG under 2200 characters, NO <script>, NO text labels inside the SVG, NO external URLs. " +
-              "3) Return ONLY valid JSON: { \"pages\": [ { \"page_index\": 0, \"scene_caption_kr\": \"짧은 한국어 장면 설명 (~해요 체)\", \"key_objects\": [\"starfish\", \"sandy floor\"], \"svg\": \"<svg ...>...</svg>\" } ] }."
+              "You are a children's picture-book art director. For each storybook page, write a rich visual prompt for an image generation model so young students can understand every English word on the page visually. " +
+              "Include EVERY concrete noun, animal, character, and setting on that page (e.g., starfish, sandy floor, baby blue whale, coral reef, sea turtle, treasure chest, puppy, bunny, tree, baby owl with yellow backpack, schoolhouse). " +
+              "Specify: 'Warm Pixar-style 3D painterly children's picture-book illustration, soft sunlit colors, wide horizontal spread composition, friendly expressive characters, NO text or letters anywhere in the image.' " +
+              "Return ONLY JSON: { \"pages\": [ { \"page_index\": 0, \"scene_caption_kr\": \"짧은 한국어 장면 설명 (~해요 체)\", \"key_objects\": [\"starfish\", \"sandy floor\"], \"image_prompt\": \"...\" } ] }."
           },
           {
             role: "user",
@@ -937,27 +935,80 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
       })
     });
 
-    if (!resp.ok) throw new Error(`OpenAI SVG HTTP ${resp.status}`);
+    if (!resp.ok) throw new Error(`OpenAI Scene Prompt HTTP ${resp.status}`);
     const data = await resp.json();
     const parsed = JSON.parse(data?.choices?.[0]?.message?.content || "{}");
     const llmPages = Array.isArray(parsed.pages) ? parsed.pages : [];
 
-    return pages.map((p) => {
+    const results = [];
+    for (const p of pages) {
       const match = llmPages.find((lp) => Number(lp.page_index) === p.page_index) || llmPages[p.page_index];
-      const cleanSvg = sanitizeSvg(match?.svg);
-      return {
+      const visualPrompt =
+        String(match?.image_prompt || "").trim() ||
+        `Warm Pixar-style 3D painterly children's picture-book illustration for: "${p.text}". Friendly expressive characters, soft sunlit colors, wide horizontal spread, NO text or letters in the image.`;
+
+      let imageUrl = "";
+      try {
+        let imgRes = await fetch("https://api.openai.com/v1/images/generations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${openaiKey}`
+          },
+          body: JSON.stringify({
+            model: process.env.OPENAI_IMAGE_MODEL || "gpt-image-1",
+            prompt: visualPrompt,
+            size: "1536x1024",
+            quality: process.env.OPENAI_IMAGE_QUALITY || "low",
+            output_format: "jpeg",
+            output_compression: 75
+          })
+        });
+
+        if (!imgRes.ok) {
+          imgRes = await fetch("https://api.openai.com/v1/images/generations", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${openaiKey}`
+            },
+            body: JSON.stringify({
+              model: "dall-e-3",
+              prompt: visualPrompt,
+              size: "1792x1024",
+              quality: "standard",
+              response_format: "b64_json"
+            })
+          });
+        }
+
+        if (imgRes.ok) {
+          const imgData = await imgRes.json();
+          const b64 = imgData?.data?.[0]?.b64_json || "";
+          if (b64) {
+            imageUrl = `data:image/jpeg;base64,${b64}`;
+          }
+        }
+      } catch (imgErr) {
+        console.warn(`⚠️ [BADA IMG] Page ${p.page_index} 이미지 생성 실패:`, imgErr.message);
+      }
+
+      results.push({
         page_index: p.page_index,
         scene_caption_kr: String(match?.scene_caption_kr || "이야기 장면 그림"),
         key_objects: Array.isArray(match?.key_objects) ? match.key_objects.slice(0, 5) : [],
-        svg: cleanSvg || buildFallbackPageIllustrationSvg(p.text)
-      };
-    });
+        image_url: imageUrl,
+        svg: imageUrl ? "" : buildFallbackPageIllustrationSvg(p.text)
+      });
+    }
+    return results;
   } catch (err) {
-    console.warn("⚠️ [BADA SVG] 페이지 일러스트 생성 실패 ➔ 기본 일러스트 전환:", err.message);
+    console.warn("⚠️ [BADA IMG] 페이지 일러스트 생성 실패 ➔ 기본 일러스트 전환:", err.message);
     return pages.map((p) => ({
       page_index: p.page_index,
       scene_caption_kr: "이야기 장면 그림",
       key_objects: [],
+      image_url: "",
       svg: buildFallbackPageIllustrationSvg(p.text)
     }));
   }

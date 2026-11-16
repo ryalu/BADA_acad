@@ -80,7 +80,8 @@ export interface PageIllustration {
   page_index: number;
   scene_caption_kr?: string;
   key_objects?: string[];
-  svg: string;
+  image_url?: string;
+  svg?: string;
 }
 
 export interface Book {

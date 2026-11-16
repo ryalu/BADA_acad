@@ -1261,7 +1261,8 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
       );
       const src = existingRes.rows[0]?.extraction_source || "";
       const existingIllus = parseJsonField(existingRes.rows[0]?.page_illustrations_json, []);
-      if (!force && src.startsWith("EXTERNAL_LLM_") && existingIllus.length > 0) {
+      const hasGeneratedImage = existingIllus.length > 0 && Boolean(existingIllus[0]?.image_url);
+      if (!force && src.startsWith("EXTERNAL_LLM_") && hasGeneratedImage) {
         skipped += 1;
         continue;
       }
@@ -1314,7 +1315,8 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
       .get(tHash);
     const src = existing?.extraction_source || "";
     const existingIllus = parseJsonField(existing?.page_illustrations_json, []);
-    if (!force && src.startsWith("EXTERNAL_LLM_") && existingIllus.length > 0) {
+    const hasGeneratedImage = existingIllus.length > 0 && Boolean(existingIllus[0]?.image_url);
+    if (!force && src.startsWith("EXTERNAL_LLM_") && hasGeneratedImage) {
       skipped += 1;
       continue;
     }

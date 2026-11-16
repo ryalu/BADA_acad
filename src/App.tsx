@@ -230,8 +230,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-transparent flex flex-col">
       <OceanBackdrop />
-      {/* Compact Student Header */}
-      <header className="bg-[#fbf8f2]/80 backdrop-blur-md border-b border-[#e8dfd1] px-4 md:px-8 py-2.5 sticky top-0 z-40">
+      {/* Compact Student Header (shown on Home Map; hidden on Learn & Curriculum for larger workspace) */}
+      {studentPage === "home" && (
+        <header className="bg-[#fbf8f2]/80 backdrop-blur-md border-b border-[#e8dfd1] px-4 md:px-8 py-2.5 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div
             onClick={() => navigate("/student")}
@@ -256,11 +257,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => navigate("/student")}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition ${
-                studentPage === "home"
-                  ? "bg-sky-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
-              }`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition bg-sky-600 text-white shadow-xs"
             >
               <MapIcon className="w-3.5 h-3.5" />
               학습 맵
@@ -271,11 +268,7 @@ export default function App() {
                 setLearnStep(1);
                 navigate("/student/learn");
               }}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition ${
-                studentPage === "learn"
-                  ? "bg-sky-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
-              }`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
             >
               <BookOpen className="w-3.5 h-3.5" />
               오늘의 원서 읽기
@@ -286,11 +279,7 @@ export default function App() {
                 setCurrSubview("hub");
                 navigate("/student/curriculum");
               }}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition ${
-                studentPage === "curriculum"
-                  ? "bg-sky-600 text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
-              }`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
             >
               <Sparkles className="w-3.5 h-3.5" />
               맞춤 훈련소
@@ -323,6 +312,7 @@ export default function App() {
           </div>
         </div>
       </header>
+      )}
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-6 py-4">
