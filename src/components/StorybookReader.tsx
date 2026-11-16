@@ -827,61 +827,42 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
         </div>
       )}
 
-      {/* Open Picture-Book Spread (No black border · 2/3 Illustration + 1/3 Story Text) */}
-      <div className="book-stage relative flex-1 min-h-0 rounded-2xl shadow-[0_18px_44px_-12px_rgba(92,74,48,0.22)] border border-[#e5dcc9] bg-[#fdfaf2] overflow-hidden flex flex-col">
-        {/* TOP 2/3: Uncropped Full-Spread Picture-Book Illustration */}
-        {illustrationImageUrl && (
-          <div className="relative flex-[2.2] min-h-[260px] w-full overflow-hidden border-b border-[#e8dfd1] bg-[#f7f2e7] flex items-center justify-center">
+      {/* Open Picture-Book Spread: Left (Full-Height Illustration) | Spine | Right (English + Korean right below) */}
+      <div className="book-stage relative flex-1 min-h-0 rounded-2xl shadow-[0_18px_44px_-12px_rgba(92,74,48,0.22)] border border-[#e5dcc9] bg-[#fdfaf2] overflow-hidden grid grid-cols-1 md:grid-cols-[8px_1.08fr_6px_1fr_8px]">
+        {/* Left Stacked Paper Thickness */}
+        <div className="hidden md:block book-edges-left border-r border-[#e5dcc9]" />
+
+        {/* LEFT PAGE: Full-Height Picture-Book Illustration */}
+        <div className="relative bg-[#f7f2e7] book-gutter-left flex items-center justify-center overflow-hidden min-h-[240px]">
+          {illustrationImageUrl ? (
             <img
               src={illustrationImageUrl}
               alt={currentIllustration?.scene_caption_kr || book.title}
               className="w-full h-full object-contain"
             />
-            {/* Minimal floating corner pills (0px extra header height) */}
-            {onBackHome && (
-              <button
-                type="button"
-                onClick={() => {
-                  stopVoiceSession();
-                  onBackHome();
-                }}
-                className="absolute top-2.5 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/85 hover:bg-white text-slate-700 text-[11px] font-bold shadow-xs backdrop-blur-xs transition"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                항해 맵
-              </button>
-            )}
-            <div className="absolute top-2.5 right-3 flex items-center gap-1.5">
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/85 backdrop-blur-xs shadow-xs">
-                <span className="text-[11px] font-bold text-amber-900">{weekNum}주차 {completedRepeats}/5</span>
-                {Array.from({ length: 5 }).map((_, idx) => (
-                  <img
-                    key={idx}
-                    src="/assets/pearl-badge-3d.jpg"
-                    alt={`${idx + 1}회차`}
-                    className={`w-3.5 h-3.5 rounded-full object-cover ${
-                      idx < completedRepeats ? "opacity-100 ring-1 ring-cyan-400" : "opacity-30 grayscale"
-                    }`}
-                  />
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  stopVoiceSession();
-                  speakEnglish(book.full_text, weekNum <= 2 ? 0.78 : 0.9, 1.04);
-                }}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/85 hover:bg-white text-slate-700 text-[11px] font-bold shadow-xs backdrop-blur-xs transition"
-              >
-                <Volume2 className="w-3.5 h-3.5 text-sky-700" />
-                전체 듣기
-              </button>
-            </div>
-            {/* Subtle vertical spine fold shadow across the double-page illustration */}
-            <div className="hidden md:block pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 w-8 bg-gradient-to-r from-transparent via-stone-900/14 to-transparent" />
+          ) : (
+            <div className="text-xs text-stone-400">그림을 준비하고 있어요</div>
+          )}
 
-            {/* Subtle visual word tags & caption overlay */}
-            <div className="absolute inset-x-0 bottom-0 px-4 py-2 bg-gradient-to-t from-slate-950/55 via-slate-950/20 to-transparent flex flex-wrap items-center justify-between gap-2">
+          {/* Minimal floating back button */}
+          {onBackHome && (
+            <button
+              type="button"
+              onClick={() => {
+                stopVoiceSession();
+                onBackHome();
+              }}
+              className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/85 hover:bg-white text-slate-700 text-[11px] font-bold shadow-xs backdrop-blur-xs transition"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              항해 맵
+            </button>
+          )}
+
+          {/* Subtle visual word tags & caption overlay */}
+          {(currentIllustration?.scene_caption_kr ||
+            (currentIllustration?.key_objects && currentIllustration.key_objects.length > 0)) && (
+            <div className="absolute inset-x-0 bottom-0 px-4 py-2.5 bg-gradient-to-t from-slate-950/60 via-slate-950/20 to-transparent flex flex-wrap items-center justify-between gap-2">
               {currentIllustration?.scene_caption_kr ? (
                 <span className="text-xs font-semibold text-white drop-shadow">
                   {currentIllustration.scene_caption_kr}
@@ -902,188 +883,162 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
                 </div>
               )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* BOTTOM 1/3: Left (English Text) | Spine | Right (Korean Translation) */}
-        <div className="relative flex-1 min-h-[180px] grid grid-cols-1 md:grid-cols-[8px_1fr_4px_1fr_8px] overflow-hidden">
-          {/* Left Stacked Paper Thickness */}
-          <div className="hidden md:block book-edges-left border-r border-[#e5dcc9]" />
+        {/* REALISTIC CENTER BOOK SPINE CREASE */}
+        <div className="hidden md:block bg-gradient-to-r from-[#d2c8b4] via-[#9e937e] to-[#d2c8b4]" />
 
-          {/* LEFT PAGE: English Original Text */}
-          <div className="bg-[#fdfaf2] book-gutter-left px-5 py-3.5 md:px-7 md:py-4 flex flex-col justify-between overflow-y-auto">
-            <div className="flex items-center justify-between pb-1.5 border-b border-[#ece4d3]">
-              <span className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">
-                English · p. {pageIdx * 2 + 1}
-              </span>
-              <span className="text-[11px] text-stone-400">단어에 마우스를 올리면 뜻이 보입니다</span>
-            </div>
-
-            <div className="my-auto py-2 space-y-2.5">
-              {currentSpread.sentences.map((s) => {
-                const isActSent = s.sentenceIndex === sentenceIdx;
-                const isDoneSent = completedSentences.has(s.sentenceIndex);
-                const words = s.en.split(/\s+/).filter(Boolean);
-                const sChunks = weekNum === 2 ? getSentenceChunksForWeek2(s.en, book) : [];
-                const chunkEnds = new Set(sChunks.slice(0, -1).map((c) => c.endWordIdx));
-
-                return (
-                  <div
-                    key={s.sentenceIndex}
-                    onClick={() => {
-                      stopVoiceSession();
-                      setSentenceIdx(s.sentenceIndex);
-                      setWordIdx(0);
-                      setChunkIdx(0);
-                    }}
-                    className={`pl-3.5 py-1.5 border-l-2 transition cursor-pointer ${
-                      isActSent
-                        ? "border-sky-600 bg-amber-50/45 rounded-r-lg"
-                        : isDoneSent
-                        ? "border-emerald-400/70 text-slate-600"
-                        : "border-transparent hover:border-stone-300"
+        {/* RIGHT PAGE: English Sentences with Korean Translation directly beneath each sentence */}
+        <div className="bg-[#fdfaf2] book-gutter-right px-5 py-4 md:px-7 md:py-5 flex flex-col justify-between overflow-y-auto">
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#ece4d3]">
+            <span className="text-[11px] text-stone-400">단어에 마우스를 올리면 뜻이 보입니다</span>
+            <div className="flex items-center gap-1.5">
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#f4efe5]">
+                <span className="text-[11px] font-bold text-amber-900">{weekNum}주차 {completedRepeats}/5</span>
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <img
+                    key={idx}
+                    src="/assets/pearl-badge-3d.jpg"
+                    alt={`${idx + 1}회차`}
+                    className={`w-3.5 h-3.5 rounded-full object-cover ${
+                      idx < completedRepeats ? "opacity-100 ring-1 ring-cyan-400" : "opacity-30 grayscale"
                     }`}
-                  >
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span
-                        className={`inline-flex items-center gap-1 text-[11px] font-bold ${
-                          isDoneSent
-                            ? "text-emerald-700"
-                            : isActSent
-                            ? "text-sky-700"
-                            : "text-stone-400"
-                        }`}
-                      >
-                        {isDoneSent && <Check className="w-3 h-3" />}
-                        {s.sentenceIndex + 1}문장
-                      </span>
-                    </div>
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  stopVoiceSession();
+                  speakEnglish(book.full_text, weekNum <= 2 ? 0.78 : 0.9, 1.04);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700 text-[11px] font-bold transition"
+              >
+                <Volume2 className="w-3.5 h-3.5 text-sky-700" />
+                전체 듣기
+              </button>
+            </div>
+          </div>
 
-                    <p className="book-serif text-xl md:text-[22px] font-semibold text-slate-800 leading-[2.15]">
-                      {words.map((tok, wIdx) => {
-                        const info = lookupWordMeaning(tok, book);
-                        const wKey = `${s.sentenceIndex}-${wIdx}`;
-                        const isAutoActiveWord = weekNum === 1 && isActSent && wIdx === safeWordIdx;
-                        const isDoneWord = weekNum === 1 && isActSent && wIdx < safeWordIdx;
-                        const isChunkActive =
-                          weekNum === 2 &&
-                          isActSent &&
-                          activeChunk &&
-                          wIdx >= activeChunk.startWordIdx &&
-                          wIdx <= activeChunk.endWordIdx;
-                        const isPinned = pinnedWordKey === wKey || isAutoActiveWord;
+          <div className="my-auto py-3 space-y-5 divide-y divide-[#ece4d3]/80">
+            {currentSpread.sentences.map((s) => {
+              const isActSent = s.sentenceIndex === sentenceIdx;
+              const isDoneSent = completedSentences.has(s.sentenceIndex);
+              const words = s.en.split(/\s+/).filter(Boolean);
+              const sChunks = weekNum === 2 ? getSentenceChunksForWeek2(s.en, book) : [];
+              const chunkEnds = new Set(sChunks.slice(0, -1).map((c) => c.endWordIdx));
 
-                        return (
-                          <React.Fragment key={wKey}>
-                            <span
-                              tabIndex={0}
-                              onMouseEnter={() =>
-                                setHoveredWordInfo({
-                                  word: info.word,
-                                  kr: info.kr,
-                                  phonetic: info.phonetic,
-                                  nextWord: words[wIdx + 1] || ""
-                                })
+              return (
+                <div
+                  key={s.sentenceIndex}
+                  onClick={() => {
+                    stopVoiceSession();
+                    setSentenceIdx(s.sentenceIndex);
+                    setWordIdx(0);
+                    setChunkIdx(0);
+                  }}
+                  className={`pt-4 first:pt-0 pl-3.5 py-1.5 border-l-2 transition cursor-pointer ${
+                    isActSent
+                      ? "border-sky-600 bg-amber-50/45 rounded-r-lg"
+                      : isDoneSent
+                      ? "border-emerald-400/70 text-slate-600"
+                      : "border-transparent hover:border-stone-300"
+                  }`}
+                >
+                  <p className="book-serif text-xl md:text-[23px] font-semibold text-slate-800 leading-[2.05]">
+                    {words.map((tok, wIdx) => {
+                      const info = lookupWordMeaning(tok, book);
+                      const wKey = `${s.sentenceIndex}-${wIdx}`;
+                      const isAutoActiveWord = weekNum === 1 && isActSent && wIdx === safeWordIdx;
+                      const isDoneWord = weekNum === 1 && isActSent && wIdx < safeWordIdx;
+                      const isChunkActive =
+                        weekNum === 2 &&
+                        isActSent &&
+                        activeChunk &&
+                        wIdx >= activeChunk.startWordIdx &&
+                        wIdx <= activeChunk.endWordIdx;
+                      const isPinned = pinnedWordKey === wKey || isAutoActiveWord;
+
+                      return (
+                        <React.Fragment key={wKey}>
+                          <span
+                            tabIndex={0}
+                            onMouseEnter={() =>
+                              setHoveredWordInfo({
+                                word: info.word,
+                                kr: info.kr,
+                                phonetic: info.phonetic,
+                                nextWord: words[wIdx + 1] || ""
+                              })
+                            }
+                            onMouseLeave={() => setHoveredWordInfo(null)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              stopVoiceSession();
+                              setSentenceIdx(s.sentenceIndex);
+                              if (weekNum === 1) {
+                                setWordIdx(wIdx);
+                                speakEnglish(info.word, 0.72, 1.04, null, words[wIdx + 1] || "");
+                              } else {
+                                setPinnedWordKey(pinnedWordKey === wKey ? null : wKey);
+                                speakEnglish(info.word, 0.86, 1.04, null, words[wIdx + 1] || "");
                               }
-                              onMouseLeave={() => setHoveredWordInfo(null)}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                stopVoiceSession();
-                                setSentenceIdx(s.sentenceIndex);
-                                if (weekNum === 1) {
-                                  setWordIdx(wIdx);
-                                  speakEnglish(info.word, 0.72, 1.04, null, words[wIdx + 1] || "");
-                                } else {
-                                  setPinnedWordKey(pinnedWordKey === wKey ? null : wKey);
-                                  speakEnglish(info.word, 0.86, 1.04, null, words[wIdx + 1] || "");
-                                }
-                              }}
-                              className={`group relative inline-block px-1 py-0.5 mx-0.5 rounded-lg border-b-2 transition cursor-pointer ${
-                                isAutoActiveWord
-                                  ? "bg-amber-100 border-amber-500 text-slate-900 scale-105 z-20"
-                                  : isChunkActive
-                                  ? "bg-sky-100 border-sky-600 text-sky-950"
-                                  : isDoneWord
-                                  ? "text-teal-700 border-emerald-400"
-                                  : info.isCore
-                                  ? "bg-sky-50/80 border-sky-400 text-slate-900 hover:bg-amber-100"
-                                  : "border-dotted border-stone-300 hover:bg-amber-100"
+                            }}
+                            className={`group relative inline-block px-1 py-0.5 mx-0.5 rounded-lg border-b-2 transition cursor-pointer ${
+                              isAutoActiveWord
+                                ? "bg-amber-100 border-amber-500 text-slate-900 scale-105 z-20"
+                                : isChunkActive
+                                ? "bg-sky-100 border-sky-600 text-sky-950"
+                                : isDoneWord
+                                ? "text-teal-700 border-emerald-400"
+                                : info.isCore
+                                ? "bg-sky-50/80 border-sky-400 text-slate-900 hover:bg-amber-100"
+                                : "border-dotted border-stone-300 hover:bg-amber-100"
+                            }`}
+                          >
+                            {tok}
+                            <span
+                              className={`pointer-events-none font-sans absolute left-1/2 -translate-x-1/2 bottom-[calc(100%+8px)] whitespace-nowrap bg-slate-900 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-lg z-30 transition-opacity ${
+                                isPinned
+                                  ? "opacity-100"
+                                  : "opacity-0 group-hover:opacity-100 group-focus:opacity-100"
                               }`}
                             >
-                              {tok}
-                              <span
-                                className={`pointer-events-none font-sans absolute left-1/2 -translate-x-1/2 bottom-[calc(100%+8px)] whitespace-nowrap bg-slate-900 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-lg z-30 transition-opacity ${
-                                  isPinned
-                                    ? "opacity-100"
-                                    : "opacity-0 group-hover:opacity-100 group-focus:opacity-100"
-                                }`}
-                              >
-                                <span className="text-amber-300 font-bold">{info.kr}</span>
-                                {info.phonetic && (
-                                  <span className="text-slate-300 ml-1.5 font-normal">{info.phonetic}</span>
-                                )}
-                              </span>
-                            </span>{" "}
-                            {weekNum === 2 && wIdx < words.length - 1 && chunkEnds.has(wIdx) && (
-                              <span className="font-sans inline-block mx-1 px-1.5 py-0.5 text-xs font-bold rounded bg-stone-100 text-sky-700 border border-stone-200 align-middle">
-                                /
-                              </span>
-                            )}
-                          </React.Fragment>
-                        );
-                      })}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
+                              <span className="text-amber-300 font-bold">{info.kr}</span>
+                              {info.phonetic && (
+                                <span className="text-slate-300 ml-1.5 font-normal">{info.phonetic}</span>
+                              )}
+                            </span>
+                          </span>{" "}
+                          {weekNum === 2 && wIdx < words.length - 1 && chunkEnds.has(wIdx) && (
+                            <span className="font-sans inline-block mx-1 px-1.5 py-0.5 text-xs font-bold rounded bg-stone-100 text-sky-700 border border-stone-200 align-middle">
+                              /
+                            </span>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </p>
 
-            <div className="flex items-center justify-between text-xs text-stone-400 pt-2 border-t border-[#ece4d3]">
-              <span>p. {pageIdx * 2 + 1}</span>
-              <span className="book-serif italic">{book.title}</span>
-            </div>
-          </div>
-
-          {/* REALISTIC CENTER BOOK SPINE CREASE */}
-          <div className="hidden md:block bg-gradient-to-r from-[#d2c8b4] via-[#9e937e] to-[#d2c8b4]" />
-
-          {/* RIGHT PAGE: Korean Translation & Word/Chunk Bar */}
-          <div className="bg-[#faf6ea] book-gutter-right px-5 py-3.5 md:px-7 md:py-4 flex flex-col justify-between border-t md:border-t-0 border-[#e5dfd2] overflow-y-auto">
-            <div className="flex items-center justify-between pb-1.5 border-b border-[#ece4d3]">
-              <span className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">
-                우리말 해석 · p. {pageIdx * 2 + 2}
-              </span>
-            </div>
-
-            <div className="my-auto py-2 space-y-2.5 divide-y divide-[#ece4d3]/80">
-              {currentSpread.sentences.map((s) => {
-                const isActSent = s.sentenceIndex === sentenceIdx;
-                return (
-                  <div
-                    key={s.sentenceIndex}
-                    className={`pt-3 first:pt-0 pl-3.5 border-l-2 transition ${
-                      isActSent ? "border-amber-500" : "border-transparent text-slate-500"
+                  {/* Korean translation directly beneath each English sentence (no sentence index label) */}
+                  <p
+                    className={`mt-2 text-sm md:text-base leading-relaxed ${
+                      isActSent ? "font-bold text-slate-700" : "font-medium text-slate-500"
                     }`}
                   >
-                    <div className="text-[11px] font-bold text-stone-400 mb-1">
-                      {s.sentenceIndex + 1}번 문장 뜻
+                    {s.kr}
+                  </p>
+
+                  {weekNum === 2 && isActSent && activeChunk && (
+                    <div className="mt-1 text-xs font-semibold text-sky-700">
+                      현재 구: "{activeChunk.text}" → {activeChunk.meaning_kr}
                     </div>
-                    <p
-                      className={`text-base md:text-lg leading-relaxed ${
-                        isActSent ? "font-bold text-slate-800" : "font-medium text-slate-500"
-                      }`}
-                    >
-                      {s.kr}
-                    </p>
-                    {weekNum === 2 && isActSent && activeChunk && (
-                      <div className="mt-1.5 text-xs font-semibold text-sky-700">
-                        현재 구: "{activeChunk.text}" → {activeChunk.meaning_kr}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
             {/* Active Word/Chunk Quick Meaning & Sound Bar (clean hairline, no heavy box) */}
             <div className="pt-2.5 border-t border-[#e5dcc9] flex items-center justify-between gap-3">
@@ -1117,7 +1072,6 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
           {/* Right Stacked Paper Thickness */}
           <div className="hidden md:block book-edges-right border-l border-[#e5dcc9]" />
-        </div>
 
         {/* 3D Turning Paper Leaf Overlay ("샤락" page flip across full picture-book spread) */}
         {flipLeaf && (
