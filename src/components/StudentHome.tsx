@@ -1,8 +1,47 @@
 import React, { useEffect, useState } from "react";
-import { ArrowRight, BookOpen, CheckCircle2, Lock, Sparkles, X } from "lucide-react";
+import { ArrowRight, BookOpen, Lock, Sparkles, X } from "lucide-react";
 import type { Book, StudentUser } from "../types";
 import { getStudentCurrentWeek } from "../utils/bookHelpers";
 import { BookCover } from "./BookCover";
+
+const TREASURE_STAGES = [
+  {
+    week: 1,
+    name: "산호초 얕은 바다",
+    img: "/assets/stage-coral-3d.jpg",
+    xPct: 13,
+    yPct: 28,
+    popoLeft: "13%",
+    popoTop: "14%"
+  },
+  {
+    week: 2,
+    name: "반짝이는 해류 길",
+    img: "/assets/stage-current-3d.jpg",
+    xPct: 38,
+    yPct: 72,
+    popoLeft: "38%",
+    popoTop: "56%"
+  },
+  {
+    week: 3,
+    name: "포포의 비밀 동굴",
+    img: "/assets/stage-cave-3d.jpg",
+    xPct: 63,
+    yPct: 28,
+    popoLeft: "63%",
+    popoTop: "14%"
+  },
+  {
+    week: 4,
+    name: "진주 보물섬",
+    img: "/assets/stage-island-3d.jpg",
+    xPct: 87,
+    yPct: 72,
+    popoLeft: "87%",
+    popoTop: "56%"
+  }
+];
 
 interface StudentHomeProps {
   user: StudentUser;
@@ -317,42 +356,49 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              {/* 4-Stage Ocean Path with Swimming Popo */}
-              <div className="relative rounded-2xl bg-gradient-to-b from-sky-100/75 via-cyan-50/75 to-sky-100/60 border border-sky-200/80 p-5 overflow-hidden">
-                {/* Swimming Popo gliding across the 4 islands */}
-                <div className="relative h-16 mb-3">
-                  <div className="absolute inset-x-6 top-1/2 -translate-y-1/2 h-1.5 rounded-full bg-white/80 border border-sky-200/70 overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-sky-400 to-cyan-500 transition-all duration-700 ease-out"
-                      style={{ width: `${Math.min(100, Math.round((animPearls / 12) * 100))}%` }}
-                    />
-                  </div>
-
-                  <div
-                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-all duration-700 ease-out z-10"
-                    style={{
-                      left:
-                        animPearls === 0
-                          ? "10%"
-                          : `${Math.min(89, 12 + popoStageIdx * 25.5)}%`
-                    }}
+            <div className="p-5 md:p-6 space-y-5">
+              {/* Zigzag Winding Ocean Voyage Map with 4 3D Stage Images & Swimming Popo */}
+              <div className="relative rounded-2xl bg-gradient-to-b from-sky-100/80 via-cyan-50/85 to-sky-100/75 border border-sky-200/80 p-4 overflow-hidden">
+                {/* Desktop / Tablet Zigzag Curved Path Container */}
+                <div className="relative h-[265px] w-full hidden sm:block">
+                  {/* Winding S-Curve Path wrapping around the 4 zigzag locations */}
+                  <svg
+                    viewBox="0 0 800 265"
+                    preserveAspectRatio="none"
+                    className="absolute inset-0 w-full h-full pointer-events-none"
                   >
-                    <div className="animate-popo-swim relative">
-                      <img
-                        src="/assets/popo-3d.jpg"
-                        alt="헤엄치는 포포"
-                        className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-md ring-2 ring-sky-300/70"
-                      />
-                      <span className="animate-bubble-1 absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-white/85 border border-sky-300" />
-                      <span className="animate-bubble-2 absolute top-1 -right-3 w-2 h-2 rounded-full bg-white/75 border border-sky-200" />
-                    </div>
-                  </div>
-                </div>
+                    <defs>
+                      <linearGradient id="voyageGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#38bdf8" />
+                        <stop offset="50%" stopColor="#06b6d4" />
+                        <stop offset="100%" stopColor="#0284c7" />
+                      </linearGradient>
+                    </defs>
+                    {/* Soft background wave trail */}
+                    <path
+                      d="M 40 120 C 70 30, 145 30, 195 130 C 245 230, 355 230, 405 130 C 455 30, 555 30, 605 130 C 655 230, 730 220, 765 155"
+                      fill="none"
+                      stroke="rgba(14, 165, 233, 0.24)"
+                      strokeWidth="6"
+                      strokeLinecap="round"
+                      strokeDasharray="10 10"
+                    />
+                    {/* Animated glowing progress path */}
+                    <path
+                      d="M 40 120 C 70 30, 145 30, 195 130 C 245 230, 355 230, 405 130 C 455 30, 555 30, 605 130 C 655 230, 730 220, 765 155"
+                      fill="none"
+                      stroke="url(#voyageGrad)"
+                      strokeWidth="6"
+                      strokeLinecap="round"
+                      pathLength={100}
+                      strokeDasharray="100"
+                      strokeDashoffset={100 - Math.min(100, Math.round((animPearls / 12) * 100))}
+                      style={{ transition: "stroke-dashoffset 0.7s ease-out" }}
+                    />
+                  </svg>
 
-                {/* 4 Island Checkpoints */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {WEEK_ITEMS.map((stage, idx) => {
+                  {/* 4 Zigzag 3D Stage Islands with 3 Pearls Attached to Each */}
+                  {TREASURE_STAGES.map((stage, idx) => {
                     const stageStart = idx * 3;
                     const stageFilled = Math.max(0, Math.min(3, animPearls - stageStart));
                     const isStageReached = animPearls > stageStart;
@@ -360,34 +406,105 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                     return (
                       <div
                         key={stage.week}
-                        className={`rounded-xl p-3 border transition-all duration-500 ${isStageComplete
-                          ? "bg-white/95 border-cyan-400 shadow-xs"
-                          : isStageReached
-                            ? "surface-water-glass"
-                            : "bg-white/55 border-sky-200/60 opacity-75"
-                          }`}
+                        className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10"
+                        style={{ left: `${stage.xPct}%`, top: `${stage.yPct}%` }}
                       >
-                        <div className="text-[11px] font-bold text-sky-800">
-                          {stage.week}주차 탐험
+                        <div className="relative">
+                          <img
+                            src={stage.img}
+                            alt={stage.name}
+                            className={`w-20 h-20 rounded-full object-cover border-[3px] shadow-md transition-all duration-500 ${
+                              isStageComplete
+                                ? "border-cyan-400 ring-4 ring-cyan-200/70 scale-105"
+                                : isStageReached
+                                ? "border-sky-300 ring-2 ring-sky-200/60"
+                                : "border-white/80 opacity-80 grayscale-[25%]"
+                            }`}
+                          />
+                          {/* 3 Pearls attached along the bottom rim of each location */}
+                          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white/90 backdrop-blur-xs px-1.5 py-0.5 rounded-full border border-sky-200 shadow-xs">
+                            {[0, 1, 2].map((dot) => (
+                              <img
+                                key={dot}
+                                src="/assets/pearl-badge-3d.jpg"
+                                alt="진주"
+                                className={`w-4 h-4 rounded-full object-cover transition-all duration-300 ${
+                                  dot < stageFilled
+                                    ? "scale-110 opacity-100 ring-1 ring-cyan-400"
+                                    : "scale-90 opacity-25 grayscale"
+                                }`}
+                              />
+                            ))}
+                          </div>
                         </div>
-                        <div className="text-xs font-bold text-slate-900 mt-0.5">
-                          {stage.island}
+                        <span className="mt-3 px-2.5 py-0.5 rounded-full bg-white/90 border border-sky-200/80 text-[11px] font-bold text-slate-800 whitespace-nowrap shadow-xs">
+                          {stage.name}
+                        </span>
+                      </div>
+                    );
+                  })}
+
+                  {/* Swimming Popo Gliding Up & Down Along the Zigzag Path */}
+                  <div
+                    className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-700 ease-in-out z-20 pointer-events-none"
+                    style={{
+                      left: animPearls === 0 ? "6%" : TREASURE_STAGES[popoStageIdx].popoLeft,
+                      top: animPearls === 0 ? "44%" : TREASURE_STAGES[popoStageIdx].popoTop
+                    }}
+                  >
+                    <div className="animate-popo-swim relative">
+                      <img
+                        src="/assets/popo-3d.jpg"
+                        alt="헤엄치는 포포"
+                        className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg ring-2 ring-cyan-300"
+                      />
+                      <span className="animate-bubble-1 absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-white/90 border border-sky-300" />
+                      <span className="animate-bubble-2 absolute top-1 -right-3 w-2 h-2 rounded-full bg-white/80 border border-sky-200" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile Fallback Zigzag Grid */}
+                <div className="grid grid-cols-2 gap-3 sm:hidden">
+                  {TREASURE_STAGES.map((stage, idx) => {
+                    const stageStart = idx * 3;
+                    const stageFilled = Math.max(0, Math.min(3, animPearls - stageStart));
+                    const isActive = animPearls > 0 && popoStageIdx === idx;
+                    return (
+                      <div
+                        key={stage.week}
+                        className={`rounded-xl p-2.5 border flex flex-col items-center text-center gap-1.5 ${
+                          idx % 2 === 1 ? "mt-4" : ""
+                        } ${
+                          isActive ? "surface-water-glass" : "bg-white/75 border-sky-200/70"
+                        }`}
+                      >
+                        <div className="relative">
+                          <img
+                            src={stage.img}
+                            alt={stage.name}
+                            className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"
+                          />
+                          {isActive && (
+                            <img
+                              src="/assets/popo-3d.jpg"
+                              alt="포포"
+                              className="animate-popo-swim w-8 h-8 rounded-full object-cover border-2 border-white shadow absolute -top-2 -right-2"
+                            />
+                          )}
                         </div>
-                        <div className="flex items-center gap-1 mt-2">
+                        <div className="text-[11px] font-bold text-slate-900">{stage.name}</div>
+                        <div className="flex items-center gap-1">
                           {[0, 1, 2].map((dot) => (
                             <img
                               key={dot}
                               src="/assets/pearl-badge-3d.jpg"
                               alt="진주"
-                              className={`w-4 h-4 rounded-full object-cover transition-all duration-300 ${dot < stageFilled
-                                ? "scale-105 opacity-100 ring-1 ring-cyan-400"
-                                : "scale-90 opacity-25 grayscale"
-                                }`}
+                              className={`w-3.5 h-3.5 rounded-full object-cover ${
+                                dot < stageFilled ? "opacity-100" : "opacity-25 grayscale"
+                              }`}
                             />
                           ))}
-                          <span className="ml-auto text-[10px] font-bold text-slate-500">
-                            {stageFilled}/3
-                          </span>
                         </div>
                       </div>
                     );
