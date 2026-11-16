@@ -277,7 +277,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
                   }}
                   className={`p-4 rounded-xl border text-left transition ${
                     idx === phonicsIdx
-                      ? "bg-sky-50 border-sky-600"
+                      ? "surface-water-glass"
                       : isDone
                       ? "bg-emerald-50 border-emerald-300"
                       : "bg-white border-slate-200 hover:border-slate-300"

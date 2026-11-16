@@ -938,12 +938,12 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
                     setWordIdx(0);
                     setChunkIdx(0);
                   }}
-                  className={`pt-4 first:pt-0 pl-3.5 py-1.5 border-l-2 transition cursor-pointer ${
+                  className={`pt-4 first:pt-0 pl-3.5 py-2 transition cursor-pointer ${
                     isActSent
-                      ? "border-sky-600 bg-amber-50/45 rounded-r-lg"
+                      ? "surface-water-glass rounded-xl pr-3"
                       : isDoneSent
-                      ? "border-emerald-400/70 text-slate-600"
-                      : "border-transparent hover:border-stone-300"
+                      ? "border-l-2 border-emerald-400/70 text-slate-600"
+                      : "border-l-2 border-transparent hover:border-stone-300"
                   }`}
                 >
                   <p className="book-serif text-xl md:text-[23px] font-semibold text-slate-800 leading-[2.05]">

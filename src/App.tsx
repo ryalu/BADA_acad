@@ -152,7 +152,7 @@ export default function App() {
               setLoading(true);
               loadBootstrap();
             }}
-            className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold"
+            className="px-5 py-2.5 rounded-xl btn-water-glass text-sm font-bold"
           >
             다시 연결하기
           </button>
@@ -229,7 +229,7 @@ export default function App() {
         <button
           type="button"
           onClick={() => navigate("/")}
-          className="px-4 py-2 rounded-xl bg-sky-600 text-white text-sm font-bold"
+          className="px-4 py-2 rounded-xl btn-water-glass text-sm font-bold"
         >
           로그인 화면으로
         </button>
@@ -273,7 +273,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => navigate("/student")}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition bg-sky-600 text-white shadow-xs"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold btn-water-glass"
               >
                 <MapIcon className="w-3.5 h-3.5" />
                 학습 맵
@@ -378,7 +378,7 @@ export default function App() {
                           setLearnStep(1);
                         }}
                         className={`px-3 py-1 rounded-full text-xs font-bold transition ${currentWeek === wk
-                          ? "bg-sky-600 text-white shadow-xs"
+                          ? "btn-water-glass"
                           : "text-slate-600 hover:bg-[#f2ece1]"
                           }`}
                       >
@@ -399,9 +399,9 @@ export default function App() {
                       type="button"
                       onClick={() => setLearnStep(s.step)}
                       className={`px-3 py-1 rounded-lg text-xs font-bold transition ${learnStep === s.step
-                        ? "bg-sky-600 text-white"
+                        ? "btn-water-glass"
                         : learnStep > s.step
-                          ? "bg-sky-50 text-sky-700 border border-sky-200"
+                          ? "surface-water-glass text-sky-800"
                           : "bg-slate-100 text-slate-600"
                         }`}
                     >

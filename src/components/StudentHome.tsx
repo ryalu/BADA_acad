@@ -129,7 +129,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
           <button
             type="button"
             onClick={() => onStartWeek(activeWk)}
-            className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white font-bold text-sm transition shadow-sm"
+            className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full btn-water-glass font-bold text-sm"
           >
             {activeWk}주차 항해 시작
             <ArrowRight className="w-4 h-4" />
@@ -167,9 +167,9 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => e.key === "Enter" && onStartWeek(item.week)}
-                  className={`py-4 px-3 -mx-3 rounded-xl transition cursor-pointer flex items-center justify-between gap-4 ${
+                  className={`py-4 px-3.5 -mx-3 rounded-2xl transition cursor-pointer flex items-center justify-between gap-4 ${
                     isCurrent
-                      ? "bg-gradient-to-r from-cyan-50/90 to-transparent border-l-4 border-cyan-600 pl-4"
+                      ? "surface-water-glass"
                       : isLocked
                       ? "opacity-70 hover:opacity-100 hover:bg-[#f4efe5]"
                       : "hover:bg-[#f4efe5]"

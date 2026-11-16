@@ -147,8 +147,8 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
                         }}
                         className={`w-full text-left px-3 py-3 transition flex items-center justify-between gap-3 ${
                           isAct
-                            ? "bg-sky-50/80 border-l-4 border-sky-600 pl-3.5"
-                            : "hover:bg-[#f4efe5]/70"
+                            ? "surface-water-glass rounded-xl my-1 px-3.5"
+                            : "hover:bg-[#f4efe5]/70 rounded-xl"
                         }`}
                       >
                         <div>
