@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ArrowLeft, BookOpen, Compass, LogOut, Map as MapIcon, Sparkles } from "lucide-react";
+import { ArrowLeft, Compass, LogOut } from "lucide-react";
 import type { Book, PhonicsCurriculumTier, StudentUser, TeacherAccount } from "./types";
 import { getStudentCurrentWeek } from "./utils/bookHelpers";
 import { EntryPortal } from "./components/EntryPortal";
@@ -8,6 +8,7 @@ import { StorybookReader } from "./components/StorybookReader";
 import { FlashcardDeck } from "./components/FlashcardDeck";
 import { SpeakingStage } from "./components/SpeakingStage";
 import { CurriculumPlayground } from "./components/CurriculumPlayground";
+import { TreasureBookshelf } from "./components/TreasureBookshelf";
 import { TeacherDashboard, type TeacherTab } from "./components/TeacherDashboard";
 import { OceanBackdrop } from "./components/OceanBackdrop";
 
@@ -241,13 +242,15 @@ export default function App() {
     ? "learn"
     : route.includes("/curriculum")
       ? "curriculum"
-      : "home";
+      : route.includes("/treasure")
+        ? "treasure"
+        : "home";
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col">
       <OceanBackdrop />
-      {/* Compact Student Header (shown on Home Map; hidden on Learn & Curriculum for larger workspace) */}
-      {studentPage === "home" && (
+      {/* Compact Student Header (shown on Home Map & Treasure Bookshelf; hidden on Learn & Curriculum for larger workspace) */}
+      {(studentPage === "home" || studentPage === "treasure") && (
         <header className="bg-[#fbf8f2]/80 backdrop-blur-md border-b border-[#e8dfd1] px-4 md:px-8 py-2.5 sticky top-0 z-40">
           <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
             <div
@@ -273,9 +276,12 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => navigate("/student")}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold btn-water-glass"
+                className={`px-3.5 py-2 rounded-full text-xs font-bold transition ${
+                  studentPage === "home"
+                    ? "btn-water-glass"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
+                }`}
               >
-                <MapIcon className="w-3.5 h-3.5" />
                 학습 맵
               </button>
               <button
@@ -284,9 +290,8 @@ export default function App() {
                   setLearnStep(1);
                   navigate("/student/learn");
                 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
+                className="px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
               >
-                <BookOpen className="w-3.5 h-3.5" />
                 오늘의 원서 읽기
               </button>
               <button
@@ -295,10 +300,20 @@ export default function App() {
                   setCurrSubview("hub");
                   navigate("/student/curriculum");
                 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
+                className="px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
               >
-                <Sparkles className="w-3.5 h-3.5" />
                 맞춤 훈련소
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/student/treasure")}
+                className={`px-3.5 py-2 rounded-full text-xs font-bold transition ${
+                  studentPage === "treasure"
+                    ? "btn-water-glass"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
+                }`}
+              >
+                나의 보물창고
               </button>
             </nav>
 
@@ -463,6 +478,14 @@ export default function App() {
             phonicsCurriculum={phonicsCurriculum}
             initialSubview={currSubview}
             onBackHome={() => navigate("/student")}
+          />
+        )}
+
+        {studentPage === "treasure" && (
+          <TreasureBookshelf
+            user={currentUser}
+            books={books}
+            onGoToHome={() => navigate("/student")}
           />
         )}
       </main>

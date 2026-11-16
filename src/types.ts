@@ -18,6 +18,7 @@ export interface StudentUser {
   teacher_id?: string;
   classcard_level?: number;
   classcard_mode?: "both" | "phonics_only" | "book_only";
+  completed_books?: string[];
   progress_w1: number;
   progress_w2: number;
   progress_w3: number;

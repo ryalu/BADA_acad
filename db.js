@@ -538,6 +538,7 @@ function initSqliteDatabase() {
     "ALTER TABLE users ADD COLUMN teacher_id TEXT DEFAULT 'tch_director'",
     "ALTER TABLE users ADD COLUMN classcard_level INTEGER DEFAULT 2",
     "ALTER TABLE users ADD COLUMN classcard_mode TEXT DEFAULT 'both'",
+    "ALTER TABLE users ADD COLUMN completed_books_json TEXT DEFAULT '[]'",
     "ALTER TABLE vocab_chunks ADD COLUMN sentence_translations_json TEXT DEFAULT '[]'",
     "ALTER TABLE vocab_chunks ADD COLUMN speaking_questions_json TEXT DEFAULT '[]'",
     "ALTER TABLE vocab_chunks ADD COLUMN page_illustrations_json TEXT DEFAULT '[]'",
@@ -878,12 +879,18 @@ async function initPostgresPoolIfConfigured() {
 }
 
 function formatUserRow(u) {
+  const rawCompleted = parseJsonField(u.completed_books_json, []);
+  const completedSet = new Set(Array.isArray(rawCompleted) ? rawCompleted : []);
+  if (Number(u.progress_w4) >= 100 && u.current_book_id) {
+    completedSet.add(u.current_book_id);
+  }
   return {
     ...u,
     pin_code: u.pin_code || "1234",
     teacher_id: u.teacher_id || "tch_director",
     classcard_level: Number(u.classcard_level) || mapLevelToDefaultClasscard(u.level),
     classcard_mode: u.classcard_mode || "both",
+    completed_books: Array.from(completedSet),
     strengths: typeof u.strengths_json === "string" ? JSON.parse(u.strengths_json) : (u.strengths_json || []),
     weaknesses: typeof u.weaknesses_json === "string" ? JSON.parse(u.weaknesses_json) : (u.weaknesses_json || [])
   };
@@ -1187,16 +1194,27 @@ async function updateStudentAssignment(payload) {
     const w3 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w3, prev.progress_w3);
     const w4 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w4, prev.progress_w4);
 
+    const prevCompleted = parseJsonField(prev.completed_books_json, []);
+    const nextCompletedSet = new Set(Array.isArray(prevCompleted) ? prevCompleted : []);
+    if (Number(prev.progress_w4) >= 100 && prev.current_book_id) {
+      nextCompletedSet.add(prev.current_book_id);
+    }
+    if (w4 >= 100 && nextBookId) {
+      nextCompletedSet.add(nextBookId);
+    }
+
     await pgPool.query(
       `UPDATE users
        SET grade_label = $1, grade_group = $2, age = $3, level = $4, current_book_id = $5,
            pin_code = $6, teacher_id = $7, classcard_level = $8, classcard_mode = $9,
-           progress_w1 = $10, progress_w2 = $11, progress_w3 = $12, progress_w4 = $13
-       WHERE id = $14`,
+           progress_w1 = $10, progress_w2 = $11, progress_w3 = $12, progress_w4 = $13,
+           completed_books_json = $14::jsonb
+       WHERE id = $15`,
       [
         nextGradeLabel, grade_group, age, nextLevel, nextBookId,
         nextPin, nextTeacherId, nextClasscard, nextClasscardMode,
         w1, w2, w3, w4,
+        JSON.stringify(Array.from(nextCompletedSet)),
         userId
       ]
     );
@@ -1241,16 +1259,27 @@ async function updateStudentAssignment(payload) {
   const w3 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w3, prev.progress_w3);
   const w4 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w4, prev.progress_w4);
 
+  const prevCompleted = parseJsonField(prev.completed_books_json, []);
+  const nextCompletedSet = new Set(Array.isArray(prevCompleted) ? prevCompleted : []);
+  if (Number(prev.progress_w4) >= 100 && prev.current_book_id) {
+    nextCompletedSet.add(prev.current_book_id);
+  }
+  if (w4 >= 100 && nextBookId) {
+    nextCompletedSet.add(nextBookId);
+  }
+
   sqliteDb.prepare(`
     UPDATE users
     SET grade_label = ?, grade_group = ?, age = ?, level = ?, current_book_id = ?,
         pin_code = ?, teacher_id = ?, classcard_level = ?, classcard_mode = ?,
-        progress_w1 = ?, progress_w2 = ?, progress_w3 = ?, progress_w4 = ?
+        progress_w1 = ?, progress_w2 = ?, progress_w3 = ?, progress_w4 = ?,
+        completed_books_json = ?
     WHERE id = ?
   `).run(
     nextGradeLabel, grade_group, age, nextLevel, nextBookId,
     nextPin, nextTeacherId, nextClasscard, nextClasscardMode,
     w1, w2, w3, w4,
+    JSON.stringify(Array.from(nextCompletedSet)),
     userId
   );
 
@@ -1652,6 +1681,19 @@ async function updateUserProgress(userId, weekNumber, progressVal, audioUrl) {
       const audioCol = weekNumber === 1 ? "audio_w1_url" : "audio_w4_url";
       await pgPool.query(`UPDATE users SET ${audioCol} = $1 WHERE id = $2`, [audioUrl, userId]);
     }
+    if (weekNumber === 4 && safeProg >= 100) {
+      const uRes = await pgPool.query("SELECT current_book_id, completed_books_json FROM users WHERE id = $1", [userId]);
+      const cur = uRes.rows[0];
+      if (cur?.current_book_id) {
+        const list = parseJsonField(cur.completed_books_json, []);
+        const set = new Set(Array.isArray(list) ? list : []);
+        set.add(cur.current_book_id);
+        await pgPool.query("UPDATE users SET completed_books_json = $1::jsonb WHERE id = $2", [
+          JSON.stringify(Array.from(set)),
+          userId
+        ]);
+      }
+    }
     const { rows } = await pgPool.query("SELECT * FROM users WHERE id = $1", [userId]);
     return formatUserRow(rows[0]);
   }
@@ -1660,6 +1702,18 @@ async function updateUserProgress(userId, weekNumber, progressVal, audioUrl) {
   if (audioUrl && (weekNumber === 1 || weekNumber === 4)) {
     const audioCol = weekNumber === 1 ? "audio_w1_url" : "audio_w4_url";
     sqliteDb.prepare(`UPDATE users SET ${audioCol} = ? WHERE id = ?`).run(audioUrl, userId);
+  }
+  if (weekNumber === 4 && safeProg >= 100) {
+    const cur = sqliteDb.prepare("SELECT current_book_id, completed_books_json FROM users WHERE id = ?").get(userId);
+    if (cur?.current_book_id) {
+      const list = parseJsonField(cur.completed_books_json, []);
+      const set = new Set(Array.isArray(list) ? list : []);
+      set.add(cur.current_book_id);
+      sqliteDb.prepare("UPDATE users SET completed_books_json = ? WHERE id = ?").run(
+        JSON.stringify(Array.from(set)),
+        userId
+      );
+    }
   }
   return formatUserRow(sqliteDb.prepare("SELECT * FROM users WHERE id = ?").get(userId));
 }

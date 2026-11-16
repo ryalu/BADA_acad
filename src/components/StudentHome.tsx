@@ -1,5 +1,5 @@
-import React from "react";
-import { ArrowRight, BookOpen, CheckCircle2, Lock, Sparkles } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ArrowRight, BookOpen, CheckCircle2, Lock, Sparkles, X } from "lucide-react";
 import type { Book, StudentUser } from "../types";
 import { getStudentCurrentWeek } from "../utils/bookHelpers";
 import { BookCover } from "./BookCover";
@@ -54,6 +54,27 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
       12
   );
 
+  const [showTreasureModal, setShowTreasureModal] = useState(false);
+  const [animPearls, setAnimPearls] = useState(0);
+
+  useEffect(() => {
+    if (!showTreasureModal) return;
+    setAnimPearls(0);
+    if (totalPearls <= 0) return;
+    let cur = 0;
+    const timer = window.setInterval(() => {
+      cur += 1;
+      setAnimPearls(cur);
+      if (cur >= totalPearls) {
+        window.clearInterval(timer);
+      }
+    }, 240);
+    return () => window.clearInterval(timer);
+  }, [showTreasureModal, totalPearls]);
+
+  const popoStageIdx =
+    animPearls <= 0 ? 0 : Math.min(3, Math.floor((animPearls - 1) / 3));
+
   const gradeTitle =
     user.grade_group === "grade_1_2"
       ? "초등 1~2학년 맞춤 20분 훈련"
@@ -80,30 +101,32 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
           />
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <span className="inline-block text-xs font-bold px-2.5 py-0.5 rounded-full bg-cyan-100/80 text-cyan-900">
-                포포의 바다 영어 여행 · {activeWk}주차 항해 중
-              </span>
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-800">
+              <button
+                type="button"
+                onClick={() => setShowTreasureModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full surface-water-glass text-xs font-bold text-sky-900 hover:brightness-105 transition cursor-pointer"
+              >
                 <img
                   src="/assets/pearl-badge-3d.jpg"
                   alt="진주"
                   className="w-4 h-4 rounded-full object-cover"
                 />
-                모은 진주 {totalPearls} / 12개
-              </span>
+                {user.name} 대원의 보물함 ({totalPearls}/12)
+              </button>
             </div>
             <h2 className="text-xl md:text-2xl font-bold text-slate-900">
               {user.name} 학생, 포포와 함께 바다 진주를 모으러 갈까요?
             </h2>
-            <p className="text-sm text-slate-600 mt-0.5">
-              《{book.title}》 항해를 완주하면 12개의 바다 진주가 보물함에 채워집니다.
-            </p>
           </div>
         </div>
 
         <div className="flex items-center gap-4 self-stretch lg:self-auto justify-between lg:justify-end">
           {/* Pearl Collection Progress Dots */}
-          <div className="flex items-center gap-2.5 pr-3 border-r border-[#e8dfd1]">
+          <button
+            type="button"
+            onClick={() => setShowTreasureModal(true)}
+            className="flex items-center gap-2.5 pr-3 border-r border-[#e8dfd1] text-left hover:opacity-85 transition cursor-pointer"
+          >
             <img
               src="/assets/treasure-pearl-3d.jpg"
               alt="진주 보물함"
@@ -124,7 +147,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                 ))}
               </div>
             </div>
-          </div>
+          </button>
 
           <button
             type="button"
@@ -291,6 +314,187 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Animated Pearl Treasure Chest Voyage Popup */}
+      {showTreasureModal && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/55 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setShowTreasureModal(false)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-3xl bg-[#fdfaf2] border border-[#e5dcc9] shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-6 py-4 bg-gradient-to-r from-sky-100/80 via-cyan-50 to-amber-50 border-b border-[#e5dcc9] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img
+                  src="/assets/treasure-pearl-3d.jpg"
+                  alt="보물함"
+                  className="w-10 h-10 rounded-xl object-cover border border-amber-200 shadow-xs"
+                />
+                <div>
+                  <h3 className="text-base md:text-lg font-bold text-slate-900">
+                    {user.name} 대원의 바다 진주 보물함
+                  </h3>
+                  <p className="text-xs text-slate-600">
+                    진주가 3개씩 모일 때마다 포포가 다음 바다 섬으로 헤엄쳐 갑니다.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowTreasureModal(false)}
+                className="p-2 rounded-full hover:bg-white/80 text-slate-500 transition"
+                aria-label="닫기"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* 4-Stage Ocean Path with Swimming Popo */}
+              <div className="relative rounded-2xl bg-gradient-to-b from-sky-100/75 via-cyan-50/75 to-sky-100/60 border border-sky-200/80 p-5 overflow-hidden">
+                {/* Swimming Popo gliding across the 4 islands */}
+                <div className="relative h-16 mb-3">
+                  <div className="absolute inset-x-6 top-1/2 -translate-y-1/2 h-1.5 rounded-full bg-white/80 border border-sky-200/70 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-sky-400 to-cyan-500 transition-all duration-700 ease-out"
+                      style={{ width: `${Math.min(100, Math.round((animPearls / 12) * 100))}%` }}
+                    />
+                  </div>
+
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-all duration-700 ease-out z-10"
+                    style={{
+                      left:
+                        animPearls === 0
+                          ? "10%"
+                          : `${Math.min(89, 12 + popoStageIdx * 25.5)}%`
+                    }}
+                  >
+                    <div className="animate-popo-swim relative">
+                      <img
+                        src="/assets/popo-3d.jpg"
+                        alt="헤엄치는 포포"
+                        className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-md ring-2 ring-sky-300/70"
+                      />
+                      <span className="animate-bubble-1 absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-white/85 border border-sky-300" />
+                      <span className="animate-bubble-2 absolute top-1 -right-3 w-2 h-2 rounded-full bg-white/75 border border-sky-200" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4 Island Checkpoints */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {WEEK_ITEMS.map((stage, idx) => {
+                    const stageStart = idx * 3;
+                    const stageFilled = Math.max(0, Math.min(3, animPearls - stageStart));
+                    const isStageReached = animPearls > stageStart;
+                    const isStageComplete = stageFilled === 3;
+                    return (
+                      <div
+                        key={stage.week}
+                        className={`rounded-xl p-3 border transition-all duration-500 ${
+                          isStageComplete
+                            ? "bg-white/95 border-cyan-400 shadow-xs"
+                            : isStageReached
+                            ? "surface-water-glass"
+                            : "bg-white/55 border-sky-200/60 opacity-75"
+                        }`}
+                      >
+                        <div className="text-[11px] font-bold text-sky-800">
+                          {stage.week}주차 항해
+                        </div>
+                        <div className="text-xs font-bold text-slate-900 mt-0.5">
+                          {stage.island}
+                        </div>
+                        <div className="flex items-center gap-1 mt-2">
+                          {[0, 1, 2].map((dot) => (
+                            <img
+                              key={dot}
+                              src="/assets/pearl-badge-3d.jpg"
+                              alt="진주"
+                              className={`w-4 h-4 rounded-full object-cover transition-all duration-300 ${
+                                dot < stageFilled
+                                  ? "scale-105 opacity-100 ring-1 ring-cyan-400"
+                                  : "scale-90 opacity-25 grayscale"
+                              }`}
+                            />
+                          ))}
+                          <span className="ml-auto text-[10px] font-bold text-slate-500">
+                            {stageFilled}/3
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Treasure Chest & 12 Individual Pearls Filling Up */}
+              <div className="flex flex-col sm:flex-row items-center gap-5 rounded-2xl bg-[#f7f2e7] border border-[#e5dcc9] p-4">
+                <div className="relative shrink-0">
+                  <img
+                    src="/assets/treasure-pearl-3d.jpg"
+                    alt="진주 보물함"
+                    className="w-24 h-24 rounded-2xl object-cover border-2 border-amber-300 shadow-md"
+                  />
+                  <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-amber-900 text-amber-50 text-[11px] font-bold shadow-xs">
+                    {animPearls} / 12 진주
+                  </span>
+                </div>
+
+                <div className="flex-1 w-full space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-800">
+                      보물함에 차곡차곡 모인 바다 진주
+                    </span>
+                    <span className="text-xs font-bold text-sky-700">
+                      {animPearls === 12
+                        ? "보물함 완성! 대단해요!"
+                        : `${12 - animPearls}개 더 모으면 보물함 완성!`}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-6 sm:grid-cols-12 gap-2 pt-1">
+                    {Array.from({ length: 12 }).map((_, idx) => {
+                      const filled = idx < animPearls;
+                      return (
+                        <div
+                          key={idx}
+                          className={`aspect-square rounded-full flex items-center justify-center border transition-all duration-300 ${
+                            filled
+                              ? "bg-white border-cyan-400 shadow-sm scale-105"
+                              : "bg-[#efe7d6] border-[#ddd2bc] scale-95"
+                          }`}
+                        >
+                          <img
+                            src="/assets/pearl-badge-3d.jpg"
+                            alt={`진주 ${idx + 1}`}
+                            className={`w-full h-full rounded-full object-cover transition-all duration-300 ${
+                              filled ? "opacity-100 scale-100" : "opacity-20 grayscale scale-75"
+                            }`}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowTreasureModal(false)}
+                  className="px-6 py-2 rounded-full btn-water-glass text-xs font-bold"
+                >
+                  확인
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
