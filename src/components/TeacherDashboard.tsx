@@ -734,7 +734,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 type="button"
                 onClick={() => onChangeTab(item.id)}
                 className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-left ${activeTab === item.id
-                  ? "btn-water-glass"
+                  ? "btn-water-glass !text-white ![text-shadow:0_1px_2px_rgba(15,23,42,0.5)]"
                   : "text-slate-300 hover:bg-slate-800 hover:text-white"
                   }`}
               >

@@ -728,20 +728,20 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
     weekNum === 1
       ? "1주차 · 한 단어씩 천천히 듣고 따라 말하기 (소리가 인식되면 다음 단어로 넘어갑니다)"
       : weekNum === 2
-      ? "2주차 · 의미 단위(구)로 끊어 읽고 따라 말하기"
-      : weekNum === 3
-      ? "3주차 · 이야기 줄거리를 생각하며 한 문장씩 따라 읽기"
-      : "4주차 · 전체 스토리 자연스럽게 완독하기";
+        ? "2주차 · 의미 단위(구)로 끊어 읽고 따라 말하기"
+        : weekNum === 3
+          ? "3주차 · 이야기 줄거리를 생각하며 한 문장씩 따라 읽기"
+          : "4주차 · 전체 스토리 자연스럽게 완독하기";
 
   const focusDisplay = hoveredWordInfo
     ? hoveredWordInfo
     : weekNum === 2 && activeChunk
-    ? {
+      ? {
         word: activeChunk.text,
         kr: activeChunk.meaning_kr,
         phonetic: `구 ${safeChunkIdx + 1}/${activeChunks.length}`
       }
-    : {
+      : {
         word: activeWordInfo.word,
         kr: activeWordInfo.kr,
         phonetic: activeWordInfo.phonetic,
@@ -859,29 +859,12 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             </button>
           )}
 
-          {/* Subtle visual word tags & caption overlay */}
-          {(currentIllustration?.scene_caption_kr ||
-            (currentIllustration?.key_objects && currentIllustration.key_objects.length > 0)) && (
-            <div className="absolute inset-x-0 bottom-0 px-4 py-2.5 bg-gradient-to-t from-slate-950/60 via-slate-950/20 to-transparent flex flex-wrap items-center justify-between gap-2">
-              {currentIllustration?.scene_caption_kr ? (
-                <span className="text-xs font-semibold text-white drop-shadow">
-                  {currentIllustration.scene_caption_kr}
-                </span>
-              ) : (
-                <span />
-              )}
-              {currentIllustration?.key_objects && currentIllustration.key_objects.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {currentIllustration.key_objects.map((obj) => (
-                    <span
-                      key={obj}
-                      className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/90 text-slate-800 shadow-xs"
-                    >
-                      {obj}
-                    </span>
-                  ))}
-                </div>
-              )}
+          {/* Subtle caption overlay (keyword tags removed per user request) */}
+          {currentIllustration?.scene_caption_kr && (
+            <div className="absolute inset-x-0 bottom-0 px-4 py-2.5 bg-gradient-to-t from-slate-950/55 via-slate-950/15 to-transparent">
+              <span className="text-xs font-semibold text-white drop-shadow">
+                {currentIllustration.scene_caption_kr}
+              </span>
             </div>
           )}
         </div>
@@ -901,9 +884,8 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
                     key={idx}
                     src="/assets/pearl-badge-3d.jpg"
                     alt={`${idx + 1}회차`}
-                    className={`w-3.5 h-3.5 rounded-full object-cover ${
-                      idx < completedRepeats ? "opacity-100 ring-1 ring-cyan-400" : "opacity-30 grayscale"
-                    }`}
+                    className={`w-3.5 h-3.5 rounded-full object-cover ${idx < completedRepeats ? "opacity-100 ring-1 ring-cyan-400" : "opacity-30 grayscale"
+                      }`}
                   />
                 ))}
               </div>
@@ -938,13 +920,12 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
                     setWordIdx(0);
                     setChunkIdx(0);
                   }}
-                  className={`pt-4 first:pt-0 pl-3.5 py-2 transition cursor-pointer ${
-                    isActSent
-                      ? "surface-water-glass rounded-xl pr-3"
+                  className={`pt-4 first:pt-0 pl-3.5 py-1.5 border-l-2 transition cursor-pointer ${isActSent
+                      ? "border-sky-600 bg-amber-50/45 rounded-r-lg"
                       : isDoneSent
-                      ? "border-l-2 border-emerald-400/70 text-slate-600"
-                      : "border-l-2 border-transparent hover:border-stone-300"
-                  }`}
+                        ? "border-emerald-400/70 text-slate-600"
+                        : "border-transparent hover:border-stone-300"
+                    }`}
                 >
                   <p className="book-serif text-xl md:text-[23px] font-semibold text-slate-800 leading-[2.05]">
                     {words.map((tok, wIdx) => {
@@ -985,25 +966,23 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
                                 speakEnglish(info.word, 0.86, 1.04, null, words[wIdx + 1] || "");
                               }
                             }}
-                            className={`group relative inline-block px-1 py-0.5 mx-0.5 rounded-lg border-b-2 transition cursor-pointer ${
-                              isAutoActiveWord
+                            className={`group relative inline-block px-1 py-0.5 mx-0.5 rounded-lg border-b-2 transition cursor-pointer ${isAutoActiveWord
                                 ? "bg-amber-100 border-amber-500 text-slate-900 scale-105 z-20"
                                 : isChunkActive
-                                ? "bg-sky-100 border-sky-600 text-sky-950"
-                                : isDoneWord
-                                ? "text-teal-700 border-emerald-400"
-                                : info.isCore
-                                ? "bg-sky-50/80 border-sky-400 text-slate-900 hover:bg-amber-100"
-                                : "border-dotted border-stone-300 hover:bg-amber-100"
-                            }`}
+                                  ? "bg-sky-100 border-sky-600 text-sky-950"
+                                  : isDoneWord
+                                    ? "text-teal-700 border-emerald-400"
+                                    : info.isCore
+                                      ? "bg-sky-50/80 border-sky-400 text-slate-900 hover:bg-amber-100"
+                                      : "border-dotted border-stone-300 hover:bg-amber-100"
+                              }`}
                           >
                             {tok}
                             <span
-                              className={`pointer-events-none font-sans absolute left-1/2 -translate-x-1/2 bottom-[calc(100%+8px)] whitespace-nowrap bg-slate-900 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-lg z-30 transition-opacity ${
-                                isPinned
+                              className={`pointer-events-none font-sans absolute left-1/2 -translate-x-1/2 bottom-[calc(100%+8px)] whitespace-nowrap bg-slate-900 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-lg z-30 transition-opacity ${isPinned
                                   ? "opacity-100"
                                   : "opacity-0 group-hover:opacity-100 group-focus:opacity-100"
-                              }`}
+                                }`}
                             >
                               <span className="text-amber-300 font-bold">{info.kr}</span>
                               {info.phonetic && (
@@ -1023,9 +1002,8 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
                   {/* Korean translation directly beneath each English sentence (no sentence index label) */}
                   <p
-                    className={`mt-2 text-sm md:text-base leading-relaxed ${
-                      isActSent ? "font-bold text-slate-700" : "font-medium text-slate-500"
-                    }`}
+                    className={`mt-2 text-sm md:text-base leading-relaxed ${isActSent ? "font-bold text-slate-700" : "font-medium text-slate-500"
+                      }`}
                   >
                     {s.kr}
                   </p>
@@ -1040,48 +1018,47 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             })}
           </div>
 
-            {/* Active Word/Chunk Quick Meaning & Sound Bar (clean hairline, no heavy box) */}
-            <div className="pt-2.5 border-t border-[#e5dcc9] flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="font-bold text-sm text-slate-900 truncate">{focusDisplay.word}</span>
-                {focusDisplay.phonetic && (
-                  <span className="text-xs text-stone-400 shrink-0">{focusDisplay.phonetic}</span>
-                )}
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100/80 text-amber-900 truncate">
-                  {focusDisplay.kr}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  speakEnglish(
-                    focusDisplay.word,
-                    weekNum === 1 ? 0.72 : 0.86,
-                    1.04,
-                    null,
-                    focusDisplay.nextWord || ""
-                  )
-                }
-                className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#efe8d8] hover:bg-[#e5dcc7] text-slate-700 text-xs font-semibold transition"
-              >
-                <Volume2 className="w-3.5 h-3.5 text-sky-700" />
-                발음
-              </button>
+          {/* Active Word/Chunk Quick Meaning & Sound Bar (clean hairline, no heavy box) */}
+          <div className="pt-2.5 border-t border-[#e5dcc9] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="font-bold text-sm text-slate-900 truncate">{focusDisplay.word}</span>
+              {focusDisplay.phonetic && (
+                <span className="text-xs text-stone-400 shrink-0">{focusDisplay.phonetic}</span>
+              )}
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100/80 text-amber-900 truncate">
+                {focusDisplay.kr}
+              </span>
             </div>
+            <button
+              type="button"
+              onClick={() =>
+                speakEnglish(
+                  focusDisplay.word,
+                  weekNum === 1 ? 0.72 : 0.86,
+                  1.04,
+                  null,
+                  focusDisplay.nextWord || ""
+                )
+              }
+              className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#efe8d8] hover:bg-[#e5dcc7] text-slate-700 text-xs font-semibold transition"
+            >
+              <Volume2 className="w-3.5 h-3.5 text-sky-700" />
+              발음
+            </button>
           </div>
+        </div>
 
-          {/* Right Stacked Paper Thickness */}
-          <div className="hidden md:block book-edges-right border-l border-[#e5dcc9]" />
+        {/* Right Stacked Paper Thickness */}
+        <div className="hidden md:block book-edges-right border-l border-[#e5dcc9]" />
 
         {/* 3D Turning Paper Leaf Overlay ("샤락" page flip across full picture-book spread) */}
         {flipLeaf && (
           <div
             key={flipLeaf.key}
-            className={`hidden md:block pointer-events-none absolute inset-y-0 z-30 ${
-              flipLeaf.dir === "next"
+            className={`hidden md:block pointer-events-none absolute inset-y-0 z-30 ${flipLeaf.dir === "next"
                 ? "left-1/2 right-2 book-leaf-next bg-gradient-to-l from-[#f5eedf] via-[#fdfaf2] to-[#ede4d1] border-l border-[#d8ceb8]"
                 : "left-2 right-1/2 book-leaf-prev bg-gradient-to-r from-[#f5eedf] via-[#fdfaf2] to-[#ede4d1] border-r border-[#d8ceb8]"
-            }`}
+              }`}
           />
         )}
       </div>
@@ -1115,15 +1092,14 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
         {/* Live Speech Recognition Status Pill */}
         {voiceStatus !== "idle" && (
           <div
-            className={`text-xs font-semibold px-3 py-1.5 rounded-full border flex items-center gap-1.5 ${
-              voiceStatus === "listening"
+            className={`text-xs font-semibold px-3 py-1.5 rounded-full border flex items-center gap-1.5 ${voiceStatus === "listening"
                 ? "bg-rose-50 text-rose-700 border-rose-200 animate-pulse"
                 : voiceStatus === "matched"
-                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                : voiceStatus === "retry" || voiceStatus === "unsupported"
-                ? "bg-amber-50 text-amber-800 border-amber-200"
-                : "bg-sky-50 text-sky-700 border-sky-200"
-            }`}
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : voiceStatus === "retry" || voiceStatus === "unsupported"
+                    ? "bg-amber-50 text-amber-800 border-amber-200"
+                    : "bg-sky-50 text-sky-700 border-sky-200"
+              }`}
           >
             {voiceStatus === "unsupported" ? (
               <MicOff className="w-3.5 h-3.5" />
@@ -1152,23 +1128,22 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             {weekNum === 1
               ? `"${cleanActiveWord}" 듣기`
               : weekNum === 2 && activeChunk
-              ? `"${activeChunk.text}" 듣기`
-              : "문장 듣기"}
+                ? `"${activeChunk.text}" 듣기`
+                : "문장 듣기"}
           </button>
 
           <button
             type="button"
             onClick={handleToggleVoicePractice}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs md:text-sm font-bold transition shadow-sm ${
-              isAutoLoop ? "bg-rose-600 hover:bg-rose-700" : "btn-water-glass"
-            }`}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs md:text-sm font-bold transition shadow-sm ${isAutoLoop ? "bg-rose-600 hover:bg-rose-700" : "btn-water-glass"
+              }`}
           >
             {isAutoLoop ? <Square className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             {isAutoLoop
               ? "따라 말하기 멈추기"
               : allDone
-              ? "음성 인식으로 다시 읽기"
-              : "듣고 따라 말하기 (음성 인식)"}
+                ? "음성 인식으로 다시 읽기"
+                : "듣고 따라 말하기 (음성 인식)"}
           </button>
 
           <button
@@ -1191,8 +1166,8 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
                 {submittingRepeat
                   ? "녹음 저장 및 AI 분석 중..."
                   : completedRepeats >= 5
-                  ? "복습 녹음 한 번 더 보내기"
-                  : `오늘 ${completedRepeats + 1}회차 완료 & 진주 받기`}
+                    ? "복습 녹음 한 번 더 보내기"
+                    : `오늘 ${completedRepeats + 1}회차 완료 & 진주 받기`}
               </button>
               <button
                 type="button"
