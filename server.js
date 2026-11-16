@@ -21,7 +21,9 @@ const {
   createTeacher,
   deleteTeacher,
   createBook,
-  reanalyzeAllBooksWithLLM
+  reanalyzeAllBooksWithLLM,
+  saveStudentRecording,
+  listStudentRecordings
 } = require("./db");
 const {
   POPO_MASTER_PROMPT_SPEC,
@@ -87,13 +89,12 @@ function sendJson(res, statusCode, payload) {
   res.end(JSON.stringify(payload, null, 2));
 }
 
-function parseJsonBody(req) {
+function parseJsonBody(req, maxBytes = 100 * 1024) {
   return new Promise((resolve, reject) => {
     let raw = "";
     req.on("data", (chunk) => {
       raw += chunk;
-      // Strict 100KB payload limit to prevent DoS memory exhaustion
-      if (raw.length > 100 * 1024) {
+      if (raw.length > maxBytes) {
         req.destroy();
         reject(new Error("Payload too large"));
       }
@@ -319,7 +320,39 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { questions });
     }
 
-    // 6. Natural Storyteller TTS endpoint (OpenAI tts-1 when OPENAI_API_KEY is set; 204 otherwise)
+    // 5.5 Student Voice Recordings (list & upload with AI pronunciation feedback)
+    if (pathname === "/api/recordings" && req.method === "GET") {
+      const userId = urlObj.searchParams.get("userId") || "";
+      const recordings = await listStudentRecordings(userId || null);
+      return sendJson(res, 200, { ok: true, recordings });
+    }
+
+    if (pathname === "/api/recordings" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req, 4 * 1024 * 1024);
+        const userId = String(body.userId || "").trim();
+        const bookId = String(body.bookId || "").trim();
+        const audioDataUrl = String(body.audioDataUrl || "");
+        if (!userId || !bookId || !audioDataUrl.startsWith("data:audio/")) {
+          return sendJson(res, 400, { ok: false, error: "userId, bookId, and valid audioDataUrl are required." });
+        }
+        const saved = await saveStudentRecording({
+          userId,
+          bookId,
+          weekNum: Number(body.weekNum) || 1,
+          repeatNum: Number(body.repeatNum) || 1,
+          transcript: String(body.transcript || ""),
+          audioDataUrl,
+          expectedText: String(body.expectedText || ""),
+          level: String(body.level || "Level 2")
+        });
+        return sendJson(res, 200, { ok: true, recording: saved });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    // 6. Natural Storyteller TTS endpoint (OpenAI gpt-4o-mini-tts / tts-1-hd when OPENAI_API_KEY is set; 204 otherwise)
     if (pathname === "/api/tts" && req.method === "POST") {
       const apiKey = process.env.OPENAI_API_KEY;
       if (!apiKey) {
@@ -332,9 +365,13 @@ const server = http.createServer(async (req, res) => {
       if (!text) {
         return sendJson(res, 400, { error: "text is required" });
       }
-      const speed = Math.min(1.15, Math.max(0.65, Number(body.speed) || 0.92));
-      const voice = String(body.voice || process.env.OPENAI_TTS_VOICE || "nova");
-      const cacheKey = `${voice}|${speed.toFixed(2)}|${text}`;
+      const isSingleWord = !/\s/.test(text);
+      const rawSpeed = Number(body.speed) || 0.92;
+      const speed = isSingleWord
+        ? Math.min(1.05, Math.max(0.84, rawSpeed))
+        : Math.min(1.12, Math.max(0.75, rawSpeed));
+      const voice = String(body.voice || process.env.OPENAI_TTS_VOICE || "coral");
+      const cacheKey = `v2|${voice}|${speed.toFixed(2)}|${text}`;
       if (!global.__badaTtsCache) global.__badaTtsCache = new Map();
       const cache = global.__badaTtsCache;
 
@@ -348,19 +385,40 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
-      const ttsRes = await fetch("https://api.openai.com/v1/audio/speech", {
+      const instructions = isSingleWord
+        ? "Speak as a warm, cheerful elementary English teacher. Pronounce this single word clearly, crisply, and at a bright, confident volume so young phonics beginners can hear every consonant and vowel sound distinctly."
+        : "Read aloud like a warm, expressive children's picture-book storyteller. Use natural melody, friendly enthusiasm, gentle pauses at commas, and clear articulation for young elementary learners.";
+
+      let ttsRes = await fetch("https://api.openai.com/v1/audio/speech", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "tts-1",
+          model: "gpt-4o-mini-tts",
           voice,
           input: text,
-          speed
+          speed,
+          instructions
         })
       });
+
+      if (!ttsRes.ok) {
+        ttsRes = await fetch("https://api.openai.com/v1/audio/speech", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: "tts-1-hd",
+            voice: "nova",
+            input: text,
+            speed
+          })
+        });
+      }
 
       if (!ttsRes.ok) {
         res.writeHead(204, SECURITY_HEADERS);

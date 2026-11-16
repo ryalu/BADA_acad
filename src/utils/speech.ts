@@ -207,8 +207,9 @@ async function tryPlayServerNeuralTts(
   token: number
 ): Promise<boolean> {
   if (serverTtsStatus === "unavailable") return false;
-  const speed = Math.min(1.15, Math.max(0.65, rate));
-  const cacheKey = `${speed.toFixed(2)}|${spokenText}`;
+    const isSingle = !/\s/.test(spokenText);
+    const speed = isSingle ? Math.min(1.05, Math.max(0.85, rate)) : Math.min(1.12, Math.max(0.75, rate));
+    const cacheKey = `v2|${speed.toFixed(2)}|${spokenText}`;
 
   try {
     let url = audioBlobCache.get(cacheKey);
@@ -232,7 +233,25 @@ async function tryPlayServerNeuralTts(
     if (token !== playbackToken) return true;
 
     const audio = new Audio(url);
+    audio.volume = 1.0;
     activeAudioEl = audio;
+
+    // Gentle volume boost (1.45x) for classroom/kid speakers
+    try {
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (AudioCtx) {
+        const ctx = new AudioCtx();
+        const src = ctx.createMediaElementSource(audio);
+        const gainNode = ctx.createGain();
+        gainNode.gain.value = 1.45;
+        src.connect(gainNode);
+        gainNode.connect(ctx.destination);
+      }
+    } catch {
+      // fallback to standard audio.volume = 1.0
+    }
     audio.onended = () => {
       if (token === playbackToken && onEnd) onEnd();
     };

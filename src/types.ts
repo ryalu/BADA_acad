@@ -119,3 +119,20 @@ export interface BookPageSpread {
   }[];
 }
 
+export interface StudentRecording {
+  id: string;
+  user_id: string;
+  book_id: string;
+  week_num: number;
+  repeat_num: number;
+  transcript: string;
+  audio_data_url: string;
+  ai_feedback?: {
+    score?: number;
+    weak_words?: string[];
+    pronunciation_tip_kr?: string;
+    intonation_tip_kr?: string;
+  };
+  created_at: string;
+}
+

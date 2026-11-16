@@ -24,6 +24,14 @@ import { playPageFlipSound, playSoftTone, speakEnglish, stopAllSpeech } from "..
 interface StorybookReaderProps {
   book: Book;
   weekNum: 1 | 2 | 3 | 4;
+  userId?: string;
+  weekProgress?: number;
+  onRecordRepeatComplete?: (payload: {
+    repeatNum: number;
+    nextProgress: number;
+    weakWords: string[];
+    feedbackTip: string;
+  }) => void;
   onGoToFlashcards: () => void;
 }
 
@@ -106,6 +114,9 @@ function doesSpeechMatch(transcript: string, target: string, weekNum: 1 | 2 | 3 
 export const StorybookReader: React.FC<StorybookReaderProps> = ({
   book,
   weekNum,
+  userId,
+  weekProgress = 0,
+  onRecordRepeatComplete,
   onGoToFlashcards
 }) => {
   const sentences = useMemo(() => getBookSentences(book), [book]);
@@ -129,11 +140,79 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
   const [recognizedText, setRecognizedText] = useState("");
   const [isAutoLoop, setIsAutoLoop] = useState(false);
   const [showCoverModal, setShowCoverModal] = useState(false);
+  const [submittingRepeat, setSubmittingRepeat] = useState(false);
+  const [repeatSubmittedMsg, setRepeatSubmittedMsg] = useState<string | null>(null);
+  const [aiCoachingTip, setAiCoachingTip] = useState<{
+    pronunciation: string;
+    intonation: string;
+    weakWords: string[];
+  } | null>(null);
+
+  const completedRepeats = Math.min(5, Math.floor((weekProgress || 0) / 20));
 
   const recognitionRef = useRef<any>(null);
   const autoLoopRef = useRef(false);
   const advanceTimeoutRef = useRef<number | null>(null);
   const flipTimerRef = useRef<number | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const recordedChunksRef = useRef<BlobPart[]>([]);
+  const sessionTranscriptRef = useRef<string[]>([]);
+
+  const startAudioCapture = useCallback(async () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") return;
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+      const recorder = new MediaRecorder(stream);
+      recordedChunksRef.current = [];
+      recorder.ondataavailable = (ev) => {
+        if (ev.data && ev.data.size > 0) recordedChunksRef.current.push(ev.data);
+      };
+      recorder.start(500);
+      mediaRecorderRef.current = recorder;
+    } catch {
+      // Mic permission denied or unavailable; speech recognition fallback still works
+    }
+  }, []);
+
+  const stopAudioCaptureAndGetDataUrl = useCallback(async (): Promise<string> => {
+    const rec = mediaRecorderRef.current;
+    const stream = mediaStreamRef.current;
+    mediaRecorderRef.current = null;
+    mediaStreamRef.current = null;
+
+    if (!rec) {
+      if (stream) stream.getTracks().forEach((t) => t.stop());
+      return "";
+    }
+
+    const blob = await new Promise<Blob>((resolve) => {
+      const finalize = () => {
+        if (stream) stream.getTracks().forEach((t) => t.stop());
+        resolve(new Blob(recordedChunksRef.current, { type: rec.mimeType || "audio/webm" }));
+      };
+      if (rec.state === "inactive") {
+        finalize();
+      } else {
+        rec.onstop = finalize;
+        try {
+          rec.stop();
+        } catch {
+          finalize();
+        }
+      }
+    });
+
+    if (!blob || blob.size === 0) return "";
+    return await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(typeof reader.result === "string" ? reader.result : "");
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(blob);
+    });
+  }, []);
 
   const triggerBookFlip = useCallback((dir: "next" | "prev") => {
     if (flipTimerRef.current !== null) {
@@ -429,6 +508,9 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
               if (doesSpeechMatch(combined, targetText, weekNum)) {
                 matched = true;
+                if (latestDisplay) {
+                  sessionTranscriptRef.current.push(latestDisplay);
+                }
                 try {
                   recognition.stop();
                 } catch {
@@ -493,6 +575,9 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
       return;
     }
 
+    setRepeatSubmittedMsg(null);
+    sessionTranscriptRef.current = [];
+    void startAudioCapture();
     autoLoopRef.current = true;
     setIsAutoLoop(true);
 
@@ -516,6 +601,80 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
         safeWordIdx,
         safeChunkIdx
       );
+    }
+  };
+
+  const handleSubmitRepeatToTeacher = async () => {
+    if (submittingRepeat) return;
+    setSubmittingRepeat(true);
+    stopVoiceSession();
+
+    const nextRepeat = Math.min(5, completedRepeats + 1);
+    const nextProgress = Math.min(100, nextRepeat * 20);
+    const transcript = sessionTranscriptRef.current.join(" ").trim();
+    const audioDataUrl = await stopAudioCaptureAndGetDataUrl();
+
+    let weakWords: string[] = [];
+    let pronunciationTip = "오늘 하루도 정말 잘 읽었어요! 다음 회차도 차근차근 도전해 보아요.";
+    let intonationTip = "문장 끝에 리듬을 실어 자연스럽게 읽어 보아요.";
+
+    try {
+      if (userId && audioDataUrl) {
+        const recRes = await fetch("/api/recordings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            bookId: book.id,
+            weekNum,
+            repeatNum: nextRepeat,
+            transcript,
+            audioDataUrl,
+            expectedText: book.full_text,
+            level: book.level
+          })
+        });
+        if (recRes.ok) {
+          const recData = await recRes.json();
+          const fb = recData?.recording?.ai_feedback;
+          if (fb) {
+            weakWords = Array.isArray(fb.weak_words) ? fb.weak_words : [];
+            pronunciationTip = fb.pronunciation_tip_kr || pronunciationTip;
+            intonationTip = fb.intonation_tip_kr || intonationTip;
+          }
+        }
+      }
+
+      if (userId) {
+        await fetch("/api/users/progress", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            week: weekNum,
+            progress: nextProgress
+          })
+        });
+      }
+
+      setAiCoachingTip({ pronunciation: pronunciationTip, intonation: intonationTip, weakWords });
+      setRepeatSubmittedMsg(
+        nextRepeat >= 5
+          ? `${weekNum}주차 5회 반복 완주! 진주 5개를 모두 모았어요!`
+          : `오늘 ${nextRepeat}회차 읽기 완료! 진주 ${nextRepeat}/5개를 모았어요.`
+      );
+      playSoftTone(880, 0.22);
+
+      if (onRecordRepeatComplete) {
+        onRecordRepeatComplete({
+          repeatNum: nextRepeat,
+          nextProgress,
+          weakWords,
+          feedbackTip: pronunciationTip
+        });
+      }
+    } finally {
+      setSubmittingRepeat(false);
     }
   };
 
@@ -591,9 +750,27 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
           <p className="text-xs text-slate-600 mt-0.5">{weekGuidance}</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* 5-Day / 5-Repeat Pearl Collector */}
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f4efe5] border border-[#e5dcc9]">
+            <span className="text-[11px] font-bold text-amber-900 mr-0.5">
+              {weekNum}주차 반복 {completedRepeats}/5
+            </span>
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <img
+                key={idx}
+                src="/assets/pearl-badge-3d.jpg"
+                alt={`${idx + 1}회차 진주`}
+                className={`w-4 h-4 rounded-full object-cover transition ${
+                  idx < completedRepeats
+                    ? "opacity-100 ring-2 ring-cyan-400 scale-105"
+                    : "opacity-30 grayscale"
+                }`}
+              />
+            ))}
+          </div>
           <span className="text-xs font-semibold text-slate-600 pr-2 border-r border-[#e8dfd1]">
-            문장 진도 {completedSentences.size} / {sentences.length}
+            문장 {completedSentences.size}/{sentences.length}
           </span>
           <button
             type="button"
@@ -973,17 +1150,54 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
           </button>
 
           {allDone && (
-            <button
-              type="button"
-              onClick={onGoToFlashcards}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-bold transition shadow-sm"
-            >
-              단어 플래시카드
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={handleSubmitRepeatToTeacher}
+                disabled={submittingRepeat}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50 text-white text-xs md:text-sm font-bold transition shadow-sm"
+              >
+                {submittingRepeat
+                  ? "녹음 저장 및 AI 분석 중..."
+                  : completedRepeats >= 5
+                  ? "복습 녹음 한 번 더 보내기"
+                  : `오늘 ${completedRepeats + 1}회차 완료 & 진주 받기`}
+              </button>
+              <button
+                type="button"
+                onClick={onGoToFlashcards}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-bold transition shadow-sm"
+              >
+                단어 플래시카드
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </>
           )}
         </div>
       </div>
+
+      {(repeatSubmittedMsg || aiCoachingTip) && (
+        <div className="rounded-xl bg-cyan-50/90 border border-cyan-200 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs shrink-0">
+          <div className="space-y-0.5">
+            {repeatSubmittedMsg && <div className="font-bold text-cyan-900">{repeatSubmittedMsg}</div>}
+            {aiCoachingTip && (
+              <div className="text-slate-700">
+                <span className="font-semibold text-sky-800">포포 발음 팁:</span> {aiCoachingTip.pronunciation}{" "}
+                <span className="text-slate-500">({aiCoachingTip.intonation})</span>
+              </div>
+            )}
+          </div>
+          {aiCoachingTip && aiCoachingTip.weakWords.length > 0 && (
+            <button
+              type="button"
+              onClick={onGoToFlashcards}
+              className="shrink-0 px-3 py-1.5 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold transition"
+            >
+              집중 단어({aiCoachingTip.weakWords.slice(0, 3).join(", ")}) 카드 복습 →
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };

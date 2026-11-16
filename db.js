@@ -10,7 +10,11 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { DatabaseSync } = require("node:sqlite");
-const { analyzeTextWithLLM, analyzeTextWithLLMAsync } = require("./ai-engine");
+const {
+  analyzeTextWithLLM,
+  analyzeTextWithLLMAsync,
+  analyzePronunciationWithLLM
+} = require("./ai-engine");
 
 // Built-in .env loader (no external dependency required)
 function loadDotEnv() {
@@ -282,6 +286,18 @@ function initSqliteDatabase() {
       text_hash TEXT NOT NULL,
       status TEXT NOT NULL,
       detail TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS student_recordings (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      book_id TEXT NOT NULL,
+      week_num INTEGER NOT NULL DEFAULT 1,
+      repeat_num INTEGER NOT NULL DEFAULT 1,
+      transcript TEXT DEFAULT '',
+      audio_data_url TEXT NOT NULL,
+      ai_feedback_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL
     );
   `);
 
@@ -1337,6 +1353,107 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
   return { updated, skipped, engine: "sqlite" };
 }
 
+async function saveStudentRecording({
+  userId,
+  bookId,
+  weekNum,
+  repeatNum,
+  transcript,
+  audioDataUrl,
+  expectedText,
+  level
+}) {
+  const id = `rec_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  const aiFeedback = await analyzePronunciationWithLLM({
+    expectedText: expectedText || "",
+    spokenTranscript: transcript || "",
+    level: level || "Level 2"
+  });
+  const now = new Date().toISOString();
+
+  if (pgPool) {
+    await pgPool.query(
+      `INSERT INTO student_recordings (id, user_id, book_id, week_num, repeat_num, transcript, audio_data_url, ai_feedback_json)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb)`,
+      [
+        id,
+        userId,
+        bookId,
+        Number(weekNum) || 1,
+        Number(repeatNum) || 1,
+        String(transcript || "").slice(0, 1000),
+        String(audioDataUrl || ""),
+        JSON.stringify(aiFeedback)
+      ]
+    );
+    return {
+      id,
+      user_id: userId,
+      book_id: bookId,
+      week_num: Number(weekNum) || 1,
+      repeat_num: Number(repeatNum) || 1,
+      transcript: String(transcript || ""),
+      audio_data_url: String(audioDataUrl || ""),
+      ai_feedback: aiFeedback,
+      created_at: now
+    };
+  }
+
+  sqliteDb
+    .prepare(
+      `INSERT INTO student_recordings (id, user_id, book_id, week_num, repeat_num, transcript, audio_data_url, ai_feedback_json, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    )
+    .run(
+      id,
+      userId,
+      bookId,
+      Number(weekNum) || 1,
+      Number(repeatNum) || 1,
+      String(transcript || "").slice(0, 1000),
+      String(audioDataUrl || ""),
+      JSON.stringify(aiFeedback),
+      now
+    );
+
+  return {
+    id,
+    user_id: userId,
+    book_id: bookId,
+    week_num: Number(weekNum) || 1,
+    repeat_num: Number(repeatNum) || 1,
+    transcript: String(transcript || ""),
+    audio_data_url: String(audioDataUrl || ""),
+    ai_feedback: aiFeedback,
+    created_at: now
+  };
+}
+
+async function listStudentRecordings(userId) {
+  if (pgPool) {
+    const { rows } = userId
+      ? await pgPool.query(
+          "SELECT * FROM student_recordings WHERE user_id = $1 ORDER BY created_at DESC LIMIT 40",
+          [userId]
+        )
+      : await pgPool.query("SELECT * FROM student_recordings ORDER BY created_at DESC LIMIT 60");
+    return rows.map((r) => ({
+      ...r,
+      ai_feedback: parseJsonField(r.ai_feedback_json, {})
+    }));
+  }
+
+  const rows = userId
+    ? sqliteDb
+        .prepare("SELECT * FROM student_recordings WHERE user_id = ? ORDER BY created_at DESC LIMIT 40")
+        .all(userId)
+    : sqliteDb.prepare("SELECT * FROM student_recordings ORDER BY created_at DESC LIMIT 60").all();
+  return rows.map((r) => ({
+    ...r,
+    ai_feedback: parseJsonField(r.ai_feedback_json, {})
+  }));
+}
+
 function getDbEngineInfo() {
   return {
     engine: activeDbEngine,
@@ -1361,5 +1478,7 @@ module.exports = {
   createTeacher,
   deleteTeacher,
   createBook,
-  reanalyzeAllBooksWithLLM
+  reanalyzeAllBooksWithLLM,
+  saveStudentRecording,
+  listStudentRecordings
 };

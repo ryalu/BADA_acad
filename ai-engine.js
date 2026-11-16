@@ -760,9 +760,9 @@ async function analyzeTextWithExternalLLM(rawText, level = "Level 2") {
     "You are an elementary English storybook curriculum analyzer for Korean students (BADA English). " +
     "Return ONLY valid JSON with keys: vocab, chunks, core_expressions, sentence_translations, speaking_questions. " +
     "1) vocab: array of {word (lowercase), surface (exact token in story), meaning_kr (natural Korean gloss for this story's context), phonetic (IPA like /ˈwɔː.tər/), pos (Korean POS like 명사/동사/형용사/부사/전치사/관사/대명사), popo_tip (very short 10-20 char Korean tip)}. CRITICAL: Include EVERY SINGLE unique word that appears in the story — do NOT skip short words, articles, pronouns, prepositions, plurals, or verb forms (e.g., a, the, in, my, on, is, goes, friends, flowers). " +
-    "2) chunks: array of {sentence_index (0-based), text (exact English phrase substring), meaning_kr (natural Korean phrase meaning)}. Split EVERY sentence into natural 2-5 word reading chunks covering the whole sentence in order. " +
+    "2) chunks: array of {sentence_index (0-based), text (exact English phrase substring), meaning_kr (warm fairy-tale Korean phrase meaning)}. Split EVERY sentence into natural 2-5 word reading chunks covering the whole sentence in order. " +
     "3) core_expressions: 3-4 items of {rank, expression, meaning_kr, pattern_note}. " +
-    "4) sentence_translations: array of {index, en, kr (natural, accurate elementary-friendly Korean translation)} for EVERY sentence in order. " +
+    "4) sentence_translations: array of {index, en, kr} for EVERY sentence in order. CRITICAL TONE: Translate `kr` in a warm, gentle Korean children's picture-book storytelling voice (그림책 동화 구연체: ~해요, ~예요, ~보아요, ~답니다, ~했어요!). NEVER use stiff declarative '~다.' or harsh imperative '~해라/~봐라'. " +
     "5) speaking_questions: 3-4 items of {en (question encouraging the student to USE the expressions learned, not just plot trivia), kr (Korean subtitle/guide), target (expected English sample answer), expression}.";
 
   const userPrompt = `Level: ${level}\nStory text:\n${rawText.trim()}`;
@@ -877,10 +877,84 @@ async function analyzeTextWithLLMAsync(rawText, level = "Level 2", customKoreanT
   };
 }
 
+async function analyzePronunciationWithLLM({ expectedText = "", spokenTranscript = "", level = "Level 2" }) {
+  const norm = (s) =>
+    String(s || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9'\s]/g, " ")
+      .split(/\s+/)
+      .filter(Boolean);
+
+  const expectedWords = [...new Set(norm(expectedText))];
+  const spokenSet = new Set(norm(spokenTranscript));
+  const missing = expectedWords.filter((w) => w.length > 2 && !spokenSet.has(w)).slice(0, 6);
+
+  const openaiKey = process.env.OPENAI_API_KEY || "";
+  if (openaiKey && spokenTranscript.trim()) {
+    try {
+      const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiKey}`
+        },
+        body: JSON.stringify({
+          model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+          temperature: 0.3,
+          max_tokens: 400,
+          response_format: { type: "json_object" },
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are Popo, a warm elementary English pronunciation & intonation coach. " +
+                "Compare the target storybook text and what the student's speech recognition produced. " +
+                "Return ONLY JSON: {score (0-100), weak_words (array of up to 5 lowercase target words needing practice), pronunciation_tip_kr (1 encouraging sentence in Korean), intonation_tip_kr (1 short Korean tip on rhythm/rising-falling tone)}."
+            },
+            {
+              role: "user",
+              content: `Level: ${level}\nTarget text: ${expectedText.slice(0, 800)}\nStudent spoke: ${spokenTranscript.slice(0, 800)}`
+            }
+          ]
+        })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        const parsed = JSON.parse(data?.choices?.[0]?.message?.content || "{}");
+        if (parsed.pronunciation_tip_kr) {
+          return {
+            score: Math.min(100, Math.max(40, Number(parsed.score) || 85)),
+            weak_words: Array.isArray(parsed.weak_words) ? parsed.weak_words : missing,
+            pronunciation_tip_kr: String(parsed.pronunciation_tip_kr),
+            intonation_tip_kr: String(parsed.intonation_tip_kr || "문장 끝을 자연스럽게 올리거나 내려 읽어 보아요.")
+          };
+        }
+      }
+    } catch {
+      // fallback below
+    }
+  }
+
+  const ratio = expectedWords.length
+    ? Math.max(0.5, (expectedWords.length - missing.length) / expectedWords.length)
+    : 0.85;
+
+  return {
+    score: Math.round(ratio * 100),
+    weak_words: missing,
+    pronunciation_tip_kr:
+      missing.length > 0
+        ? `오늘 소리 내어 읽은 문장 중 ${missing.slice(0, 3).join(", ")} 단어를 단어 카드에서 한 번 더 또박또박 연습해 보아요!`
+        : "모든 단어를 또박또박 아주 잘 읽었어요! 지금처럼 매일 꾸준히 소리 내어 읽어 보아요.",
+    intonation_tip_kr: "문장의 끝부분(마침표는 살짝 내려주고, 물음표는 끝을 올려서)에 리듬을 실어 읽어 보면 훨씬 자연스러워져요."
+  };
+}
+
 module.exports = {
   POPO_MASTER_PROMPT_SPEC,
   analyzeTextWithLLM,
   analyzeTextWithLLMAsync,
+  analyzePronunciationWithLLM,
   evaluatePopoSpeech,
   generateTeacherQuestions
 };

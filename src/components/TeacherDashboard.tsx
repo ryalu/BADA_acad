@@ -15,7 +15,7 @@ import {
   Video,
   Volume2
 } from "lucide-react";
-import type { Book, StudentUser, TeacherAccount, TeacherQuestion } from "../types";
+import type { Book, StudentRecording, StudentUser, TeacherAccount, TeacherQuestion } from "../types";
 import { ALL_BADA_LEVELS, getBookSentences, getStudentCurrentWeek } from "../utils/bookHelpers";
 import { playSoftTone, speakEnglish } from "../utils/speech";
 import { BookCover } from "./BookCover";
@@ -81,8 +81,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   const [tchRole, setTchRole] = useState<"teacher" | "director">("teacher");
   const [tchMsg, setTchMsg] = useState("");
 
-  // Coaching recommended questions
+  // Coaching recommended questions & student recordings
   const [coachQuestions, setCoachQuestions] = useState<TeacherQuestion[]>([]);
+  const [studentRecordings, setStudentRecordings] = useState<StudentRecording[]>([]);
 
   // Book registration
   const [bookTitle, setBookTitle] = useState("");
@@ -114,6 +115,16 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     });
     setEdits(map);
   }, [users]);
+
+  useEffect(() => {
+    if (!selectedUserId) return;
+    fetch(`/api/recordings?userId=${encodeURIComponent(selectedUserId)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.recordings) setStudentRecordings(data.recordings);
+      })
+      .catch(() => {});
+  }, [selectedUserId, activeTab]);
 
   const loadCoachingQuestions = async () => {
     if (!currentUser || !currentBook) return;
@@ -850,6 +861,93 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
               >
                 수업 완료 및 학부모 리포트
               </button>
+            </div>
+
+            {/* Student Weekly Voice Recordings & AI Pronunciation Feedback */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">학생 주차별 발음 녹음 &amp; AI 분석함</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    학생이 따라 말하기를 완료하고 전송한 실제 녹음 파일과 AI 발음·억양 피드백입니다.
+                  </p>
+                </div>
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+                  녹음 {studentRecordings.length}건
+                </span>
+              </div>
+
+              {studentRecordings.length === 0 ? (
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 text-xs text-slate-500">
+                  아직 {currentUser.name} 학생이 제출한 발음 녹음 파일이 없습니다. 학생이 원서 읽기 완료 후 &lsquo;진주 받기&rsquo;를 누르면 여기에 자동으로 올라옵니다.
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
+                  {studentRecordings.map((rec) => {
+                    const recBook = books.find((b) => b.id === rec.book_id);
+                    return (
+                      <div key={rec.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-sky-600 text-white">
+                              {rec.week_num}주차 · {rec.repeat_num}회차
+                            </span>
+                            <span className="text-xs font-semibold text-slate-700">
+                              {recBook?.title || rec.book_id}
+                            </span>
+                            {typeof rec.ai_feedback?.score === "number" && (
+                              <span className="text-xs font-bold text-emerald-700">
+                                AI 점수 {rec.ai_feedback.score}점
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-slate-400">
+                            {new Date(rec.created_at).toLocaleString("ko-KR")}
+                          </span>
+                        </div>
+
+                        {rec.audio_data_url && (
+                          <audio controls src={rec.audio_data_url} className="w-full h-9" />
+                        )}
+
+                        {rec.transcript && (
+                          <p className="text-xs text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-2">
+                            <span className="font-bold text-slate-700">인식된 발화:</span> {rec.transcript}
+                          </p>
+                        )}
+
+                        {rec.ai_feedback?.pronunciation_tip_kr && (
+                          <div className="text-xs text-slate-700 space-y-1">
+                            <div>
+                              <span className="font-bold text-sky-700">발음 교정:</span>{" "}
+                              {rec.ai_feedback.pronunciation_tip_kr}
+                            </div>
+                            {rec.ai_feedback.intonation_tip_kr && (
+                              <div>
+                                <span className="font-bold text-amber-700">억양 팁:</span>{" "}
+                                {rec.ai_feedback.intonation_tip_kr}
+                              </div>
+                            )}
+                            {rec.ai_feedback.weak_words && rec.ai_feedback.weak_words.length > 0 && (
+                              <div className="flex flex-wrap items-center gap-1 pt-1">
+                                <span className="font-bold text-rose-700">집중 단어:</span>
+                                {rec.ai_feedback.weak_words.map((w) => (
+                                  <span
+                                    key={w}
+                                    className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 font-semibold"
+                                  >
+                                    {w}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

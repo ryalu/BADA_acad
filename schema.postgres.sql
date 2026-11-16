@@ -80,5 +80,18 @@ CREATE TABLE IF NOT EXISTS cache_audit_logs (
   detail TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS student_recordings (
+  id VARCHAR(80) PRIMARY KEY,
+  user_id VARCHAR(80) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  book_id VARCHAR(80) NOT NULL,
+  week_num INTEGER NOT NULL DEFAULT 1,
+  repeat_num INTEGER NOT NULL DEFAULT 1,
+  transcript TEXT DEFAULT '',
+  audio_data_url TEXT NOT NULL,
+  ai_feedback_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE INDEX IF NOT EXISTS idx_books_text_hash ON books(text_hash);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON cache_audit_logs(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_student_recordings_user ON student_recordings(user_id, created_at DESC);

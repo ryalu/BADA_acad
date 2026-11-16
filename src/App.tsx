@@ -398,6 +398,17 @@ export default function App() {
               <StorybookReader
                 book={currentBook}
                 weekNum={currentWeek}
+                userId={currentUser.id}
+                weekProgress={(currentUser[`progress_w${currentWeek}` as keyof StudentUser] as number) || 0}
+                onRecordRepeatComplete={({ nextProgress }) => {
+                  setUsers((prev) =>
+                    prev.map((u) =>
+                      u.id === currentUser.id
+                        ? { ...u, [`progress_w${currentWeek}`]: nextProgress }
+                        : u
+                    )
+                  );
+                }}
                 onGoToFlashcards={() => setLearnStep(2)}
               />
             )}
