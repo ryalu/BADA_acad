@@ -123,7 +123,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       .then((data) => {
         if (data?.recordings) setStudentRecordings(data.recordings);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [selectedUserId, activeTab]);
 
   const loadCoachingQuestions = async () => {
@@ -206,7 +206,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     const todayStr = new Date().toLocaleDateString("ko-KR");
     ctx.fillStyle = "#64748b";
     ctx.font = "14px 'Noto Sans KR', sans-serif";
-    ctx.fillText(`발급일: ${todayStr} · BADA 영어 원장`, w / 2, 445);
+    ctx.fillText(`발급일: ${todayStr} · BADA English 원장`, w / 2, 445);
   }, [activeTab, currentUser, currentBook]);
 
   const handleRegisterStudent = async () => {
@@ -372,10 +372,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
         setBookEnText("");
         setBookKrText("");
         setBookResultMsg(
-          `신규 원서 《${data.book.title}》 (${data.book.level}) 등록 완료 · 단어 ${
-            (data.book.vocab || []).length
-          }개, 문장 해석 ${(data.book.sentence_translations || []).length}개, 스피킹 질문 ${
-            (data.book.speaking_questions || []).length
+          `신규 원서 《${data.book.title}》 (${data.book.level}) 등록 완료 · 단어 ${(data.book.vocab || []).length
+          }개, 문장 해석 ${(data.book.sentence_translations || []).length}개, 스피킹 질문 ${(data.book.speaking_questions || []).length
           }개가 저장되었습니다.`
         );
         playSoftTone(820, 0.18);
@@ -406,7 +404,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
               className="w-10 h-10 rounded-xl object-cover"
             />
             <div>
-              <div className="text-sm font-bold text-white">BADA 영어 관리센터</div>
+              <div className="text-sm font-bold text-white">BADA English 관리센터</div>
               <div className="text-xs text-slate-400">강사 · 원장님 전용</div>
             </div>
           </div>
@@ -417,11 +415,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 key={item.id}
                 type="button"
                 onClick={() => onChangeTab(item.id)}
-                className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-left ${
-                  activeTab === item.id
-                    ? "bg-sky-600 text-white"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                }`}
+                className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-left ${activeTab === item.id
+                  ? "bg-sky-600 text-white"
+                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                  }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
@@ -469,7 +466,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       </aside>
 
       {/* Main Workspace */}
-      <main className="flex-1 p-5 md:p-8 space-y-6 overflow-y-auto">
+      <main className="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto bg-[#fbf8f2]/72 backdrop-blur-xs">
         {activeTab === "home" && (
           <div className="space-y-6 max-w-6xl">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -512,7 +509,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </div>
 
             {/* Section 1: New Student Registration */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+            <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <UserPlus className="w-4 h-4 text-sky-600" />
                 신규 학생 등록 및 초기 원서 배정
@@ -625,7 +622,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </div>
 
             {/* Section 2: Roster & Inline Assignment */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+            <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
               <h3 className="text-base font-bold text-slate-900">
                 학생별 등급 · 원서 배정 및 진도 관리
               </h3>
@@ -733,7 +730,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </div>
 
             {/* Section 3: Director Teacher Management */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+            <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                   <GraduationCap className="w-4 h-4 text-sky-600" />
@@ -864,7 +861,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </div>
 
             {/* Student Weekly Voice Recordings & AI Pronunciation Feedback */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+            <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-slate-900">학생 주차별 발음 녹음 &amp; AI 분석함</h3>
@@ -951,7 +948,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+              <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
                 <h3 className="text-base font-bold text-slate-900">학생 발화 강점 &amp; 취약점 분석</h3>
                 <div className="space-y-3">
                   <div>
@@ -983,7 +980,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+              <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-slate-900">4주차 화상 수업 추천 질문 3선</h3>
                   <button
@@ -1021,7 +1018,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+              <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
                 <h3 className="text-base font-bold text-slate-900">1주차 vs 4주차 읽기 비교</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
@@ -1057,7 +1054,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+              <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="text-base font-bold text-slate-900">BADA 탐험 수료증</h3>
                   <div className="flex gap-2">
@@ -1112,7 +1109,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-              <div className="lg:col-span-3 bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+              <div className="lg:col-span-3 pt-4 border-t border-[#e5dcc9] space-y-4">
                 <h3 className="text-base font-bold text-slate-900">신규 원서 교재 등록</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
@@ -1201,7 +1198,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
               </div>
 
               {/* Registered Books Catalog */}
-              <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
+              <div className="lg:col-span-2 lg:border-l lg:border-[#e5dcc9] lg:pl-6 pt-4 border-t border-[#e5dcc9] space-y-3">
                 <h3 className="text-base font-bold text-slate-900">등록된 원서 교재 목록</h3>
                 <div className="space-y-2.5 max-h-[540px] overflow-y-auto pr-1">
                   {books.map((b) => {

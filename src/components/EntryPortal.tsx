@@ -83,53 +83,54 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
 
   return (
     <div className="min-h-screen bg-transparent py-8 px-4 md:px-8 flex flex-col items-center justify-center">
-      <div className="w-full max-w-5xl space-y-6">
-        {/* Top Brand Header */}
-        <header className="flex items-center gap-4 bg-white border border-slate-200 rounded-2xl px-6 py-4 shadow-sm">
+      <div className="w-full max-w-5xl space-y-8">
+        {/* Top Brand Header (clean hairline, no box) */}
+        <header className="flex items-center gap-4 pb-5 border-b border-[#e5dcc9]">
           <img
             src="/assets/popo-3d.jpg"
-            alt="BADA 영어 포포"
-            className="w-14 h-14 rounded-xl object-cover border border-slate-200"
+            alt="BADA English 포포"
+            className="w-14 h-14 rounded-full object-cover border-2 border-cyan-300 shadow-sm"
           />
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+              <span className="text-xs font-semibold text-amber-800">
                 Pre-Level ~ Level 8
               </span>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+              <span className="text-xs text-stone-400">·</span>
+              <span className="text-xs font-semibold text-sky-700">
                 초등 영어 원서 리딩 프로그램
               </span>
             </div>
             <h1 className="text-xl md:text-2xl font-bold text-slate-900">
-              BADA 영어{" "}
-              <span className="text-base font-medium text-slate-500 ml-1">
+              BADA English{" "}
+              <span className="text-base font-medium text-slate-600 ml-1">
                 아기 고래 포포와 함께하는 4주 원서 리딩
               </span>
             </h1>
           </div>
         </header>
 
-        {/* Two Portals */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Student Login Card */}
-          <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-5">
+        {/* Two Portals separated by clean vertical hairline */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+          {/* Student Login Section */}
+          <section className="lg:col-span-7 flex flex-col justify-between gap-5">
             <div className="space-y-4">
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                <BookOpen className="w-3.5 h-3.5 text-sky-600" />
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-700">
+                <BookOpen className="w-3.5 h-3.5" />
                 학생 학습 공간
               </span>
               <div>
                 <h2 className="text-2xl font-bold text-slate-900 leading-snug">
                   오늘의 영어 원서 학습을 시작해 볼까요?
                 </h2>
-                <p className="text-sm text-slate-500 mt-1">
+                <p className="text-sm text-slate-600 mt-1">
                   내 이름을 선택하고 출석번호 4자리를 입력해 입장하세요.
                 </p>
               </div>
 
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 <label className="block text-xs font-bold text-slate-600">1. 내 이름 선택</label>
-                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                <div className="divide-y divide-[#e5dcc9] border-y border-[#e5dcc9] max-h-56 overflow-y-auto pr-1">
                   {users.map((u) => {
                     const uBook = books.find((b) => b.id === u.current_book_id) || books[0];
                     const isAct = u.id === selectedUserId;
@@ -144,23 +145,23 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
                           setStudentError("");
                           playSoftTone(540, 0.1);
                         }}
-                        className={`w-full text-left px-4 py-3 rounded-xl border transition flex items-center justify-between gap-3 ${
+                        className={`w-full text-left px-3 py-3 transition flex items-center justify-between gap-3 ${
                           isAct
-                            ? "bg-sky-50 border-sky-600 ring-1 ring-sky-600"
-                            : "bg-slate-50 border-slate-200 hover:border-slate-300"
+                            ? "bg-sky-50/80 border-l-4 border-sky-600 pl-3.5"
+                            : "hover:bg-[#f4efe5]/70"
                         }`}
                       >
                         <div>
                           <div className="text-sm font-bold text-slate-900">
                             {u.name} ({u.grade_label} · {u.level})
                           </div>
-                          <div className="text-xs text-slate-500 mt-0.5">
+                          <div className="text-xs text-slate-600 mt-0.5">
                             원서: {uBook?.title || ""} · {activeWk}주차 진행 중
                           </div>
                         </div>
                         <span
                           className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${
-                            isAct ? "bg-sky-600 text-white" : "bg-slate-200 text-slate-600"
+                            isAct ? "bg-sky-600 text-white" : "text-slate-500"
                           }`}
                         >
                           {isAct && <Check className="w-3 h-3" />}
@@ -172,7 +173,7 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 space-y-2">
+              <div className="pt-2 space-y-2">
                 <label htmlFor="entryPinInput" className="flex items-center gap-1.5 text-xs font-bold text-slate-600">
                   <Lock className="w-3.5 h-3.5 text-slate-400" />
                   2. 출석번호 (4자리) 입력
@@ -187,16 +188,14 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
                     onChange={(e) => setPinCode(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleStudentLogin()}
                     placeholder="••••"
-                    className="w-32 px-4 py-2.5 rounded-xl border border-slate-300 text-center text-lg font-bold tracking-widest text-slate-900 focus:outline-none focus:border-sky-600"
+                    className="w-32 px-4 py-2.5 rounded-xl bg-white/85 border border-[#d8ceb8] text-center text-lg font-bold tracking-widest text-slate-900 focus:outline-none focus:border-sky-600"
                   />
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-slate-600">
                     내 이름과 배정된 원서로 입장합니다.
                   </span>
                 </div>
                 {studentError && (
-                  <p className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
-                    {studentError}
-                  </p>
+                  <p className="text-xs font-semibold text-rose-600">{studentError}</p>
                 )}
               </div>
             </div>
@@ -205,29 +204,29 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
               type="button"
               onClick={handleStudentLogin}
               disabled={loadingStu}
-              className="w-full py-3.5 px-5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-base transition shadow-sm disabled:opacity-60"
+              className="w-full py-3.5 px-5 rounded-full bg-sky-600 hover:bg-sky-700 text-white font-bold text-base transition shadow-sm disabled:opacity-60"
             >
               {loadingStu ? "입장 중..." : "학습 시작하기"}
             </button>
           </section>
 
-          {/* Teacher / Director Login Card */}
-          <section className="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-5 text-white">
+          {/* Teacher / Director Login Section (separated by vertical hairline) */}
+          <section className="lg:col-span-5 lg:border-l lg:border-[#e5dcc9] lg:pl-10 pt-6 lg:pt-0 border-t lg:border-t-0 border-[#e5dcc9] flex flex-col justify-between gap-5">
             <div className="space-y-4">
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-slate-700 text-slate-200 border border-slate-600">
-                <UserCheck className="w-3.5 h-3.5 text-sky-400" />
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800">
+                <UserCheck className="w-3.5 h-3.5" />
                 선생님 · 원장님 전용
               </span>
               <div>
-                <h2 className="text-2xl font-bold text-white">학원 및 학생 학습 관리</h2>
-                <p className="text-sm text-slate-300 mt-1">
+                <h2 className="text-2xl font-bold text-slate-900">학원 및 학생 학습 관리</h2>
+                <p className="text-sm text-slate-600 mt-1">
                   학생 등록, 레벨·원서 배정, 수업 코칭 및 학습 리포트를 관리합니다.
                 </p>
               </div>
 
-              <div className="bg-slate-900/60 border border-slate-700 rounded-xl p-4 space-y-4">
+              <div className="pt-2 border-t border-[#e5dcc9] space-y-4">
                 <div className="space-y-1.5">
-                  <label htmlFor="entryTeacherSelect" className="block text-xs font-bold text-slate-300">
+                  <label htmlFor="entryTeacherSelect" className="block text-xs font-bold text-slate-600">
                     1. 로그인할 계정 선택
                   </label>
                   <select
@@ -238,7 +237,7 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
                       setTeacherPassword("");
                       setTeacherError("");
                     }}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-600 text-sm font-semibold text-white focus:outline-none focus:border-sky-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/85 border border-[#d8ceb8] text-sm font-semibold text-slate-900 focus:outline-none focus:border-sky-600"
                   >
                     {teachers.map((t) => (
                       <option key={t.id} value={t.id}>
@@ -249,7 +248,7 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="entryTeacherPw" className="block text-xs font-bold text-slate-300">
+                  <label htmlFor="entryTeacherPw" className="block text-xs font-bold text-slate-600">
                     2. 계정 비밀번호 입력
                   </label>
                   <input
@@ -259,14 +258,12 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
                     onChange={(e) => setTeacherPassword(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleTeacherLogin()}
                     placeholder="비밀번호 입력"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-600 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-sky-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/85 border border-[#d8ceb8] text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-sky-600"
                   />
                 </div>
 
                 {teacherError && (
-                  <p className="text-xs font-semibold text-rose-300 bg-rose-950/60 border border-rose-700 rounded-lg px-3 py-2">
-                    {teacherError}
-                  </p>
+                  <p className="text-xs font-semibold text-rose-600">{teacherError}</p>
                 )}
               </div>
             </div>
@@ -275,7 +272,7 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
               type="button"
               onClick={handleTeacherLogin}
               disabled={loadingTch}
-              className="w-full py-3.5 px-5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-base transition shadow-sm disabled:opacity-60"
+              className="w-full py-3.5 px-5 rounded-full bg-slate-800 hover:bg-slate-900 text-white font-bold text-base transition shadow-sm disabled:opacity-60"
             >
               {loadingTch ? "확인 중..." : "관리자 로그인"}
             </button>

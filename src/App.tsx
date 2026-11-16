@@ -115,8 +115,20 @@ export default function App() {
     return (
       <>
         <OceanBackdrop />
-        <div className="min-h-screen bg-transparent flex items-center justify-center text-sm font-semibold text-slate-600">
-          BADA 영어를 불러오는 중입니다...
+        <div className="min-h-screen bg-transparent flex flex-col items-center justify-center gap-4 px-4">
+          <div className="relative flex items-center justify-center w-36 h-24">
+            <img
+              src="/assets/popo-3d.jpg"
+              alt="헤엄치는 포포"
+              className="w-20 h-20 rounded-full object-cover border-2 border-cyan-300 shadow-lg animate-popo-swim"
+            />
+            <span className="animate-bubble-1 absolute right-4 top-3 w-3 h-3 rounded-full bg-white/80 border border-cyan-300" />
+            <span className="animate-bubble-2 absolute right-2 top-7 w-2 h-2 rounded-full bg-white/75 border border-cyan-300" />
+          </div>
+          <div className="text-center space-y-1">
+            <p className="text-base font-bold text-slate-800">BADA 영어를 불러오는 중입니다...</p>
+            <p className="text-xs text-sky-700 font-medium">아기 고래 포포가 바닷길을 안내하고 있어요</p>
+          </div>
         </div>
       </>
     );
@@ -175,10 +187,10 @@ export default function App() {
     const teacherTab: TeacherTab = route.includes("/coaching")
       ? "coaching"
       : route.includes("/reports")
-      ? "reports"
-      : route.includes("/database")
-      ? "database"
-      : "home";
+        ? "reports"
+        : route.includes("/database")
+          ? "database"
+          : "home";
 
     return (
       <>
@@ -224,8 +236,8 @@ export default function App() {
   const studentPage = route.includes("/learn")
     ? "learn"
     : route.includes("/curriculum")
-    ? "curriculum"
-    : "home";
+      ? "curriculum"
+      : "home";
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col">
@@ -233,85 +245,85 @@ export default function App() {
       {/* Compact Student Header (shown on Home Map; hidden on Learn & Curriculum for larger workspace) */}
       {studentPage === "home" && (
         <header className="bg-[#fbf8f2]/80 backdrop-blur-md border-b border-[#e8dfd1] px-4 md:px-8 py-2.5 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          <div
-            onClick={() => navigate("/student")}
-            role="button"
-            tabIndex={0}
-            className="flex items-center gap-3 cursor-pointer"
-          >
-            <img
-              src="/assets/popo-3d.jpg"
-              alt="포포"
-              className="w-9 h-9 rounded-full object-cover border-2 border-amber-200 shadow-xs"
-            />
-            <div>
-              <div className="text-sm font-bold text-slate-900">BADA 영어</div>
-              <div className="text-[11px] text-amber-800/80 font-medium">
-                {currentUser.grade_label} · {currentUser.level}
+          <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div
+              onClick={() => navigate("/student")}
+              role="button"
+              tabIndex={0}
+              className="flex items-center gap-3 cursor-pointer"
+            >
+              <img
+                src="/assets/popo-3d.jpg"
+                alt="포포"
+                className="w-9 h-9 rounded-full object-cover border-2 border-amber-200 shadow-xs"
+              />
+              <div>
+                <div className="text-sm font-bold text-slate-900">BADA English</div>
+                <div className="text-[11px] text-amber-800/80 font-medium">
+                  {currentUser.grade_label} · {currentUser.level}
+                </div>
               </div>
             </div>
-          </div>
 
-          <nav className="flex items-center gap-1 border-b border-transparent">
-            <button
-              type="button"
-              onClick={() => navigate("/student")}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition bg-sky-600 text-white shadow-xs"
-            >
-              <MapIcon className="w-3.5 h-3.5" />
-              학습 맵
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setLearnStep(1);
-                navigate("/student/learn");
-              }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              오늘의 원서 읽기
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setCurrSubview("hub");
-                navigate("/student/curriculum");
-              }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              맞춤 훈련소
-            </button>
-          </nav>
+            <nav className="flex items-center gap-1 border-b border-transparent">
+              <button
+                type="button"
+                onClick={() => navigate("/student")}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition bg-sky-600 text-white shadow-xs"
+              >
+                <MapIcon className="w-3.5 h-3.5" />
+                학습 맵
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLearnStep(1);
+                  navigate("/student/learn");
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                오늘의 원서 읽기
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrSubview("hub");
+                  navigate("/student/curriculum");
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                맞춤 훈련소
+              </button>
+            </nav>
 
-          <div className="flex items-center gap-3">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-50/90 border border-cyan-200/80">
-              <img
-                src="/assets/pearl-badge-3d.jpg"
-                alt="바다 진주"
-                className="w-5 h-5 rounded-full object-cover"
-              />
-              <span className="text-xs font-bold text-cyan-900">
-                진주 {Math.round((((currentUser.progress_w1 || 0) + (currentUser.progress_w2 || 0) + (currentUser.progress_w3 || 0) + (currentUser.progress_w4 || 0)) / 400) * 12)} / 12
-              </span>
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-50/90 border border-cyan-200/80">
+                <img
+                  src="/assets/pearl-badge-3d.jpg"
+                  alt="바다 진주"
+                  className="w-5 h-5 rounded-full object-cover"
+                />
+                <span className="text-xs font-bold text-cyan-900">
+                  진주 {Math.round((((currentUser.progress_w1 || 0) + (currentUser.progress_w2 || 0) + (currentUser.progress_w3 || 0) + (currentUser.progress_w4 || 0)) / 400) * 12)} / 12
+                </span>
+              </div>
+              <div className="hidden sm:block text-right">
+                <div className="text-xs font-bold text-slate-800">{currentUser.name}</div>
+                <div className="text-[11px] text-slate-500 truncate max-w-[160px]">{currentBook.title}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700 text-xs font-bold transition"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                로그아웃
+              </button>
             </div>
-            <div className="hidden sm:block text-right">
-              <div className="text-xs font-bold text-slate-800">{currentUser.name}</div>
-              <div className="text-[11px] text-slate-500 truncate max-w-[160px]">{currentBook.title}</div>
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate("/")}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700 text-xs font-bold transition"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              로그아웃
-            </button>
           </div>
-        </div>
-      </header>
+        </header>
       )}
 
       {/* Main Content */}
@@ -342,65 +354,63 @@ export default function App() {
           <div className={learnStep === 1 ? "" : "space-y-3"}>
             {/* Clean Hairline Stepper & Week Selector (hidden in full-screen StorybookReader step 1) */}
             {learnStep !== 1 && (
-            <div className="pb-2.5 border-b border-[#e8dfd1] flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => navigate("/student")}
-                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-xs font-bold text-slate-700 transition"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  항해 맵
-                </button>
-                <div className="flex items-center gap-1">
-                  {([1, 2, 3, 4] as const).map((wk) => (
-                    <button
-                      key={wk}
-                      type="button"
-                      onClick={() => {
-                        setCurrentWeek(wk);
-                        setLearnStep(1);
-                      }}
-                      className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                        currentWeek === wk
+              <div className="pb-2.5 border-b border-[#e8dfd1] flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/student")}
+                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-xs font-bold text-slate-700 transition"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    항해 맵
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {([1, 2, 3, 4] as const).map((wk) => (
+                      <button
+                        key={wk}
+                        type="button"
+                        onClick={() => {
+                          setCurrentWeek(wk);
+                          setLearnStep(1);
+                        }}
+                        className={`px-3 py-1 rounded-full text-xs font-bold transition ${currentWeek === wk
                           ? "bg-sky-600 text-white shadow-xs"
                           : "text-slate-600 hover:bg-[#f2ece1]"
-                      }`}
+                          }`}
+                      >
+                        {wk}주차
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  {[
+                    { step: 1 as const, label: "1교시 · 원서 읽기" },
+                    { step: 2 as const, label: "2교시 · 단어 카드" },
+                    { step: 3 as const, label: "3교시 · 스피킹" }
+                  ].map((s) => (
+                    <button
+                      key={s.step}
+                      type="button"
+                      onClick={() => setLearnStep(s.step)}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition ${learnStep === s.step
+                        ? "bg-sky-600 text-white"
+                        : learnStep > s.step
+                          ? "bg-sky-50 text-sky-700 border border-sky-200"
+                          : "bg-slate-100 text-slate-600"
+                        }`}
                     >
-                      {wk}주차
+                      {s.label}
                     </button>
                   ))}
                 </div>
-              </div>
 
-              <div className="flex items-center gap-1.5">
-                {[
-                  { step: 1 as const, label: "1교시 · 원서 읽기" },
-                  { step: 2 as const, label: "2교시 · 단어 카드" },
-                  { step: 3 as const, label: "3교시 · 스피킹" }
-                ].map((s) => (
-                  <button
-                    key={s.step}
-                    type="button"
-                    onClick={() => setLearnStep(s.step)}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
-                      learnStep === s.step
-                        ? "bg-sky-600 text-white"
-                        : learnStep > s.step
-                        ? "bg-sky-50 text-sky-700 border border-sky-200"
-                        : "bg-slate-100 text-slate-600"
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
+                <span className="hidden md:inline-flex items-center gap-1 text-xs font-semibold text-slate-500">
+                  <Compass className="w-3.5 h-3.5 text-sky-600" />
+                  {currentWeek}주차 학습
+                </span>
               </div>
-
-              <span className="hidden md:inline-flex items-center gap-1 text-xs font-semibold text-slate-500">
-                <Compass className="w-3.5 h-3.5 text-sky-600" />
-                {currentWeek}주차 학습
-              </span>
-            </div>
             )}
 
             {learnStep === 1 && (
