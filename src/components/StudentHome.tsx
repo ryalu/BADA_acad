@@ -341,9 +341,6 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                   <h3 className="text-base md:text-lg font-bold text-slate-900">
                     {user.name} 대원의 바다 진주 보물함
                   </h3>
-                  <p className="text-xs text-slate-600">
-                    진주가 3개씩 모일 때마다 포포가 다음 바다 섬으로 헤엄쳐 갑니다.
-                  </p>
                 </div>
               </div>
               <button
@@ -413,13 +410,12 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                           <img
                             src={stage.img}
                             alt={stage.name}
-                            className={`w-20 h-20 rounded-full object-cover border-[3px] shadow-md transition-all duration-500 ${
-                              isStageComplete
+                            className={`w-20 h-20 rounded-full object-cover border-[3px] shadow-md transition-all duration-500 ${isStageComplete
                                 ? "border-cyan-400 ring-4 ring-cyan-200/70 scale-105"
                                 : isStageReached
-                                ? "border-sky-300 ring-2 ring-sky-200/60"
-                                : "border-white/80 opacity-80 grayscale-[25%]"
-                            }`}
+                                  ? "border-sky-300 ring-2 ring-sky-200/60"
+                                  : "border-white/80 opacity-80 grayscale-[25%]"
+                              }`}
                           />
                           {/* 3 Pearls attached along the bottom rim of each location */}
                           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white/90 backdrop-blur-xs px-1.5 py-0.5 rounded-full border border-sky-200 shadow-xs">
@@ -428,11 +424,10 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                                 key={dot}
                                 src="/assets/pearl-badge-3d.jpg"
                                 alt="진주"
-                                className={`w-4 h-4 rounded-full object-cover transition-all duration-300 ${
-                                  dot < stageFilled
+                                className={`w-4 h-4 rounded-full object-cover transition-all duration-300 ${dot < stageFilled
                                     ? "scale-110 opacity-100 ring-1 ring-cyan-400"
                                     : "scale-90 opacity-25 grayscale"
-                                }`}
+                                  }`}
                               />
                             ))}
                           </div>
@@ -473,11 +468,9 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                     return (
                       <div
                         key={stage.week}
-                        className={`rounded-xl p-2.5 border flex flex-col items-center text-center gap-1.5 ${
-                          idx % 2 === 1 ? "mt-4" : ""
-                        } ${
-                          isActive ? "surface-water-glass" : "bg-white/75 border-sky-200/70"
-                        }`}
+                        className={`rounded-xl p-2.5 border flex flex-col items-center text-center gap-1.5 ${idx % 2 === 1 ? "mt-4" : ""
+                          } ${isActive ? "surface-water-glass" : "bg-white/75 border-sky-200/70"
+                          }`}
                       >
                         <div className="relative">
                           <img
@@ -500,9 +493,8 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                               key={dot}
                               src="/assets/pearl-badge-3d.jpg"
                               alt="진주"
-                              className={`w-3.5 h-3.5 rounded-full object-cover ${
-                                dot < stageFilled ? "opacity-100" : "opacity-25 grayscale"
-                              }`}
+                              className={`w-3.5 h-3.5 rounded-full object-cover ${dot < stageFilled ? "opacity-100" : "opacity-25 grayscale"
+                                }`}
                             />
                           ))}
                         </div>

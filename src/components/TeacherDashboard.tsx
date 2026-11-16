@@ -6,7 +6,6 @@ import {
   GraduationCap,
   LogOut,
   MessageCircle,
-  Plus,
   RefreshCw,
   RotateCcw,
   Save,
@@ -38,7 +37,6 @@ interface TeacherDashboardProps {
     books?: Book[];
     loggedTeacher?: TeacherAccount;
   }) => void;
-  onPreviewStudentApp: () => void;
   onLogout: () => void;
 }
 
@@ -52,7 +50,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   selectedUserId,
   onSelectStudent,
   onDataUpdated,
-  onPreviewStudentApp,
   onLogout
 }) => {
   const currentUser = users.find((u) => u.id === selectedUserId) || users[0];
@@ -384,10 +381,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
         ws.week1?.vocab_test?.length
           ? ws.week1.vocab_test
           : (targetBook.vocab || []).map((v) => ({
-              word: v.surface || v.word,
-              meaning_kr: v.meaning_kr,
-              hint: v.popo_tip || ""
-            }))
+            word: v.surface || v.word,
+            meaning_kr: v.meaning_kr,
+            hint: v.popo_tip || ""
+          }))
       ).slice(0, 6);
 
       const coreSentences = (
@@ -403,8 +400,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           <div class="sec">
             <h3>1. 큰 소리로 읽으며 그림자 글씨를 따라 써 보세요 (핵심 단어)</h3>
             ${coreWords
-              .map(
-                (v: any, i: number) => `
+            .map(
+              (v: any, i: number) => `
                   <div class="word-card">
                     <div class="word-head">
                       <span class="num">${i + 1}</span>
@@ -416,21 +413,21 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       ${ruledLineHtml(v.word)}
                     </div>
                   </div>`
-              )
-              .join("")}
+            )
+            .join("")}
           </div>
           <div class="sec">
             <h3>2. 이야기 내용을 떠올리며 답을 써 보세요</h3>
             ${(ws.week1.comprehension || [])
-              .slice(0, 2)
-              .map(
-                (q: any, i: number) => `
+            .slice(0, 2)
+            .map(
+              (q: any, i: number) => `
                   <div class="qbox">
                     <p class="qtitle"><strong>Q${i + 1}.</strong> ${esc(q.question_kr)}</p>
                     ${ruledLineHtml("")}
                   </div>`
-              )
-              .join("")}
+            )
+            .join("")}
           </div>`;
       } else if (weekKey === "week2" && ws.week2) {
         const coreChunks = (ws.week2.chunk_writing || []).slice(0, 5);
@@ -439,8 +436,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           <div class="sec">
             <h3>1. 의미 덩어리(구)를 그림자 글씨 위로 천천히 따라 써 보세요</h3>
             ${coreChunks
-              .map(
-                (c: any, i: number) => `
+            .map(
+              (c: any, i: number) => `
                   <div class="word-card">
                     <div class="word-head">
                       <span class="num">${i + 1}</span>
@@ -448,21 +445,21 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     </div>
                     ${ruledLineHtml(c.en, true)}
                   </div>`
-              )
-              .join("")}
+            )
+            .join("")}
           </div>
           <div class="sec">
             <h3>2. 알맞은 핵심 단어를 떠올려 빈칸을 채워 보세요</h3>
             ${(ws.week2.fill_blanks || [])
-              .slice(0, 4)
-              .map(
-                (b: any, i: number) => `
+            .slice(0, 4)
+            .map(
+              (b: any, i: number) => `
                   <div class="qbox">
                     <p class="qtitle"><strong>${i + 1}.</strong> ${esc(b.sentence_blank)}</p>
                     <p class="hint">뜻: ${esc(b.kr)}</p>
                   </div>`
-              )
-              .join("")}
+            )
+            .join("")}
           </div>`;
       } else {
         const isBlindTest = weekKey === "week3_4_test";
@@ -474,8 +471,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           <div class="sec">
             <h3>Part 1. 핵심 문장 쓰기 (주 2회 · 문장 필사)</h3>
             ${coreSentences
-              .map(
-                (s: any, i: number) => `
+            .map(
+              (s: any, i: number) => `
                   <div class="word-card">
                     <div class="word-head">
                       <span class="num">${i + 1}</span>
@@ -484,15 +481,15 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     ${isBlindTest ? "" : `<div class="en-sentence">${esc(s.en)}</div>`}
                     ${ruledLineHtml("", true)}
                   </div>`
-              )
-              .join("")}
+            )
+            .join("")}
           </div>
           <div class="sec">
             <h3>Part 2. 핵심 단어 쓰기 (주 2회 · 단어 집중)</h3>
             <div class="two-col">
               ${coreWords
-                .map(
-                  (v: any, i: number) => `
+            .map(
+              (v: any, i: number) => `
                     <div class="word-card">
                       <div class="word-head">
                         <span class="num">${i + 1}</span>
@@ -501,8 +498,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       </div>
                       ${ruledLineHtml("")}
                     </div>`
-                )
-                .join("")}
+            )
+            .join("")}
             </div>
           </div>`;
       }
@@ -1175,11 +1172,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       key={lv}
                       type="button"
                       onClick={() => setStudentLevelFilter(lv)}
-                      className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                        studentLevelFilter === lv
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition ${studentLevelFilter === lv
                           ? "btn-slate-glass"
                           : "bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700"
-                      }`}
+                        }`}
                     >
                       {lv === "ALL" ? `전체 (${count})` : `${lv} (${count})`}
                     </button>
@@ -1708,9 +1704,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           <div className="space-y-6 max-w-6xl">
             <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#e5dcc9]">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">오프라인 학습지 관리 · 인쇄</h2>
+                <h2 className="text-2xl font-bold text-slate-900">오프라인 학습지 관리</h2>
                 <p className="text-sm text-slate-600 mt-1">
-                  원서별로 생성된 저학년용 4선 줄노트 학습지를 목록에서 바로 확인하고 PDF로 인쇄할 수 있습니다. (원서당 1회 생성 후 DB 재사용)
+                  원서별로 생성된 저학년용 4선 줄노트 학습지를 목록에서 바로 확인하고 PDF로 인쇄할 수 있습니다.
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -1743,11 +1739,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     key={lv}
                     type="button"
                     onClick={() => setBookLevelFilter(lv)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                      active
+                    className={`px-3 py-1 rounded-full text-xs font-bold transition ${active
                         ? "btn-slate-glass"
                         : "bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700"
-                    }`}
+                      }`}
                   >
                     {lv === "ALL" ? `전체 (${count})` : `${lv} (${count})`}
                   </button>
@@ -1778,11 +1773,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                           </td>
                           <td className="py-3.5 px-2 whitespace-nowrap">
                             <span
-                              className={`inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
-                                hasCached
+                              className={`inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full ${hasCached
                                   ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                   : "bg-[#f2ece1] text-slate-600"
-                              }`}
+                                }`}
                             >
                               {hasCached ? "DB 저장됨" : "첫 인쇄 시 생성"}
                             </span>
@@ -1936,8 +1930,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   {bookSaving
                     ? "저장 및 AI 분석 중..."
                     : editingBookId
-                    ? "수정 내용 저장하기"
-                    : "신규 원서 등록하기"}
+                      ? "수정 내용 저장하기"
+                      : "신규 원서 등록하기"}
                 </button>
 
                 {bookResultMsg && (
@@ -1968,11 +1962,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                         key={lv}
                         type="button"
                         onClick={() => setBookLevelFilter(lv)}
-                        className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition ${
-                          active
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition ${active
                             ? "btn-slate-glass"
                             : "bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700"
-                        }`}
+                          }`}
                       >
                         {lv === "ALL" ? `전체 (${count})` : `${lv} (${count})`}
                       </button>
@@ -1984,34 +1977,33 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   {books
                     .filter((b) => bookLevelFilter === "ALL" || b.level === bookLevelFilter)
                     .map((b) => {
-                    const sCount = getBookSentences(b).length;
-                    const isEditing = editingBookId === b.id;
-                    return (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => handleSelectBookForEdit(b)}
-                        className={`w-full text-left py-3 px-2 flex items-center gap-3.5 transition ${
-                          isEditing ? "bg-sky-50/80 border-l-4 border-sky-600 pl-3" : "hover:bg-[#f4efe5]/70"
-                        }`}
-                      >
-                        <BookCover book={b} size="sm" />
-                        <div className="min-w-0 flex-1 space-y-1">
-                          <div className="flex items-center justify-between gap-2">
-                            <strong className="text-sm text-slate-900 truncate">{b.title}</strong>
-                            <span className="text-[11px] font-bold text-sky-700 shrink-0">
-                              {b.level}
-                            </span>
+                      const sCount = getBookSentences(b).length;
+                      const isEditing = editingBookId === b.id;
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => handleSelectBookForEdit(b)}
+                          className={`w-full text-left py-3 px-2 flex items-center gap-3.5 transition ${isEditing ? "bg-sky-50/80 border-l-4 border-sky-600 pl-3" : "hover:bg-[#f4efe5]/70"
+                            }`}
+                        >
+                          <BookCover book={b} size="sm" />
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <strong className="text-sm text-slate-900 truncate">{b.title}</strong>
+                              <span className="text-[11px] font-bold text-sky-700 shrink-0">
+                                {b.level}
+                              </span>
+                            </div>
+                            <div className="text-xs text-slate-500 truncate">{b.subtitle_kr}</div>
+                            <div className="text-[11px] text-slate-400">
+                              문장 {sCount}개 · 단어 {(b.vocab || []).length}개 · 질문{" "}
+                              {(b.speaking_questions || []).length}개
+                            </div>
                           </div>
-                          <div className="text-xs text-slate-500 truncate">{b.subtitle_kr}</div>
-                          <div className="text-[11px] text-slate-400">
-                            문장 {sCount}개 · 단어 {(b.vocab || []).length}개 · 질문{" "}
-                            {(b.speaking_questions || []).length}개
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
             </div>

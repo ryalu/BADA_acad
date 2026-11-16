@@ -236,13 +236,10 @@ async function tryPlayServerNeuralTts(
     audio.volume = 1.0;
     activeAudioEl = audio;
 
-    // Gentle volume boost (1.45x) for classroom/kid speakers
+    // Gentle volume boost (1.45x) using shared AudioContext singleton
     try {
-      const AudioCtx =
-        window.AudioContext ||
-        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (AudioCtx) {
-        const ctx = new AudioCtx();
+      const ctx = getSharedAudioContext();
+      if (ctx) {
         const src = ctx.createMediaElementSource(audio);
         const gainNode = ctx.createGain();
         gainNode.gain.value = 1.45;
@@ -364,13 +361,29 @@ export function speakPhonicsBlend(
   })();
 }
 
-export function playSoftTone(freq = 540, duration = 0.14): void {
+let sharedAudioCtx: AudioContext | null = null;
+function getSharedAudioContext(): AudioContext | null {
   try {
     const AudioCtx =
       window.AudioContext ||
       (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
+    if (!AudioCtx) return null;
+    if (!sharedAudioCtx || sharedAudioCtx.state === "closed") {
+      sharedAudioCtx = new AudioCtx();
+    }
+    if (sharedAudioCtx.state === "suspended") {
+      void sharedAudioCtx.resume();
+    }
+    return sharedAudioCtx;
+  } catch {
+    return null;
+  }
+}
+
+export function playSoftTone(freq = 540, duration = 0.14): void {
+  try {
+    const ctx = getSharedAudioContext();
+    if (!ctx) return;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = "sine";

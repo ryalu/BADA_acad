@@ -217,7 +217,6 @@ export default function App() {
             if (payload.books) setBooks(payload.books);
             if (payload.loggedTeacher) setLoggedTeacher(payload.loggedTeacher);
           }}
-          onPreviewStudentApp={() => navigate("/student")}
           onLogout={() => navigate("/")}
         />
       </>
