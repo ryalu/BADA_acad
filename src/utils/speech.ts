@@ -288,6 +288,82 @@ export function speakEnglish(
   })();
 }
 
+const PHONEME_TTS_MAP: Record<string, string> = {
+  b: "buh",
+  c: "kuh",
+  d: "duh",
+  f: "fuh",
+  g: "guh",
+  h: "huh",
+  j: "juh",
+  k: "kuh",
+  l: "luh",
+  m: "muh",
+  n: "nuh",
+  p: "puh",
+  r: "ruh",
+  s: "suh",
+  t: "tuh",
+  v: "vuh",
+  w: "wuh",
+  z: "zuh",
+  sh: "shh",
+  ch: "chuh",
+  th: "thuh",
+  wh: "wuh",
+  ph: "fuh",
+  kn: "nuh",
+  wr: "ruh"
+};
+
+export function speakPhonicsBlend(
+  onset: string,
+  rime: string,
+  wholeWord: string,
+  onStep?: (step: "onset" | "rime" | "word" | "done") => void
+): void {
+  stopAllSpeech();
+  const token = playbackToken;
+  const onsetSpoken = PHONEME_TTS_MAP[onset.toLowerCase()] || onset;
+  const rimeSpoken = rime.replace(/^-/, "");
+
+  const playOne = (txt: string, rate: number) =>
+    new Promise<void>((resolve) => {
+      if (token !== playbackToken) {
+        resolve();
+        return;
+      }
+      void (async () => {
+        const played = await tryPlayServerNeuralTts(txt, rate, resolve, token);
+        if (!played && token === playbackToken) {
+          speakWithBrowserStoryteller(txt, rate, 1.08, resolve, token);
+        }
+      })();
+    });
+
+  const waitMs = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
+
+  void (async () => {
+    if (onset) {
+      onStep?.("onset");
+      await playOne(onsetSpoken, 0.85);
+      if (token !== playbackToken) return;
+      await waitMs(110);
+    }
+    if (rimeSpoken) {
+      onStep?.("rime");
+      await playOne(rimeSpoken, 0.85);
+      if (token !== playbackToken) return;
+      await waitMs(130);
+    }
+    onStep?.("word");
+    await playOne(wholeWord, 0.88);
+    if (token === playbackToken) {
+      onStep?.("done");
+    }
+  })();
+}
+
 export function playSoftTone(freq = 540, duration = 0.14): void {
   try {
     const AudioCtx =
