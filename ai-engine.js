@@ -739,9 +739,132 @@ function generateTeacherQuestions({ studentName, bookTitle, weakPoints, strongPo
   ];
 }
 
+/**
+ * External LLM API Integration (OpenAI / Gemini) for Storybook Analysis
+ * - Reads LLM_PROVIDER ('auto' | 'openai' | 'gemini' | 'local')
+ * - Reads OPENAI_API_KEY (+ OPENAI_MODEL) or GEMINI_API_KEY (+ GEMINI_MODEL)
+ * - Falls back seamlessly to built-in deterministic analyzer when no API key is configured.
+ */
+async function analyzeTextWithExternalLLM(rawText, level = "Level 2") {
+  const providerPref = String(process.env.LLM_PROVIDER || "auto").toLowerCase();
+  if (providerPref === "local") return null;
+
+  const openaiKey = process.env.OPENAI_API_KEY || "";
+  const geminiKey = process.env.GEMINI_API_KEY || "";
+  const useOpenAI = (providerPref === "openai" || (providerPref === "auto" && openaiKey)) && Boolean(openaiKey);
+  const useGemini = !useOpenAI && (providerPref === "gemini" || providerPref === "auto") && Boolean(geminiKey);
+
+  if (!useOpenAI && !useGemini) return null;
+
+  const systemPrompt =
+    "You are an elementary English storybook curriculum analyzer for Korean students (BADA English). " +
+    "Return ONLY valid JSON with keys: vocab, chunks, core_expressions, sentence_translations, speaking_questions. " +
+    "1) vocab: array of {word (lowercase), surface, meaning_kr (natural Korean gloss), phonetic, pos (Korean POS like 명사/동사/형용사/전치사/관사), popo_tip (short friendly Korean tip)}. Include every meaningful word in the story. " +
+    "2) chunks: array of {sentence_index (0-based), text (exact English phrase substring), meaning_kr (natural Korean phrase meaning)}. Split each sentence into natural 2-5 word reading chunks covering the whole sentence in order. " +
+    "3) core_expressions: 3-4 items of {rank, expression, meaning_kr, pattern_note}. " +
+    "4) sentence_translations: array of {index, en, kr (natural elementary-friendly Korean translation)} for every sentence in order. " +
+    "5) speaking_questions: 3-4 items of {en (question encouraging the student to USE the expressions learned, not just plot trivia), kr (Korean subtitle/guide), target (expected English sample answer), expression}.";
+
+  const userPrompt = `Level: ${level}\nStory text:\n${rawText.trim()}`;
+
+  try {
+    let rawJsonText = "";
+    if (useOpenAI) {
+      const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+      const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiKey}`
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.3,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ]
+        })
+      });
+      if (!resp.ok) throw new Error(`OpenAI HTTP ${resp.status}`);
+      const data = await resp.json();
+      rawJsonText = data?.choices?.[0]?.message?.content || "";
+    } else if (useGemini) {
+      const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(geminiKey)}`;
+      const resp = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }],
+          generationConfig: {
+            temperature: 0.3,
+            responseMimeType: "application/json"
+          }
+        })
+      });
+      if (!resp.ok) throw new Error(`Gemini HTTP ${resp.status}`);
+      const data = await resp.json();
+      rawJsonText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    }
+
+    if (!rawJsonText) return null;
+    const parsed = JSON.parse(rawJsonText);
+    return {
+      provider: useOpenAI ? "openai" : "gemini",
+      parsed
+    };
+  } catch (err) {
+    console.warn("⚠️ [BADA LLM] 외부 LLM 호출 실패 ➔ 내장 분석기로 자동 전환:", err.message);
+    return null;
+  }
+}
+
+async function analyzeTextWithLLMAsync(rawText, level = "Level 2", customKoreanText = "") {
+  const localFallback = analyzeTextWithLLM(rawText, level, customKoreanText);
+  const ext = await analyzeTextWithExternalLLM(rawText, level);
+  if (!ext || !ext.parsed) {
+    return { ...localFallback, llm_provider: "local_deterministic" };
+  }
+
+  const p = ext.parsed;
+  const customLines = String(customKoreanText || "")
+    .split(/\r?\n+/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const sentenceTranslations =
+    Array.isArray(p.sentence_translations) && p.sentence_translations.length
+      ? p.sentence_translations.map((st, idx) => ({
+          index: idx,
+          en: st.en || (localFallback.sentence_translations[idx] && localFallback.sentence_translations[idx].en) || "",
+          kr: customLines[idx] || st.kr || (localFallback.sentence_translations[idx] && localFallback.sentence_translations[idx].kr) || ""
+        }))
+      : localFallback.sentence_translations;
+
+  return {
+    level,
+    extracted_at: new Date().toISOString(),
+    llm_provider: ext.provider,
+    vocab: Array.isArray(p.vocab) && p.vocab.length ? p.vocab : localFallback.vocab,
+    chunks: Array.isArray(p.chunks) && p.chunks.length ? p.chunks : localFallback.chunks,
+    core_expressions:
+      Array.isArray(p.core_expressions) && p.core_expressions.length
+        ? p.core_expressions
+        : localFallback.core_expressions,
+    sentence_translations: sentenceTranslations,
+    speaking_questions:
+      Array.isArray(p.speaking_questions) && p.speaking_questions.length
+        ? p.speaking_questions
+        : localFallback.speaking_questions
+  };
+}
+
 module.exports = {
   POPO_MASTER_PROMPT_SPEC,
   analyzeTextWithLLM,
+  analyzeTextWithLLMAsync,
   evaluatePopoSpeech,
   generateTeacherQuestions
 };

@@ -30,7 +30,9 @@ const {
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || "0.0.0.0";
+const DIST_DIR = path.resolve(__dirname, "dist");
 const PUBLIC_DIR = path.resolve(__dirname, "public");
+const SERVE_DIR = fs.existsSync(path.join(DIST_DIR, "index.html")) ? DIST_DIR : PUBLIC_DIR;
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -304,11 +306,76 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { questions });
     }
 
+    // 6. Natural Storyteller TTS endpoint (OpenAI tts-1 when OPENAI_API_KEY is set; 204 otherwise)
+    if (pathname === "/api/tts" && req.method === "POST") {
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        res.writeHead(204, SECURITY_HEADERS);
+        res.end();
+        return;
+      }
+      const body = await parseJsonBody(req);
+      const text = String(body.text || "").trim().slice(0, 1500);
+      if (!text) {
+        return sendJson(res, 400, { error: "text is required" });
+      }
+      const speed = Math.min(1.15, Math.max(0.65, Number(body.speed) || 0.92));
+      const voice = String(body.voice || process.env.OPENAI_TTS_VOICE || "nova");
+      const cacheKey = `${voice}|${speed.toFixed(2)}|${text}`;
+      if (!global.__badaTtsCache) global.__badaTtsCache = new Map();
+      const cache = global.__badaTtsCache;
+
+      if (cache.has(cacheKey)) {
+        res.writeHead(200, {
+          ...SECURITY_HEADERS,
+          "Content-Type": "audio/mpeg",
+          "Cache-Control": "public, max-age=86400"
+        });
+        res.end(cache.get(cacheKey));
+        return;
+      }
+
+      const ttsRes = await fetch("https://api.openai.com/v1/audio/speech", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "tts-1",
+          voice,
+          input: text,
+          speed
+        })
+      });
+
+      if (!ttsRes.ok) {
+        res.writeHead(204, SECURITY_HEADERS);
+        res.end();
+        return;
+      }
+
+      const audioBuf = Buffer.from(await ttsRes.arrayBuffer());
+      if (cache.size >= 200) {
+        const oldestKey = cache.keys().next().value;
+        cache.delete(oldestKey);
+      }
+      cache.set(cacheKey, audioBuf);
+
+      res.writeHead(200, {
+        ...SECURITY_HEADERS,
+        "Content-Type": "audio/mpeg",
+        "Cache-Control": "public, max-age=86400"
+      });
+      res.end(audioBuf);
+      return;
+    }
+
     // Static file serving with strict directory boundary enforcement
     const relTarget = pathname === "/" ? "index.html" : pathname.replace(/^[/\\]+/, "");
-    const absPath = path.resolve(PUBLIC_DIR, relTarget);
+    const absPath = path.resolve(SERVE_DIR, relTarget);
 
-    if (!absPath.startsWith(PUBLIC_DIR + path.sep) && absPath !== path.join(PUBLIC_DIR, "index.html")) {
+    if (!absPath.startsWith(SERVE_DIR + path.sep) && absPath !== path.join(SERVE_DIR, "index.html")) {
       res.writeHead(403, { ...SECURITY_HEADERS, "Content-Type": "text/plain; charset=utf-8" });
       res.end("Forbidden");
       return;
@@ -327,7 +394,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // Fallback to index.html for SPA routes (/student, /student/learn, /student/curriculum, /teacher/*)
-    const indexPath = path.join(PUBLIC_DIR, "index.html");
+    const indexPath = path.join(SERVE_DIR, "index.html");
     if (fs.existsSync(indexPath)) {
       res.writeHead(200, { ...SECURITY_HEADERS, "Content-Type": "text/html; charset=utf-8" });
       fs.createReadStream(indexPath).pipe(res);

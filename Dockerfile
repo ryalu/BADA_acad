@@ -3,9 +3,10 @@ FROM node:22-alpine
 WORKDIR /app
 
 COPY package.json ./
-RUN npm install --omit=dev && chown -R node:node /app
+RUN npm install
 
-COPY --chown=node:node . .
+COPY . .
+RUN npm run build && npm prune --omit=dev && chown -R node:node /app
 
 USER node
 

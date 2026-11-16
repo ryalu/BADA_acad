@@ -10,7 +10,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { DatabaseSync } = require("node:sqlite");
-const { analyzeTextWithLLM } = require("./ai-engine");
+const { analyzeTextWithLLM, analyzeTextWithLLMAsync } = require("./ai-engine");
 
 // Built-in .env loader (no external dependency required)
 function loadDotEnv() {
@@ -55,14 +55,6 @@ const INITIAL_TEACHERS = [
     title_label: "원장 · 최고관리자",
     email: "director@bada.kr",
     password: process.env.DIRECTOR_PASSWORD || "bada1234"
-  },
-  {
-    id: "tch_emma",
-    name: "Teacher Emma",
-    role: "teacher",
-    title_label: "원어민 스피킹 코치",
-    email: "emma@bada.kr",
-    password: "1234"
   }
 ];
 
@@ -296,7 +288,7 @@ function initSqliteDatabase() {
   // Safe column migrations for existing SQLite files
   const alterStmts = [
     "ALTER TABLE users ADD COLUMN pin_code TEXT NOT NULL DEFAULT '1234'",
-    "ALTER TABLE users ADD COLUMN teacher_id TEXT DEFAULT 'tch_emma'",
+    "ALTER TABLE users ADD COLUMN teacher_id TEXT DEFAULT 'tch_director'",
     "ALTER TABLE users ADD COLUMN classcard_level INTEGER DEFAULT 2",
     "ALTER TABLE vocab_chunks ADD COLUMN sentence_translations_json TEXT DEFAULT '[]'",
     "ALTER TABLE vocab_chunks ADD COLUMN speaking_questions_json TEXT DEFAULT '[]'"
@@ -308,6 +300,10 @@ function initSqliteDatabase() {
       // Column already exists
     }
   }
+
+  // Ensure only director account remains from legacy demo teacher seeds
+  sqliteDb.exec("UPDATE users SET teacher_id = 'tch_director' WHERE teacher_id = 'tch_emma'");
+  sqliteDb.exec("DELETE FROM teachers WHERE id = 'tch_emma'");
 
   const teacherCount = sqliteDb.prepare("SELECT COUNT(*) AS cnt FROM teachers").get().cnt;
   if (teacherCount === 0) {
@@ -378,14 +374,14 @@ function needsReanalysis(vcRow) {
   return false;
 }
 
-function getOrExtractVocabAndChunksSqlite(rawText, level = "Level 2", bookId = null, isSeed = false, customKoreanText = "") {
+function getOrExtractVocabAndChunksSqlite(rawText, level = "Level 2", bookId = null, isSeed = false, customKoreanText = "", preExtracted = null) {
   const tHash = hashText(rawText);
   const now = new Date().toISOString();
 
   const existing = sqliteDb.prepare("SELECT * FROM vocab_chunks WHERE text_hash = ?").get(tHash);
   if (existing) {
-    if (needsReanalysis(existing) || String(customKoreanText || "").trim()) {
-      const refreshed = analyzeTextWithLLM(rawText, level, customKoreanText);
+    if (needsReanalysis(existing) || String(customKoreanText || "").trim() || preExtracted) {
+      const refreshed = preExtracted || analyzeTextWithLLM(rawText, level, customKoreanText);
       const nextCount = Number(existing.lookup_count || 1) + 1;
       sqliteDb.prepare(`
         UPDATE vocab_chunks
@@ -441,7 +437,7 @@ function getOrExtractVocabAndChunksSqlite(rawText, level = "Level 2", bookId = n
     };
   }
 
-  const extracted = analyzeTextWithLLM(rawText, level, customKoreanText);
+  const extracted = preExtracted || analyzeTextWithLLM(rawText, level, customKoreanText);
   sqliteDb.prepare(`
     INSERT INTO vocab_chunks (
       text_hash, book_id, raw_text, vocab_json, chunks_json, core_expressions_json,
@@ -527,6 +523,10 @@ async function initPostgresPoolIfConfigured() {
 
     const schemaSql = fs.readFileSync(path.join(__dirname, "schema.postgres.sql"), "utf8");
     await candidatePool.query(schemaSql);
+
+    // Ensure only director account remains from legacy demo teacher seeds
+    await candidatePool.query("UPDATE users SET teacher_id = 'tch_director' WHERE teacher_id = 'tch_emma'");
+    await candidatePool.query("DELETE FROM teachers WHERE id = 'tch_emma'");
 
     // Seed Teachers if empty
     const tRes = await candidatePool.query("SELECT COUNT(*)::int AS cnt FROM teachers");
@@ -1073,7 +1073,9 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
     if (existingRes.rows.length > 0) {
       const existing = existingRes.rows[0];
       if (needsReanalysis(existing) || String(customKoreanText || "").trim()) {
-        const refreshed = analyzeTextWithLLM(rawText, level, customKoreanText);
+        const refreshed = isSeed
+          ? analyzeTextWithLLM(rawText, level, customKoreanText)
+          : await analyzeTextWithLLMAsync(rawText, level, customKoreanText);
         const nextCount = Number(existing.lookup_count || 1) + 1;
         await pgPool.query(
           `UPDATE vocab_chunks
@@ -1136,7 +1138,9 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
       };
     }
 
-    const extracted = analyzeTextWithLLM(rawText, level, customKoreanText);
+    const extracted = isSeed
+      ? analyzeTextWithLLM(rawText, level, customKoreanText)
+      : await analyzeTextWithLLMAsync(rawText, level, customKoreanText);
     const bId = bookId || `custom_${tHash.slice(0, 8)}`;
     await pgPool.query(
       `INSERT INTO vocab_chunks (
@@ -1182,7 +1186,15 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
     };
   }
 
-  return getOrExtractVocabAndChunksSqlite(rawText, level, bookId, isSeed, customKoreanText);
+  let preExtracted = null;
+  if (!isSeed) {
+    const tHash = hashText(rawText);
+    const existing = sqliteDb.prepare("SELECT * FROM vocab_chunks WHERE text_hash = ?").get(tHash);
+    if (!existing || needsReanalysis(existing) || String(customKoreanText || "").trim()) {
+      preExtracted = await analyzeTextWithLLMAsync(rawText, level, customKoreanText);
+    }
+  }
+  return getOrExtractVocabAndChunksSqlite(rawText, level, bookId, isSeed, customKoreanText, preExtracted);
 }
 
 async function updateUserProgress(userId, weekNumber, progressVal, audioUrl) {

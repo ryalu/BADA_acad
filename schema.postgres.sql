@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS users (
   level VARCHAR(40) NOT NULL,
   current_book_id VARCHAR(120) NOT NULL,
   pin_code VARCHAR(10) NOT NULL DEFAULT '1234',
-  teacher_id VARCHAR(80) NOT NULL DEFAULT 'tch_emma',
+  teacher_id VARCHAR(80) NOT NULL DEFAULT 'tch_director',
   classcard_level INTEGER NOT NULL DEFAULT 2,
   progress_w1 INTEGER DEFAULT 0,
   progress_w2 INTEGER DEFAULT 0,
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Safe schema migration for existing deployments
 ALTER TABLE users ADD COLUMN IF NOT EXISTS pin_code VARCHAR(10) NOT NULL DEFAULT '1234';
-ALTER TABLE users ADD COLUMN IF NOT EXISTS teacher_id VARCHAR(80) NOT NULL DEFAULT 'tch_emma';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS teacher_id VARCHAR(80) NOT NULL DEFAULT 'tch_director';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS classcard_level INTEGER NOT NULL DEFAULT 2;
 ALTER TABLE vocab_chunks ADD COLUMN IF NOT EXISTS sentence_translations_json JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE vocab_chunks ADD COLUMN IF NOT EXISTS speaking_questions_json JSONB NOT NULL DEFAULT '[]'::jsonb;
