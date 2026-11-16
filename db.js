@@ -250,6 +250,8 @@ function initSqliteDatabase() {
       vocab_json TEXT NOT NULL,
       chunks_json TEXT NOT NULL,
       core_expressions_json TEXT NOT NULL,
+      sentence_translations_json TEXT DEFAULT '[]',
+      speaking_questions_json TEXT DEFAULT '[]',
       lookup_count INTEGER DEFAULT 1,
       extraction_source TEXT DEFAULT 'LLM_INITIAL_EXTRACT',
       created_at TEXT NOT NULL,
@@ -295,7 +297,9 @@ function initSqliteDatabase() {
   const alterStmts = [
     "ALTER TABLE users ADD COLUMN pin_code TEXT NOT NULL DEFAULT '1234'",
     "ALTER TABLE users ADD COLUMN teacher_id TEXT DEFAULT 'tch_emma'",
-    "ALTER TABLE users ADD COLUMN classcard_level INTEGER DEFAULT 2"
+    "ALTER TABLE users ADD COLUMN classcard_level INTEGER DEFAULT 2",
+    "ALTER TABLE vocab_chunks ADD COLUMN sentence_translations_json TEXT DEFAULT '[]'",
+    "ALTER TABLE vocab_chunks ADD COLUMN speaking_questions_json TEXT DEFAULT '[]'"
   ];
   for (const sql of alterStmts) {
     try {
@@ -350,12 +354,70 @@ function initSqliteDatabase() {
   }
 }
 
-function getOrExtractVocabAndChunksSqlite(rawText, level = "Level 2", bookId = null, isSeed = false) {
+function parseJsonField(val, fallback = []) {
+  if (Array.isArray(val)) return val;
+  if (!val || typeof val !== "string") return fallback;
+  try {
+    const parsed = JSON.parse(val);
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function needsReanalysis(vcRow) {
+  if (!vcRow) return true;
+  const st = parseJsonField(vcRow.sentence_translations_json, []);
+  const sq = parseJsonField(vcRow.speaking_questions_json, []);
+  if (st.length === 0 || sq.length === 0) return true;
+  const vocabStr = typeof vcRow.vocab_json === "string" ? vcRow.vocab_json : JSON.stringify(vcRow.vocab_json || []);
+  const chunksStr = typeof vcRow.chunks_json === "string" ? vcRow.chunks_json : JSON.stringify(vcRow.chunks_json || []);
+  if (vocabStr.includes("문맥 핵심 어휘") || chunksStr.includes("원어민 호흡 단위로 부드럽게")) {
+    return true;
+  }
+  return false;
+}
+
+function getOrExtractVocabAndChunksSqlite(rawText, level = "Level 2", bookId = null, isSeed = false, customKoreanText = "") {
   const tHash = hashText(rawText);
   const now = new Date().toISOString();
 
   const existing = sqliteDb.prepare("SELECT * FROM vocab_chunks WHERE text_hash = ?").get(tHash);
   if (existing) {
+    if (needsReanalysis(existing) || String(customKoreanText || "").trim()) {
+      const refreshed = analyzeTextWithLLM(rawText, level, customKoreanText);
+      const nextCount = Number(existing.lookup_count || 1) + 1;
+      sqliteDb.prepare(`
+        UPDATE vocab_chunks
+        SET vocab_json = ?, chunks_json = ?, core_expressions_json = ?,
+            sentence_translations_json = ?, speaking_questions_json = ?,
+            lookup_count = ?, last_hit_at = ?
+        WHERE text_hash = ?
+      `).run(
+        JSON.stringify(refreshed.vocab),
+        JSON.stringify(refreshed.chunks),
+        JSON.stringify(refreshed.core_expressions),
+        JSON.stringify(refreshed.sentence_translations),
+        JSON.stringify(refreshed.speaking_questions),
+        nextCount,
+        now,
+        tHash
+      );
+      return {
+        cache_status: customKoreanText ? "CUSTOM_KR_UPDATED" : "DB_CACHE_UPGRADED",
+        llm_called: true,
+        text_hash: tHash,
+        lookup_count: nextCount,
+        book_id: bookId || existing.book_id,
+        vocab: refreshed.vocab,
+        chunks: refreshed.chunks,
+        core_expressions: refreshed.core_expressions,
+        sentence_translations: refreshed.sentence_translations,
+        speaking_questions: refreshed.speaking_questions,
+        last_hit_at: now
+      };
+    }
+
     sqliteDb.prepare("UPDATE vocab_chunks SET lookup_count = lookup_count + 1, last_hit_at = ? WHERE text_hash = ?").run(now, tHash);
     sqliteDb.prepare("INSERT INTO cache_audit_logs (timestamp, text_preview, text_hash, status, detail) VALUES (?, ?, ?, ?, ?)").run(
       now,
@@ -370,19 +432,22 @@ function getOrExtractVocabAndChunksSqlite(rawText, level = "Level 2", bookId = n
       text_hash: tHash,
       lookup_count: existing.lookup_count + 1,
       book_id: existing.book_id,
-      vocab: JSON.parse(existing.vocab_json),
-      chunks: JSON.parse(existing.chunks_json),
-      core_expressions: JSON.parse(existing.core_expressions_json),
+      vocab: parseJsonField(existing.vocab_json),
+      chunks: parseJsonField(existing.chunks_json),
+      core_expressions: parseJsonField(existing.core_expressions_json),
+      sentence_translations: parseJsonField(existing.sentence_translations_json),
+      speaking_questions: parseJsonField(existing.speaking_questions_json),
       last_hit_at: now
     };
   }
 
-  const extracted = analyzeTextWithLLM(rawText, level);
+  const extracted = analyzeTextWithLLM(rawText, level, customKoreanText);
   sqliteDb.prepare(`
     INSERT INTO vocab_chunks (
       text_hash, book_id, raw_text, vocab_json, chunks_json, core_expressions_json,
+      sentence_translations_json, speaking_questions_json,
       lookup_count, extraction_source, created_at, last_hit_at
-    ) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
   `).run(
     tHash,
     bookId || `custom_${tHash.slice(0, 8)}`,
@@ -390,6 +455,8 @@ function getOrExtractVocabAndChunksSqlite(rawText, level = "Level 2", bookId = n
     JSON.stringify(extracted.vocab),
     JSON.stringify(extracted.chunks),
     JSON.stringify(extracted.core_expressions),
+    JSON.stringify(extracted.sentence_translations),
+    JSON.stringify(extracted.speaking_questions),
     isSeed ? "SEED_LLM_EXTRACTED" : "LIVE_LLM_EXTRACTED",
     now,
     now
@@ -400,7 +467,7 @@ function getOrExtractVocabAndChunksSqlite(rawText, level = "Level 2", bookId = n
     rawText.slice(0, 60) + (rawText.length > 60 ? "..." : ""),
     tHash,
     "CACHE_MISS_LLM_SAVED",
-    `신규 텍스트 감지 ➔ LLM 단어(${extracted.vocab.length}개)·청크(${extracted.chunks.length}개)·핵심표현(${extracted.core_expressions.length}개) 추출 후 DB 영구 저장`
+    `신규 텍스트 감지 ➔ 단어(${extracted.vocab.length}개)·청크(${extracted.chunks.length}개)·문장해석(${extracted.sentence_translations.length}개)·질문(${extracted.speaking_questions.length}개) DB 영구 저장`
   );
 
   return {
@@ -412,6 +479,8 @@ function getOrExtractVocabAndChunksSqlite(rawText, level = "Level 2", bookId = n
     vocab: extracted.vocab,
     chunks: extracted.chunks,
     core_expressions: extracted.core_expressions,
+    sentence_translations: extracted.sentence_translations,
+    speaking_questions: extracted.speaking_questions,
     last_hit_at: now
   };
 }
@@ -486,8 +555,9 @@ async function initPostgresPoolIfConfigured() {
         await candidatePool.query(
           `INSERT INTO vocab_chunks (
              text_hash, book_id, raw_text, vocab_json, chunks_json, core_expressions_json,
+             sentence_translations_json, speaking_questions_json,
              lookup_count, extraction_source
-           ) VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, 1, 'SEED_LLM_EXTRACTED')
+           ) VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8::jsonb, 1, 'SEED_LLM_EXTRACTED')
            ON CONFLICT (text_hash) DO NOTHING`,
           [
             tHash,
@@ -495,7 +565,9 @@ async function initPostgresPoolIfConfigured() {
             b.full_text.trim(),
             JSON.stringify(extracted.vocab),
             JSON.stringify(extracted.chunks),
-            JSON.stringify(extracted.core_expressions)
+            JSON.stringify(extracted.core_expressions),
+            JSON.stringify(extracted.sentence_translations),
+            JSON.stringify(extracted.speaking_questions)
           ]
         );
       }
@@ -555,20 +627,62 @@ async function getAllBootstrapData() {
     const vcMap = new Map(vcRes.rows.map((r) => [r.text_hash, r]));
     const users = usersRes.rows.map(formatUserRow);
 
-    const books = booksRes.rows.map((b) => {
+    const books = [];
+    for (const b of booksRes.rows) {
       const vc = vcMap.get(b.text_hash);
-      return {
-        ...b,
-        vocab: vc ? (typeof vc.vocab_json === "string" ? JSON.parse(vc.vocab_json) : vc.vocab_json) : [],
-        chunks: vc ? (typeof vc.chunks_json === "string" ? JSON.parse(vc.chunks_json) : vc.chunks_json) : [],
-        core_expressions: vc
-          ? typeof vc.core_expressions_json === "string"
-            ? JSON.parse(vc.core_expressions_json)
-            : vc.core_expressions_json
-          : [],
-        lookup_count: vc ? vc.lookup_count : 1
-      };
-    });
+      if (!vc || needsReanalysis(vc)) {
+        const refreshed = analyzeTextWithLLM(b.full_text, b.level);
+        await pgPool.query(
+          `INSERT INTO vocab_chunks (
+             text_hash, book_id, raw_text, vocab_json, chunks_json, core_expressions_json,
+             sentence_translations_json, speaking_questions_json, lookup_count, extraction_source
+           ) VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8::jsonb, 1, 'AUTO_BACKFILL')
+           ON CONFLICT (text_hash) DO UPDATE SET
+             vocab_json = EXCLUDED.vocab_json,
+             chunks_json = EXCLUDED.chunks_json,
+             core_expressions_json = EXCLUDED.core_expressions_json,
+             sentence_translations_json = CASE
+               WHEN jsonb_array_length(vocab_chunks.sentence_translations_json) = 0 THEN EXCLUDED.sentence_translations_json
+               ELSE vocab_chunks.sentence_translations_json
+             END,
+             speaking_questions_json = CASE
+               WHEN jsonb_array_length(vocab_chunks.speaking_questions_json) = 0 THEN EXCLUDED.speaking_questions_json
+               ELSE vocab_chunks.speaking_questions_json
+             END`,
+          [
+            b.text_hash,
+            b.id,
+            b.full_text.trim(),
+            JSON.stringify(refreshed.vocab),
+            JSON.stringify(refreshed.chunks),
+            JSON.stringify(refreshed.core_expressions),
+            JSON.stringify(refreshed.sentence_translations),
+            JSON.stringify(refreshed.speaking_questions)
+          ]
+        );
+        const existingSt = vc ? parseJsonField(vc.sentence_translations_json, []) : [];
+        const existingSq = vc ? parseJsonField(vc.speaking_questions_json, []) : [];
+        books.push({
+          ...b,
+          vocab: refreshed.vocab,
+          chunks: refreshed.chunks,
+          core_expressions: refreshed.core_expressions,
+          sentence_translations: existingSt.length ? existingSt : refreshed.sentence_translations,
+          speaking_questions: existingSq.length ? existingSq : refreshed.speaking_questions,
+          lookup_count: vc ? vc.lookup_count : 1
+        });
+      } else {
+        books.push({
+          ...b,
+          vocab: parseJsonField(vc.vocab_json),
+          chunks: parseJsonField(vc.chunks_json),
+          core_expressions: parseJsonField(vc.core_expressions_json),
+          sentence_translations: parseJsonField(vc.sentence_translations_json),
+          speaking_questions: parseJsonField(vc.speaking_questions_json),
+          lookup_count: vc.lookup_count || 1
+        });
+      }
+    }
 
     return { users, teachers: teachersRes.rows, books, auditLogs: logsRes.rows, dbEngine: activeDbEngine };
   }
@@ -581,12 +695,26 @@ async function getAllBootstrapData() {
 
   const books = sqliteDb.prepare("SELECT * FROM books").all().map((b) => {
     const vc = sqliteDb.prepare("SELECT * FROM vocab_chunks WHERE text_hash = ?").get(b.text_hash);
+    if (!vc || needsReanalysis(vc)) {
+      const upgraded = getOrExtractVocabAndChunksSqlite(b.full_text, b.level, b.id, true);
+      return {
+        ...b,
+        vocab: upgraded.vocab,
+        chunks: upgraded.chunks,
+        core_expressions: upgraded.core_expressions,
+        sentence_translations: upgraded.sentence_translations,
+        speaking_questions: upgraded.speaking_questions,
+        lookup_count: upgraded.lookup_count || 1
+      };
+    }
     return {
       ...b,
-      vocab: vc ? JSON.parse(vc.vocab_json) : [],
-      chunks: vc ? JSON.parse(vc.chunks_json) : [],
-      core_expressions: vc ? JSON.parse(vc.core_expressions_json) : [],
-      lookup_count: vc ? vc.lookup_count : 1
+      vocab: parseJsonField(vc.vocab_json),
+      chunks: parseJsonField(vc.chunks_json),
+      core_expressions: parseJsonField(vc.core_expressions_json),
+      sentence_translations: parseJsonField(vc.sentence_translations_json),
+      speaking_questions: parseJsonField(vc.speaking_questions_json),
+      lookup_count: vc.lookup_count || 1
     };
   });
 
@@ -885,6 +1013,7 @@ async function createBook(payload) {
   const level = String(payload.level || "Level 2").trim().slice(0, 40);
   const grade_recommended = String(payload.grade_recommended || "초등 전학년").trim().slice(0, 60);
   const full_text = String(payload.full_text || "").trim().slice(0, 5000);
+  const korean_text = String(payload.korean_text || "").trim().slice(0, 5000);
   const cover_theme = ["aqua", "coral", "mint"].includes(payload.cover_theme) ? payload.cover_theme : "aqua";
 
   if (!title || !full_text) {
@@ -914,7 +1043,7 @@ async function createBook(payload) {
     `).run(id, title, subtitle_kr, level, grade_recommended, full_text, tHash, cover_theme);
   }
 
-  const analysis = await getOrExtractVocabAndChunks(full_text, level, id);
+  const analysis = await getOrExtractVocabAndChunks(full_text, level, id, false, korean_text);
   return {
     book: {
       id,
@@ -927,13 +1056,15 @@ async function createBook(payload) {
       cover_theme,
       vocab: analysis.vocab,
       chunks: analysis.chunks,
-      core_expressions: analysis.core_expressions
+      core_expressions: analysis.core_expressions,
+      sentence_translations: analysis.sentence_translations,
+      speaking_questions: analysis.speaking_questions
     },
     analysis
   };
 }
 
-async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = null, isSeed = false) {
+async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = null, isSeed = false, customKoreanText = "") {
   if (pgPool) {
     const tHash = hashText(rawText);
     const now = new Date().toISOString();
@@ -941,6 +1072,40 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
 
     if (existingRes.rows.length > 0) {
       const existing = existingRes.rows[0];
+      if (needsReanalysis(existing) || String(customKoreanText || "").trim()) {
+        const refreshed = analyzeTextWithLLM(rawText, level, customKoreanText);
+        const nextCount = Number(existing.lookup_count || 1) + 1;
+        await pgPool.query(
+          `UPDATE vocab_chunks
+           SET vocab_json = $1::jsonb, chunks_json = $2::jsonb, core_expressions_json = $3::jsonb,
+               sentence_translations_json = $4::jsonb, speaking_questions_json = $5::jsonb,
+               lookup_count = $6, last_hit_at = NOW()
+           WHERE text_hash = $7`,
+          [
+            JSON.stringify(refreshed.vocab),
+            JSON.stringify(refreshed.chunks),
+            JSON.stringify(refreshed.core_expressions),
+            JSON.stringify(refreshed.sentence_translations),
+            JSON.stringify(refreshed.speaking_questions),
+            nextCount,
+            tHash
+          ]
+        );
+        return {
+          cache_status: customKoreanText ? "CUSTOM_KR_UPDATED" : "DB_CACHE_UPGRADED",
+          llm_called: true,
+          text_hash: tHash,
+          lookup_count: nextCount,
+          book_id: bookId || existing.book_id,
+          vocab: refreshed.vocab,
+          chunks: refreshed.chunks,
+          core_expressions: refreshed.core_expressions,
+          sentence_translations: refreshed.sentence_translations,
+          speaking_questions: refreshed.speaking_questions,
+          last_hit_at: now
+        };
+      }
+
       const nextCount = Number(existing.lookup_count || 1) + 1;
       await pgPool.query(
         "UPDATE vocab_chunks SET lookup_count = $1, last_hit_at = NOW() WHERE text_hash = $2",
@@ -962,23 +1127,23 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
         text_hash: tHash,
         lookup_count: nextCount,
         book_id: existing.book_id,
-        vocab: typeof existing.vocab_json === "string" ? JSON.parse(existing.vocab_json) : existing.vocab_json,
-        chunks: typeof existing.chunks_json === "string" ? JSON.parse(existing.chunks_json) : existing.chunks_json,
-        core_expressions:
-          typeof existing.core_expressions_json === "string"
-            ? JSON.parse(existing.core_expressions_json)
-            : existing.core_expressions_json,
+        vocab: parseJsonField(existing.vocab_json),
+        chunks: parseJsonField(existing.chunks_json),
+        core_expressions: parseJsonField(existing.core_expressions_json),
+        sentence_translations: parseJsonField(existing.sentence_translations_json),
+        speaking_questions: parseJsonField(existing.speaking_questions_json),
         last_hit_at: now
       };
     }
 
-    const extracted = analyzeTextWithLLM(rawText, level);
+    const extracted = analyzeTextWithLLM(rawText, level, customKoreanText);
     const bId = bookId || `custom_${tHash.slice(0, 8)}`;
     await pgPool.query(
       `INSERT INTO vocab_chunks (
          text_hash, book_id, raw_text, vocab_json, chunks_json, core_expressions_json,
+         sentence_translations_json, speaking_questions_json,
          lookup_count, extraction_source
-       ) VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, 1, $7)`,
+       ) VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8::jsonb, 1, $9)`,
       [
         tHash,
         bId,
@@ -986,6 +1151,8 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
         JSON.stringify(extracted.vocab),
         JSON.stringify(extracted.chunks),
         JSON.stringify(extracted.core_expressions),
+        JSON.stringify(extracted.sentence_translations),
+        JSON.stringify(extracted.speaking_questions),
         isSeed ? "SEED_LLM_EXTRACTED" : "LIVE_LLM_EXTRACTED"
       ]
     );
@@ -996,7 +1163,7 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
         rawText.slice(0, 60) + (rawText.length > 60 ? "..." : ""),
         tHash,
         "CACHE_MISS_LLM_SAVED",
-        `신규 텍스트 감지 ➔ LLM 추출 후 PostgreSQL 영구 저장`
+        `신규 텍스트 감지 ➔ 단어·청크·문장해석(${extracted.sentence_translations.length}개)·질문(${extracted.speaking_questions.length}개) PostgreSQL 영구 저장`
       ]
     );
 
@@ -1009,11 +1176,13 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
       vocab: extracted.vocab,
       chunks: extracted.chunks,
       core_expressions: extracted.core_expressions,
+      sentence_translations: extracted.sentence_translations,
+      speaking_questions: extracted.speaking_questions,
       last_hit_at: now
     };
   }
 
-  return getOrExtractVocabAndChunksSqlite(rawText, level, bookId, isSeed);
+  return getOrExtractVocabAndChunksSqlite(rawText, level, bookId, isSeed, customKoreanText);
 }
 
 async function updateUserProgress(userId, weekNumber, progressVal, audioUrl) {

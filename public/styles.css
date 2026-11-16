@@ -4738,3 +4738,615 @@ body[data-app-shell="teacher"] .ocean-ambient {
   gap: 10px;
   margin-bottom: 12px;
 }
+
+
+/* Global utility & Week-specific curriculum styling */
+.hidden {
+  display: none !important;
+}
+
+.chunk-slash-badge {
+  display: inline-block;
+  margin: 0 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #ccfbf1;
+  color: #0d9488;
+  font-family: "Nunito", sans-serif;
+  font-size: 13px;
+  font-weight: 900;
+  border: 1.5px solid #5eead4;
+  vertical-align: middle;
+}
+
+.home-island-row.locked-island {
+  opacity: 0.72;
+  filter: saturate(0.65);
+}
+
+/* Week 1 Word-by-Word & Week 2 Chunk-by-Chunk Active Highlights */
+.story-word-chip.active-spoken-word {
+  background: #fef08a;
+  border: 2.5px solid #f59e0b;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+  color: #0f172a;
+  transform: translateY(-2px) scale(1.06);
+  z-index: 35;
+}
+
+.story-word-chip.done-spoken-word {
+  color: #0d9488;
+  border-bottom-color: #10b981;
+}
+
+.story-word-chip.active-spoken-chunk {
+  background: #cffafe;
+  border-bottom: 3px solid #0284c7;
+  color: #0c4a6e;
+  border-radius: 8px;
+}
+
+/* Current Sentence Korean Translation Bar Directly Below Book Text */
+.current-reading-sentence-kr-bar {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 2.5px solid #fbbf24;
+  border-bottom-width: 6px;
+  border-bottom-color: #d97706;
+  border-radius: 20px;
+  padding: 14px 18px;
+  margin: 14px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.kr-bar-badge {
+  background: #f59e0b;
+  color: #ffffff;
+  font-family: "Jua", sans-serif;
+  font-size: 13.5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.kr-bar-text {
+  font-size: 17px;
+  color: #92400e;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+/* Real Front/Back 3D Flip Flashcard Styles */
+@keyframes cardFlipPop {
+  0% {
+    transform: perspective(900px) rotateY(90deg) scale(0.95);
+  }
+  100% {
+    transform: perspective(900px) rotateY(0deg) scale(1);
+  }
+}
+
+.toy-3d-flashcard-big.is-flipped {
+  background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+  border-color: #f59e0b;
+  border-bottom-color: #d97706;
+  animation: cardFlipPop 0.28s ease-out;
+}
+
+.fc-front-cover-notice {
+  background: #f0fdfa;
+  border: 2px dashed #5eead4;
+  border-radius: 22px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #0f766e;
+  line-height: 1.6;
+}
+
+.fc-example-box {
+  background: #ffffff;
+  border: 2px solid #fde68a;
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin: 10px 0;
+  text-align: left;
+}
+
+.fc-example-en {
+  font-family: "Nunito", sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f3d3e;
+  margin-bottom: 4px;
+}
+
+.fc-example-kr {
+  font-size: 14px;
+  font-weight: 700;
+  color: #be123c;
+}
+
+/* ==========================================================================
+   CALM & CLEAN EDTECH DESIGN REFINEMENT
+   - Removes overly bright neon gradients, cartoon 8-12px borders & idle bounces
+   - Unifies typography, spacing, and 2-tone calm Ocean Blue + Neutral Slate palette
+   ========================================================================== */
+:root {
+  --aqua-deep: #0369a1;
+  --aqua-main: #0284c7;
+  --aqua-bright: #0ea5e9;
+  --aqua-light: #bae6fd;
+  --aqua-foam: #e0f2fe;
+  --aqua-mist: #f0f9ff;
+
+  --coral-deep: #0369a1;
+  --coral-main: #0284c7;
+  --coral-soft: #bae6fd;
+  --coral-blush: #e0f2fe;
+
+  --sand-warm: #f8fafc;
+  --sand-cream: #f1f5f9;
+  --sand-gold: #cbd5e1;
+
+  --ink-navy: #1e293b;
+  --ink-soft: #475569;
+
+  --jelly-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  --coral-shadow: 0 4px 16px rgba(2, 132, 199, 0.14);
+}
+
+body {
+  font-family: "Noto Sans KR", "Pretendard", "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f8fafc !important;
+  color: #1e293b;
+}
+
+/* Hide test/debug scaffolding, uppercase badges, and ambient distracting animations */
+.ocean-ambient,
+#oceanAmbientBg,
+.saas-badge,
+.widget-kicker,
+.voice-sim-bar,
+.pw-quick-fill-bar,
+.teacher-modules-preview,
+.pin-hint-pill {
+  display: none !important;
+}
+
+.brand-logo-blob,
+.pulse-toy-btn,
+.ambient-bubble {
+  animation: none !important;
+}
+
+/* Clean Unified Typography (replaces overly playful Jua everywhere) */
+.brand-title,
+.mission-headline,
+.home-island-left h4,
+.storybook-main-heading,
+.sentence-progress-counter,
+.toy-3d-nav-btn,
+.toy-3d-btn,
+.toy-3d-chip,
+.learn-step-pill,
+.helper-badge,
+.book-page-kicker,
+.fc-meaning-kr,
+.pearl-mic-btn-text strong,
+.toy-3d-activity-card h3,
+.phonics-spot-meaning,
+.cc-quiz-option-btn,
+.cc-quiz-feedback-banner,
+.child-voice-echo-box,
+.pin-auth-label,
+.locked-pill-val {
+  font-family: "Noto Sans KR", "Pretendard", "Nunito", sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+
+/* Header & Navigation Bar */
+.bada-header {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04) !important;
+}
+
+.brand-logo-blob {
+  background: #f1f5f9 !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+  border: 1.5px solid #e2e8f0;
+}
+
+.brand-pill,
+.brand-pill.coral,
+.role-pill,
+.role-pill.mint,
+.mini-pill,
+.stage-tag,
+.mission-pill,
+.mission-pill.coral {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: none !important;
+  font-weight: 700 !important;
+}
+
+/* Entry Portals */
+.portal-card.student-portal {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 22px !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+}
+
+.portal-card.teacher-portal {
+  background: #1e293b !important;
+  border: 1.5px solid #334155 !important;
+  border-radius: 22px !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.12) !important;
+}
+
+.role-pill.dark-mint {
+  background: #334155 !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #475569 !important;
+}
+
+.entry-stu-card {
+  background: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+}
+
+.entry-stu-card.active {
+  background: #f0f9ff !important;
+  border: 2px solid #0284c7 !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12) !important;
+}
+
+.stu-select-badge {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.entry-stu-card.active .stu-select-badge {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+.entry-pin-input {
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  color: #1e293b !important;
+}
+
+/* Unified Calm Navigation Tabs & Steppers */
+.toy-3d-nav-btn,
+.learn-step-pill,
+.toy-3d-subnav {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  color: #334155 !important;
+  box-shadow: none !important;
+}
+
+.toy-3d-nav-btn.active,
+.learn-step-pill.active {
+  background: #0284c7 !important;
+  border-color: #0369a1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.2) !important;
+  transform: none !important;
+}
+
+.learn-step-pill.completed {
+  background: #e0f2fe !important;
+  border-color: #bae6fd !important;
+  color: #0369a1 !important;
+}
+
+.step-arrow {
+  color: #94a3b8 !important;
+}
+
+/* Panels, Cards & Hero Banner (Clean White + Soft Borders, NO 8-12px heavy cartoon borders) */
+.toy-3d-panel,
+.toy-3d-panel.coral-border,
+.toy-3d-storybook-wrapper,
+.toy-3d-activity-card,
+.toy-3d-activity-card.coral,
+.toy-3d-activity-card.gold,
+.toy-3d-flashcard-big,
+.cc-quiz-question-card,
+.phonics-spotlight-card,
+.sub-module-card,
+.saas-widget-card {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+}
+
+.toy-3d-hero-banner {
+  background: #f0f9ff !important;
+  border: 1.5px solid #bae6fd !important;
+  border-radius: 20px !important;
+  box-shadow: none !important;
+}
+
+.hero-popo-3d-frame,
+.guide-mini-popo,
+.speaking-popo-3d-img {
+  border: 2px solid #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Island Cards on Student Home */
+.toy-3d-island-card,
+.toy-3d-island-card.mint,
+.toy-3d-island-card.gold,
+.home-island-row {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+.toy-3d-island-card.coral,
+.home-island-row.coral {
+  background: #f0f9ff !important;
+  border: 2px solid #0284c7 !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08) !important;
+}
+
+.island-3d-icon,
+.act-card-3d-icon {
+  background: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  box-shadow: none !important;
+}
+
+.home-week-tag,
+.home-week-tag.coral,
+.home-week-tag.gold {
+  color: #0369a1 !important;
+}
+
+.storybook-3d-cover-card,
+.pearl-reward-box,
+.popo-3d-conversation-row,
+.popo-natural-speech-bubble,
+.current-sentence-helper-card,
+.word-hover-Dock {
+  background: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 18px !important;
+  box-shadow: none !important;
+}
+
+.popo-natural-speech-bubble,
+.current-sentence-helper-card {
+  background: #ffffff !important;
+}
+
+/* Real Paper-Style Open Storybook */
+.open-storybook-3d {
+  background: #fcfbf7 !important;
+  border: 1.5px solid #e5e0d5 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06) !important;
+}
+
+.storybook-page {
+  background: #fcfbf7 !important;
+}
+
+.storybook-center-spine {
+  background: linear-gradient(90deg, rgba(226, 232, 240, 0.2), rgba(148, 163, 184, 0.45), rgba(226, 232, 240, 0.2)) !important;
+  opacity: 0.7;
+}
+
+.full-storybook-text-container {
+  background: #ffffff !important;
+  border: 1.5px solid #e5e0d5 !important;
+  border-radius: 16px !important;
+  color: #1e293b !important;
+  line-height: 2.25;
+}
+
+.story-sentence-unit.active-sentence {
+  background: #e0f2fe !important;
+  box-shadow: 0 0 0 2px #7dd3fc !important;
+  color: #0c4a6e !important;
+}
+
+.story-sentence-unit.done-sentence {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+.sentence-status-tag {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+.story-sentence-unit.done-sentence .sentence-status-tag {
+  background: #0d9488 !important;
+}
+
+.story-word-chip {
+  border-bottom: 1.5px dotted #94a3b8 !important;
+}
+
+.story-word-chip.core-vocab-word {
+  background: rgba(224, 242, 254, 0.65) !important;
+  border-bottom: 2px solid #0284c7 !important;
+  color: #0f172a !important;
+}
+
+.story-word-chip.active-spoken-word {
+  background: #fef3c7 !important;
+  border: 2px solid #d97706 !important;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.2) !important;
+  color: #0f172a !important;
+}
+
+.story-word-chip.active-spoken-chunk {
+  background: #bae6fd !important;
+  border-bottom: 2.5px solid #0284c7 !important;
+  color: #0c4a6e !important;
+}
+
+.chunk-slash-badge {
+  background: #f1f5f9 !important;
+  color: #0369a1 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.current-reading-sentence-kr-bar,
+.active-sentence-kr-hint {
+  background: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  color: #1e293b !important;
+  border-radius: 14px !important;
+}
+
+.kr-bar-badge {
+  background: #334155 !important;
+  color: #ffffff !important;
+}
+
+.kr-bar-text {
+  color: #1e293b !important;
+}
+
+/* Unified Buttons Hierarchy */
+.toy-3d-btn,
+.portal-cta-btn,
+.squishy-action-btn,
+.squishy-mini-btn,
+.saas-btn {
+  border-radius: 12px !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  transition: background 0.15s ease, transform 0.1s ease, border-color 0.15s ease !important;
+}
+
+/* Primary Buttons */
+.toy-3d-btn.coral,
+.toy-3d-btn.gold,
+.portal-cta-btn.mint,
+.portal-cta-btn.coral,
+.squishy-action-btn.coral,
+.saas-btn.coral-btn,
+.saas-btn.emerald-btn,
+.toy-3d-pearl-mic-btn {
+  background: #0284c7 !important;
+  border: 1.5px solid #0369a1 !important;
+  border-bottom: 3px solid #075985 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.18) !important;
+}
+
+.toy-3d-btn.coral:hover,
+.toy-3d-btn.gold:hover,
+.portal-cta-btn:hover,
+.toy-3d-pearl-mic-btn:hover {
+  background: #0369a1 !important;
+  filter: none !important;
+}
+
+/* Secondary Buttons */
+.toy-3d-btn.mint,
+.toy-3d-btn.sand,
+.squishy-action-btn.mint,
+.squishy-mini-btn.mint,
+.squishy-mini-btn.coral {
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-bottom: 2px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+.toy-3d-btn.mint:hover,
+.toy-3d-btn.sand:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+/* Calm Chips & Status Counters */
+.toy-3d-chip,
+.toy-3d-chip.coral,
+.toy-3d-chip.sand,
+.sentence-progress-counter,
+.act-card-badge,
+.act-card-badge.coral,
+.act-card-badge.gold,
+.act-card-progress-pill,
+.act-card-progress-pill.coral {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+
+.toy-3d-flashcard-big.is-flipped {
+  background: #f8fafc !important;
+  border-color: #0284c7 !important;
+}
+
+.fc-meaning-box {
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 16px !important;
+}
+
+.fc-meaning-kr {
+  color: #0369a1 !important;
+}
+
+.fc-front-cover-notice {
+  background: #f8fafc !important;
+  border: 1.5px dashed #cbd5e1 !important;
+  color: #475569 !important;
+  border-radius: 16px !important;
+}
+
+.popo-spoken-kr,
+.child-voice-echo-box,
+.cc-quiz-feedback-banner {
+  background: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  color: #1e293b !important;
+  border-radius: 14px !important;
+}
+
+.cc-quiz-option-btn {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #1e293b !important;
+  border-radius: 14px !important;
+}
+
+.cc-quiz-option-btn.correct {
+  background: #dcfce7 !important;
+  border-color: #16a34a !important;
+  color: #14532d !important;
+}
+
+.cc-quiz-option-btn.wrong {
+  background: #fee2e2 !important;
+  border-color: #dc2626 !important;
+  color: #7f1d1d !important;
+}

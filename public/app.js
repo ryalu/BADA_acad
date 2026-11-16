@@ -208,7 +208,9 @@ const FALLBACK_BOOKS = [
       { text: "Popo blows a big water bubble", meaning_kr: "포포가 커다란 물방울을 불어요" },
       { text: "in the blue sea.", meaning_kr: "푸른 바닷속에서" },
       { text: "Jump high over the soft waves", meaning_kr: "부드러운 파도 위로 높이 점프해 봐" },
-      { text: "with baby dolphin!", meaning_kr: "아기 돌고래와 함께!" }
+      { text: "with baby dolphin!", meaning_kr: "아기 돌고래와 함께!" },
+      { text: "Look at the red crab", meaning_kr: "저 빨간 꽃게를 봐" },
+      { text: "dancing on the warm sandy beach.", meaning_kr: "따뜻한 모래 해변 위에서 춤추고 있는" }
     ],
     core_expressions: [
       { rank: 1, expression: "blows a big water bubble", meaning_kr: "커다란 물방울을 불다", pattern_note: "Pre-Level 핵심 동작 청크" },
@@ -271,13 +273,36 @@ const state = {
 };
 
 // Web Speech & Web Audio Helpers
-function speakEnglish(text, rate = 0.92, pitch = 1.08, onEnd = null) {
+function formatTextForNaturalTts(text, contextNextWord = "") {
+  const trimmed = String(text || "").trim();
+  if (!trimmed) return "";
+
+  // Single token word-by-word pronunciation normalization
+  if (!/\s/.test(trimmed)) {
+    const bare = trimmed.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9'-]+$/g, "");
+    const lower = bare.toLowerCase();
+    if (lower === "a") return "uh";
+    if (lower === "the") {
+      const nextClean = String(contextNextWord || "").replace(/^[^a-zA-Z]+/, "");
+      return /^[aeiou]/i.test(nextClean) ? "thee" : "thuh";
+    }
+    return bare || trimmed;
+  }
+
+  // Multi-word chunk or sentence: normalize capitalized article "A " to lowercase "a "
+  return trimmed
+    .replace(/^(['"“”‘’]?)A\s+/g, "$1a ")
+    .replace(/([.!?]\s+)A\s+/g, "$1a ");
+}
+
+function speakEnglish(text, rate = 0.92, pitch = 1.08, onEnd = null, contextNextWord = "") {
   if (!("speechSynthesis" in window)) {
     if (onEnd) setTimeout(onEnd, 700);
     return;
   }
   window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
+  const spokenText = formatTextForNaturalTts(text, contextNextWord);
+  const utter = new SpeechSynthesisUtterance(spokenText);
   utter.lang = "en-US";
   utter.rate = rate;
   utter.pitch = pitch;
@@ -375,9 +400,9 @@ const WEEK_META_LABELS = {
   4: { title: "4주차 · 전체 스토리 e-Book & 보물 상자", doneSummary: "1·2·3주차 완료 ✓" }
 };
 
-function syncCurrentWeekPlayer(user) {
+function syncCurrentWeekPlayer(user, forcedWeek = null) {
   if (!user) return;
-  const activeWk = getStudentCurrentWeek(user);
+  const activeWk = forcedWeek || state.currentWeek || getStudentCurrentWeek(user);
   activateWeekIsland(activeWk);
 
   const progVal = user[`progress_w${activeWk}`] || 0;
@@ -387,7 +412,7 @@ function syncCurrentWeekPlayer(user) {
   const curPill = document.getElementById("learnCurrentWeekPill");
   if (donePill) donePill.textContent = meta.doneSummary;
   if (curPill) {
-    curPill.textContent = `🔥 ${user.name} 대원의 현재 진도: ${meta.title} (진도율 ${progVal}%)`;
+    curPill.textContent = `🔥 ${user.name} 대원 · ${meta.title} (진도율 ${progVal}%)`;
   }
 }
 
@@ -532,6 +557,18 @@ function selectActiveStudent(userId) {
   }
   if (user && user.classcard_level) {
     state.classCardLevel = Number(user.classcard_level) || 2;
+  }
+  if (user) {
+    state.currentWeek = getStudentCurrentWeek(user);
+    state.learnStepPage = 1;
+    state.storySentenceIdx = 0;
+    state.storyWordIdx = 0;
+    state.storyChunkIdx = 0;
+    if (state.storyCompletedSentences) state.storyCompletedSentences.clear();
+    state.learnVocabIdx = 0;
+    state.isLearnFcFlipped = false;
+    state.isG12FcFlipped = false;
+    state.speakingQuestionIdx = 0;
   }
   const studentSelect = document.getElementById("studentSelect");
   const teacherStudentSelect = document.getElementById("teacherStudentSelect");
@@ -726,7 +763,7 @@ function bindNavigationEvents() {
   const entryTchPw = document.getElementById("entryTeacherPasswordInput");
   if (entryTchSel && entryTchPw) {
     entryTchSel.addEventListener("change", () => {
-      entryTchPw.value = entryTchSel.value === "tch_director" ? "bada1234" : "1234";
+      entryTchPw.value = "";
     });
   }
   const btnQuickDir = document.getElementById("btnQuickFillDirectorPw");
@@ -775,11 +812,39 @@ function bindNavigationEvents() {
 
   const btnStartTodayMission = document.getElementById("btnStartTodayMission");
   if (btnStartTodayMission) {
-    btnStartTodayMission.addEventListener("click", () => navigateToRoute("/student/learn"));
+    btnStartTodayMission.addEventListener("click", () => {
+      const user = getCurrentUser();
+      state.currentWeek = getStudentCurrentWeek(user);
+      state.learnStepPage = 1;
+      state.storySentenceIdx = 0;
+      state.storyWordIdx = 0;
+      state.storyChunkIdx = 0;
+      state.storyCompletedSentences.clear();
+      state.learnVocabIdx = 0;
+      state.isLearnFcFlipped = false;
+      state.speakingQuestionIdx = 0;
+      switchLearnStepPage(1);
+      renderSequentialLearnPlayer(getCurrentBook(), user);
+      navigateToRoute("/student/learn");
+    });
   }
 
   document.querySelectorAll("[data-open-week]").forEach((row) => {
     row.addEventListener("click", () => {
+      const wk = Number(row.getAttribute("data-open-week")) || 1;
+      const user = getCurrentUser();
+      state.currentWeek = wk;
+      state.learnStepPage = 1;
+      state.storySentenceIdx = 0;
+      state.storyWordIdx = 0;
+      state.storyChunkIdx = 0;
+      state.storyCompletedSentences.clear();
+      state.learnVocabIdx = 0;
+      state.isLearnFcFlipped = false;
+      state.speakingQuestionIdx = 0;
+      switchLearnStepPage(1);
+      syncCurrentWeekPlayer(user, wk);
+      renderSequentialLearnPlayer(getCurrentBook(), user);
       navigateToRoute("/student/learn");
     });
   });
@@ -821,15 +886,6 @@ function bindNavigationEvents() {
   if (btnTeacherExit) {
     btnTeacherExit.addEventListener("click", () => navigateToRoute("/"));
   }
-
-  // 4-Week Island navigation inside Learning Player
-  document.querySelectorAll(".week-island").forEach((island) => {
-    island.addEventListener("click", () => {
-      const wk = Number(island.getAttribute("data-week"));
-      activateWeekIsland(wk);
-      playOceanBubbleSound(480 + wk * 60, 0.15);
-    });
-  });
 
   // Student & Book selectors
   const studentSelect = document.getElementById("studentSelect");
@@ -874,10 +930,6 @@ function bindNavigationEvents() {
     });
   });
 
-  bindWeek1Events();
-  bindWeek2Events();
-  bindWeek3Events();
-  bindWeek4Events();
   bindParentReportEvents();
   bindTeacherSaasEvents();
   bindDbLabEvents();
@@ -912,16 +964,46 @@ function renderStudentMapHome(user, book) {
   const hW3 = document.getElementById("homeBadgeW3");
   const hW4 = document.getElementById("homeBadgeW4");
   const badgeMap = { 1: hW1, 2: hW2, 3: hW3, 4: hW4 };
+
   [1, 2, 3, 4].forEach((wk) => {
     const badgeEl = badgeMap[wk];
+    const cardEl = document.getElementById(`homeIslandCard${wk}`);
+    const actionEl = document.getElementById(`homeIslandAction${wk}`);
     const prog = user[`progress_w${wk}`] || 0;
-    if (!badgeEl) return;
+
     if (wk < activeWk) {
-      badgeEl.textContent = `완료 ✓ (${prog}%)`;
+      if (badgeEl) {
+        badgeEl.className = "home-week-tag";
+        badgeEl.textContent = `완료 ✓ (${prog}%)`;
+      }
+      if (cardEl) {
+        cardEl.className = "home-island-row toy-3d-island-card mint";
+      }
+      if (actionEl) {
+        actionEl.innerHTML = `<button type="button" class="toy-3d-btn sm mint">복습하기 ⭐</button>`;
+      }
     } else if (wk === activeWk) {
-      badgeEl.textContent = `🔥 현재 진도 (${prog}%)`;
+      if (badgeEl) {
+        badgeEl.className = "home-week-tag coral";
+        badgeEl.textContent = `🔥 나의 현재 진도 · ${wk}주차 (${prog}%)`;
+      }
+      if (cardEl) {
+        cardEl.className = "home-island-row toy-3d-island-card coral";
+      }
+      if (actionEl) {
+        actionEl.innerHTML = `<button type="button" class="toy-3d-btn sm coral">${wk}주차 출발하기! ➔</button>`;
+      }
     } else {
-      badgeEl.textContent = `🔒 대기 중`;
+      if (badgeEl) {
+        badgeEl.className = "home-week-tag gold";
+        badgeEl.textContent = `🔒 다음 섬 (${wk}주차)`;
+      }
+      if (cardEl) {
+        cardEl.className = "home-island-row toy-3d-island-card gold locked-island";
+      }
+      if (actionEl) {
+        actionEl.innerHTML = `<span class="toy-3d-chip sand">기다리는 중 🔒</span>`;
+      }
     }
   });
 
@@ -1433,7 +1515,7 @@ function bindAuthAndAdminManagementEvents() {
           playOceanBubbleSound(840, 0.22);
           if (fb) {
             fb.classList.remove("hidden");
-            fb.textContent = `✅ [${data.teacher.name}] 선생님 계정이 등록되었습니다! 초기 화면(/)에서 비밀번호(${payload.password})로 로그인할 수 있습니다.`;
+            fb.textContent = `✅ [${data.teacher.name}] 선생님 계정이 등록되었습니다! 로그인 화면에서 등록한 비밀번호(${payload.password})로 접속할 수 있습니다.`;
           }
         }
       } catch (_) {}
@@ -1449,6 +1531,7 @@ function bindAuthAndAdminManagementEvents() {
       const levelSel = document.getElementById("dbNewBookLevel");
       const gradeInput = document.getElementById("dbNewBookGrade");
       const textInput = document.getElementById("dbTestTextInput");
+      const krInput = document.getElementById("dbNewBookKoreanText");
       const resBox = document.getElementById("dbAnalyzeResultBox");
 
       const title = (titleInput ? titleInput.value : "").trim() || `Popo's New Ocean Story #${state.books.length + 1}`;
@@ -1456,6 +1539,7 @@ function bindAuthAndAdminManagementEvents() {
       const level = levelSel ? levelSel.value : "Level 2";
       const grade_recommended = (gradeInput ? gradeInput.value : "").trim() || "초등 전학년";
       const full_text = (textInput ? textInput.value : "").trim();
+      const korean_text = (krInput ? krInput.value : "").trim();
 
       if (!full_text) {
         if (resBox) resBox.innerHTML = `<strong style="color:#dc2626;">⚠️ 원서 본문 영어 텍스트를 입력해 주세요.</strong>`;
@@ -1466,7 +1550,7 @@ function bindAuthAndAdminManagementEvents() {
         const res = await fetch("/api/books/create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, subtitle_kr, level, grade_recommended, full_text })
+          body: JSON.stringify({ title, subtitle_kr, level, grade_recommended, full_text, korean_text })
         });
         const data = await res.json();
         if (res.ok && data.ok) {
@@ -1477,10 +1561,15 @@ function bindAuthAndAdminManagementEvents() {
           playOceanBubbleSound(880, 0.25);
 
           if (resBox) {
+            const stList = (data.book.sentence_translations || []).map((s, i) => `${i + 1}. ${s.kr}`).join("<br/>");
+            const sqList = (data.book.speaking_questions || []).map((q, i) => `Q${i + 1}. ${q.en} (${q.kr})`).join("<br/>");
             resBox.innerHTML = `
-              <div style="padding:10px;background:#ecfdf5;border:1.5px solid #34d399;border-radius:12px;">
+              <div style="padding:12px;background:#ecfdf5;border:1.5px solid #34d399;border-radius:12px;font-size:13px;line-height:1.6;">
                 <strong style="color:#047857;">📚 신규 원서 《${data.book.title}》 (${data.book.level}) DB 정식 등록 완료!</strong><br/>
-                <span>이제 [01. 강사 홈 & 학생 관리]에서 학생들에게 이 원서를 즉시 배정할 수 있습니다.</span>
+                <span>이제 [01. 강사 홈 & 학생 관리]에서 학생들에게 이 원서를 즉시 배정할 수 있습니다.</span><br/><br/>
+                <strong>✅ 저장된 단어 뜻 (${(data.book.vocab || []).length}개):</strong> ${(data.book.vocab || []).slice(0, 8).map((v) => `${v.word}(${v.meaning_kr})`).join(", ")}<br/>
+                <strong>✅ 문장별 한국어 해석 (${(data.book.sentence_translations || []).length}문장):</strong><br/>${stList || "자동 생성됨"}<br/>
+                <strong>✅ 생성된 표현 스피킹 질문 (${(data.book.speaking_questions || []).length}개):</strong><br/>${sqList || "자동 생성됨"}
               </div>
             `;
           }
@@ -1510,10 +1599,6 @@ function syncAllViews() {
 
   renderStudentMapHome(user, book);
   renderSequentialLearnPlayer(book, user);
-  renderWeek1(book, user);
-  renderWeek2(book);
-  renderWeek3(book);
-  renderWeek4(book, user);
   renderGrade12PhonicsAndClassCard();
   renderGrade4Patterns();
   renderGrade6Grammar();
@@ -1866,8 +1951,15 @@ function bindWeek3Events() {
 function activatePearlClamMicrophone() {
   const clamBtn = document.getElementById("btnPearlClamMic");
   const label = document.getElementById("pearlClamLabel");
+  if (!clamBtn || !label) return;
+
+  const book = getCurrentBook();
+  const qList = getWeekSpeakingQuestions(book, state.currentWeek || 1);
+  const qItem = qList[state.speakingQuestionIdx] || qList[0];
+  const sampleAns = (qItem && (qItem.target || qItem.hint)) || "Look at the starfish!";
+
   clamBtn.classList.add("listening");
-  label.textContent = "🐚✨ 진주가 빛나며 내 목소리를 듣고 있어요... ('Look at the starfish!'라고 말해보세요)";
+  label.textContent = `🐚✨ 진주가 빛나며 내 목소리를 듣고 있어요... ('${sampleAns}'라고 말해보세요)`;
   playOceanBubbleSound(720, 0.2);
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1884,7 +1976,7 @@ function activatePearlClamMicrophone() {
       };
       rec.onerror = () => {
         clamBtn.classList.remove("listening");
-        submitSpeechToPopo("See the starfish!");
+        submitSpeechToPopo(sampleAns);
       };
       rec.start();
       return;
@@ -1893,7 +1985,7 @@ function activatePearlClamMicrophone() {
 
   setTimeout(() => {
     clamBtn.classList.remove("listening");
-    submitSpeechToPopo("See the starfish!");
+    submitSpeechToPopo(sampleAns);
   }, 1300);
 }
 
@@ -2178,40 +2270,78 @@ function renderGrade12PhonicsAndClassCard() {
 
   updateFlashcardUI();
 
-  document.getElementById("g12Flashcard").onclick = () => {
-    const card = CLASSCARD_DECK[state.classCardIndex];
-    speakEnglish(card.word, 0.9, 1.1);
-    document.getElementById("g12Flashcard").classList.remove("jelly-pop");
-    void document.getElementById("g12Flashcard").offsetWidth;
-    document.getElementById("g12Flashcard").classList.add("jelly-pop");
-  };
+  const g12CardEl = document.getElementById("g12Flashcard");
+  if (g12CardEl) {
+    g12CardEl.onclick = () => {
+      const card = CLASSCARD_DECK[state.classCardIndex];
+      state.isG12FcFlipped = !state.isG12FcFlipped;
+      playOceanBubbleSound(680, 0.15);
+      updateFlashcardUI();
+      if (!state.isG12FcFlipped && card) {
+        speakEnglish(card.word, 0.86, 1.08);
+      }
+    };
+  }
 
   document.getElementById("btnG12PrevCard").onclick = () => {
+    state.isG12FcFlipped = false;
     state.classCardIndex = (state.classCardIndex - 1 + CLASSCARD_DECK.length) % CLASSCARD_DECK.length;
-    updateFlashcardUI();
+    updateFlashcardUI({ speakFront: true });
   };
 
   document.getElementById("btnG12NextCard").onclick = () => {
+    state.isG12FcFlipped = false;
     state.classCardIndex = (state.classCardIndex + 1) % CLASSCARD_DECK.length;
-    updateFlashcardUI();
+    updateFlashcardUI({ speakFront: true });
   };
 
   document.getElementById("btnG12KnowCard").onclick = () => {
+    state.isG12FcFlipped = false;
     state.classCardMastered = Math.min(5, state.classCardMastered + 1);
     state.classCardIndex = (state.classCardIndex + 1) % CLASSCARD_DECK.length;
     playOceanBubbleSound(760, 0.18);
-    updateFlashcardUI();
+    updateFlashcardUI({ speakFront: true });
   };
 }
 
-function updateFlashcardUI() {
+function updateFlashcardUI(options = {}) {
   const card = CLASSCARD_DECK[state.classCardIndex];
-  document.getElementById("g12CardLevelTag").textContent =
-    `ClassCard Level ${state.classCardLevel} (26 Level 과정) · 카드 ${state.classCardIndex + 1} / ${CLASSCARD_DECK.length}`;
-  document.getElementById("g12CardFront").textContent = card.word;
-  document.getElementById("g12CardBack").textContent = card.meaning;
-  document.getElementById("g12CardMasteryText").innerHTML =
-    `현재 Level ${state.classCardLevel} 마스터 진도: <strong>${state.classCardMastered} / ${CLASSCARD_DECK.length} 카드 완료</strong>`;
+  if (!card) return;
+  const tag = document.getElementById("g12CardLevelTag");
+  const front = document.getElementById("g12CardFront");
+  const back = document.getElementById("g12CardBack");
+  const masteryText = document.getElementById("g12CardMasteryText");
+  const cardEl = document.getElementById("g12Flashcard");
+  const badge = document.getElementById("g12CardSideBadge");
+  const frontNotice = document.getElementById("g12CardFrontNotice");
+  const backBox = document.getElementById("g12CardBackBox");
+  const tapHint = document.getElementById("g12CardTapHint");
+
+  if (tag) {
+    tag.textContent = `ClassCard Level ${state.classCardLevel} (26 Level 과정) · 카드 ${state.classCardIndex + 1} / ${CLASSCARD_DECK.length}`;
+  }
+  if (front) front.textContent = card.word;
+  if (back) back.textContent = card.meaning;
+  if (masteryText) {
+    masteryText.innerHTML = `현재 Level ${state.classCardLevel} 마스터 진도: <strong>${state.classCardMastered} / ${CLASSCARD_DECK.length} 카드 완료</strong>`;
+  }
+
+  const isFlipped = !!state.isG12FcFlipped;
+  if (cardEl) cardEl.classList.toggle("is-flipped", isFlipped);
+  if (badge) {
+    badge.textContent = isFlipped ? "✨ 뒷면 (단어 뜻 & 예문)" : "🃏 앞면 (영어 단어) · 터치해서 뒤집기";
+  }
+  if (frontNotice) frontNotice.classList.toggle("hidden", isFlipped);
+  if (backBox) backBox.classList.toggle("hidden", !isFlipped);
+  if (tapHint) {
+    tapHint.textContent = isFlipped
+      ? "👆 카드를 다시 터치하면 앞면(영어 단어)으로 돌아가요!"
+      : "👆 카드를 터치하면 뒷면(뜻·예문)이 열려요!";
+  }
+
+  if (options.speakFront) {
+    speakEnglish(card.word, 0.86, 1.08);
+  }
 }
 
 function renderGrade4Patterns() {
@@ -2525,7 +2655,8 @@ async function loadTeacherRecommendedQuestions(user, book) {
         studentName: user.name,
         bookTitle: book.title,
         weakPoints: user.weaknesses,
-        strongPoints: user.strengths
+        strongPoints: user.strengths,
+        coreExpressions: book.core_expressions || []
       })
     });
     if (res.ok) {
@@ -2558,25 +2689,34 @@ function bindTeacherSaasEvents() {
 // DATABASE ARCHITECTURE & VOCAB/CHUNK DEDUPLICATION LAB
 // ============================================================================
 function renderDbLab() {
-  const book = getCurrentBook();
-  const input = document.getElementById("dbTestTextInput");
-  if (!input.value) {
-    input.value = book.full_text;
+  const catalogList = document.getElementById("registeredBooksCatalogList");
+  if (catalogList) {
+    catalogList.innerHTML = "";
+    state.books.forEach((b) => {
+      const sents = getBookSentences(b);
+      const div = document.createElement("div");
+      div.className = "audit-log-item";
+      div.innerHTML = `
+        <strong>📖 ${b.title}</strong> <span class="mini-pill" style="margin-left:6px;">${b.level} · ${b.grade_recommended || "초등 전학년"}</span><br/>
+        <span style="color:#475569;font-size:13px;">${b.subtitle_kr || ""}</span><br/>
+        <small style="color:#64748b;">문장 ${sents.length}개 · 단어 ${(b.vocab || []).length}개 · 스피킹 질문 ${(b.speaking_questions || []).length}개</small>
+      `;
+      catalogList.appendChild(div);
+    });
   }
 
   renderAuditLogs(state.auditLogs);
 
   const snap = document.getElementById("dbUsersSnapshot");
-  snap.innerHTML = "";
-  state.users.forEach((u) => {
-    const div = document.createElement("div");
-    div.className = "user-snap-row";
-    div.innerHTML = `
-      <strong>${u.name} (${u.grade_label} · ${u.level})</strong> — 진도율 W1:${u.progress_w1}% / W2:${u.progress_w2}% / W3:${u.progress_w3}% / W4:${u.progress_w4}%<br/>
-      <span style="color:#0f766e;">1주차 음성: <code>${u.audio_w1_url}</code> | 4주차 음성: <code>${u.audio_w4_url}</code></span>
-    `;
-    snap.appendChild(div);
-  });
+  if (snap) {
+    snap.innerHTML = "";
+    state.users.forEach((u) => {
+      const div = document.createElement("div");
+      div.className = "user-snap-row";
+      div.innerHTML = `<strong>${u.name} (${u.grade_label} · ${u.level})</strong> — W1:${u.progress_w1}% / W2:${u.progress_w2}% / W3:${u.progress_w3}% / W4:${u.progress_w4}%`;
+      snap.appendChild(div);
+    });
+  }
 }
 
 function renderAuditLogs(logs) {
@@ -2598,16 +2738,28 @@ function bindDbLabEvents() {
   document.getElementById("btnLoadExistingText").addEventListener("click", () => {
     const book = getCurrentBook();
     document.getElementById("dbTestTextInput").value = book.full_text;
+    const krInput = document.getElementById("dbNewBookKoreanText");
+    if (krInput) {
+      krInput.value = (book.sentence_translations || []).map((s) => s.kr).join("\n");
+    }
   });
 
   document.getElementById("btnLoadNewText").addEventListener("click", () => {
     const randomId = Math.floor(Math.random() * 900 + 100);
     document.getElementById("dbTestTextInput").value =
       `Baby whale Popo jumps over the glowing waves #${randomId}. A friendly dolphin explores the secret coral island through the clear ocean water!`;
+    const krInput = document.getElementById("dbNewBookKoreanText");
+    if (krInput) {
+      krInput.value = `아기 고래 포포가 은은하게 빛나는 파도 #${randomId} 위로 높이 점프해요.\n다정한 돌고래 한 마리가 맑고 투명한 바닷물을 지나 비밀의 산호 섬을 탐험해요!`;
+    }
   });
 
   document.getElementById("btnRunDbAnalyze").addEventListener("click", async () => {
     const rawText = document.getElementById("dbTestTextInput").value.trim();
+    const krInput = document.getElementById("dbNewBookKoreanText");
+    const korean_text = krInput ? krInput.value.trim() : "";
+    const levelSel = document.getElementById("dbNewBookLevel");
+    const level = levelSel ? levelSel.value : "Level 3";
     const resBox = document.getElementById("dbAnalyzeResultBox");
     if (!rawText) return;
 
@@ -2616,7 +2768,7 @@ function bindDbLabEvents() {
       const res = await fetch("/api/books/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: rawText, level: "Level 3" })
+        body: JSON.stringify({ text: rawText, level, korean_text })
       });
       if (res.ok) {
         const data = await res.json();
@@ -2636,7 +2788,9 @@ function bindDbLabEvents() {
         text_hash: btoa(encodeURIComponent(key.slice(0, 18))).slice(0, 16),
         vocab: FALLBACK_BOOKS[0].vocab.slice(0, 5),
         chunks: FALLBACK_BOOKS[0].chunks.slice(0, 4),
-        core_expressions: FALLBACK_BOOKS[0].core_expressions.slice(0, 3)
+        core_expressions: FALLBACK_BOOKS[0].core_expressions.slice(0, 3),
+        sentence_translations: [],
+        speaking_questions: []
       };
       state.auditLogs.unshift({
         status: r.cache_status,
@@ -2651,17 +2805,20 @@ function bindDbLabEvents() {
     renderAuditLogs(state.auditLogs);
 
     const isHit = r.cache_status === "DB_CACHE_HIT";
+    const stList = (r.sentence_translations || []).map((s, i) => `${i + 1}) ${s.kr}`).join(" / ");
+    const sqList = (r.speaking_questions || []).map((q, i) => `Q${i + 1}. "${q.target}" (${q.kr})`).join("<br/>");
     resBox.innerHTML = `
       <div style="margin-bottom:10px;">
         <span class="mini-pill ${isHit ? "" : "coral"}" style="font-size:13px;">
-          ${isHit ? "⚡ DB_CACHE_HIT (기존 DB 존재 ➔ LLM 호출 생략!)" : "🆕 CACHE_MISS_LLM_SAVED (신규 텍스트 ➔ LLM 분석 후 DB 저장 완료!)"}
+          ${isHit ? "⚡ DB_CACHE_HIT (기존 DB 존재 ➔ LLM 호출 생략!)" : "🆕 CACHE_MISS_LLM_SAVED (신규 텍스트 ➔ DB 저장 완료!)"}
         </span>
         <span style="font-size:12.5px;margin-left:8px;">누적 조회수: <strong>${r.lookup_count}회</strong> · Hash: <code>${r.text_hash}</code></span>
       </div>
       <div style="font-size:13px;line-height:1.6;">
         <strong>1) 추출된 단어 (${r.vocab.length}개):</strong> ${r.vocab.map((v) => `${v.word}(${v.meaning_kr})`).join(", ")}<br/>
-        <strong>2) 원어민 호흡 청크 (${r.chunks.length}개):</strong> ${r.chunks.map((c) => `[${c.text}]`).join(" ")}<br/>
-        <strong>3) 핵심 표현 (${r.core_expressions.length}개):</strong> ${r.core_expressions.map((e) => `"${e.expression}"`).join(" / ")}
+        <strong>2) 원어민 호흡 청크 (${r.chunks.length}개):</strong> ${r.chunks.map((c) => `[${c.text}: ${c.meaning_kr}]`).join(" ")}<br/>
+        <strong>3) 문장별 한국어 해석 (${(r.sentence_translations || []).length}문장):</strong> ${stList || "자동 생성됨"}<br/>
+        <strong>4) 생성된 표현 스피킹 질문 (${(r.speaking_questions || []).length}개):</strong><br/>${sqList || "자동 생성됨"}
       </div>
     `;
     playOceanBubbleSound(isHit ? 640 : 820, 0.2);
@@ -2801,9 +2958,13 @@ const BOOK_SPEAKING_QUESTIONS = {
 
 state.learnStepPage = 1;
 state.storySentenceIdx = 0;
+state.storyWordIdx = 0;
+state.storyChunkIdx = 0;
 state.storyCompletedSentences = new Set();
 state.showSentenceKrHint = true;
 state.learnVocabIdx = 0;
+state.isLearnFcFlipped = false;
+state.isG12FcFlipped = false;
 state.speakingQuestionIdx = 0;
 state.showSpeakingSubtitle = true;
 state.phonicsSpotIdx = 0;
@@ -2814,17 +2975,24 @@ state.ccQuizScore = 0;
 function lookupWordMeaning(rawToken, book) {
   const clean = (rawToken || "").replace(/[^a-zA-Z]/g, "").toLowerCase();
   if (!clean) return { word: rawToken, kr: "단어", phonetic: "", pos: "", tip: "" };
-  const fromBook = ((book && book.vocab) || []).find((v) => v.word.toLowerCase() === clean);
+
+  const bookVocab = (book && book.vocab) || [];
+  const fromBook = bookVocab.find(
+    (v) =>
+      (v.word && v.word.toLowerCase() === clean) ||
+      (v.surface && v.surface.replace(/[^a-zA-Z]/g, "").toLowerCase() === clean)
+  );
   if (fromBook) {
     return {
-      word: fromBook.word,
+      word: fromBook.surface || fromBook.word,
       kr: fromBook.meaning_kr,
       phonetic: fromBook.phonetic || `/${clean}/`,
       pos: fromBook.pos || "핵심 단어",
       tip: fromBook.popo_tip || "원서 핵심 단어예요!",
-      isCore: true
+      isCore: !["단어", "기본어", "관사", "전치사", "접속사"].includes(fromBook.pos)
     };
   }
+
   const fromDict = EVERY_WORD_KR_DICT[clean];
   if (fromDict) {
     return {
@@ -2836,14 +3004,80 @@ function lookupWordMeaning(rawToken, book) {
       isCore: false
     };
   }
+
+  // Stemming fallback in frontend dictionary too
+  const stemCandidates = [];
+  if (clean.endsWith("ing") && clean.length > 5) {
+    stemCandidates.push(clean.slice(0, -3), clean.slice(0, -3) + "e");
+  }
+  if (clean.endsWith("ed") && clean.length > 4) {
+    stemCandidates.push(clean.slice(0, -2), clean.slice(0, -2) + "e");
+  }
+  if (clean.endsWith("s") && clean.length > 2) {
+    stemCandidates.push(clean.slice(0, -1), clean.slice(0, -2));
+  }
+  for (const root of stemCandidates) {
+    const bv = bookVocab.find((v) => v.word && v.word.toLowerCase() === root);
+    if (bv) {
+      return {
+        word: clean,
+        kr: bv.meaning_kr,
+        phonetic: `/${clean}/`,
+        pos: bv.pos || "단어",
+        tip: bv.popo_tip || "원서에서 배운 단어예요!",
+        isCore: false
+      };
+    }
+    if (EVERY_WORD_KR_DICT[root]) {
+      const fd = EVERY_WORD_KR_DICT[root];
+      return {
+        word: clean,
+        kr: fd.kr,
+        phonetic: `/${clean}/`,
+        pos: fd.pos,
+        tip: fd.tip,
+        isCore: false
+      };
+    }
+  }
+
   return {
     word: clean,
-    kr: "바다 이야기 단어",
+    kr: `${clean} (원서 어휘)`,
     phonetic: `/${clean}/`,
     pos: "단어",
     tip: "클릭하면 원어민 발음을 들려줘요!",
     isCore: false
   };
+}
+
+function getSentenceKoreanMeaning(book, sentence, sIdx = -1) {
+  const cleanSent = String(sentence || "").trim();
+  const norm = (str) => String(str || "").trim().toLowerCase().replace(/\s+/g, " ");
+
+  if (book && Array.isArray(book.sentence_translations) && book.sentence_translations.length) {
+    const matched = book.sentence_translations.find((st) => norm(st.en) === norm(cleanSent));
+    if (matched && matched.kr) return matched.kr;
+    if (sIdx >= 0 && book.sentence_translations[sIdx] && book.sentence_translations[sIdx].kr) {
+      return book.sentence_translations[sIdx].kr;
+    }
+  }
+
+  if (SENTENCE_KR_MAP[cleanSent]) {
+    return SENTENCE_KR_MAP[cleanSent];
+  }
+
+  // Fallback: assemble from matching chunks in book.chunks
+  const chunksInBook = (book && book.chunks) || [];
+  const matchedChunkKrs = chunksInBook
+    .filter((c) => c.text && norm(cleanSent).includes(norm(c.text)))
+    .map((c) => c.meaning_kr)
+    .filter(Boolean);
+  if (matchedChunkKrs.length > 0) {
+    return matchedChunkKrs.join(" ");
+  }
+
+  return (book && book.subtitle_kr) || "원서 문장을 소리 내어 읽으며 뜻을 익혀 보세요!";
 }
 
 function getBookSentences(book) {
@@ -2872,58 +3106,492 @@ function switchLearnStepPage(stepNum) {
   playOceanBubbleSound(520 + stepNum * 70, 0.15);
 }
 
+function getSentenceChunksForWeek2(sent, book) {
+  const words = (sent || "").split(/\s+/).filter(Boolean);
+  if (!words.length) return [{ text: "", meaning_kr: "", startWordIdx: 0, endWordIdx: 0 }];
+
+  const cleanStr = (s) => (s || "").toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, " ").trim();
+  const sentClean = cleanStr(sent);
+  const bookChunks = (book && book.chunks) || [];
+
+  const matched = [];
+  let cursorWordIdx = 0;
+
+  bookChunks.forEach((c) => {
+    const chunkClean = cleanStr(c.text);
+    if (!chunkClean || !sentClean.includes(chunkClean)) return;
+    const cWords = chunkClean.split(/\s+/).filter(Boolean);
+    for (let i = cursorWordIdx; i <= words.length - cWords.length; i++) {
+      const sliceClean = cleanStr(words.slice(i, i + cWords.length).join(" "));
+      if (sliceClean === chunkClean) {
+        matched.push({
+          text: words.slice(i, i + cWords.length).join(" "),
+          meaning_kr: c.meaning_kr || "의미 단위 구",
+          startWordIdx: i,
+          endWordIdx: i + cWords.length - 1
+        });
+        cursorWordIdx = i + cWords.length;
+        break;
+      }
+    }
+  });
+
+  if (matched.length > 0) {
+    // Ensure remaining words (if any) are included in last chunk or appended
+    const lastEnd = matched[matched.length - 1].endWordIdx;
+    if (lastEnd < words.length - 1) {
+      matched.push({
+        text: words.slice(lastEnd + 1).join(" "),
+        meaning_kr: getSentenceKoreanMeaning(book, sent),
+        startWordIdx: lastEnd + 1,
+        endWordIdx: words.length - 1
+      });
+    }
+    return matched;
+  }
+
+  // Automatic phrase fallback for newly registered custom books
+  const breakPreps = new Set(["on", "in", "across", "through", "under", "with", "by", "where", "how", "over", "at", "for", "to"]);
+  let splitIdx = -1;
+  for (let i = 2; i < words.length - 1; i++) {
+    const wClean = cleanStr(words[i]);
+    if (breakPreps.has(wClean)) {
+      splitIdx = i;
+      break;
+    }
+  }
+  if (splitIdx === -1 && words.length >= 4) {
+    splitIdx = Math.ceil(words.length / 2);
+  }
+
+  if (splitIdx > 0 && splitIdx < words.length) {
+    return [
+      {
+        text: words.slice(0, splitIdx).join(" "),
+        meaning_kr: "앞부분 의미 구",
+        startWordIdx: 0,
+        endWordIdx: splitIdx - 1
+      },
+      {
+        text: words.slice(splitIdx).join(" "),
+        meaning_kr: "뒷부분 의미 구",
+        startWordIdx: splitIdx,
+        endWordIdx: words.length - 1
+      }
+    ];
+  }
+
+  return [
+    {
+      text: words.join(" "),
+      meaning_kr: getSentenceKoreanMeaning(book, sent),
+      startWordIdx: 0,
+      endWordIdx: words.length - 1
+    }
+  ];
+}
+
+const WEEK_CURRICULUM_CONFIG = {
+  1: {
+    step1Tab: "1교시 · 한 단어씩 읽기",
+    step2Tab: "2교시 · 단어 플래시카드",
+    step3Tab: "3교시 · 포포와 말하기",
+    modeBanner: "1주차 · 한 단어씩 천천히 끊어 듣고 따라 말하기",
+    subInstruction:
+      "원서 전체를 <strong>한 단어씩 천천히</strong> 듣고 따라 말해 보세요. 음성과 함께 단어 뜻이 표시되며, 단어 위에 마우스를 올려도 뜻을 볼 수 있어요.",
+    rightKicker: "전체 원서 이야기 (한 단어씩 따라 말하면 다음 단어로 넘어갑니다)",
+    page2Kicker: "1주차 2교시 · 단어장 플래시카드",
+    page2Heading: "영어 단어를 먼저 듣고 따라 말한 뒤, 카드를 눌러 뒷면(뜻·예문)을 확인해 봐요.",
+    page3Kicker: "1주차 3교시 · 포포와 단어 말하기",
+    page3Heading: "포포가 물어보는 핵심 단어를 마이크로 또렷하게 말해 볼까요?",
+    finishBtnText: "1주차 학습 완료하기 ➔"
+  },
+  2: {
+    step1Tab: "1교시 · 구(Chunk) 단위 읽기",
+    step2Tab: "2교시 · 구(Chunk) 카드",
+    step3Tab: "3교시 · 구 리듬 말하기",
+    modeBanner: "2주차 · 의미 단위(구)로 천천히 끊어 읽고 따라 말하기",
+    subInstruction:
+      "원서 전체를 <strong>구(의미 단위)</strong>로 천천히 듣고 따라 말해 보세요. 현재 읽는 문장의 전체 뜻은 아래에 함께 표시됩니다.",
+    rightKicker: "전체 원서 이야기 (의미 단위로 나누어 천천히 읽어보세요)",
+    page2Kicker: "2주차 2교시 · 의미 단위(구) 플래시카드",
+    page2Heading: "영어 구를 먼저 듣고 따라 말한 뒤, 카드를 눌러 뒷면(뜻·예문)을 확인해 봐요.",
+    page3Kicker: "2주차 3교시 · 포포와 구 단위 말하기",
+    page3Heading: "포포의 안내에 맞춰 의미 단위 구를 자연스럽게 말해 볼까요?",
+    finishBtnText: "2주차 학습 완료하기 ➔"
+  },
+  3: {
+    step1Tab: "1교시 · 줄거리 문장 읽기",
+    step2Tab: "2교시 · 핵심 표현 카드",
+    step3Tab: "3교시 · 포포와 스토리 Q&A",
+    modeBanner: "3주차 · 원서 핵심 표현 & 포포와의 스피킹 대화",
+    subInstruction:
+      "이야기 줄거리를 생각하며 한 문장씩 자연스럽게 읽고, 포포가 던지는 영어 질문에 내 목소리로 대답해 보세요.",
+    rightKicker: "전체 원서 이야기 (한 문장씩 차례로 읽어보세요)",
+    page2Kicker: "3주차 2교시 · 핵심 표현 플래시카드",
+    page2Heading: "원서의 핵심 표현을 먼저 듣고 말한 뒤, 카드를 눌러 뒷면(뜻·예문)을 확인해 봐요.",
+    page3Kicker: "3주차 3교시 · 포포와 스피킹 질문",
+    page3Heading: "포포의 질문을 듣고 배운 표현으로 영어로 답해 볼까요?",
+    finishBtnText: "3주차 학습 완료하기 ➔"
+  },
+  4: {
+    step1Tab: "1교시 · 전체 스토리 완독",
+    step2Tab: "2교시 · 어휘·표현 총정리",
+    step3Tab: "3교시 · 화상수업 리허설",
+    modeBanner: "4주차 · 전체 스토리 유창성 완독 & 화상수업 리허설",
+    subInstruction:
+      "1~3주차 동안 익힌 실력으로 첫 문장부터 끝까지 자연스럽게 낭독해 보세요.",
+    rightKicker: "전체 원서 이야기 (자연스러운 호흡으로 끝까지 읽어보세요)",
+    page2Kicker: "4주차 2교시 · 핵심 표현 & 어휘 총정리 카드",
+    page2Heading: "이번 달 원서의 핵심 표현과 단어를 카드를 뒤집어 최종 확인해 봐요.",
+    page3Kicker: "4주차 3교시 · 화상수업 스피킹 리허설",
+    page3Heading: "원어민 선생님과의 화상수업 질문을 미리 영어로 연습해 봐요.",
+    finishBtnText: "4주차 원서 완주 완료하기 ➔"
+  }
+};
+
+function findExampleForToken(book, tokenText) {
+  const sentences = getBookSentences(book);
+  const cleanTok = (tokenText || "").toLowerCase().replace(/[^a-z\s]/g, "").trim();
+  const matchedIdx = sentences.findIndex((s) => s.toLowerCase().replace(/[^a-z\s]/g, "").includes(cleanTok));
+  const useIdx = matchedIdx >= 0 ? matchedIdx : 0;
+  const matchedSent =
+    sentences[useIdx] ||
+    (book && book.full_text) ||
+    "Look at the starfish shining on the sandy floor.";
+  return {
+    example_en: matchedSent,
+    example_kr: getSentenceKoreanMeaning(book, matchedSent, useIdx)
+  };
+}
+
+function getWeekDeckForBook(book, weekNum) {
+  const vocab = (book && book.vocab && book.vocab.length) ? book.vocab : FALLBACK_BOOKS[0].vocab;
+  const chunks = (book && book.chunks && book.chunks.length) ? book.chunks : FALLBACK_BOOKS[0].chunks;
+  const exprs = (book && book.core_expressions && book.core_expressions.length)
+    ? book.core_expressions
+    : FALLBACK_BOOKS[0].core_expressions;
+
+  if (weekNum === 1) {
+    return vocab.map((v) => {
+      const ex = findExampleForToken(book, v.word);
+      return {
+        word: v.word,
+        phonetic: v.phonetic || `/${v.word}/`,
+        pos: v.pos || "1주차 핵심 단어",
+        meaning_kr: v.meaning_kr,
+        popo_tip: v.popo_tip || "단어 소리를 듣고 큰 소리로 따라 말해 보세요!",
+        ...ex
+      };
+    });
+  }
+  if (weekNum === 2) {
+    return chunks.map((c, idx) => {
+      const ex = findExampleForToken(book, c.text);
+      return {
+        word: c.text,
+        phonetic: `호흡 청크 #${idx + 1}`,
+        pos: "2주차 의미 단위 구",
+        meaning_kr: c.meaning_kr,
+        popo_tip: "단어를 끊지 말고 파도처럼 한 호흡에 부드럽게 이어 읽어보세요!",
+        ...ex
+      };
+    });
+  }
+  if (weekNum === 3) {
+    return exprs.map((e) => {
+      const ex = findExampleForToken(book, e.expression);
+      return {
+        word: e.expression,
+        phonetic: `핵심 패턴 #${e.rank || 1}`,
+        pos: "3주차 스피킹 핵심 표현",
+        meaning_kr: e.meaning_kr,
+        popo_tip: e.pattern_note || "포포의 질문에 대답할 때 이 표현을 그대로 활용해 보세요!",
+        ...ex
+      };
+    });
+  }
+  // Week 4: Master review combining core expressions + key vocab
+  return [
+    ...exprs.map((e) => {
+      const ex = findExampleForToken(book, e.expression);
+      return {
+        word: e.expression,
+        phonetic: "4주차 마스터 문장",
+        pos: "핵심 표현 완주",
+        meaning_kr: e.meaning_kr,
+        popo_tip: `화상수업 필수 표현 (${e.pattern_note || "원어민 호흡"})`,
+        ...ex
+      };
+    }),
+    ...vocab.slice(0, 4).map((v) => {
+      const ex = findExampleForToken(book, v.word);
+      return {
+        word: v.word,
+        phonetic: v.phonetic || `/${v.word}/`,
+        pos: "필수 어휘 마스터",
+        meaning_kr: v.meaning_kr,
+        popo_tip: v.popo_tip || "원서 완주 필수 단어!",
+        ...ex
+      };
+    })
+  ];
+}
+
+function getWeekSpeakingQuestions(book, weekNum) {
+  const safeBook = book || FALLBACK_BOOKS[0];
+  const vocab = (safeBook.vocab && safeBook.vocab.length) ? safeBook.vocab : FALLBACK_BOOKS[0].vocab;
+  const chunks = (safeBook.chunks && safeBook.chunks.length) ? safeBook.chunks : FALLBACK_BOOKS[0].chunks;
+  const exprs = (safeBook.core_expressions && safeBook.core_expressions.length) ? safeBook.core_expressions : [];
+  const sentences = getBookSentences(safeBook);
+
+  let baseStoryQs = [];
+  if (Array.isArray(safeBook.speaking_questions) && safeBook.speaking_questions.length) {
+    baseStoryQs = safeBook.speaking_questions;
+  } else if (BOOK_SPEAKING_QUESTIONS[safeBook.id]) {
+    baseStoryQs = BOOK_SPEAKING_QUESTIONS[safeBook.id];
+  } else {
+    baseStoryQs = [
+      exprs[0]
+        ? {
+            en: `Can you use today's expression "${exprs[0].expression}" to tell Popo something fun?`,
+            kr: `[핵심 표현 말하기] 오늘 배운 '${exprs[0].expression}'(${exprs[0].meaning_kr})를 사용해서 포포에게 영어로 말해 볼까요?`,
+            target: exprs[0].expression
+          }
+        : {
+            en: `Let's practice our favorite sentence from "${safeBook.title}": "${sentences[0] || "Hello ocean!"}"`,
+            kr: `[원서 문장 말하기] 오늘 배운 문장을 큰 소리로 말해 볼까요?`,
+            target: sentences[0] || "Hello ocean!"
+          },
+      chunks[0]
+        ? {
+            en: `How can you say "${chunks[0].meaning_kr}" in English?`,
+            kr: `[표현 응용 퀴즈] '${chunks[0].meaning_kr}'라는 뜻을 영어로 말해 볼래요? (힌트: ${chunks[0].text})`,
+            target: chunks[0].text
+          }
+        : null,
+      vocab[0]
+        ? {
+            en: `Using the word "${vocab[0].word}", can you make a happy sentence with Popo?`,
+            kr: `[내 이야기로 확장] 원서 밖 내 이야기에서도 단어 '${vocab[0].word}(${vocab[0].meaning_kr})'를 써서 말해 볼까요?`,
+            target: sentences[0] || vocab[0].word
+          }
+        : null
+    ].filter(Boolean);
+  }
+
+  if (weekNum === 1) {
+    return vocab.slice(0, 3).map((v, idx) => ({
+      en: `Week 1 Word Quiz #${idx + 1}: How do you say "${v.meaning_kr}" in English?`,
+      kr: `[1주차 단어 말하기] 포포에게 '${v.meaning_kr}'를 영어로 크게 말해줄래? (정답 힌트: ${v.word}!)`,
+      target: v.word
+    }));
+  }
+  if (weekNum === 2) {
+    return chunks.slice(0, 3).map((c, idx) => ({
+      en: `Week 2 Wave Chunk #${idx + 1}: Let's say "${c.text}" in one smooth breath!`,
+      kr: `[2주차 청크 파도 타기] '${c.meaning_kr}'라는 뜻의 구를 끊지 말고 한 호흡으로 말해볼까? (${c.text})`,
+      target: c.text
+    }));
+  }
+  if (weekNum === 3) {
+    return baseStoryQs;
+  }
+  // Week 4: Full sentence fluency & live coaching rehearsal
+  const favSent = sentences[0] || "Look at the starfish shining on the sandy floor.";
+  return [
+    ...baseStoryQs.slice(0, 2),
+    {
+      en: `Week 4 Final Master Challenge: Can you say "${favSent}" with native fluency?`,
+      kr: `[4주차 황금 보물상자 마지막 관문] 원어민 선생님 앞에서 말하듯 "${favSent}"를 멋지게 말해 볼까요?`,
+      target: favSent
+    }
+  ];
+}
+
 function renderSequentialLearnPlayer(book, user) {
   if (!book) return;
+  const activeUser = user || getCurrentUser();
+  const wk = state.currentWeek || getStudentCurrentWeek(activeUser);
+  const cfg = WEEK_CURRICULUM_CONFIG[wk] || WEEK_CURRICULUM_CONFIG[1];
+
+  const l1 = document.getElementById("learnStepLabel1");
+  const l2 = document.getElementById("learnStepLabel2");
+  const l3 = document.getElementById("learnStepLabel3");
+  const modeBanner = document.getElementById("learnWeekModeBanner");
+  const subInst = document.getElementById("storybookSubInstruction");
+  const rightKick = document.getElementById("bookRightPageKicker");
+  const p2Kick = document.getElementById("learnPage2Kicker");
+  const p2Head = document.getElementById("learnPage2Heading");
+  const p3Kick = document.getElementById("learnPage3Kicker");
+  const p3Head = document.getElementById("learnPage3Heading");
+  const finishBtn = document.getElementById("btnFinishTodayStoryLearn");
+
+  if (l1) l1.textContent = cfg.step1Tab;
+  if (l2) l2.textContent = cfg.step2Tab;
+  if (l3) l3.textContent = cfg.step3Tab;
+  if (modeBanner) modeBanner.textContent = cfg.modeBanner;
+  if (subInst) subInst.innerHTML = cfg.subInstruction;
+  if (rightKick) rightKick.textContent = cfg.rightKicker;
+  if (p2Kick) p2Kick.textContent = cfg.page2Kicker;
+  if (p2Head) p2Head.textContent = cfg.page2Heading;
+  if (p3Kick) p3Kick.textContent = cfg.page3Kicker;
+  if (p3Head) p3Head.textContent = cfg.page3Heading;
+  if (finishBtn) finishBtn.textContent = cfg.finishBtnText;
+
   const sentences = getBookSentences(book);
   if (state.storySentenceIdx >= sentences.length) {
     state.storySentenceIdx = 0;
+    state.storyWordIdx = 0;
+    state.storyChunkIdx = 0;
   }
 
   const titleHeading = document.getElementById("storybookTitleHeading");
   const levelTag = document.getElementById("storybookLevelTag");
   if (titleHeading) titleHeading.textContent = `📖 ${book.title}`;
-  if (levelTag) levelTag.textContent = `${book.level} · ${book.subtitle_kr || "바다 원서"}`;
+  if (levelTag) levelTag.textContent = `${book.level} · ${wk}주차 진행 중`;
 
   renderStorybookSpread(book, sentences);
   renderLearnStep2Vocab(book);
   renderLearnStep3Speaking(book);
 }
 
-function renderStorybookSpread(book, sentences) {
+function renderStorybookSpread(book, sentences, options = {}) {
   const container = document.getElementById("fullStorybookTextContainer");
   if (!container) return;
   container.innerHTML = "";
 
+  const wk = state.currentWeek || 1;
   const total = sentences.length || 1;
   const activeIdx = Math.min(state.storySentenceIdx, total - 1);
   const activeSent = sentences[activeIdx] || "";
+  const activeWords = activeSent.split(/\s+/).filter(Boolean);
+  const sentChunks = getSentenceChunksForWeek2(activeSent, book);
+
+  if (state.storyWordIdx >= activeWords.length) state.storyWordIdx = Math.max(0, activeWords.length - 1);
+  if (state.storyWordIdx < 0) state.storyWordIdx = 0;
+  if (state.storyChunkIdx >= sentChunks.length) state.storyChunkIdx = Math.max(0, sentChunks.length - 1);
+  if (state.storyChunkIdx < 0) state.storyChunkIdx = 0;
+
+  const activeWordRaw = activeWords[state.storyWordIdx] || "";
+  const cleanActiveWord = activeWordRaw.replace(/[^a-zA-Z0-9'-]/g, "") || activeWordRaw;
+  const activeWordInfo = lookupWordMeaning(activeWordRaw, book);
+  const activeChunk = sentChunks[state.storyChunkIdx] || sentChunks[0] || { text: activeSent, meaning_kr: "", startWordIdx: 0, endWordIdx: Math.max(0, activeWords.length - 1) };
 
   const counterBadge = document.getElementById("storySentenceCounterBadge");
   if (counterBadge) {
-    counterBadge.innerHTML = `오늘 읽은 문장: <strong>${state.storyCompletedSentences.size} / ${total} 완료</strong>`;
+    if (wk === 1) {
+      counterBadge.innerHTML = `1주차 단어 따라 읽기: <strong>${state.storyWordIdx + 1}/${activeWords.length} 단어</strong> · 문장 <strong>${state.storyCompletedSentences.size}/${total}</strong>`;
+    } else if (wk === 2) {
+      counterBadge.innerHTML = `2주차 구 따라 읽기: <strong>${state.storyChunkIdx + 1}/${sentChunks.length} 구</strong> · 문장 <strong>${state.storyCompletedSentences.size}/${total}</strong>`;
+    } else {
+      counterBadge.innerHTML = `${wk}주차 읽은 문장: <strong>${state.storyCompletedSentences.size} / ${total} 완료</strong>`;
+    }
   }
 
   const orderBadge = document.getElementById("activeSentenceOrderBadge");
   const enLarge = document.getElementById("activeSentenceEnLarge");
   const krHint = document.getElementById("activeSentenceKrHint");
-  if (orderBadge) orderBadge.textContent = `🌟 지금 차례: ${activeIdx + 1}번째 문장 (${activeIdx + 1}/${total})`;
-  if (enLarge) enLarge.textContent = activeSent;
-  if (krHint) {
-    krHint.textContent = `💡 뜻: "${SENTENCE_KR_MAP[activeSent] || (book.subtitle_kr || "")}"`;
-    krHint.classList.toggle("hidden", !state.showSentenceKrHint);
+  const rightKrBadge = document.getElementById("rightPageKrBarBadge");
+  const rightKrText = document.getElementById("rightPageCurrentSentenceKrText");
+  const fullSentKr = getSentenceKoreanMeaning(book, activeSent, activeIdx);
+
+  if (orderBadge) {
+    if (wk === 1) {
+      orderBadge.textContent = `💧 1주차 · ${activeIdx + 1}번째 문장의 ${state.storyWordIdx + 1}번째 단어 (${state.storyWordIdx + 1}/${activeWords.length})`;
+    } else if (wk === 2) {
+      orderBadge.textContent = `🌊 2주차 · ${activeIdx + 1}번째 문장의 ${state.storyChunkIdx + 1}번째 구 (${state.storyChunkIdx + 1}/${sentChunks.length})`;
+    } else {
+      orderBadge.textContent = `🌟 ${wk}주차 · 지금 읽을 ${activeIdx + 1}번째 문장 (${activeIdx + 1}/${total})`;
+    }
   }
 
+  if (enLarge) {
+    if (wk === 1) {
+      enLarge.innerHTML = "";
+      const highlightEl = document.createElement("span");
+      highlightEl.style.cssText = "background:#fef08a;padding:2px 10px;border-radius:10px;border:2px solid #f59e0b;margin-right:8px;display:inline-block;";
+      highlightEl.textContent = cleanActiveWord;
+      const krTag = document.createElement("span");
+      krTag.style.cssText = "font-size:16px;color:#be123c;font-weight:800;";
+      krTag.textContent = `(${activeWordInfo.kr})`;
+      enLarge.appendChild(highlightEl);
+      enLarge.appendChild(krTag);
+    } else if (wk === 2) {
+      enLarge.innerHTML = "";
+      const chunkEl = document.createElement("span");
+      chunkEl.style.cssText = "background:#cffafe;padding:3px 12px;border-radius:10px;border:2px solid #0284c7;margin-right:8px;display:inline-block;";
+      chunkEl.textContent = activeChunk.text;
+      const chunkKr = document.createElement("span");
+      chunkKr.style.cssText = "font-size:15.5px;color:#0369a1;font-weight:800;";
+      chunkKr.textContent = `(${activeChunk.meaning_kr})`;
+      enLarge.appendChild(chunkEl);
+      enLarge.appendChild(chunkKr);
+    } else {
+      enLarge.textContent = activeSent;
+    }
+  }
+
+  if (krHint) {
+    krHint.textContent = `💡 현재 문장 뜻: "${fullSentKr}"`;
+    krHint.classList.toggle("hidden", !state.showSentenceKrHint);
+  }
+  if (rightKrBadge) {
+    rightKrBadge.textContent =
+      wk === 2
+        ? `🌊 현재 구 뜻: "${activeChunk.meaning_kr}" · 전체 문장 뜻`
+        : "📖 현재 읽고 있는 문장 뜻";
+  }
+  if (rightKrText) {
+    rightKrText.textContent = `"${fullSentKr}"`;
+  }
+
+  const listenBtn = document.getElementById("btnListenCurrentSentence");
   const speakBtn = document.getElementById("btnSpeakCurrentSentence");
   const nextStepBtn = document.getElementById("btnGoToLearnPage2");
   const allDone = state.storyCompletedSentences.size >= total;
 
+  if (listenBtn) {
+    if (wk === 1) {
+      listenBtn.textContent = `🔊 지금 단어 ("${cleanActiveWord}") 천천히 듣기`;
+    } else if (wk === 2) {
+      listenBtn.textContent = `🔊 지금 구 ("${activeChunk.text}") 천천히 듣기`;
+    } else {
+      listenBtn.textContent = `🔊 이 문장 먼저 들어보기`;
+    }
+  }
+
   if (speakBtn) {
+    const actionLabelByWeek = {
+      1: `🎙️ [1주차] "${cleanActiveWord}" 따라 말하고 다음 단어로! (${state.storyWordIdx + 1}/${activeWords.length} · ${activeIdx + 1}문장)`,
+      2: `🌊 [2주차] "${activeChunk.text}" 따라 말하고 다음 구로! (${state.storyChunkIdx + 1}/${sentChunks.length} · ${activeIdx + 1}문장)`,
+      3: `🐚 [3주차] ${activeIdx + 1}번째 문장 줄거리 살려 말하기 (${activeIdx + 1}/${total})`,
+      4: `👑 [4주차] ${activeIdx + 1}번째 문장 원어민 속도로 녹음하기 (${activeIdx + 1}/${total})`
+    };
     speakBtn.textContent = allDone
-      ? `🐚 ${activeIdx + 1}번째 문장 다시 말해보기!`
-      : `🐚 마이크로 ${activeIdx + 1}번째 문장 말하기! (${activeIdx + 1}/${total})`;
+      ? `🎉 전체 원서 완독 완료! (${activeIdx + 1}번째 문장 다시 연습하기)`
+      : (actionLabelByWeek[wk] || actionLabelByWeek[1]);
   }
   if (nextStepBtn) {
     nextStepBtn.classList.toggle("hidden", !allDone);
+  }
+
+  const updateDockValues = (wEn, wPh, wKr, wTip) => {
+    const dEn = document.getElementById("dockWordEn");
+    const dPh = document.getElementById("dockWordPhonetic");
+    const dKr = document.getElementById("dockWordKr");
+    const dTip = document.getElementById("dockWordTip");
+    if (dEn) dEn.textContent = wEn;
+    if (dPh) dPh.textContent = wPh;
+    if (dKr) dKr.textContent = wKr;
+    if (dTip) dTip.textContent = wTip;
+    currentDropWord = wEn;
+  };
+
+  if (wk === 1) {
+    updateDockValues(activeWordInfo.word, activeWordInfo.phonetic, activeWordInfo.kr, activeWordInfo.tip);
+  } else if (wk === 2) {
+    updateDockValues(activeChunk.text, `구 #${state.storyChunkIdx + 1}/${sentChunks.length}`, activeChunk.meaning_kr, "지금 구를 천천히 끊어 읽고 따라 말해보세요!");
   }
 
   sentences.forEach((sent, sIdx) => {
@@ -2941,16 +3609,37 @@ function renderStorybookSpread(book, sentences) {
     statusBadge.addEventListener("click", (e) => {
       e.stopPropagation();
       state.storySentenceIdx = sIdx;
-      renderStorybookSpread(book, sentences);
-      speakEnglish(sent, 0.9, 1.08);
+      state.storyWordIdx = 0;
+      state.storyChunkIdx = 0;
+      renderStorybookSpread(book, sentences, { autoSpeak: true });
     });
     sentSpan.appendChild(statusBadge);
 
-    const words = sent.split(/\s+/);
-    words.forEach((tok) => {
+    const rowChunks = wk === 2 ? getSentenceChunksForWeek2(sent, book) : [];
+    const rowChunkEnds = new Set(rowChunks.slice(0, -1).map((c) => c.endWordIdx));
+
+    const words = sent.split(/\s+/).filter(Boolean);
+    words.forEach((tok, wIdx) => {
       const info = lookupWordMeaning(tok, book);
       const wordSpan = document.createElement("span");
       wordSpan.className = `story-word-chip ${info.isCore ? "core-vocab-word" : ""}`;
+
+      // Week 1: automatically highlight & pop up Korean meaning above the current active word!
+      if (wk === 1 && isAct) {
+        if (wIdx === state.storyWordIdx) {
+          wordSpan.classList.add("active-spoken-word", "tooltip-pinned");
+        } else if (wIdx < state.storyWordIdx) {
+          wordSpan.classList.add("done-spoken-word");
+        }
+      }
+
+      // Week 2: highlight the entire current phrase/chunk in cyan!
+      if (wk === 2 && isAct) {
+        if (wIdx >= activeChunk.startWordIdx && wIdx <= activeChunk.endWordIdx) {
+          wordSpan.classList.add("active-spoken-chunk");
+        }
+      }
+
       wordSpan.tabIndex = 0;
       wordSpan.textContent = tok;
 
@@ -2960,64 +3649,111 @@ function renderStorybookSpread(book, sentences) {
       wordSpan.appendChild(tooltip);
 
       const updateDock = () => {
-        const dEn = document.getElementById("dockWordEn");
-        const dPh = document.getElementById("dockWordPhonetic");
-        const dKr = document.getElementById("dockWordKr");
-        const dTip = document.getElementById("dockWordTip");
-        if (dEn) dEn.textContent = info.word;
-        if (dPh) dPh.textContent = info.phonetic;
-        if (dKr) dKr.textContent = info.kr;
-        if (dTip) dTip.textContent = info.tip;
-        currentDropWord = info.word;
+        updateDockValues(info.word, info.phonetic, info.kr, info.tip);
       };
 
       wordSpan.addEventListener("mouseenter", updateDock);
       wordSpan.addEventListener("click", (e) => {
         e.stopPropagation();
+        if (wk === 1 && isAct) {
+          state.storyWordIdx = wIdx;
+          renderStorybookSpread(book, sentences, { autoSpeak: true });
+          return;
+        }
         document.querySelectorAll(".story-word-chip.tooltip-pinned").forEach((el) => {
           if (el !== wordSpan) el.classList.remove("tooltip-pinned");
         });
         wordSpan.classList.toggle("tooltip-pinned");
         updateDock();
-        speakEnglish(info.word, 0.86, 1.1);
+        speakEnglish(info.word, wk === 1 ? 0.72 : 0.86, 1.08, null, words[wIdx + 1] || "");
       });
 
       sentSpan.appendChild(wordSpan);
       sentSpan.appendChild(document.createTextNode(" "));
+
+      // In Week 2, show a visual wave chunk breathing marker after phrase boundaries
+      if (wk === 2 && wIdx < words.length - 1 && rowChunkEnds.has(wIdx)) {
+        const slash = document.createElement("span");
+        slash.className = "chunk-slash-badge";
+        slash.textContent = "🌊 /";
+        slash.title = "의미 단위(구) 호흡 쉬어가기";
+        sentSpan.appendChild(slash);
+        sentSpan.appendChild(document.createTextNode(" "));
+      }
     });
 
     container.appendChild(sentSpan);
   });
+
+  if (options.autoSpeak) {
+    if (wk === 1) {
+      speakEnglish(cleanActiveWord, 0.72, 1.06, null, activeWords[state.storyWordIdx + 1] || "");
+    } else if (wk === 2) {
+      speakEnglish(activeChunk.text, 0.76, 1.06);
+    } else {
+      speakEnglish(activeSent, wk === 4 ? 0.96 : 0.9, 1.06);
+    }
+  }
 }
 
-function renderLearnStep2Vocab(book) {
-  const vocabList = (book && book.vocab && book.vocab.length) ? book.vocab : FALLBACK_BOOKS[0].vocab;
+function renderLearnStep2Vocab(book, options = {}) {
+  const wk = state.currentWeek || 1;
+  const vocabList = getWeekDeckForBook(book, wk);
   if (state.learnVocabIdx >= vocabList.length) state.learnVocabIdx = 0;
   const item = vocabList[state.learnVocabIdx];
 
+  const cardEl = document.getElementById("learnBigFlashcard");
   const counter = document.getElementById("learnVocabCounterBadge");
   const idxChip = document.getElementById("learnFcIndexChip");
+  const sideBadge = document.getElementById("learnFcSideBadge");
   const posChip = document.getElementById("learnFcPosChip");
   const wordEn = document.getElementById("learnFcWordEn");
   const phonetic = document.getElementById("learnFcPhonetic");
+  const frontNotice = document.getElementById("learnFcFrontNotice");
+  const meaningBox = document.getElementById("learnFcMeaningBox");
   const meaningKr = document.getElementById("learnFcMeaningKr");
+  const exampleEn = document.getElementById("learnFcExampleEn");
+  const exampleKr = document.getElementById("learnFcExampleKr");
   const tipKr = document.getElementById("learnFcTipKr");
+  const tapInst = document.getElementById("learnFcTapInstruction");
   const goP3Btn = document.getElementById("btnGoToLearnPage3");
 
-  if (counter) counter.innerHTML = `단어 카드: <strong>${state.learnVocabIdx + 1} / ${vocabList.length}</strong>`;
-  if (idxChip) idxChip.textContent = `오늘의 단어 ${state.learnVocabIdx + 1} / ${vocabList.length}`;
-  if (posChip) posChip.textContent = item.pos || "핵심 단어";
+  const isFlipped = !!state.isLearnFcFlipped;
+
+  if (counter) counter.innerHTML = `${wk}주차 카드: <strong>${state.learnVocabIdx + 1} / ${vocabList.length}</strong>`;
+  if (idxChip) idxChip.textContent = `${wk}주차 카드 ${state.learnVocabIdx + 1} / ${vocabList.length}`;
+  if (sideBadge) {
+    sideBadge.textContent = isFlipped ? "✨ 뒷면 (단어 뜻 & 원서 예문)" : "🃏 앞면 (영어 단어) · 터치하면 뒷면 열기";
+  }
+  if (posChip) posChip.textContent = item.pos || "핵심 학습";
   if (wordEn) wordEn.textContent = item.word;
-  if (phonetic) phonetic.textContent = item.phonetic || `/${item.word}/`;
+  if (phonetic) phonetic.textContent = item.phonetic || "";
   if (meaningKr) meaningKr.textContent = `🌟 ${item.meaning_kr}`;
+  if (exampleEn) exampleEn.textContent = `📖 "${item.example_en || ""}"`;
+  if (exampleKr) exampleKr.textContent = `💬 "${item.example_kr || ""}"`;
   if (tipKr) tipKr.textContent = item.popo_tip || "소리 내어 따라 읽어보세요!";
+
+  if (cardEl) cardEl.classList.toggle("is-flipped", isFlipped);
+  if (frontNotice) frontNotice.classList.toggle("hidden", isFlipped);
+  if (meaningBox) meaningBox.classList.toggle("hidden", !isFlipped);
+  if (tapInst) {
+    tapInst.textContent = isFlipped
+      ? "👆 카드를 다시 터치하면 앞면(영어 단어)으로 돌아가요!"
+      : "👆 카드를 터치하면 뒷면(단어 뜻·예문)으로 뒤집혀요!";
+  }
+
   if (goP3Btn) {
     goP3Btn.classList.toggle("hidden", state.learnVocabIdx < vocabList.length - 1);
+  }
+
+  if (options.speakFront) {
+    speakEnglish(item.word, 0.84, 1.08);
   }
 }
 
 function renderLearnStep3Speaking(book) {
-  const qList = BOOK_SPEAKING_QUESTIONS[book.id] || BOOK_SPEAKING_QUESTIONS.bada_level2_ocean_friends;
+  const wk = state.currentWeek || 1;
+  const qList = getWeekSpeakingQuestions(book, wk);
   if (state.speakingQuestionIdx >= qList.length) state.speakingQuestionIdx = 0;
   const qItem = qList[state.speakingQuestionIdx];
 
@@ -3026,7 +3762,7 @@ function renderLearnStep3Speaking(book) {
   const krEl = document.getElementById("popoSpokenSubtitleKr");
   const finishBtn = document.getElementById("btnFinishTodayStoryLearn");
 
-  if (counter) counter.innerHTML = `포포의 질문: <strong>${state.speakingQuestionIdx + 1} / ${qList.length}</strong>`;
+  if (counter) counter.innerHTML = `${wk}주차 질문: <strong>${state.speakingQuestionIdx + 1} / ${qList.length}</strong>`;
   if (enEl) enEl.textContent = `"${qItem.en}"`;
   if (krEl) {
     krEl.textContent = `💬 ${qItem.kr}`;
@@ -3130,6 +3866,10 @@ function bindKidFriendlyOverhaulEvents() {
   document.querySelectorAll("[data-learn-step]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const s = Number(btn.getAttribute("data-learn-step")) || 1;
+      if (s === 2) {
+        state.isLearnFcFlipped = false;
+        renderLearnStep2Vocab(getCurrentBook(), { speakFront: true });
+      }
       switchLearnStepPage(s);
     });
   });
@@ -3146,7 +3886,12 @@ function bindKidFriendlyOverhaulEvents() {
   const btnDockSpeak = document.getElementById("btnDockSpeakWord");
   if (btnDockSpeak) {
     btnDockSpeak.addEventListener("click", () => {
-      speakEnglish(currentDropWord || "starfish", 0.86, 1.1);
+      const wk = state.currentWeek || 1;
+      const book = getCurrentBook();
+      const sents = getBookSentences(book);
+      const activeWords = (sents[state.storySentenceIdx] || "").split(/\s+/).filter(Boolean);
+      const nextWord = activeWords[state.storyWordIdx + 1] || "";
+      speakEnglish(currentDropWord || "starfish", wk === 1 ? 0.72 : 0.86, 1.08, null, nextWord);
     });
   }
 
@@ -3155,8 +3900,18 @@ function bindKidFriendlyOverhaulEvents() {
     btnListenCurrent.addEventListener("click", () => {
       const book = getCurrentBook();
       const sents = getBookSentences(book);
-      const sent = sents[state.storySentenceIdx] || sents[0];
-      if (sent) speakEnglish(sent, 0.88, 1.08);
+      const sent = sents[state.storySentenceIdx] || sents[0] || "";
+      const wk = state.currentWeek || 1;
+      if (wk === 1) {
+        const words = sent.split(/\s+/).filter(Boolean);
+        const w = (words[state.storyWordIdx] || words[0] || "").replace(/[^a-zA-Z0-9'-]/g, "");
+        renderStorybookSpread(book, sents, { autoSpeak: true });
+        if (!w && sent) speakEnglish(sent, 0.72, 1.06);
+      } else if (wk === 2) {
+        renderStorybookSpread(book, sents, { autoSpeak: true });
+      } else if (sent) {
+        speakEnglish(sent, 0.88, 1.08);
+      }
     });
   }
 
@@ -3164,7 +3919,10 @@ function bindKidFriendlyOverhaulEvents() {
   if (btnListenWholeBook) {
     btnListenWholeBook.addEventListener("click", () => {
       const book = getCurrentBook();
-      if (book && book.full_text) speakEnglish(book.full_text, 0.9, 1.06);
+      if (book && book.full_text) {
+        const wk = state.currentWeek || 1;
+        speakEnglish(book.full_text, wk <= 2 ? 0.78 : 0.9, 1.06);
+      }
     });
   }
 
@@ -3173,16 +3931,55 @@ function bindKidFriendlyOverhaulEvents() {
     btnSpeakCurrent.addEventListener("click", () => {
       const book = getCurrentBook();
       const sents = getBookSentences(book);
-      const curIdx = state.storySentenceIdx;
+      const wk = state.currentWeek || 1;
+      const curIdx = Math.min(state.storySentenceIdx, Math.max(0, sents.length - 1));
       const sent = sents[curIdx] || "";
-      state.storyCompletedSentences.add(curIdx);
-      playOceanBubbleSound(780, 0.22);
-      speakEnglish(sent, 0.92, 1.1);
 
+      playOceanBubbleSound(780, 0.2);
+
+      if (wk === 1) {
+        const words = sent.split(/\s+/).filter(Boolean);
+        if (state.storyWordIdx < words.length - 1) {
+          state.storyWordIdx++;
+          renderStorybookSpread(book, sents, { autoSpeak: true });
+        } else {
+          state.storyCompletedSentences.add(curIdx);
+          if (curIdx < sents.length - 1) {
+            state.storySentenceIdx = curIdx + 1;
+            state.storyWordIdx = 0;
+            renderStorybookSpread(book, sents, { autoSpeak: true });
+          } else {
+            renderStorybookSpread(book, sents, { autoSpeak: false });
+          }
+        }
+        return;
+      }
+
+      if (wk === 2) {
+        const chunks = getSentenceChunksForWeek2(sent, book);
+        if (state.storyChunkIdx < chunks.length - 1) {
+          state.storyChunkIdx++;
+          renderStorybookSpread(book, sents, { autoSpeak: true });
+        } else {
+          state.storyCompletedSentences.add(curIdx);
+          if (curIdx < sents.length - 1) {
+            state.storySentenceIdx = curIdx + 1;
+            state.storyChunkIdx = 0;
+            renderStorybookSpread(book, sents, { autoSpeak: true });
+          } else {
+            renderStorybookSpread(book, sents, { autoSpeak: false });
+          }
+        }
+        return;
+      }
+
+      // Week 3 & Week 4: Sentence-by-sentence
+      state.storyCompletedSentences.add(curIdx);
+      speakEnglish(sent, wk === 4 ? 0.96 : 0.92, 1.1);
       if (curIdx < sents.length - 1) {
         state.storySentenceIdx = curIdx + 1;
       }
-      renderStorybookSpread(book, sents);
+      renderStorybookSpread(book, sents, { autoSpeak: false });
     });
   }
 
@@ -3190,19 +3987,25 @@ function bindKidFriendlyOverhaulEvents() {
   if (btnGoP2) {
     btnGoP2.addEventListener("click", () => {
       state.learnVocabIdx = 0;
-      renderLearnStep2Vocab(getCurrentBook());
+      state.isLearnFcFlipped = false;
+      renderLearnStep2Vocab(getCurrentBook(), { speakFront: true });
       switchLearnStepPage(2);
     });
   }
 
-  // Page 2 Flashcards
+  // Page 2 Real Front/Back Flip Flashcards (Week-Aware Deck)
   const bigFc = document.getElementById("learnBigFlashcard");
   if (bigFc) {
     bigFc.addEventListener("click", () => {
       const book = getCurrentBook();
-      const vocab = (book && book.vocab) || FALLBACK_BOOKS[0].vocab;
-      const item = vocab[state.learnVocabIdx] || vocab[0];
-      if (item) speakEnglish(item.word, 0.86, 1.1);
+      const deck = getWeekDeckForBook(book, state.currentWeek || 1);
+      const item = deck[state.learnVocabIdx] || deck[0];
+      state.isLearnFcFlipped = !state.isLearnFcFlipped;
+      playOceanBubbleSound(680, 0.15);
+      renderLearnStep2Vocab(book);
+      if (!state.isLearnFcFlipped && item) {
+        speakEnglish(item.word, 0.84, 1.08);
+      }
     });
   }
 
@@ -3210,9 +4013,10 @@ function bindKidFriendlyOverhaulEvents() {
   if (btnFcPrev) {
     btnFcPrev.addEventListener("click", () => {
       const book = getCurrentBook();
-      const vocab = (book && book.vocab) || FALLBACK_BOOKS[0].vocab;
-      state.learnVocabIdx = (state.learnVocabIdx - 1 + vocab.length) % vocab.length;
-      renderLearnStep2Vocab(book);
+      const deck = getWeekDeckForBook(book, state.currentWeek || 1);
+      state.isLearnFcFlipped = false;
+      state.learnVocabIdx = (state.learnVocabIdx - 1 + deck.length) % deck.length;
+      renderLearnStep2Vocab(book, { speakFront: true });
     });
   }
 
@@ -3220,9 +4024,9 @@ function bindKidFriendlyOverhaulEvents() {
   if (btnFcListen) {
     btnFcListen.addEventListener("click", () => {
       const book = getCurrentBook();
-      const vocab = (book && book.vocab) || FALLBACK_BOOKS[0].vocab;
-      const item = vocab[state.learnVocabIdx] || vocab[0];
-      if (item) speakEnglish(item.word, 0.86, 1.1);
+      const deck = getWeekDeckForBook(book, state.currentWeek || 1);
+      const item = deck[state.learnVocabIdx] || deck[0];
+      if (item) speakEnglish(item.word, 0.84, 1.08);
     });
   }
 
@@ -3230,12 +4034,12 @@ function bindKidFriendlyOverhaulEvents() {
   if (btnFcNext) {
     btnFcNext.addEventListener("click", () => {
       const book = getCurrentBook();
-      const vocab = (book && book.vocab) || FALLBACK_BOOKS[0].vocab;
+      const deck = getWeekDeckForBook(book, state.currentWeek || 1);
       playOceanBubbleSound(740, 0.18);
-      if (state.learnVocabIdx < vocab.length - 1) {
+      if (state.learnVocabIdx < deck.length - 1) {
         state.learnVocabIdx++;
-        renderLearnStep2Vocab(book);
-        speakEnglish(vocab[state.learnVocabIdx].word, 0.88, 1.1);
+        state.isLearnFcFlipped = false;
+        renderLearnStep2Vocab(book, { speakFront: true });
       } else {
         renderLearnStep2Vocab(book);
         const goP3 = document.getElementById("btnGoToLearnPage3");
@@ -3251,17 +4055,31 @@ function bindKidFriendlyOverhaulEvents() {
       const book = getCurrentBook();
       renderLearnStep3Speaking(book);
       switchLearnStepPage(3);
-      const qList = BOOK_SPEAKING_QUESTIONS[book.id] || BOOK_SPEAKING_QUESTIONS.bada_level2_ocean_friends;
+      const qList = getWeekSpeakingQuestions(book, state.currentWeek || 1);
       if (qList[0]) speakEnglish(qList[0].en, 0.9, 1.12);
     });
   }
 
-  // Page 3 Popo Speaking
+  // Page 3 Popo Speaking & Clam Mic
+  const clamBtn = document.getElementById("btnPearlClamMic");
+  if (clamBtn) {
+    clamBtn.addEventListener("click", () => {
+      activatePearlClamMicrophone();
+    });
+  }
+
+  document.querySelectorAll("[data-sim-speech]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const text = btn.getAttribute("data-sim-speech");
+      submitSpeechToPopo(text);
+    });
+  });
+
   const btnReplayPopo = document.getElementById("btnReplayPopoVoice");
   if (btnReplayPopo) {
     btnReplayPopo.addEventListener("click", () => {
       const book = getCurrentBook();
-      const qList = BOOK_SPEAKING_QUESTIONS[book.id] || BOOK_SPEAKING_QUESTIONS.bada_level2_ocean_friends;
+      const qList = getWeekSpeakingQuestions(book, state.currentWeek || 1);
       const qItem = qList[state.speakingQuestionIdx] || qList[0];
       if (qItem) speakEnglish(qItem.en, 0.9, 1.12);
     });
@@ -3285,7 +4103,7 @@ function bindKidFriendlyOverhaulEvents() {
   if (btnNextQ) {
     btnNextQ.addEventListener("click", () => {
       const book = getCurrentBook();
-      const qList = BOOK_SPEAKING_QUESTIONS[book.id] || BOOK_SPEAKING_QUESTIONS.bada_level2_ocean_friends;
+      const qList = getWeekSpeakingQuestions(book, state.currentWeek || 1);
       state.speakingQuestionIdx = (state.speakingQuestionIdx + 1) % qList.length;
       renderLearnStep3Speaking(book);
       const qItem = qList[state.speakingQuestionIdx];
@@ -3295,8 +4113,30 @@ function bindKidFriendlyOverhaulEvents() {
 
   const btnFinishLearn = document.getElementById("btnFinishTodayStoryLearn");
   if (btnFinishLearn) {
-    btnFinishLearn.addEventListener("click", () => {
+    btnFinishLearn.addEventListener("click", async () => {
       playOceanBubbleSound(920, 0.3);
+      const user = getCurrentUser();
+      const wk = state.currentWeek || 1;
+      if (user) {
+        user[`progress_w${wk}`] = 100;
+        const nextWk = wk < 4 ? wk + 1 : 4;
+        if (wk < 4 && (Number(user[`progress_w${nextWk}`]) || 0) === 0) {
+          user[`progress_w${nextWk}`] = 10;
+        }
+        state.currentWeek = nextWk;
+        try {
+          await fetch("/api/users/progress", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: user.id,
+              week: wk,
+              progress: 100
+            })
+          });
+        } catch (_) {}
+      }
+      syncAllViews();
       navigateToRoute("/student");
     });
   }

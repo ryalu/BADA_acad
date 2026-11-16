@@ -238,7 +238,8 @@ const server = http.createServer(async (req, res) => {
       }
       const safeLevel = String(body.level || "Level 2").slice(0, 40);
       const safeBookId = body.bookId ? String(body.bookId).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) : null;
-      const result = await getOrExtractVocabAndChunks(rawText, safeLevel, safeBookId);
+      const koreanText = String(body.korean_text || "").trim().slice(0, 5000);
+      const result = await getOrExtractVocabAndChunks(rawText, safeLevel, safeBookId, false, koreanText);
       const updatedBootstrap = await getAllBootstrapData();
       return sendJson(res, 200, {
         result,
@@ -297,7 +298,8 @@ const server = http.createServer(async (req, res) => {
         studentName: String(body.studentName || "김하준").slice(0, 40),
         bookTitle: String(body.bookTitle || "Popo and the Ocean Friends").slice(0, 120),
         weakPoints: Array.isArray(body.weakPoints) ? body.weakPoints.slice(0, 10) : [],
-        strongPoints: Array.isArray(body.strongPoints) ? body.strongPoints.slice(0, 10) : []
+        strongPoints: Array.isArray(body.strongPoints) ? body.strongPoints.slice(0, 10) : [],
+        coreExpressions: Array.isArray(body.coreExpressions) ? body.coreExpressions.slice(0, 8) : []
       });
       return sendJson(res, 200, { questions });
     }

@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BADA English 🌊 아기 고래 포포의 4주 영어 원서 탐험 &amp; 강사 SaaS</title>
+  <title>BADA 영어 | 초등 영어 원서 리딩 &amp; 스피킹</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Jua&family=Noto+Sans+KR:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Jua&family=Noto+Sans+KR:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
+
 <body data-app-shell="entry">
   <!-- Ambient Floating Ocean Bubbles Background (Visible in Entry & Student Shell) -->
   <div class="ocean-ambient" id="oceanAmbientBg" aria-hidden="true">
@@ -35,13 +39,10 @@
           <div>
             <div class="brand-badge-row">
               <span class="brand-pill">Pre-Level ~ Level 8</span>
-              <span class="brand-pill coral">학생 앱 &amp; 강사 SaaS 역할 분리형 서비스</span>
+              <span class="brand-pill coral">초등 영어 원서 리딩 프로그램</span>
             </div>
-            <h1 class="brand-title">BADA English <span class="brand-sub">아기 고래 포포의 4주 영어 원서 탐험</span></h1>
+            <h1 class="brand-title">BADA 영어 <span class="brand-sub">아기 고래 포포와 함께하는 4주 원서 리딩</span></h1>
           </div>
-        </div>
-        <div class="entry-route-pill">
-          🔗 역할별 독립 라우팅: <code>/student</code> (학생 전용 앱) · <code>/teacher</code> (강사 전용 백오피스)
         </div>
       </header>
 
@@ -50,106 +51,88 @@
         <section class="portal-card student-portal">
           <div class="portal-top">
             <div class="portal-badges">
-              <span class="role-pill mint">🐋 학생 대원 전용 앱 (/student)</span>
-              <span class="role-pill sand">태블릿 가로모드 · PC 최적화</span>
+              <span class="role-pill mint">학생 학습 공간</span>
             </div>
-            <h2 class="portal-headline">안녕! 아기 고래 포포와 함께<br/>오늘의 바다 원서 탐험을 시작해 볼까?</h2>
+            <h2 class="portal-headline">오늘의 영어 원서 학습을<br />시작해 볼까요?</h2>
             <p class="portal-desc">
-              복잡한 강사/관리자 메뉴 없이 오직 학생 눈높이에 맞춘 <strong>마이 바다 탐험 맵</strong>, <strong>4주 원서 학습 플레이어</strong>, <strong>학년별 맞춤 훈련소</strong> 화면으로 바로 이동해요!
+              내 이름을 선택하고 출석번호 4자리를 입력해 입장하세요.
             </p>
           </div>
 
           <div class="student-selector-box">
-            <label class="box-title">1. 내 탐험 대원 이름 카드 선택</label>
+            <label class="box-title">1. 내 이름 선택</label>
             <div class="entry-student-cards" id="entryStudentCards">
               <!-- Populated dynamically from DB users -->
             </div>
 
             <div class="entry-pin-auth-row">
               <label for="entryStudentPinInput" class="pin-auth-label">
-                🔑 2. 내 출석번호(PIN 4자리) 입력 <span class="pin-hint-pill">초기 번호: 1234</span>
+                🔑 2. 출석번호 (4자리) 입력
               </label>
               <div class="pin-input-group">
-                <input
-                  type="password"
-                  id="entryStudentPinInput"
-                  class="entry-pin-input"
-                  maxlength="4"
-                  inputmode="numeric"
-                  placeholder="1234"
-                  value="1234"
-                />
-                <span class="pin-lock-note">🔒 내 이름과 배정된 원서로 안전하게 입장해요</span>
+                <input type="password" id="entryStudentPinInput" class="entry-pin-input" maxlength="4"
+                  inputmode="numeric" placeholder="••••" value="1234" />
+                <span class="pin-lock-note">내 이름과 배정된 원서로 안전하게 입장해요</span>
               </div>
               <div id="entryStudentAuthMsg" class="entry-auth-feedback hidden"></div>
             </div>
           </div>
 
           <button type="button" class="portal-cta-btn mint squishy-btn" id="btnEnterStudentApp">
-            🌊 포포와 함께 내 바다 탐험 맵으로 출발하기! (/student ➔)
+            학습 시작하기 ➔
           </button>
         </section>
 
-        <!-- Right Portal: Teacher SaaS Backoffice Entry -->
+        <!-- Right Portal: Teacher Backoffice Entry -->
         <section class="portal-card teacher-portal">
           <div class="portal-top">
             <div class="portal-badges">
-              <span class="role-pill dark-mint">👩‍🏫 강사 · 👑 원장님 전용 백오피스 (/teacher)</span>
+              <span class="role-pill dark-mint">선생님 · 원장님 전용</span>
             </div>
-            <h2 class="portal-headline light">BADA Teacher SaaS<br/>학생·강사 등록 &amp; 원서 배정 워크스페이스</h2>
+            <h2 class="portal-headline light">학원 및 학생 학습 관리</h2>
             <p class="portal-desc light">
-              학생 등록, 등급(Pre-Level~Lv.8) 및 원서 배정(새 원서 배정 시 1주차 자동 시작), 원장님 전용 선생님 계정 관리 및 화상수업 코칭을 통합 관리합니다.
+              학생 등록, 레벨·원서 배정, 수업 코칭 및 학습 리포트를 관리합니다.
             </p>
           </div>
 
           <div class="teacher-login-box">
-            <label for="entryTeacherSelect" class="box-title light">1. 로그인할 원장님 / 선생님 계정 선택</label>
+            <label for="entryTeacherSelect" class="box-title light">1. 로그인할 계정 선택</label>
             <select id="entryTeacherSelect" class="entry-teacher-select">
-              <option value="tch_director">👑 원장님 (총괄) · 원장 · 최고관리자</option>
-              <option value="tch_emma">👩‍🏫 Teacher Emma · 원어민 스피킹 코치</option>
+              <option value="tch_director">원장님</option>
+              <option value="tch_emma">선생님</option>
             </select>
 
             <div class="entry-teacher-pw-row">
               <label for="entryTeacherPasswordInput" class="box-title light">
-                🔐 2. 계정 비밀번호 입력
+                2. 계정 비밀번호 입력
               </label>
-              <input
-                type="password"
-                id="entryTeacherPasswordInput"
-                class="entry-teacher-pw-input"
-                placeholder="원장님: bada1234 / 강사: 1234"
-                value="bada1234"
-              />
-              <div class="pw-quick-fill-bar">
-                <span>빠른 입력:</span>
-                <button type="button" class="pw-chip-btn" id="btnQuickFillDirectorPw">👑 원장님 (bada1234)</button>
-                <button type="button" class="pw-chip-btn" id="btnQuickFillTeacherPw">👩‍🏫 선생님 (1234)</button>
+              <input type="password" id="entryTeacherPasswordInput" class="entry-teacher-pw-input"
+                placeholder="비밀번호 입력" value="" />
+              <div class="pw-quick-fill-bar hidden">
+                <button type="button" class="pw-chip-btn" id="btnQuickFillDirectorPw">원장님</button>
+                <button type="button" class="pw-chip-btn" id="btnQuickFillTeacherPw">선생님</button>
               </div>
               <div id="entryTeacherAuthMsg" class="entry-auth-feedback hidden"></div>
             </div>
 
-            <div class="teacher-modules-preview">
+            <div class="teacher-modules-preview hidden">
               <div class="t-mod-row" data-goto-teacher="home">
-                <strong>📊 01. 학생 등록 · 등급/원서 배정 &amp; 선생님 관리</strong>
-                <span>새 원서 배정 시 1주차 자동 시작 · 원장님 전용 강사 등록</span>
+                <strong>학생 등록 · 원서 배정</strong>
               </div>
               <div class="t-mod-row" data-goto-teacher="coaching">
-                <strong>🎥 02. 4주차 화상수업 라이브 코칭룸</strong>
-                <span>누적 STT 강점·취약점 &amp; AI 추천 질문 3선</span>
+                <strong>4주차 화상수업 코칭룸</strong>
               </div>
               <div class="t-mod-row" data-goto-teacher="reports">
-                <strong>💌 03. 학부모 리포트 &amp; 수료증 발송 센터</strong>
-                <span>1 vs 4주차 듀얼 오디오 &amp; 포포 수료증 알림톡</span>
+                <strong>학부모 리포트 &amp; 수료증</strong>
               </div>
               <div class="t-mod-row" data-goto-teacher="database">
-                <strong>🗄️ 04. 원서 &amp; 커리큘럼 DB 관리소</strong>
-                <span>신규 원서 DB 등록 &amp; Vocab/Chunk 중복방지 캐시</span>
+                <strong>원서 교재 등록 · 관리</strong>
               </div>
             </div>
           </div>
 
           <button type="button" class="portal-cta-btn coral squishy-btn" id="btnEnterTeacherApp">
-            👩‍🏫 비밀번호 확인 후 SaaS 백오피스로 입장하기 (/teacher ➔)
+            관리자 로그인 ➔
           </button>
         </section>
       </div>
@@ -171,7 +154,8 @@
             <span class="brand-pill" id="studentHeaderGradeBadge">초등 2학년 · Level 2</span>
             <span class="brand-pill coral">포포의 바다 탐험</span>
           </div>
-          <h1 class="brand-title">BADA 영어 <span class="brand-sub" id="studentHeaderBookSub">Popo and the Ocean Friends</span></h1>
+          <h1 class="brand-title">BADA 영어 <span class="brand-sub" id="studentHeaderBookSub">Popo and the Ocean
+              Friends</span></h1>
         </div>
       </div>
 
@@ -203,8 +187,12 @@
         </div>
         <!-- Keep hidden selects for internal sync -->
         <div class="hidden" aria-hidden="true">
-          <select id="studentSelect"><option value="stu_hajun">김하준</option></select>
-          <select id="bookSelect"><option value="bada_level2_ocean_friends">Popo</option></select>
+          <select id="studentSelect">
+            <option value="stu_hajun">김하준</option>
+          </select>
+          <select id="bookSelect">
+            <option value="bada_level2_ocean_friends">Popo</option>
+          </select>
         </div>
         <button type="button" class="toy-3d-btn mini sand" id="btnStudentExitToEntry" title="로그아웃 및 초기 화면으로">
           🚪 로그아웃
@@ -243,45 +231,45 @@
               <span>반짝이는 내 현재 진도 섬을 눌러 원서 책을 펼쳐보세요!</span>
             </div>
 
-            <div class="home-islands-stack">
-              <div class="home-island-row toy-3d-island-card mint" data-open-week="1">
+            <div class="home-islands-stack" id="homeIslandsStack">
+              <div class="home-island-row toy-3d-island-card mint" id="homeIslandCard1" data-open-week="1">
                 <div class="island-3d-icon">💦</div>
                 <div class="home-island-left">
-                  <span class="home-week-tag" id="homeBadgeW1">완료 ✓</span>
-                  <h4>1주차 · 물방울 단어 섬</h4>
-                  <p>원서 속 반짝이는 바다 단어를 배웠어요!</p>
+                  <span class="home-week-tag" id="homeBadgeW1">1주차</span>
+                  <h4>1주차 · 물방울 단어 &amp; 첫 문장 섬</h4>
+                  <p id="homeIslandDesc1">단어 뜻을 하나씩 보며 첫 문장을 읽고 1주차 목소리를 녹음해요!</p>
                 </div>
-                <span class="toy-3d-chip">참 잘했어요 ⭐</span>
+                <div id="homeIslandAction1"><span class="toy-3d-chip">참 잘했어요 ⭐</span></div>
               </div>
 
-              <div class="home-island-row toy-3d-island-card mint" data-open-week="2">
+              <div class="home-island-row toy-3d-island-card mint" id="homeIslandCard2" data-open-week="2">
                 <div class="island-3d-icon">🌊</div>
                 <div class="home-island-left">
-                  <span class="home-week-tag" id="homeBadgeW2">완료 ✓</span>
-                  <h4>2주차 · 파도 타기 낭독 섬</h4>
-                  <p>포포와 함께 파도를 타며 문장을 읽었어요!</p>
+                  <span class="home-week-tag" id="homeBadgeW2">2주차</span>
+                  <h4>2주차 · 파도 타기 청크 낭독 섬</h4>
+                  <p id="homeIslandDesc2">의미 단위(청크) 호흡으로 끊어 읽고 핵심 표현 카드를 익혀요!</p>
                 </div>
-                <span class="toy-3d-chip">참 잘했어요 ⭐</span>
+                <div id="homeIslandAction2"><span class="toy-3d-chip">참 잘했어요 ⭐</span></div>
               </div>
 
-              <div class="home-island-row toy-3d-island-card coral" data-open-week="3">
+              <div class="home-island-row toy-3d-island-card mint" id="homeIslandCard3" data-open-week="3">
                 <div class="island-3d-icon">🐚</div>
                 <div class="home-island-left">
-                  <span class="home-week-tag coral" id="homeBadgeW3">🔥 오늘의 섬</span>
-                  <h4>3주차 · 진주조개 이야기 섬</h4>
-                  <p>책 한 문장씩 읽기 ➔ 단어 카드 ➔ 포포와 말하기</p>
+                  <span class="home-week-tag" id="homeBadgeW3">3주차</span>
+                  <h4>3주차 · 진주조개 스피킹 대화 섬</h4>
+                  <p id="homeIslandDesc3">원서 이야기를 읽고 포포의 영어 질문에 진주조개 마이크로 답해요!</p>
                 </div>
-                <button type="button" class="toy-3d-btn sm coral">출발하기! ➔</button>
+                <div id="homeIslandAction3"><span class="toy-3d-chip">참 잘했어요 ⭐</span></div>
               </div>
 
-              <div class="home-island-row toy-3d-island-card gold" data-open-week="4">
+              <div class="home-island-row toy-3d-island-card gold" id="homeIslandCard4" data-open-week="4">
                 <div class="island-3d-icon">👑</div>
                 <div class="home-island-left">
-                  <span class="home-week-tag gold" id="homeBadgeW4">🔒 다음 섬</span>
-                  <h4>4주차 · 황금 보물상자 섬</h4>
-                  <p>3주차를 마치면 황금 보물상자 섬이 열려요!</p>
+                  <span class="home-week-tag gold" id="homeBadgeW4">4주차</span>
+                  <h4>4주차 · 전체 스토리 완성 &amp; 황금 보물상자 섬</h4>
+                  <p id="homeIslandDesc4">원서 전체를 유창하게 낭독 녹음하고 황금 보물상자를 열어요!</p>
                 </div>
-                <span class="toy-3d-chip sand">기다리는 중 🔒</span>
+                <div id="homeIslandAction4"><span class="toy-3d-chip sand">기다리는 중 🔒</span></div>
               </div>
             </div>
           </div>
@@ -352,23 +340,23 @@
           <div class="learn-3step-stepper" role="tablist" aria-label="오늘의 원서 학습 3단계">
             <button type="button" class="learn-step-pill active" id="learnStepBtn1" data-learn-step="1">
               <span class="step-num-circle">1</span>
-              <span>📖 원서 책 읽기</span>
+              <span id="learnStepLabel1">📖 1교시 · 원서 책 읽기</span>
             </button>
             <span class="step-arrow">➔</span>
             <button type="button" class="learn-step-pill" id="learnStepBtn2" data-learn-step="2">
               <span class="step-num-circle">2</span>
-              <span>🃏 단어 카드 놀이</span>
+              <span id="learnStepLabel2">🃏 2교시 · 단어 카드 학습</span>
             </button>
             <span class="step-arrow">➔</span>
             <button type="button" class="learn-step-pill" id="learnStepBtn3" data-learn-step="3">
               <span class="step-num-circle">3</span>
-              <span>🐬 포포와 스피킹</span>
+              <span id="learnStepLabel3">🐬 3교시 · 포포와 스피킹</span>
             </button>
           </div>
 
           <div class="current-learn-progress-badges">
-            <span class="mini-pill hidden" id="learnCompletedSummaryPill">1·2주차 완료 ✓</span>
-            <span class="mission-pill" id="learnCurrentWeekPill">🐬 3주차 진도 · Popo and the Ocean Friends</span>
+            <span class="mini-pill" id="learnCompletedSummaryPill">1주차 진행 중</span>
+            <span class="mission-pill" id="learnCurrentWeekPill">🐬 1주차 진도 · Popo and the Ocean Friends</span>
           </div>
         </div>
 
@@ -382,14 +370,15 @@
               <div class="guide-left">
                 <img src="/assets/popo-3d.jpg" alt="포포" class="guide-mini-popo" />
                 <div>
+                  <span class="mission-pill" id="learnWeekModeBanner">💦 1주차 · 물방울 단어 &amp; 첫 문장 탐색</span>
                   <h2 class="storybook-main-heading" id="storybookTitleHeading">📖 Popo and the Ocean Friends</h2>
-                  <p class="storybook-sub-instruction">
+                  <p class="storybook-sub-instruction" id="storybookSubInstruction">
                     💡 <strong>단어 위에 마우스를 올리면 한국어 뜻이 퐁! 떠올라요.</strong> 반짝이는 오늘의 문장을 한 문장씩 소리 내어 읽어보세요!
                   </p>
                 </div>
               </div>
               <div class="sentence-progress-counter" id="storySentenceCounterBadge">
-                문장 진도: <strong>1 / 4 문장</strong>
+                문장 진도: <strong>0 / 4 완료</strong>
               </div>
             </div>
 
@@ -424,7 +413,7 @@
               <!-- Right Page: Full Original Story Text (All sentences visible like a real book!) -->
               <div class="storybook-page right-text-page">
                 <div class="book-page-header">
-                  <span class="book-page-kicker">📜 전체 원서 이야기 (단어에 마우스를 올려 뜻을 확인해 보세요!)</span>
+                  <span class="book-page-kicker" id="bookRightPageKicker">📜 전체 원서 이야기 (단어에 마우스를 올려 뜻을 확인해 보세요!)</span>
                   <button type="button" class="toy-3d-btn xs sand" id="btnListenWholeStoryBook">
                     🔊 전체 이야기 이어 듣기
                   </button>
@@ -433,6 +422,12 @@
                 <!-- Full Story Paragraph where every sentence is rendered in order and every word has a hover Korean tooltip -->
                 <div id="fullStorybookTextContainer" class="full-storybook-text-container" aria-live="polite">
                   <!-- Populated dynamically by app.js -->
+                </div>
+
+                <!-- Current Reading Sentence Korean Meaning Bar (Directly below book text) -->
+                <div class="current-reading-sentence-kr-bar" id="rightPageCurrentSentenceKrBar">
+                  <span class="kr-bar-badge" id="rightPageKrBarBadge">📖 현재 문장 뜻</span>
+                  <strong class="kr-bar-text" id="rightPageCurrentSentenceKrText">"모래 바닥 위에서 반짝이고 있는 저 불가사리를 봐."</strong>
                 </div>
 
                 <!-- Selected Word Audio & Meaning Mini Bar (in addition to above-word hover tooltip) -->
@@ -460,14 +455,14 @@
               </button>
 
               <button type="button" class="toy-3d-btn xl gold hidden" id="btnGoToLearnPage2">
-                🎉 다 읽었어요! 다음 페이지: 단어 카드 학습 ➔
+                🎉 다 읽었어요! 다음 페이지로 이동하기 ➔
               </button>
             </div>
           </div>
         </div>
 
         <!-- ===============================================================
-             LEARN PAGE 2: TODAY'S VOCABULARY FLASHCARDS (DEDICATED PAGE)
+             LEARN PAGE 2: WEEK-SPECIFIC VOCAB / CHUNK / EXPRESSION FLASHCARDS
         ================================================================ -->
         <div id="learn-page-2-vocab" class="learn-seq-page">
           <div class="toy-3d-panel vocab-page-stage">
@@ -475,34 +470,46 @@
               <div class="guide-left">
                 <img src="/assets/popo-3d.jpg" alt="포포" class="guide-mini-popo" />
                 <div>
-                  <span class="mission-pill">2교시 · 오늘의 원서 핵심 단어장</span>
-                  <h2 class="storybook-main-heading">🃏 카드를 뒤집으며 오늘 배운 단어를 익혀봐요!</h2>
+                  <span class="mission-pill" id="learnPage2Kicker">2교시 · 오늘의 원서 핵심 단어장</span>
+                  <h2 class="storybook-main-heading" id="learnPage2Heading">🃏 카드를 뒤집으며 오늘 배운 단어를 익혀봐요!</h2>
                 </div>
               </div>
               <div class="sentence-progress-counter" id="learnVocabCounterBadge">
-                단어 카드: <strong>1 / 6</strong>
+                카드 진도: <strong>1 / 6</strong>
               </div>
             </div>
 
             <!-- Big 3D Tactile Flip Flashcard -->
             <div class="learn-3d-flashcard-arena">
-              <div class="toy-3d-flashcard-big" id="learnBigFlashcard" tabindex="0" role="button" aria-label="단어 플래시카드 뒤집기">
+              <div class="toy-3d-flashcard-big" id="learnBigFlashcard" tabindex="0" role="button"
+                aria-label="단어 플래시카드 앞뒤 뒤집기">
                 <div class="fc-top-pills">
-                  <span class="toy-3d-chip" id="learnFcIndexChip">오늘의 단어 1 / 6</span>
-                  <span class="toy-3d-chip coral" id="learnFcPosChip">명사</span>
+                  <span class="toy-3d-chip" id="learnFcIndexChip">오늘의 카드 1 / 6</span>
+                  <span class="toy-3d-chip coral" id="learnFcSideBadge">🃏 앞면 (영어 단어) · 터치하면 뒷면 열기</span>
                 </div>
 
                 <div class="fc-word-en" id="learnFcWordEn">starfish</div>
                 <div class="fc-word-phonetic" id="learnFcPhonetic">/ˈstɑːr.fɪʃ/</div>
 
-                <!-- Meaning Box (Revealed / Emphasized on click or toggle) -->
-                <div class="fc-meaning-box" id="learnFcMeaningBox">
+                <!-- Front-side prompt (shown when unflipped) -->
+                <div class="fc-front-cover-notice" id="learnFcFrontNotice">
+                  🔊 원어민 발음을 먼저 듣고 따라 말한 뒤,<br />
+                  <strong>카드를 터치해서 뒷면(단어 뜻 · 원서 예문)을 확인해 보세요! 👆</strong>
+                </div>
+
+                <!-- Back-side Meaning & Example Box (Hidden on front, revealed when flipped!) -->
+                <div class="fc-meaning-box hidden" id="learnFcMeaningBox">
+                  <span class="toy-3d-chip coral" id="learnFcPosChip" style="margin-bottom:8px;display:inline-block;">명사</span>
                   <div class="fc-meaning-kr" id="learnFcMeaningKr">🌟 불가사리</div>
+                  <div class="fc-example-box" id="learnFcExampleBox">
+                    <p class="fc-example-en" id="learnFcExampleEn">📖 "Look at the starfish shining on the sandy floor."</p>
+                    <p class="fc-example-kr" id="learnFcExampleKr">💬 "모래 바닥 위에서 반짝이고 있는 저 불가사리를 봐."</p>
+                  </div>
                   <p class="fc-tip-kr" id="learnFcTipKr">별(star) 모양을 닮은 반짝이는 바다 친구예요.</p>
                 </div>
 
-                <div class="fc-tap-instruction">
-                  👆 카드를 누르면 원어민 발음이 나오고 뜻이 반짝여요!
+                <div class="fc-tap-instruction" id="learnFcTapInstruction">
+                  👆 카드를 터치하면 뒷면(단어 뜻·예문)으로 뒤집혀요!
                 </div>
               </div>
             </div>
@@ -510,16 +517,16 @@
             <!-- Big 3D Flashcard Controls -->
             <div class="storybook-bottom-action-bar">
               <button type="button" class="toy-3d-btn lg sand" id="btnLearnFcPrev">
-                ⬅️ 이전 단어
+                ⬅️ 이전 카드
               </button>
               <button type="button" class="toy-3d-btn lg mint" id="btnLearnFcListen">
-                🔊 단어 발음 듣기
+                🔊 발음 듣기
               </button>
               <button type="button" class="toy-3d-btn xl coral" id="btnLearnFcNextKnow">
-                👍 뜻 알아요! 다음 단어 ➔
+                👍 익혔어요! 다음 카드 ➔
               </button>
               <button type="button" class="toy-3d-btn xl gold hidden" id="btnGoToLearnPage3">
-                🎉 단어 학습 완료! 다음 페이지: 포포와 스피킹 ➔
+                🎉 카드 학습 완료! 다음 페이지: 포포와 스피킹 ➔
               </button>
             </div>
           </div>
@@ -534,8 +541,8 @@
               <div class="guide-left">
                 <img src="/assets/treasure-pearl-3d.jpg" alt="진주 마이크" class="guide-mini-popo" />
                 <div>
-                  <span class="mission-pill coral">3교시 · 포포의 바다 스피킹 질문</span>
-                  <h2 class="storybook-main-heading">🐬 포포의 질문을 듣고 진주조개 마이크로 답해 볼까요?</h2>
+                  <span class="mission-pill coral" id="learnPage3Kicker">3교시 · 포포의 바다 스피킹 질문</span>
+                  <h2 class="storybook-main-heading" id="learnPage3Heading">🐬 포포의 질문을 듣고 진주조개 마이크로 답해 볼까요?</h2>
                 </div>
               </div>
               <div class="sentence-progress-counter" id="speakingQuestionCounterBadge">
@@ -590,40 +597,29 @@
                   </div>
                 </button>
 
-                <!-- Quick Test Voice Buttons for Demo/Practice -->
-                <div class="voice-sim-bar">
-                  <span class="sim-caption">🎤 내 목소리 예시로 바로 체험해 보기:</span>
-                  <button type="button" class="toy-3d-btn sm sand" id="btnSimTryHint" data-sim-speech="See the starfish!">
-                    🗣️ "See the starfish!" (포포의 다정한 힌트 듣기)
-                  </button>
-                  <button type="button" class="toy-3d-btn sm mint" id="btnSimPerfectAnswer" data-sim-speech="Look at the starfish!">
-                    🗣️ "Look at the starfish!" (정답 말하기!)
-                  </button>
+                <!-- Quick Test Voice Buttons hidden in production -->
+                <div class="voice-sim-bar hidden" aria-hidden="true">
+                  <button type="button" class="toy-3d-btn sm sand" id="btnSimTryHint"
+                    data-sim-speech="See the starfish!">See the starfish!</button>
+                  <button type="button" class="toy-3d-btn sm mint" id="btnSimPerfectAnswer"
+                    data-sim-speech="Look at the starfish!">Look at the starfish!</button>
                 </div>
               </div>
 
               <!-- Next Question / Complete Adventure Bar -->
               <div class="storybook-bottom-action-bar">
                 <button type="button" class="toy-3d-btn lg sand" id="btnBackToLearnPage2">
-                  ⬅️ 단어 카드로 돌아가기
+                  ⬅️ 카드로 돌아가기
                 </button>
                 <button type="button" class="toy-3d-btn xl coral" id="btnNextSpeakingQuestion">
                   🐬 다음 포포 질문 듣기 ➔
                 </button>
                 <button type="button" class="toy-3d-btn xl gold hidden" id="btnFinishTodayStoryLearn">
-                  🏆 오늘의 원서 탐험 완료! 보물 진주 받기 ✨
+                  🏆 오늘의 주차 탐험 100% 완료! 다음 주차 섬 열기 ✨
                 </button>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Hidden legacy containers kept only so teacher/report helpers never throw null errors -->
-        <div class="hidden" aria-hidden="true">
-          <div id="week-panel-1"><div id="w1InteractiveText"></div><div id="waterDropPopup"><span id="dropWordTitle"></span><span id="dropWordPhonetic"></span><span id="dropWordPos"></span><span id="dropWordMeaning"></span><span id="dropWordTip"></span><button id="btnDropSpeakWord"></button></div><div id="w1PopoDock"></div><div id="w1PopoStatusText"></div><code id="w1StorageUrlCode"></code><strong id="w1WpmBadge"></strong><strong id="w1AccBadge"></strong><button id="btnW1WordByWordTts"></button><button id="btnW1StartStt"></button><button id="btnPlayW1Sample"></button></div>
-          <div id="week-panel-2"><div id="w2ChunksContainer"></div><div id="w2SwimmingPopo"></div><span id="w2SwimCaption"></span><div id="w2CoreExpressionsGrid"></div><button id="btnW2PlayAllWaves"></button><button id="btnW2StopWaves"></button></div>
-          <div id="week-panel-3"><div id="w3PuzzleAnswerTray"></div><div id="w3PuzzlePebblesPool"></div><div id="w3PuzzleFeedbackMsg"></div><code id="w3TargetChunkCode"></code><p id="w3PopoQuestionText"></p><p id="w3Step1Text"></p><p id="w3Step2Text"></p><p id="w3Step3Text"></p><pre id="w3LiveJsonPre"></pre><div id="w3PopoJsonDrawer"></div><button id="btnTogglePopoJson"></button><button id="btnW3ListenTargetSentence"></button><button id="btnW3ResetPuzzle"></button><button id="btnW3SpeakQuestion"></button></div>
-          <div id="week-panel-4"><span id="w4EbookLevelBadge"></span><span id="w4EbookTitle"></span><div id="w4EbookSpread"></div><span id="w4ReadingStatus"></span><div id="w4WorksheetContainer"></div><div id="w4WorksheetResult"></div><div id="w4TreasureStage"></div><div id="w4TreasureCaption"></div><button id="btnW4ReadFullEbook"></button><button id="btnW4RecordFullStory"></button><button id="btnW4CheckWorksheet"></button><button id="btnW4FillAnswerHint"></button></div>
         </div>
       </section>
 
@@ -782,16 +778,19 @@
             <!-- STAGE 1: FLASHCARD STUDY -->
             <div id="cc-stage-study" class="cc-stage-box active">
               <div class="classcard-stage">
-                <div class="toy-3d-flashcard-big" id="g12Flashcard" tabindex="0">
+                <div class="toy-3d-flashcard-big" id="g12Flashcard" tabindex="0" role="button">
                   <div class="fc-top-pills">
                     <span class="toy-3d-chip" id="g12CardLevelTag">클카 Level 2 · 1 / 5</span>
-                    <span class="toy-3d-chip coral">1단계: 단어 익히기</span>
+                    <span class="toy-3d-chip coral" id="g12CardSideBadge">🃏 앞면 (영어 단어) · 터치해서 뒤집기</span>
                   </div>
                   <div class="fc-word-en" id="g12CardFront">starfish</div>
-                  <div class="fc-meaning-box">
+                  <div class="fc-front-cover-notice" id="g12CardFrontNotice">
+                    🔊 소리를 듣고 따라 말한 뒤, <strong>카드를 터치하면 뜻과 예문이 나와요! 👆</strong>
+                  </div>
+                  <div class="fc-meaning-box hidden" id="g12CardBackBox">
                     <div class="fc-meaning-kr" id="g12CardBack">🌟 불가사리 (Look at the starfish!)</div>
                   </div>
-                  <span class="fc-tap-instruction">👆 카드를 누르면 발음을 들려줘요! 5장을 다 보면 복습 퀴즈가 열려요!</span>
+                  <span class="fc-tap-instruction" id="g12CardTapHint">👆 카드를 터치하면 뒷면(뜻·예문)이 열려요!</span>
                 </div>
 
                 <div class="storybook-bottom-action-bar">
@@ -905,27 +904,27 @@
           <div class="sidebar-brand" id="teacherBrandHomeBtn">
             <div class="sidebar-logo-icon">🐋</div>
             <div>
-              <strong>BADA Teacher Pro</strong>
-              <span>강사 · 원장님 전용 SaaS</span>
+              <strong>BADA 영어 관리센터</strong>
+              <span>강사 · 원장님 전용</span>
             </div>
           </div>
 
-          <nav class="sidebar-nav" aria-label="강사 백오피스 메뉴">
+          <nav class="sidebar-nav" aria-label="강사 관리 메뉴">
             <button type="button" class="sidebar-nav-btn active" data-teacher-page="home">
               <span>📊</span>
-              <span>강사 홈 &amp; 학생/반 관리</span>
+              <span>학생 관리 &amp; 원서 배정</span>
             </button>
             <button type="button" class="sidebar-nav-btn" data-teacher-page="coaching">
               <span>🎥</span>
-              <span>4주차 화상수업 코칭룸</span>
+              <span>4주차 화상수업 코칭</span>
             </button>
             <button type="button" class="sidebar-nav-btn" data-teacher-page="reports">
               <span>💌</span>
-              <span>학부모 리포트 &amp; 수료증 센터</span>
+              <span>학부모 리포트 &amp; 수료증</span>
             </button>
             <button type="button" class="sidebar-nav-btn" data-teacher-page="database">
-              <span>🗄️</span>
-              <span>원서 &amp; 커리큘럼 DB 관리</span>
+              <span>📚</span>
+              <span>원서 교재 등록 · 관리</span>
             </button>
           </nav>
 
@@ -946,10 +945,10 @@
             <span id="loggedTeacherRoleBadge">원장 · 최고관리자 · 온라인</span>
           </div>
           <button type="button" class="sidebar-switch-btn" id="btnTeacherSwitchToStudent">
-            🐋 학생용 앱 화면 보기 (/student)
+            학생 화면 미리보기
           </button>
           <button type="button" class="sidebar-switch-btn subtle" id="btnTeacherExitToEntry">
-            🚪 로그아웃 및 초기 화면으로 (/)
+            로그아웃
           </button>
         </div>
       </aside>
@@ -957,20 +956,20 @@
       <!-- Right Main SaaS Workspace -->
       <div class="teacher-workspace">
         <!-- =================================================================
-             TEACHER PAGE 1: TEACHER HOME & STUDENT ROSTER (/teacher)
+             TEACHER PAGE 1: TEACHER HOME & STUDENT ROSTER
         ================================================================== -->
         <section id="teacher-page-home" class="teacher-page active">
           <div class="saas-page-header">
             <div>
-              <span class="saas-badge">BADA TEACHER BACKOFFICE · STUDENT &amp; TEACHER MANAGEMENT</span>
-              <h2 class="saas-title">학생 등록 · 등급/원서 배정 &amp; 선생님 계정 통합 관리</h2>
+              <span class="saas-badge">STUDENT &amp; TEACHER MANAGEMENT</span>
+              <h2 class="saas-title">학생 등록 · 등급/원서 배정 &amp; 선생님 관리</h2>
               <p class="saas-subtitle">
                 신규 학생을 등록하거나 등급(Level)·원서를 배정하세요. <strong>새로운 원서를 배정하면 자동으로 1주차(0%)부터 새로 시작</strong>됩니다.
               </p>
             </div>
             <div class="saas-header-actions">
               <button type="button" class="saas-btn" id="btnTeacherGotoDbFromHome">
-                + 신규 원서 DB 추가 &amp; 캐시 관리소
+                + 신규 원서 교재 등록
               </button>
             </div>
           </div>
@@ -1100,7 +1099,8 @@
                 <p>현재 일반 강사 계정으로 접속 중입니다. 선생님을 새로 등록하거나 관리하려면 원장님 비밀번호로 권한을 전환해 주세요.</p>
               </div>
               <div class="director-inline-unlock">
-                <input type="password" id="inlineDirectorPwInput" class="mgmt-input" placeholder="원장님 비밀번호 (bada1234)" value="bada1234" />
+                <input type="password" id="inlineDirectorPwInput" class="mgmt-input" placeholder="원장님 비밀번호 입력"
+                  value="" />
                 <button type="button" class="saas-btn coral-btn" id="btnInlineUnlockDirector">👑 원장님 권한 전환</button>
               </div>
             </div>
@@ -1113,7 +1113,8 @@
                 </div>
                 <div class="mgmt-field">
                   <label for="regTchTitle">담당 직책 / 코칭 분야</label>
-                  <input type="text" id="regTchTitle" class="mgmt-input" placeholder="예: 초등 전담 강사 / 원어민 코치" value="전담 코칭 강사" />
+                  <input type="text" id="regTchTitle" class="mgmt-input" placeholder="예: 초등 전담 강사 / 원어민 코치"
+                    value="전담 코칭 강사" />
                 </div>
                 <div class="mgmt-field">
                   <label for="regTchEmail">이메일 (ID 대용)</label>
@@ -1152,14 +1153,14 @@
         <section id="teacher-page-coaching" class="teacher-page">
           <div class="saas-topbar">
             <div>
-              <span class="saas-badge">LIVE 4TH-WEEK NATIVE VIDEO COACHING SESSION</span>
-              <h2 class="saas-title">4주차 원어민 화상 수업 코칭 대시보드</h2>
-              <p class="saas-subtitle">1~3주차 누적 STT 발화 분석 데이터 및 AI 맞춤형 추천 질문 가이드</p>
+              <span class="saas-badge">COACHING</span>
+              <h2 class="saas-title">4주차 원어민 화상 수업 코칭</h2>
+              <p class="saas-subtitle">1~3주차 학습 발화 분석 및 수업 추천 질문 가이드</p>
             </div>
             <div class="saas-topbar-meta">
               <div class="saas-meta-item">
-                <span>담당 원어민 강사</span>
-                <strong>Teacher Emma (Native Coach)</strong>
+                <span>담당 강사</span>
+                <strong>Teacher Emma</strong>
               </div>
               <div class="saas-meta-item">
                 <span>수업 대상 학생</span>
@@ -1168,21 +1169,21 @@
               <div class="saas-meta-item">
                 <span>수업 완료 처리</span>
                 <button type="button" class="saas-btn coral-btn" id="btnCoachingToReport">
-                  수업 완료 &amp; 학부모 리포트 발송 ➔
+                  수업 완료 &amp; 학부모 리포트 ➔
                 </button>
               </div>
             </div>
           </div>
 
           <div class="saas-widgets-grid">
-            <!-- WIDGET 1: Cumulative STT Data Analysis -->
+            <!-- WIDGET 1: Cumulative Speech Analysis -->
             <div class="saas-widget-card">
               <div class="widget-header">
                 <div>
-                  <span class="widget-kicker">WIDGET 01 · 1~3주차 누적 STT 데이터 분석</span>
-                  <h3>📊 학생 발화 강점 &amp; 취약점 태그 클라우드</h3>
+                  <span class="widget-kicker">SPEECH ANALYSIS</span>
+                  <h3>📊 학생 발화 강점 &amp; 취약점 분석</h3>
                 </div>
-                <span class="saas-pill">누적 발화 48문장 분석됨</span>
+                <span class="saas-pill">누적 학습 분석 완료</span>
               </div>
 
               <div class="tag-cloud-split">
@@ -1213,19 +1214,19 @@
               </div>
             </div>
 
-            <!-- WIDGET 2: AI Tailored Question Generator -->
+            <!-- WIDGET 2: Tailored Question Generator -->
             <div class="saas-widget-card">
               <div class="widget-header">
                 <div>
-                  <span class="widget-kicker">WIDGET 02 · AI 맞춤형 질문 생성기 (Recommended Questions)</span>
-                  <h3>🤖 4주차 원어민 화상 수업 추천 질문 3선</h3>
+                  <span class="widget-kicker">RECOMMENDED QUESTIONS</span>
+                  <h3>💬 4주차 화상 수업 추천 질문 3선</h3>
                 </div>
                 <button class="saas-btn" id="btnRegenerateTeacherQuestions">
-                  ✨ AI 맞춤 질문 재분석
+                  추천 질문 새로고침
                 </button>
               </div>
               <p class="widget-helper">
-                학생이 1~3주차에 틀렸던 문장이나 발음 취약점, 그리고 이번 원서의 핵심 주제를 바탕으로 자동 생성된 화상 수업 가이드입니다.
+                학생이 1~3주차에 연습한 문장, 발음 취약점 및 이번 원서의 핵심 표현을 바탕으로 생성된 화상 수업 가이드입니다.
               </p>
 
               <div class="recommended-questions-list" id="saasQuestionsList"></div>
@@ -1300,9 +1301,8 @@
             <div class="certificate-generator-panel">
               <div class="cert-panel-header">
                 <div>
-                  <span class="stage-tag">AUTO-GENERATED CERTIFICATE</span>
-                  <h3>🏅 포포가 찍혀 있는 'BADA 탐험 수료증' 자동 생성기</h3>
-                  <p>학부모 알림톡/문자에 자동 첨부되는 고해상도 수료증 이미지입니다.</p>
+                  <h3>🏅 BADA 탐험 수료증</h3>
+                  <p>학부모 알림톡/문자에 첨부되는 수료증 이미지입니다.</p>
                 </div>
                 <div class="cert-actions">
                   <button class="squishy-action-btn mint" id="btnDownloadCertificate">
@@ -1328,19 +1328,20 @@
         <section id="teacher-page-database" class="teacher-page">
           <div class="saas-page-header">
             <div>
-              <span class="saas-badge">DATABASE ARCHITECTURE · VOCAB &amp; CHUNK DEDUPLICATION ENGINE</span>
-              <h2 class="saas-title">원서 &amp; 커리큘럼 DB 아키텍처 · 중복 방지(Cache) 실시간 관리소</h2>
-              <p class="saas-subtitle">새로운 원서 텍스트 입력 시 Vocab &amp; Chunk DB를 먼저 조회하여 LLM 중복 호출을 방지합니다.</p>
+              <span class="saas-badge">BOOK MANAGEMENT</span>
+              <h2 class="saas-title">원서 교재 등록 및 관리</h2>
+              <p class="saas-subtitle">수업에 사용할 영어 원서 본문과 문장별 한국어 해석을 등록합니다. 등록 즉시 학생 배정 목록에 반영됩니다.</p>
             </div>
           </div>
 
           <div class="db-lab-grid">
             <div class="db-test-panel">
-              <h3>📚 신규 원서 DB 정식 등록 &amp; Vocab/Chunk 자동 추출 (학생 배정 목록에 즉시 추가)</h3>
+              <h3>📚 신규 원서 교재 등록</h3>
               <div class="db-new-book-meta-grid">
                 <div class="mgmt-field">
                   <label for="dbNewBookTitle">원서 영어 제목</label>
-                  <input type="text" id="dbNewBookTitle" class="mgmt-input" placeholder="예: Popo and the Shining Starfish" />
+                  <input type="text" id="dbNewBookTitle" class="mgmt-input"
+                    placeholder="예: Popo and the Shining Starfish" />
                 </div>
                 <div class="mgmt-field">
                   <label for="dbNewBookSubtitle">한국어 부제</label>
@@ -1366,21 +1367,18 @@
                 </div>
               </div>
 
-              <div class="preset-text-buttons">
-                <button class="squishy-mini-btn mint" id="btnLoadExistingText">
-                  🔁 기존 원서 텍스트 넣기 (DB_CACHE_HIT 테스트)
-                </button>
-                <button class="squishy-mini-btn coral" id="btnLoadNewText">
-                  ✨ 완전히 새로운 원서 샘플 넣기 (LLM 신규 추출 &amp; 원서 등록 테스트)
-                </button>
+              <div class="preset-text-buttons hidden" aria-hidden="true">
+                <button class="squishy-mini-btn mint" id="btnLoadExistingText">기존 원서 불러오기</button>
+                <button class="squishy-mini-btn coral" id="btnLoadNewText">샘플 원서 불러오기</button>
               </div>
-              <textarea id="dbTestTextInput" class="squishy-textarea" rows="4" placeholder="등록 및 분석할 영어 원서 전체 문장을 입력하세요..."></textarea>
+              <textarea id="dbTestTextInput" class="squishy-textarea" rows="5"
+                placeholder="등록할 영어 원서 전체 문장을 입력하세요..."></textarea>
+              <textarea id="dbNewBookKoreanText" class="squishy-textarea" rows="4" style="margin-top:8px;"
+                placeholder="(선택) 문장별 한국어 해석을 줄바꿈으로 입력하면 그대로 저장됩니다. 비워두면 문장별 해석·단어 뜻·스피킹 질문이 자동 생성됩니다."></textarea>
               <div class="db-test-actions">
-                <button class="squishy-action-btn mint" id="btnRunDbAnalyze">
-                  🔍 DB 캐시 선조회 &amp; 단어·청크 추출 테스트
-                </button>
+                <button class="squishy-action-btn mint hidden" id="btnRunDbAnalyze">미리보기 분석</button>
                 <button class="squishy-action-btn coral" id="btnRegisterNewBookToDb">
-                  📚 신규 원서로 DB에 정식 등록 (학생 배정 목록에 추가)
+                  📚 신규 원서 등록하기
                 </button>
               </div>
 
@@ -1388,11 +1386,13 @@
             </div>
 
             <div class="db-audit-panel">
-              <h3>📜 Vocab &amp; Chunk DB 실시간 조회 로그 (중복 방지 감사 기록)</h3>
-              <div id="dbAuditLogsList" class="audit-logs-list"></div>
+              <h3>📚 등록된 원서 교재 목록</h3>
+              <div id="registeredBooksCatalogList" class="audit-logs-list"></div>
 
-              <h3 class="mt-16">👤 User DB 스냅샷 (음성 스토리지 URL &amp; 주차별 진도율)</h3>
-              <div id="dbUsersSnapshot" class="db-users-snapshot"></div>
+              <div class="hidden" aria-hidden="true">
+                <div id="dbAuditLogsList"></div>
+                <div id="dbUsersSnapshot"></div>
+              </div>
             </div>
           </div>
         </section>
@@ -1402,4 +1402,5 @@
 
   <script src="/app.js"></script>
 </body>
+
 </html>

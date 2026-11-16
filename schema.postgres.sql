@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS vocab_chunks (
   vocab_json JSONB NOT NULL,
   chunks_json JSONB NOT NULL,
   core_expressions_json JSONB NOT NULL,
+  sentence_translations_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  speaking_questions_json JSONB NOT NULL DEFAULT '[]'::jsonb,
   lookup_count INTEGER DEFAULT 1,
   extraction_source VARCHAR(60) DEFAULT 'LLM_INITIAL_EXTRACT',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -66,6 +68,8 @@ CREATE TABLE IF NOT EXISTS users (
 ALTER TABLE users ADD COLUMN IF NOT EXISTS pin_code VARCHAR(10) NOT NULL DEFAULT '1234';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS teacher_id VARCHAR(80) NOT NULL DEFAULT 'tch_emma';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS classcard_level INTEGER NOT NULL DEFAULT 2;
+ALTER TABLE vocab_chunks ADD COLUMN IF NOT EXISTS sentence_translations_json JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE vocab_chunks ADD COLUMN IF NOT EXISTS speaking_questions_json JSONB NOT NULL DEFAULT '[]'::jsonb;
 
 CREATE TABLE IF NOT EXISTS cache_audit_logs (
   id SERIAL PRIMARY KEY,

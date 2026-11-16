@@ -70,55 +70,433 @@ const OCEAN_LEXICON = {
   current: { kr: "해류, 물결의 흐름", phonetic: "/ˈkɜːr.ənt/", pos: "명사", tip: "바닷속에 흐르는 보이지 않는 강물 같은 물길!" },
   explore: { kr: "탐험하다", phonetic: "/ɪkˈsplɔːr/", pos: "동사", tip: "포포와 함께 새로운 바다를 모험해요!" },
   glowing: { kr: "은은하게 빛나는", phonetic: "/ˈɡloʊ.ɪŋ/", pos: "형용사", tip: "진주조개처럼 스스로 신비한 빛을 내는 모습!" },
-  pearl: { kr: "진주", phonetic: "/pɜːrl/", pos: "명사", tip: "조개 속에서 자라난 반짝이는 보석!" }
+  pearl: { kr: "진주", phonetic: "/pɜːrl/", pos: "명사", tip: "조개 속에서 자라난 반짝이는 보석!" },
+  // Basic function & core elementary storybook vocabulary
+  the: { kr: "그", phonetic: "/ðə/", pos: "관사", tip: "방금 말하거나 서로 알고 있는 대상을 가리켜요." },
+  a: { kr: "하나의", phonetic: "/ə/", pos: "관사", tip: "하나를 말할 때 앞에 '어' 하고 가볍게 붙여요." },
+  an: { kr: "하나의", phonetic: "/ən/", pos: "관사", tip: "모음 소리 단어 앞에서 하나를 뜻해요." },
+  and: { kr: "그리고", phonetic: "/ænd/", pos: "접속사", tip: "두 단어와 문장을 자연스럽게 이어줘요." },
+  but: { kr: "하지만", phonetic: "/bʌt/", pos: "접속사", tip: "앞뒤 반대되는 내용을 연결할 때 써요." },
+  or: { kr: "또는", phonetic: "/ɔːr/", pos: "접속사", tip: "둘 중 하나를 고를 때 써요." },
+  in: { kr: "~안에", phonetic: "/ɪn/", pos: "전치사", tip: "안쪽 공간에 들어 있을 때 써요." },
+  on: { kr: "~위에", phonetic: "/ɑːn/", pos: "전치사", tip: "표면 위에 닿아 있을 때 써요." },
+  at: { kr: "~에서, ~를 향해", phonetic: "/æt/", pos: "전치사", tip: "특정 지점이나 대상을 콕 집을 때 써요." },
+  to: { kr: "~로, ~에게", phonetic: "/tuː/", pos: "전치사", tip: "향하는 방향이나 대상을 나타내요." },
+  for: { kr: "~를 위해", phonetic: "/fɔːr/", pos: "전치사", tip: "누군가를 위하는 마음을 표현해요." },
+  with: { kr: "~와 함께", phonetic: "/wɪð/", pos: "전치사", tip: "친구와 같이 행동할 때 꼭 쓰는 말이에요." },
+  by: { kr: "~에 의해, ~옆에", phonetic: "/baɪ/", pos: "전치사", tip: "행동의 주체나 바로 옆 위치를 뜻해요." },
+  from: { kr: "~로부터", phonetic: "/frʌm/", pos: "전치사", tip: "출발점이나 온 곳을 알려줘요." },
+  under: { kr: "~아래에", phonetic: "/ˈʌn.dər/", pos: "전치사", tip: "무언가의 아래쪽을 가리켜요." },
+  over: { kr: "~위로 넘어", phonetic: "/ˈoʊ.vər/", pos: "전치사", tip: "위쪽을 포물선으로 뛰어넘는 느낌이에요." },
+  into: { kr: "~안으로", phonetic: "/ˈɪn.tuː/", pos: "전치사", tip: "바깥에서 안쪽으로 들어가는 움직임이에요." },
+  of: { kr: "~의", phonetic: "/ʌv/", pos: "전치사", tip: "앞뒤 말을 자연스럽게 소유/소속으로 묶어줘요." },
+  is: { kr: "~이다, ~있다", phonetic: "/ɪz/", pos: "동사", tip: "하나의 대상 상태를 설명해 줘요." },
+  are: { kr: "~이다, ~있다", phonetic: "/ɑːr/", pos: "동사", tip: "여럿이거나 you와 짝꿍인 동사예요." },
+  was: { kr: "~였다, 있었다", phonetic: "/wʌz/", pos: "동사", tip: "지나간 이야기를 들려줄 때 써요." },
+  were: { kr: "~였다, 있었다", phonetic: "/wɜːr/", pos: "동사", tip: "여럿의 지난 이야기를 들려줄 때 써요." },
+  can: { kr: "~할 수 있다", phonetic: "/kæn/", pos: "조동사", tip: "능력이나 가능성을 자신 있게 말해요." },
+  will: { kr: "~할 것이다", phonetic: "/wɪl/", pos: "조동사", tip: "앞으로 할 일이나 다짐을 말해요." },
+  i: { kr: "나는", phonetic: "/aɪ/", pos: "대명사", tip: "나 자신을 가리킬 때 항상 대문자로 써요." },
+  you: { kr: "너는", phonetic: "/juː/", pos: "대명사", tip: "이야기를 함께 듣는 멋진 너!" },
+  he: { kr: "그는", phonetic: "/hiː/", pos: "대명사", tip: "남자 친구를 대신 부르는 말이에요." },
+  she: { kr: "그녀는", phonetic: "/ʃiː/", pos: "대명사", tip: "여자 친구를 대신 부르는 말이에요." },
+  it: { kr: "그것은", phonetic: "/ɪt/", pos: "대명사", tip: "동물이나 사물 하나를 가리켜요." },
+  we: { kr: "우리는", phonetic: "/wiː/", pos: "대명사", tip: "나와 친구들이 함께일 때 써요." },
+  they: { kr: "그들은", phonetic: "/ðeɪ/", pos: "대명사", tip: "친구들이나 사물 여럿을 가리켜요." },
+  this: { kr: "이, 이것", phonetic: "/ðɪs/", pos: "대명사", tip: "가까이 있는 것을 가리켜요." },
+  that: { kr: "저, 그것", phonetic: "/ðæt/", pos: "대명사", tip: "조금 멀리 있는 것을 가리켜요." },
+  there: { kr: "거기에, ~이 있다", phonetic: "/ðer/", pos: "부사", tip: "There is/are로 무엇이 있는지 소개해요." },
+  here: { kr: "여기에", phonetic: "/hɪr/", pos: "부사", tip: "바로 여기 가까운 곳을 뜻해요." },
+  where: { kr: "어디에, ~하는 곳", phonetic: "/wer/", pos: "부사", tip: "장소를 묻거나 설명할 때 써요." },
+  what: { kr: "무엇", phonetic: "/wɑːt/", pos: "의문사", tip: "궁금한 것을 물어볼 때 문장 앞에 와요." },
+  who: { kr: "누구", phonetic: "/huː/", pos: "의문사", tip: "사람이나 캐릭터가 궁금할 때 물어봐요." },
+  how: { kr: "어떻게", phonetic: "/haʊ/", pos: "의문사", tip: "방법이나 기분을 물어볼 때 써요." },
+  when: { kr: "언제, ~할 때", phonetic: "/wen/", pos: "부사", tip: "시간이나 때를 이어줄 때 써요." },
+  popo: { kr: "포포 (아기고래)", phonetic: "/ˈpoʊ.poʊ/", pos: "이름", tip: "바다를 탐험하는 귀여운 아기 고래 포포!" },
+  crab: { kr: "꽃게", phonetic: "/kræb/", pos: "명사", tip: "모래사장을 옆으로 총총 걷는 친구예요." },
+  bubble: { kr: "물방울", phonetic: "/ˈbʌb.əl/", pos: "명사", tip: "퐁퐁 떠오르는 동그란 물방울이에요." },
+  blow: { kr: "불다", phonetic: "/bloʊ/", pos: "동사", tip: "후~ 하고 물방울이나 바람을 불어요." },
+  beach: { kr: "해변", phonetic: "/biːtʃ/", pos: "명사", tip: "파도가 철썩이는 따뜻한 바닷가예요." },
+  ancient: { kr: "고대의, 아주 오래된", phonetic: "/ˈeɪn.ʃənt/", pos: "형용사", tip: "오랜 세월 동안 전해진 신비한 보물!" },
+  hidden: { kr: "숨겨진", phonetic: "/ˈhɪd.ən/", pos: "분사", tip: "꼭꼭 숨어 있어서 찾으면 기쁜 상태예요." },
+  kept: { kr: "유지되는, 지켜진", phonetic: "/kept/", pos: "분사", tip: "깨끗하고 안전하게 계속 유지되는 모습이에요." },
+  cave: { kr: "동굴", phonetic: "/keɪv/", pos: "명사", tip: "바닷속 신비한 보물이 숨겨진 동굴!" },
+  remember: { kr: "기억하다", phonetic: "/rɪˈmem.bər/", pos: "동사", tip: "배운 내용을 머릿속에 꼭 담아 기억해요." },
+  // Common kids story words & verbs
+  happy: { kr: "행복한", phonetic: "/ˈhæp.i/", pos: "형용사", tip: "미소가 절로 나오는 기분 좋은 날이에요!" },
+  sad: { kr: "슬픈", phonetic: "/sæd/", pos: "형용사", tip: "마음이 울적할 때 쓰는 감정 표현이에요." },
+  big: { kr: "커다란", phonetic: "/bɪɡ/", pos: "형용사", tip: "고래처럼 큼직하고 웅장한 크기예요." },
+  small: { kr: "작은", phonetic: "/smɔːl/", pos: "형용사", tip: "진주나 조개처럼 앙증맞은 크기예요." },
+  little: { kr: "작은, 귀여운", phonetic: "/ˈlɪt.əl/", pos: "형용사", tip: "작고 사랑스러운 느낌을 담아 말할 때 써요." },
+  good: { kr: "좋은, 훌륭한", phonetic: "/ɡʊd/", pos: "형용사", tip: "칭찬할 때 가장 많이 쓰는 긍정 단어!" },
+  great: { kr: "멋진, 대단한", phonetic: "/ɡreɪt/", pos: "형용사", tip: "최고로 신나고 멋질 때 외쳐봐요!" },
+  nice: { kr: "좋은, 다정한", phonetic: "/naɪs/", pos: "형용사", tip: "기분 좋거나 친절한 친구에게 어울려요." },
+  new: { kr: "새로운", phonetic: "/njuː/", pos: "형용사", tip: "처음 만나거나 새로 시작할 때 써요." },
+  old: { kr: "오래된, 나이가 든", phonetic: "/oʊld/", pos: "형용사", tip: "세월이 오래 지난 물건이나 이야기에 써요." },
+  warm: { kr: "따뜻한", phonetic: "/wɔːrm/", pos: "형용사", tip: "햇살처럼 포근하고 따뜻한 느낌이에요." },
+  cool: { kr: "시원한, 멋진", phonetic: "/kuːl/", pos: "형용사", tip: "바닷바람처럼 시원하거나 멋질 때 써요." },
+  cold: { kr: "차가운, 추운", phonetic: "/koʊld/", pos: "형용사", tip: "얼음물처럼 서늘할 때 써요." },
+  bright: { kr: "밝은, 반짝이는", phonetic: "/braɪt/", pos: "형용사", tip: "햇빛이 환하게 비치는 모습이에요." },
+  soft: { kr: "부드러운", phonetic: "/sɔːft/", pos: "형용사", tip: "솜사탕이나 모래처럼 말랑한 느낌이에요." },
+  red: { kr: "빨간", phonetic: "/red/", pos: "형용사", tip: "사과나 꽃게처럼 선명한 빨간색!" },
+  blue: { kr: "파란, 푸른", phonetic: "/bluː/", pos: "형용사", tip: "푸른 바다와 하늘을 닮은 색이에요." },
+  green: { kr: "초록빛의", phonetic: "/ɡriːn/", pos: "형용사", tip: "싱그러운 풀과 해초 색이에요." },
+  yellow: { kr: "노란", phonetic: "/ˈjel.oʊ/", pos: "형용사", tip: "별빛처럼 밝은 노란색!" },
+  white: { kr: "하얀", phonetic: "/waɪt/", pos: "형용사", tip: "하얀 구름과 파도 거품 같은 색!" },
+  friend: { kr: "친구", phonetic: "/frend/", pos: "명사", tip: "함께 놀고 모험하는 소중한 단짝 친구!" },
+  friendly: { kr: "다정한, 친근한", phonetic: "/ˈfrend.li/", pos: "형용사", tip: "먼저 웃으며 다가가는 상냥한 모습이에요." },
+  family: { kr: "가족", phonetic: "/ˈfæm.ə.li/", pos: "명사", tip: "사랑하는 우리 가족을 뜻해요." },
+  home: { kr: "집", phonetic: "/hoʊm/", pos: "명사", tip: "편안하게 쉬는 나의 따뜻한 집!" },
+  school: { kr: "학교", phonetic: "/skuːl/", pos: "명사", tip: "친구들과 함께 배우고 노는 곳!" },
+  book: { kr: "책", phonetic: "/bʊk/", pos: "명사", tip: "재미있는 상상이 담긴 이야기책!" },
+  story: { kr: "이야기", phonetic: "/ˈstɔːr.i/", pos: "명사", tip: "오늘 함께 읽는 신나는 모험 이야기!" },
+  sun: { kr: "해, 태양", phonetic: "/sʌn/", pos: "명사", tip: "하늘에서 반짝 빛나는 따뜻한 해!" },
+  moon: { kr: "달", phonetic: "/muːn/", pos: "명사", tip: "밤바다를 비추는 환한 달님!" },
+  star: { kr: "별", phonetic: "/stɑːr/", pos: "명사", tip: "반짝반짝 빛나는 밤하늘의 별!" },
+  sky: { kr: "하늘", phonetic: "/skaɪ/", pos: "명사", tip: "바다와 맞닿은 드높고 푸른 하늘!" },
+  tree: { kr: "나무", phonetic: "/triː/", pos: "명사", tip: "시원한 그늘을 만들어 주는 큰 나무!" },
+  flower: { kr: "꽃", phonetic: "/ˈflaʊ.ər/", pos: "명사", tip: "향기롭고 알록달록 피어나는 꽃!" },
+  bird: { kr: "새", phonetic: "/bɜːrd/", pos: "명사", tip: "하늘을 자유롭게 날아다니는 새!" },
+  cat: { kr: "고양이", phonetic: "/kæt/", pos: "명사", tip: "야옹~ 귀여운 아기 고양이!" },
+  dog: { kr: "강아지", phonetic: "/dɔːɡ/", pos: "명사", tip: "꼬리를 흔드는 씩씩한 강아지!" },
+  fish: { kr: "물고기", phonetic: "/fɪʃ/", pos: "명사", tip: "바닷속을 헤엄치는 물고기 친구들!" },
+  rabbit: { kr: "토끼", phonetic: "/ˈræb.ɪt/", pos: "명사", tip: "깡총깡총 귀가 긴 토끼!" },
+  bear: { kr: "곰", phonetic: "/ber/", pos: "명사", tip: "듬직하고 포근한 숲속 곰!" },
+  fox: { kr: "여우", phonetic: "/fɑːks/", pos: "명사", tip: "영리하고 날쌘 여우 친구!" },
+  morning: { kr: "아침", phonetic: "/ˈmɔːr.nɪŋ/", pos: "명사", tip: "상쾌하게 하루를 여는 아침 시간!" },
+  day: { kr: "날, 하루", phonetic: "/deɪ/", pos: "명사", tip: "햇살이 밝은 낮과 하루를 말해요." },
+  night: { kr: "밤", phonetic: "/naɪt/", pos: "명사", tip: "별이 반짝이는 고요한 밤!" },
+  today: { kr: "오늘", phonetic: "/təˈdeɪ/", pos: "명사", tip: "바로 지금 우리가 배우는 오늘!" },
+  world: { kr: "세상, 세계", phonetic: "/wɜːrld/", pos: "명사", tip: "우리가 함께 탐험할 넓은 세상!" },
+  song: { kr: "노래", phonetic: "/sɔːŋ/", pos: "명사", tip: "기분 좋게 흥얼거리는 신나는 노래!" },
+  music: { kr: "음악", phonetic: "/ˈmjuː.zɪk/", pos: "명사", tip: "마음을 즐겁게 해주는 아름다운 음악!" },
+  magic: { kr: "마법", phonetic: "/ˈmædʒ.ɪk/", pos: "명사", tip: "반짝! 신비로운 일이 일어나는 마법!" },
+  dream: { kr: "꿈", phonetic: "/driːm/", pos: "명사", tip: "멋진 미래를 그리는 우리의 꿈!" },
+  light: { kr: "빛, 밝은", phonetic: "/laɪt/", pos: "명사", tip: "어둠을 환하게 비춰주는 빛!" },
+  food: { kr: "음식", phonetic: "/fuːd/", pos: "명사", tip: "맛있게 먹고 힘을 내는 음식!" },
+  park: { kr: "공원", phonetic: "/pɑːrk/", pos: "명사", tip: "뛰어놀기 좋은 넓은 공원!" },
+  forest: { kr: "숲", phonetic: "/ˈfɔːr.ɪst/", pos: "명사", tip: "나무와 동물이 어우러진 푸른 숲!" },
+  river: { kr: "강", phonetic: "/ˈrɪv.ər/", pos: "명사", tip: "바다로 흘러가는 시원한 강물!" },
+  rain: { kr: "비", phonetic: "/reɪn/", pos: "명사", tip: "톡톡 내리는 시원한 빗방울!" },
+  wind: { kr: "바람", phonetic: "/wɪnd/", pos: "명사", tip: "살랑살랑 불어오는 상쾌한 바람!" },
+  play: { kr: "놀다, 연주하다", phonetic: "/pleɪ/", pos: "동사", tip: "친구들과 신나게 어울려 노는 말이에요!" },
+  like: { kr: "좋아하다, ~처럼", phonetic: "/laɪk/", pos: "동사", tip: "마음에 쏙 들 때 자신 있게 말해요!" },
+  love: { kr: "사랑하다, 아주 좋아하다", phonetic: "/lʌv/", pos: "동사", tip: "좋아하는 마음이 아주 클 때 써요!" },
+  want: { kr: "원하다", phonetic: "/wɑːnt/", pos: "동사", tip: "하고 싶거나 갖고 싶은 걸 표현해요." },
+  need: { kr: "필요하다", phonetic: "/niːd/", pos: "동사", tip: "꼭 필요한 것이 있을 때 써요." },
+  help: { kr: "돕다, 도움", phonetic: "/help/", pos: "동사", tip: "친구에게 따뜻한 손길을 내밀어요." },
+  go: { kr: "가다", phonetic: "/ɡoʊ/", pos: "동사", tip: "새로운 곳으로 출발할 때 써요!" },
+  come: { kr: "오다", phonetic: "/kʌm/", pos: "동사", tip: "이쪽으로 가까이 올 때 써요!" },
+  see: { kr: "보다", phonetic: "/siː/", pos: "동사", tip: "눈으로 자연스럽게 무언가를 봐요." },
+  watch: { kr: "지켜보다", phonetic: "/wɑːtʃ/", pos: "동사", tip: "움직이는 모습을 집중해서 봐요." },
+  listen: { kr: "귀 기울여 듣다", phonetic: "/ˈlɪs.ən/", pos: "동사", tip: "소리를 집중해서 들을 때 'Listen to'로 써요!" },
+  speak: { kr: "말하다", phonetic: "/spiːk/", pos: "동사", tip: "영어로 또렷하게 목소리를 내요!" },
+  say: { kr: "말하다", phonetic: "/seɪ/", pos: "동사", tip: "전하고 싶은 말을 입으로 표현해요." },
+  tell: { kr: "들려주다, 말해주다", phonetic: "/tel/", pos: "동사", tip: "친구에게 재미있는 이야기를 들려줘요." },
+  ask: { kr: "묻다, 부탁하다", phonetic: "/æsk/", pos: "동사", tip: "궁금한 점을 다정하게 물어봐요." },
+  read: { kr: "읽다", phonetic: "/riːd/", pos: "동사", tip: "이야기책을 소리 내어 읽어요!" },
+  learn: { kr: "배우다", phonetic: "/lɜːrn/", pos: "동사", tip: "새로운 표현을 내 것으로 배워요!" },
+  know: { kr: "알다", phonetic: "/noʊ/", pos: "동사", tip: "이제 확실히 알게 되었을 때 써요!" },
+  think: { kr: "생각하다", phonetic: "/θɪŋk/", pos: "동사", tip: "머릿속으로 반짝! 아이디어를 떠올려요." },
+  make: { kr: "만들다", phonetic: "/meɪk/", pos: "동사", tip: "멋진 결과물이나 문장을 만들어요." },
+  take: { kr: "잡다, 가져가다", phonetic: "/teɪk/", pos: "동사", tip: "손에 쥐거나 사진을 찍을 때도 써요!" },
+  give: { kr: "주다", phonetic: "/ɡɪv/", pos: "동사", tip: "친구에게 선물이나 미소를 건네요." },
+  get: { kr: "얻다, 받다", phonetic: "/ɡet/", pos: "동사", tip: "보물이나 답을 손에 넣어요!" },
+  have: { kr: "가지다, 먹다", phonetic: "/hæv/", pos: "동사", tip: "내 소유의 물건이나 시간을 말해요." },
+  run: { kr: "달리다", phonetic: "/rʌn/", pos: "동사", tip: "힘차게 씽씽 뛰어가는 모습이에요!" },
+  walk: { kr: "걷다", phonetic: "/wɔːk/", pos: "동사", tip: "한 걸음씩 천천히 산책해요." },
+  fly: { kr: "날다", phonetic: "/flaɪ/", pos: "동사", tip: "하늘을 훨훨 날아오르는 동작이에요." },
+  sing: { kr: "노래하다", phonetic: "/sɪŋ/", pos: "동사", tip: "목소리를 높여 신나게 노래해요!" },
+  dance: { kr: "춤추다", phonetic: "/dæns/", pos: "동사", tip: "음악에 맞춰 몸을 흔들며 춤춰요!" },
+  smile: { kr: "미소 짓다", phonetic: "/smaɪl/", pos: "동사", tip: "환하게 웃는 예쁜 얼굴이에요." },
+  laugh: { kr: "소리 내어 웃다", phonetic: "/læf/", pos: "동사", tip: "하하호호 즐겁게 웃는 소리예요." },
+  share: { kr: "나누다, 공유하다", phonetic: "/ʃer/", pos: "동사", tip: "친구와 즐거운 마음을 함께 나눠요." },
+  eat: { kr: "먹다", phonetic: "/iːt/", pos: "동사", tip: "맛있는 간식을 냠냠 먹어요." },
+  sleep: { kr: "자다", phonetic: "/sliːp/", pos: "동사", tip: "달콤한 꿈나라로 쿨쿨 자요." },
+  live: { kr: "살다", phonetic: "/lɪv/", pos: "동사", tip: "어디에 살고 있는지 말할 때 써요." },
+  open: { kr: "열다", phonetic: "/ˈoʊ.pən/", pos: "동사", tip: "보물상자나 책을 활짝 열어요!" },
+  close: { kr: "닫다", phonetic: "/kloʊz/", pos: "동사", tip: "조용히 문이나 상자를 닫아요." },
+  feel: { kr: "느끼다", phonetic: "/fiːl/", pos: "동사", tip: "마음이나 촉감을 생생하게 느껴요." },
+  try: { kr: "시도하다, 노력하다", phonetic: "/traɪ/", pos: "동사", tip: "포포처럼 용기 내어 도전해요!" },
+  all: { kr: "모든, 모두", phonetic: "/ɔːl/", pos: "형용사", tip: "하나도 빠짐없이 다 함께!" },
+  many: { kr: "많은", phonetic: "/ˈmen.i/", pos: "형용사", tip: "셀 수 있는 것이 아주 많을 때 써요." },
+  every: { kr: "모든, 매~", phonetic: "/ˈev.ri/", pos: "형용사", tip: "매일, 모든 친구를 말할 때 꼭 써요!" },
+  always: { kr: "항상, 언제나", phonetic: "/ˈɔːl.weɪz/", pos: "부사", tip: "변함없이 언제나 그렇다는 뜻이에요." },
+  very: { kr: "매우, 아주", phonetic: "/ˈver.i/", pos: "부사", tip: "뒤에 오는 말을 더 크게 강조해 줘요!" },
+  high: { kr: "높이, 높은", phonetic: "/haɪ/", pos: "부사", tip: "파도 위로 솟구쳐 오르는 높은 느낌!" },
+  fast: { kr: "빠른, 빠르게", phonetic: "/fæst/", pos: "형용사", tip: "번개처럼 쏜살같이 빠른 모습!" },
+  slowly: { kr: "천천히", phonetic: "/ˈsloʊ.li/", pos: "부사", tip: "차분하게 한 걸음씩 천천히!" },
+  my: { kr: "나의", phonetic: "/maɪ/", pos: "소유격", tip: "내 것, 내 친구를 말할 때 붙여요." },
+  your: { kr: "너의", phonetic: "/jʊr/", pos: "소유격", tip: "네가 가진 것을 말할 때 써요." },
+  our: { kr: "우리의", phonetic: "/ˈaʊ.ər/", pos: "소유격", tip: "우리 모두의 소중한 이야기!" },
+  their: { kr: "그들의", phonetic: "/ðer/", pos: "소유격", tip: "친구들의 것을 가리킬 때 써요." },
+  with_us: { kr: "우리와 함께", phonetic: "/wɪð ʌs/", pos: "구", tip: "모두가 함께 모험하는 표현!" }
 };
 
+const IRREGULAR_MAP = {
+  found: "find",
+  saw: "see",
+  went: "go",
+  came: "come",
+  made: "make",
+  took: "take",
+  gave: "give",
+  got: "get",
+  had: "have",
+  said: "say",
+  told: "tell",
+  felt: "feel",
+  knew: "know",
+  thought: "think",
+  ate: "eat",
+  slept: "sleep",
+  ran: "run",
+  swam: "swims",
+  flew: "fly",
+  sang: "sing"
+};
+
+function lookupLexiconWithStemming(rawWord) {
+  const clean = String(rawWord || "").replace(/[^a-zA-Z]/g, "").toLowerCase();
+  if (!clean) return null;
+  if (OCEAN_LEXICON[clean]) {
+    return { base: clean, ...OCEAN_LEXICON[clean] };
+  }
+
+  // Irregular past
+  if (IRREGULAR_MAP[clean] && OCEAN_LEXICON[IRREGULAR_MAP[clean]]) {
+    const baseEntry = OCEAN_LEXICON[IRREGULAR_MAP[clean]];
+    return {
+      base: clean,
+      kr: `${baseEntry.kr.split(",")[0]} (과거)`,
+      phonetic: `/${clean}/`,
+      pos: "동사(과거)",
+      tip: `'${IRREGULAR_MAP[clean]}'의 과거형 표현이에요! ${baseEntry.tip}`
+    };
+  }
+
+  // Stemming rules: -ies -> -y, -es/-s, -ing, -ed, -ly
+  const candidates = [];
+  if (clean.endsWith("ies") && clean.length > 4) {
+    candidates.push({ root: clean.slice(0, -3) + "y", suffix: "s" });
+  }
+  if (clean.endsWith("es") && clean.length > 3) {
+    candidates.push({ root: clean.slice(0, -2), suffix: "s" });
+  }
+  if (clean.endsWith("s") && clean.length > 2) {
+    candidates.push({ root: clean.slice(0, -1), suffix: "s" });
+  }
+  if (clean.endsWith("ing") && clean.length > 5) {
+    const stem = clean.slice(0, -3);
+    candidates.push({ root: stem, suffix: "ing" });
+    candidates.push({ root: stem + "e", suffix: "ing" });
+    if (stem.length > 2 && stem[stem.length - 1] === stem[stem.length - 2]) {
+      candidates.push({ root: stem.slice(0, -1), suffix: "ing" });
+    }
+  }
+  if (clean.endsWith("ed") && clean.length > 4) {
+    const stem = clean.slice(0, -2);
+    candidates.push({ root: stem, suffix: "ed" });
+    candidates.push({ root: stem + "e", suffix: "ed" });
+  }
+  if (clean.endsWith("ly") && clean.length > 4) {
+    candidates.push({ root: clean.slice(0, -2), suffix: "ly" });
+  }
+
+  for (const cand of candidates) {
+    const found = OCEAN_LEXICON[cand.root];
+    if (found) {
+      let kr = found.kr;
+      if (cand.suffix === "ing") kr = `${found.kr.split(",")[0]} (~하고 있는)`;
+      else if (cand.suffix === "ed") kr = `${found.kr.split(",")[0]} (~했다/된)`;
+      else if (cand.suffix === "ly") kr = `${found.kr.split(",")[0]} (~하게)`;
+      return {
+        base: clean,
+        kr,
+        phonetic: `/${clean}/`,
+        pos: found.pos,
+        tip: `'${cand.root}'에서 변화한 말이에요! ${found.tip}`
+      };
+    }
+  }
+  return null;
+}
+
+const KNOWN_SENTENCE_KR = {
+  "Look at the starfish shining on the sandy floor.": "모래 바닥 위에서 반짝이고 있는 저 불가사리를 봐.",
+  "Baby whale Popo swims across the coral reef.": "아기 고래 포포가 아름다운 산호초 숲을 가로질러 헤엄쳐요.",
+  "A gentle sea turtle glides through the clear water.": "다정한 바다거북 한 마리가 맑은 바닷물 사이로 미끄러지듯 나아가요.",
+  "Together, they find a golden treasure chest under the sea!": "친구들은 다 함께 바닷속에서 황금 보물 상자를 발견해요!",
+  "The secret island is protected by a warm ocean current.": "그 비밀의 섬은 따뜻한 바다 해류에 의해 안전하게 보호받아요.",
+  "Baby whale Popo explores the glowing cave where ancient pearls are hidden.": "아기 고래 포포는 고대 진주들이 숨겨져 있는 빛나는 동굴을 탐험해요.",
+  "Can you remember how the clear ocean water is kept clean by the coral reef?": "어떻게 맑은 바닷물이 산호초에 의해 깨끗하게 유지되는지 기억할 수 있니?",
+  "Popo blows a big water bubble in the blue sea.": "포포가 푸른 바닷속에서 커다란 물방울을 불어요.",
+  "Jump high over the soft waves with baby dolphin!": "아기 돌고래와 함께 부드러운 파도 위로 높이 점프해 봐!",
+  "Look at the red crab dancing on the warm sandy beach.": "따뜻한 모래 해변 위에서 춤추고 있는 빨간 꽃게를 봐."
+};
+
+function synthesizePhraseKr(phrase) {
+  const words = String(phrase || "")
+    .split(/\s+/)
+    .map((w) => w.replace(/[^a-zA-Z0-9'-]/g, ""))
+    .filter(Boolean);
+  if (!words.length) return "원서 구문";
+
+  const glosses = [];
+  for (const w of words) {
+    const low = w.toLowerCase();
+    if (["the", "a", "an"].includes(low)) continue;
+    const hit = lookupLexiconWithStemming(low);
+    if (hit) {
+      glosses.push(hit.kr.split(",")[0].replace(/\s*\([^)]*\)/g, "").trim());
+    } else if (/^[A-Z]/.test(w)) {
+      glosses.push(w);
+    }
+  }
+  if (glosses.length > 0) {
+    return glosses.join(" ");
+  }
+  return `"${phrase}" 의미 구문`;
+}
+
+function translateSentenceToKorean(sentence) {
+  const trimmed = String(sentence || "").trim();
+  if (!trimmed) return "";
+  if (KNOWN_SENTENCE_KR[trimmed]) return KNOWN_SENTENCE_KR[trimmed];
+
+  const lower = trimmed.toLowerCase();
+  if (lower.startsWith("look at ")) {
+    const rest = trimmed.slice(8).replace(/[.!?]+$/, "");
+    return `${synthesizePhraseKr(rest)}을(를) 봐!`;
+  }
+  if (lower.startsWith("let's ") || lower.startsWith("lets ")) {
+    const rest = trimmed.replace(/^let'?s\s+/i, "").replace(/[.!?]+$/, "");
+    return `함께 ${synthesizePhraseKr(rest)} 해 보자!`;
+  }
+  if (lower.startsWith("can you ")) {
+    const rest = trimmed.slice(8).replace(/[.!?]+$/, "");
+    return `${synthesizePhraseKr(rest)} 할 수 있나요?`;
+  }
+  if (lower.startsWith("do you ")) {
+    const rest = trimmed.slice(7).replace(/[.!?]+$/, "");
+    return `여러분은 ${synthesizePhraseKr(rest)} 하나요?`;
+  }
+
+  const body = trimmed.replace(/[.!?]+$/, "");
+  const phraseKr = synthesizePhraseKr(body);
+  return trimmed.endsWith("?")
+    ? `${phraseKr}인가요?`
+    : `${phraseKr} 이야기 문장이에요.`;
+}
+
+function generateBookSpeakingQuestions(sentences, vocabList, chunks, coreExpressions) {
+  const questions = [];
+  const exps = (coreExpressions && coreExpressions.length) ? coreExpressions : [];
+  const usedTargets = new Set();
+
+  if (exps[0]) {
+    const e1 = exps[0];
+    usedTargets.add(e1.expression);
+    questions.push({
+      en: `Can you use today's expression "${e1.expression}" to tell Popo what happens?`,
+      kr: `[핵심 표현 말하기] 오늘 배운 표현 '${e1.expression}'(${e1.meaning_kr})를 넣어서 포포에게 영어로 크게 말해 볼까요?`,
+      target: e1.expression,
+      expression: e1.expression
+    });
+  }
+
+  if (exps[1]) {
+    const e2 = exps[1];
+    usedTargets.add(e2.expression);
+    questions.push({
+      en: `How can you say "${e2.meaning_kr}" in English using the pattern from our book?`,
+      kr: `[표현 응용 퀴즈] 원서에서 배운 표현을 떠올리며 '${e2.meaning_kr}'를 영어로 말해 볼래요? (힌트: ${e2.expression})`,
+      target: e2.expression,
+      expression: e2.expression
+    });
+  }
+
+  // Personal / real-world expression transfer question using a learned verb/noun/expression
+  const anchorExpr = exps[2] || exps[0] || { expression: sentences[0] || "Look at this!", meaning_kr: "오늘 배운 멋진 문장" };
+  const sampleWord = vocabList.find((v) => !["the", "and", "is", "are", "with", "into"].includes(v.word)) || vocabList[0];
+  questions.push({
+    en: sampleWord
+      ? `Think about your own day! Using "${anchorExpr.expression}" or "${sampleWord.word}", share a fun English sentence with Popo!`
+      : `Great job! Say "${anchorExpr.expression}" out loud with a big ocean explorer voice!`,
+    kr: sampleWord
+      ? `[내 이야기로 표현 확장] 꼭 책 내용과 똑같지 않아도 좋아요! 배운 표현 '${anchorExpr.expression}'이나 단어 '${sampleWord.word}(${sampleWord.meaning_kr})'를 써서 자신 있게 말해보세요!`
+      : `[자신감 발화 미션] 원서에서 배운 '${anchorExpr.expression}' 표현을 신나는 탐험가 목소리로 외쳐 보세요!`,
+    target: anchorExpr.expression,
+    expression: anchorExpr.expression
+  });
+
+  if (sentences.length > 0) {
+    const firstSent = sentences[0];
+    if (!usedTargets.has(firstSent)) {
+      questions.push({
+        en: `Let's put everything together! Can you say "${firstSent}" smoothly?`,
+        kr: `[문장 완성 도전] 배운 단어와 구를 이어서 "${firstSent}" 한 문장을 멋지게 말해 볼까요?`,
+        target: firstSent,
+        expression: firstSent
+      });
+    }
+  }
+
+  return questions.slice(0, 4);
+}
+
 /**
- * Extracts vocabulary, breathing chunks (for Sea Glass rendering), and 3~5 core expressions
- * from raw English story text when a DB cache miss occurs.
+ * Extracts vocabulary (including per-word Korean glosses), breathing chunks,
+ * sentence-by-sentence Korean translations, and expression speaking questions.
  */
-function analyzeTextWithLLM(rawText, level = "Level 2") {
+function analyzeTextWithLLM(rawText, level = "Level 2", customKoreanText = "") {
   const cleanText = rawText.trim().replace(/\s+/g, " ");
   const sentences = cleanText
     .split(/(?<=[.!?])\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
-  // 1. Extract vocabulary words
+  // 1. Extract ALL unique story words (prioritizing content words, up to 45 words so every word has DB meaning!)
+  const functionSkipForFlashcard = new Set(["the", "a", "an", "and", "but", "or", "is", "are", "was", "were", "in", "on", "at", "to", "for", "of", "by"]);
   const wordsSeen = new Set();
-  const vocabList = [];
+  const contentVocab = [];
+  const supportVocab = [];
   const rawTokens = cleanText.split(/\s+/);
 
   for (const token of rawTokens) {
     const cleanWord = token.replace(/[^a-zA-Z]/g, "").toLowerCase();
-    if (cleanWord.length < 4 || wordsSeen.has(cleanWord)) continue;
-    const stopWords = new Set(["this", "that", "with", "from", "they", "have", "were", "when", "what", "into", "over", "under", "their", "there"]);
-    if (stopWords.has(cleanWord)) continue;
-
+    if (cleanWord.length < 1 || wordsSeen.has(cleanWord)) continue;
     wordsSeen.add(cleanWord);
-    const entry = OCEAN_LEXICON[cleanWord] || {
-      kr: `"${cleanWord}" (문맥 핵심 어휘)`,
+
+    const entry = lookupLexiconWithStemming(cleanWord) || {
+      kr: `${cleanWord} (스토리 어휘)`,
       phonetic: `/${cleanWord}/`,
-      pos: "핵심어",
-      tip: "포포와 함께 소리 내어 읽으며 물방울 뜻을 기억해 봐요!"
+      pos: cleanWord.length <= 3 ? "기본어" : "핵심어",
+      tip: "포포와 함께 소리를 들으며 뜻을 익혀 보세요!"
     };
 
-    vocabList.push({
+    const item = {
       word: cleanWord,
-      surface: token.replace(/[^a-zA-Z'-]/g, ""),
+      surface: token.replace(/[^a-zA-Z'-]/g, "") || cleanWord,
       meaning_kr: entry.kr,
       phonetic: entry.phonetic,
       pos: entry.pos,
       popo_tip: entry.tip
-    });
+    };
 
-    if (vocabList.length >= 10) break;
+    if (cleanWord.length >= 3 && !functionSkipForFlashcard.has(cleanWord)) {
+      contentVocab.push(item);
+    } else {
+      supportVocab.push(item);
+    }
   }
 
-  // 2. Split into native breathing chunks (NO '/' symbols in display — rendered as Sea Glass blocks)
+  const vocabList = [...contentVocab, ...supportVocab].slice(0, 45);
+
+  // 2. Split into native breathing chunks (구 단위)
   const chunks = [];
   const prepositionsAndConjunctions = new Set([
-    "on", "in", "at", "across", "through", "under", "over", "with", "and", "but", "where", "while", "to", "from", "by"
+    "on", "in", "at", "across", "through", "under", "over", "with", "and", "but", "where", "while", "to", "from", "by", "into", "for"
   ]);
 
   sentences.forEach((sentence, sIdx) => {
@@ -128,25 +506,27 @@ function analyzeTextWithLLM(rawText, level = "Level 2") {
     words.forEach((w, idx) => {
       const bare = w.replace(/[^a-zA-Z]/g, "").toLowerCase();
       if (
-        currentChunk.length >= 3 &&
-        (prepositionsAndConjunctions.has(bare) || currentChunk.length >= 5) &&
+        currentChunk.length >= 2 &&
+        (prepositionsAndConjunctions.has(bare) || currentChunk.length >= 4) &&
         idx < words.length - 1
       ) {
+        const chunkStr = currentChunk.join(" ");
         chunks.push({
           id: `chunk_${sIdx}_${chunks.length}`,
           sentence_index: sIdx,
-          text: currentChunk.join(" "),
-          meaning_kr: translateChunkHint(currentChunk.join(" "))
+          text: chunkStr,
+          meaning_kr: translateChunkHint(chunkStr)
         });
         currentChunk = [w];
       } else {
         currentChunk.push(w);
         if (w.endsWith(",") && currentChunk.length >= 2 && idx < words.length - 1) {
+          const chunkStr = currentChunk.join(" ");
           chunks.push({
             id: `chunk_${sIdx}_${chunks.length}`,
             sentence_index: sIdx,
-            text: currentChunk.join(" "),
-            meaning_kr: translateChunkHint(currentChunk.join(" "))
+            text: chunkStr,
+            meaning_kr: translateChunkHint(chunkStr)
           });
           currentChunk = [];
         }
@@ -154,11 +534,12 @@ function analyzeTextWithLLM(rawText, level = "Level 2") {
     });
 
     if (currentChunk.length > 0) {
+      const chunkStr = currentChunk.join(" ");
       chunks.push({
         id: `chunk_${sIdx}_${chunks.length}`,
         sentence_index: sIdx,
-        text: currentChunk.join(" "),
-        meaning_kr: translateChunkHint(currentChunk.join(" "))
+        text: chunkStr,
+        meaning_kr: translateChunkHint(chunkStr)
       });
     }
   });
@@ -176,29 +557,52 @@ function analyzeTextWithLLM(rawText, level = "Level 2") {
         : "동사 + 묘사어 리듬 청크"
   }));
 
+  // 4. Sentence-by-sentence Korean translations (uses optional customKoreanText if entered, else auto-translates)
+  const customLines = String(customKoreanText || "")
+    .split(/\r?\n+/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const sentenceTranslations = sentences.map((sent, idx) => ({
+    index: idx,
+    en: sent,
+    kr: customLines[idx] || translateSentenceToKorean(sent)
+  }));
+
+  // 5. Expression-based speaking questions for Page 3 & Week 3/4
+  const speakingQuestions = generateBookSpeakingQuestions(sentences, vocabList, chunks, coreExpressions);
+
   return {
     level,
     extracted_at: new Date().toISOString(),
     vocab: vocabList,
     chunks,
-    core_expressions: coreExpressions
+    core_expressions: coreExpressions,
+    sentence_translations: sentenceTranslations,
+    speaking_questions: speakingQuestions
   };
 }
 
 function translateChunkHint(chunkText) {
-  const lower = chunkText.toLowerCase();
+  const lower = String(chunkText || "").toLowerCase();
   if (lower.includes("look at the starfish")) return "저 불가사리를 봐";
   if (lower.includes("shining on the sandy floor")) return "모래 바닥 위에서 반짝이고 있는";
   if (lower.includes("baby whale popo")) return "아기 고래 포포는";
-  if (lower.includes("swims across")) return "~을 힘차게 가로질러 헤엄쳐요";
+  if (lower.includes("swims across")) return "산호초를 힘차게 가로질러 헤엄쳐요";
   if (lower.includes("coral reef")) return "아름다운 산호초 숲을";
   if (lower.includes("gentle sea turtle")) return "다정한 바다거북 한 마리가";
-  if (lower.includes("glides through")) return "~사이를 미끄러지듯 나아가요";
-  if (lower.includes("clear water")) return "맑고 투명한 바닷물";
+  if (lower.includes("glides through")) return "미끄러지듯 나아가요";
+  if (lower.includes("clear water")) return "맑고 투명한 바닷물 사이로";
   if (lower.includes("together")) return "친구들과 다 함께,";
-  if (lower.includes("find a golden treasure")) return "황금빛 보물 상자를 발견해요!";
-  if (lower.includes("protected by")) return "~에 의해 안전하게 보호받아요";
-  return "원어민 호흡 단위로 부드럽게 이어 읽어 보세요";
+  if (lower.includes("find a golden treasure")) return "황금빛 보물 상자를 발견해요";
+  if (lower.includes("under the sea")) return "바닷속 깊은 곳에서";
+  if (lower.includes("protected by")) return "따뜻한 해류에 의해 안전하게 보호받아요";
+  if (lower.includes("glowing cave")) return "은은하게 빛나는 동굴을 탐험해요";
+  if (lower.includes("ancient pearls")) return "고대 진주들이 숨겨진 곳을";
+  if (lower.includes("kept clean")) return "깨끗하게 유지되는지를";
+  if (lower.includes("big water bubble")) return "커다란 물방울을 불어요";
+  if (lower.includes("soft waves")) return "부드러운 파도 위로";
+  if (lower.includes("red crab")) return "춤추고 있는 빨간 꽃게를";
+  return synthesizePhraseKr(chunkText);
 }
 
 /**
@@ -280,7 +684,36 @@ function evaluatePopoSpeech({ transcript, bookId, targetChunk, popoQuestion }) {
  * Generates 3 tailored questions for the 4th-week Native Teacher Video Class
  * based on Weeks 1~3 STT weaknesses and book theme.
  */
-function generateTeacherQuestions({ studentName, bookTitle, weakPoints, strongPoints }) {
+function generateTeacherQuestions({ studentName, bookTitle, weakPoints, strongPoints, coreExpressions = [] }) {
+  if (Array.isArray(coreExpressions) && coreExpressions.length > 0 && !String(bookTitle || "").includes("Ocean Friends")) {
+    const e1 = coreExpressions[0];
+    const e2 = coreExpressions[1] || e1;
+    const e3 = coreExpressions[2] || e1;
+    return [
+      {
+        id: "q1",
+        category: "핵심 표현 실전 적용",
+        question_en: `Hi ${studentName}! In "${bookTitle}", we learned "${e1.expression}". Can you make your own sentence using "${e1.expression}"?`,
+        coaching_tip_kr: `학생이 배운 핵심 표현('${e1.meaning_kr}')을 본인의 일상 예시로 응용해 말하도록 격려해 주세요.`,
+        target_chunk: e1.expression
+      },
+      {
+        id: "q2",
+        category: "청크 연음 & 리듬 코칭",
+        question_en: `Let's practice speaking "${e2.expression}" smoothly in one breath. Can you tell me what "${e2.expression}" means to you?`,
+        coaching_tip_kr: `2주차 구 단위 끊어 읽기에서 익힌 '${e2.meaning_kr}' 호흡 리듬이 끊어지지 않고 이어지도록 칭찬해 주세요.`,
+        target_chunk: e2.expression
+      },
+      {
+        id: "q3",
+        category: "자유 상상 & 확장 질문",
+        question_en: `If you tell a friend about "${bookTitle}", how can you use "${e3.expression}" in a fun conversation?`,
+        coaching_tip_kr: `책 내용 암기가 아니라, 배운 표현('${e3.expression}')을 자기 생각과 연결해 발화하도록 마무리해 주세요.`,
+        target_chunk: e3.expression
+      }
+    ];
+  }
+
   return [
     {
       id: "q1",
