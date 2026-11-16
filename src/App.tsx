@@ -315,7 +315,13 @@ export default function App() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-6 py-4">
+      <main
+        className={
+          studentPage === "learn" && learnStep === 1
+            ? "flex-1 w-full px-3 md:px-5 py-2"
+            : "flex-1 max-w-7xl w-full mx-auto px-4 md:px-6 py-4"
+        }
+      >
         {studentPage === "home" && (
           <StudentHome
             user={currentUser}
@@ -333,8 +339,9 @@ export default function App() {
         )}
 
         {studentPage === "learn" && (
-          <div className="space-y-3">
-            {/* Clean Hairline Stepper & Week Selector */}
+          <div className={learnStep === 1 ? "" : "space-y-3"}>
+            {/* Clean Hairline Stepper & Week Selector (hidden in full-screen StorybookReader step 1) */}
+            {learnStep !== 1 && (
             <div className="pb-2.5 border-b border-[#e8dfd1] flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <button
@@ -394,6 +401,7 @@ export default function App() {
                 {currentWeek}주차 학습
               </span>
             </div>
+            )}
 
             {learnStep === 1 && (
               <StorybookReader
@@ -410,6 +418,7 @@ export default function App() {
                     )
                   );
                 }}
+                onBackHome={() => navigate("/student")}
                 onGoToFlashcards={() => setLearnStep(2)}
               />
             )}

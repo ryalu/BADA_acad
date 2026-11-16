@@ -32,6 +32,7 @@ interface StorybookReaderProps {
     weakWords: string[];
     feedbackTip: string;
   }) => void;
+  onBackHome?: () => void;
   onGoToFlashcards: () => void;
 }
 
@@ -117,6 +118,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
   userId,
   weekProgress = 0,
   onRecordRepeatComplete,
+  onBackHome,
   onGoToFlashcards
 }) => {
   const sentences = useMemo(() => getBookSentences(book), [book]);
@@ -748,7 +750,17 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
   if (!isCoverOpen) {
     return (
-      <div className="flex flex-col items-center justify-center gap-6 h-[calc(100vh-88px)] min-h-[560px]">
+      <div className="relative flex flex-col items-center justify-center gap-6 h-[calc(100vh-16px)] min-h-[560px]">
+        {onBackHome && (
+          <button
+            type="button"
+            onClick={onBackHome}
+            className="absolute top-2 left-2 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/85 hover:bg-white border border-[#e5dcc9] text-xs font-bold text-slate-700 shadow-xs transition"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            항해 맵
+          </button>
+        )}
         <div className="w-full max-w-sm space-y-5 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f4efe5] border border-[#e5dcc9] text-xs font-bold text-amber-900">
             {weekNum}주차 원서 읽기 · 반복 {completedRepeats}/5
@@ -783,63 +795,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
   }
 
   return (
-    <div className="flex flex-col justify-between gap-2.5 h-[calc(100vh-88px)] min-h-[580px]">
-      {/* Clean Hairline Header Strip (No outer card box) */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#e8dfd1] shrink-0">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100/80 text-amber-900">
-              {book.level}
-            </span>
-            <h2 className="book-serif text-lg md:text-xl font-bold text-slate-900">{book.title}</h2>
-          </div>
-          <p className="text-xs text-slate-600 mt-0.5">{weekGuidance}</p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* 5-Day / 5-Repeat Pearl Collector */}
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f4efe5] border border-[#e5dcc9]">
-            <span className="text-[11px] font-bold text-amber-900 mr-0.5">
-              {weekNum}주차 반복 {completedRepeats}/5
-            </span>
-            {Array.from({ length: 5 }).map((_, idx) => (
-              <img
-                key={idx}
-                src="/assets/pearl-badge-3d.jpg"
-                alt={`${idx + 1}회차 진주`}
-                className={`w-4 h-4 rounded-full object-cover transition ${
-                  idx < completedRepeats
-                    ? "opacity-100 ring-2 ring-cyan-400 scale-105"
-                    : "opacity-30 grayscale"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-xs font-semibold text-slate-600 pr-2 border-r border-[#e8dfd1]">
-            문장 {completedSentences.size}/{sentences.length}
-          </span>
-          <button
-            type="button"
-            onClick={() => setShowCoverModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700 text-xs font-semibold transition"
-          >
-            <BookOpen className="w-3.5 h-3.5 text-sky-700" />
-            표지 보기
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              stopVoiceSession();
-              speakEnglish(book.full_text, weekNum <= 2 ? 0.78 : 0.9, 1.04);
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700 text-xs font-semibold transition"
-          >
-            <Volume2 className="w-3.5 h-3.5 text-sky-700" />
-            전체 듣기
-          </button>
-        </div>
-      </div>
-
+    <div className="flex flex-col justify-between gap-2 h-[calc(100vh-16px)] min-h-[580px]">
       {showCoverModal && (
         <div
           className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4"
@@ -875,12 +831,52 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
       <div className="book-stage relative flex-1 min-h-0 rounded-2xl shadow-[0_18px_44px_-12px_rgba(92,74,48,0.22)] border border-[#e5dcc9] bg-[#fdfaf2] overflow-hidden flex flex-col">
         {/* TOP 2/3: Uncropped Full-Spread Picture-Book Illustration */}
         {illustrationImageUrl && (
-          <div className="relative flex-[1.7] min-h-[240px] w-full overflow-hidden border-b border-[#e8dfd1] bg-[#f7f2e7] flex items-center justify-center">
+          <div className="relative flex-[2.2] min-h-[260px] w-full overflow-hidden border-b border-[#e8dfd1] bg-[#f7f2e7] flex items-center justify-center">
             <img
               src={illustrationImageUrl}
               alt={currentIllustration?.scene_caption_kr || book.title}
               className="w-full h-full object-contain"
             />
+            {/* Minimal floating corner pills (0px extra header height) */}
+            {onBackHome && (
+              <button
+                type="button"
+                onClick={() => {
+                  stopVoiceSession();
+                  onBackHome();
+                }}
+                className="absolute top-2.5 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/85 hover:bg-white text-slate-700 text-[11px] font-bold shadow-xs backdrop-blur-xs transition"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                항해 맵
+              </button>
+            )}
+            <div className="absolute top-2.5 right-3 flex items-center gap-1.5">
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/85 backdrop-blur-xs shadow-xs">
+                <span className="text-[11px] font-bold text-amber-900">{weekNum}주차 {completedRepeats}/5</span>
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <img
+                    key={idx}
+                    src="/assets/pearl-badge-3d.jpg"
+                    alt={`${idx + 1}회차`}
+                    className={`w-3.5 h-3.5 rounded-full object-cover ${
+                      idx < completedRepeats ? "opacity-100 ring-1 ring-cyan-400" : "opacity-30 grayscale"
+                    }`}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  stopVoiceSession();
+                  speakEnglish(book.full_text, weekNum <= 2 ? 0.78 : 0.9, 1.04);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/85 hover:bg-white text-slate-700 text-[11px] font-bold shadow-xs backdrop-blur-xs transition"
+              >
+                <Volume2 className="w-3.5 h-3.5 text-sky-700" />
+                전체 듣기
+              </button>
+            </div>
             {/* Subtle vertical spine fold shadow across the double-page illustration */}
             <div className="hidden md:block pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 w-8 bg-gradient-to-r from-transparent via-stone-900/14 to-transparent" />
 
