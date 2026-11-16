@@ -211,7 +211,7 @@ export const SpeakingStage: React.FC<SpeakingStageProps> = ({
             onClick={handleActivateMic}
             disabled={listening}
             className={`inline-flex items-center gap-3 px-7 py-3.5 rounded-xl font-bold text-base text-white transition shadow-sm ${
-              listening ? "bg-amber-600" : "bg-sky-600 hover:bg-sky-700"
+              listening ? "bg-amber-600" : "btn-water-glass"
             }`}
           >
             <Mic className="w-5 h-5" />

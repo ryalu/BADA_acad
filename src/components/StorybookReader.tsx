@@ -784,7 +784,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
               playPageFlipSound();
               setIsCoverOpen(true);
             }}
-            className="w-full py-3.5 px-6 rounded-full bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition inline-flex items-center justify-center gap-2"
+            className="w-full py-3.5 px-6 rounded-full btn-water-glass font-bold text-sm inline-flex items-center justify-center gap-2"
           >
             책 펼치기 (1쪽 시작)
             <ArrowRight className="w-4 h-4" />
@@ -819,7 +819,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             <button
               type="button"
               onClick={() => setShowCoverModal(false)}
-              className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold transition"
+              className="w-full py-2.5 rounded-xl btn-water-glass text-sm font-bold"
             >
               책 계속 읽기
             </button>
@@ -1160,7 +1160,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             type="button"
             onClick={handleToggleVoicePractice}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs md:text-sm font-bold transition shadow-sm ${
-              isAutoLoop ? "bg-rose-600 hover:bg-rose-700" : "bg-sky-600 hover:bg-sky-700"
+              isAutoLoop ? "bg-rose-600 hover:bg-rose-700" : "btn-water-glass"
             }`}
           >
             {isAutoLoop ? <Square className="w-4 h-4" /> : <Mic className="w-4 h-4" />}

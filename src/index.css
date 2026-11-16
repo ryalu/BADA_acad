@@ -132,3 +132,63 @@
 .animate-bubble-2 {
   animation: bubbleRise 2.2s ease-out 0.7s infinite;
 }
+
+/* 3D Water Droplet / Glass Bead Button */
+@layer components {
+  .btn-water-glass {
+    position: relative;
+    overflow: hidden;
+    color: #ffffff;
+    background: linear-gradient(
+      180deg,
+      rgba(125, 211, 252, 0.92) 0%,
+      rgba(14, 165, 233, 0.88) 46%,
+      rgba(2, 132, 199, 0.94) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow:
+      inset 0 2px 3px rgba(255, 255, 255, 0.8),
+      inset 0 -5px 9px rgba(186, 230, 253, 0.55),
+      0 7px 16px -4px rgba(2, 132, 199, 0.46),
+      0 2px 5px rgba(12, 74, 110, 0.22);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    text-shadow: 0 1px 2px rgba(3, 105, 161, 0.45);
+    transition: transform 0.16s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+
+  .btn-water-glass::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 10%;
+    right: 10%;
+    height: 44%;
+    border-radius: 9999px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(255, 255, 255, 0.14) 70%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    pointer-events: none;
+  }
+
+  .btn-water-glass:hover:not(:disabled) {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 2px 4px rgba(255, 255, 255, 0.88),
+      inset 0 -6px 11px rgba(186, 230, 253, 0.68),
+      0 10px 22px -4px rgba(2, 132, 199, 0.54),
+      0 3px 7px rgba(12, 74, 110, 0.24);
+  }
+
+  .btn-water-glass:active:not(:disabled) {
+    transform: translateY(1px) scale(0.985);
+    box-shadow:
+      inset 0 2px 4px rgba(255, 255, 255, 0.62),
+      inset 0 -3px 6px rgba(186, 230, 253, 0.45),
+      0 3px 8px -2px rgba(2, 132, 199, 0.42);
+  }
+}

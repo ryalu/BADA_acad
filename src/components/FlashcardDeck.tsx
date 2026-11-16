@@ -37,7 +37,7 @@ export const FlashcardDeck: React.FC<FlashcardDeckProps> = ({
         <button
           type="button"
           onClick={onGoToSpeaking}
-          className="px-5 py-2.5 rounded-xl bg-sky-600 text-white font-bold text-sm"
+          className="px-5 py-2.5 rounded-xl btn-water-glass font-bold text-sm"
         >
           다음 단계로 이동
         </button>
@@ -164,7 +164,7 @@ export const FlashcardDeck: React.FC<FlashcardDeckProps> = ({
         <button
           type="button"
           onClick={handleNext}
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold transition shadow-sm"
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl btn-water-glass text-sm font-bold"
         >
           {safeIdx < deck.length - 1 ? "익혔어요 · 다음 카드" : "카드 완료 · 3교시 스피킹으로"}
           <ArrowRight className="w-4 h-4" />

@@ -161,7 +161,7 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
                         </div>
                         <span
                           className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${
-                            isAct ? "bg-sky-600 text-white" : "text-slate-500"
+                            isAct ? "btn-water-glass" : "text-slate-500"
                           }`}
                         >
                           {isAct && <Check className="w-3 h-3" />}
@@ -204,7 +204,7 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
               type="button"
               onClick={handleStudentLogin}
               disabled={loadingStu}
-              className="w-full py-3.5 px-5 rounded-full bg-sky-600 hover:bg-sky-700 text-white font-bold text-base transition shadow-sm disabled:opacity-60"
+              className="w-full py-3.5 px-5 rounded-full btn-water-glass font-bold text-base disabled:opacity-60"
             >
               {loadingStu ? "입장 중..." : "학습 시작하기"}
             </button>

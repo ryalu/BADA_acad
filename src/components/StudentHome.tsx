@@ -204,7 +204,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
 
                   <div className="shrink-0">
                     {isCurrent ? (
-                      <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-sky-600 text-white text-xs font-bold shadow-xs">
+                      <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full btn-water-glass text-xs font-bold">
                         출발하기
                         <ArrowRight className="w-3.5 h-3.5" />
                       </span>

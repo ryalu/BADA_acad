@@ -734,7 +734,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 type="button"
                 onClick={() => onChangeTab(item.id)}
                 className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-left ${activeTab === item.id
-                  ? "bg-sky-600 text-white"
+                  ? "btn-water-glass"
                   : "text-slate-300 hover:bg-slate-800 hover:text-white"
                   }`}
               >
@@ -787,7 +787,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     setShowNewStudentForm((v) => !v);
                     setShowTeacherSettings(false);
                   }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full btn-water-glass text-xs font-bold"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   {showNewStudentForm ? "등록 창 닫기" : "+ 신규 학생 등록"}
@@ -934,7 +934,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     <button
                       type="button"
                       onClick={handleRegisterStudent}
-                      className="w-full py-2 px-4 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold"
+                      className="w-full py-2 px-4 rounded-full btn-water-glass text-sm font-bold"
                     >
                       등록 완료
                     </button>
@@ -962,7 +962,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       <button
                         type="button"
                         onClick={handleUnlockDirector}
-                        className="px-3.5 py-1.5 rounded-full bg-sky-600 text-white text-xs font-bold"
+                        className="px-3.5 py-1.5 rounded-full btn-water-glass text-xs font-bold"
                       >
                         권한 전환
                       </button>
@@ -1056,7 +1056,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                         <button
                           type="button"
                           onClick={handleRegisterTeacher}
-                          className="py-2 px-4 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold"
+                          className="py-2 px-4 rounded-full btn-water-glass text-xs font-bold"
                         >
                           선생님 등록
                         </button>
@@ -1105,7 +1105,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       onClick={() => setStudentLevelFilter(lv)}
                       className={`px-3 py-1 rounded-full text-xs font-bold transition ${
                         studentLevelFilter === lv
-                          ? "bg-sky-600 text-white"
+                          ? "btn-water-glass"
                           : "bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700"
                       }`}
                     >
@@ -1298,7 +1298,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                             <button
                               type="button"
                               onClick={() => handleSaveStudentAssign(u)}
-                              className="px-3 py-1.5 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold"
+                              className="px-3 py-1.5 rounded-full btn-water-glass text-xs font-bold"
                             >
                               저장
                             </button>
@@ -1386,7 +1386,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       <div key={rec.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-sky-600 text-white">
+                            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full btn-water-glass">
                               {rec.week_num}주차 · {rec.repeat_num}회차
                             </span>
                             <span className="text-xs font-semibold text-slate-700">
@@ -1577,7 +1577,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     type="button"
                     onClick={handleGenerateParentMsg}
                     disabled={parentMsgLoading}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition disabled:opacity-60"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full btn-water-glass text-xs font-bold disabled:opacity-60"
                   >
                     <MessageCircle className="w-3.5 h-3.5" />
                     {parentMsgLoading ? "생성 중..." : "AI 피드백 생성"}
@@ -1735,7 +1735,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   type="button"
                   onClick={handleCreateBook}
                   disabled={bookSaving}
-                  className="px-5 py-2.5 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold disabled:opacity-60"
+                  className="px-5 py-2.5 rounded-full btn-water-glass text-sm font-bold disabled:opacity-60"
                 >
                   {bookSaving
                     ? "저장 및 AI 분석 중..."
@@ -1774,7 +1774,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                         onClick={() => setBookLevelFilter(lv)}
                         className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition ${
                           active
-                            ? "bg-sky-600 text-white"
+                            ? "btn-water-glass"
                             : "bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700"
                         }`}
                       >

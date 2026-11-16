@@ -145,7 +145,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
                   setPhonicsIdx(0);
                   setSubview("phonics");
                 }}
-                className="w-full py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold inline-flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-4 rounded-xl btn-water-glass text-sm font-bold inline-flex items-center justify-center gap-1.5"
               >
                 파닉스 시작하기
                 <ArrowRight className="w-4 h-4" />
@@ -170,7 +170,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
                   setCcIdx(0);
                   setCcFlipped(false);
                 }}
-                className="w-full py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold inline-flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-4 rounded-xl btn-water-glass text-sm font-bold inline-flex items-center justify-center gap-1.5"
               >
                 클카 단어장 열기
                 <ArrowRight className="w-4 h-4" />
@@ -193,7 +193,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
                 <button
                   type="button"
                   onClick={() => setSubview("upper")}
-                  className="w-full py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold inline-flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 px-4 rounded-xl btn-water-glass text-sm font-bold inline-flex items-center justify-center gap-1.5"
                 >
                   문장 훈련 열기
                   <ArrowRight className="w-4 h-4" />
@@ -242,7 +242,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
                   speakEnglish(activePhonics.word, 0.8, 1.06);
                   playSoftTone(760, 0.16);
                 }}
-                className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold"
+                className="px-5 py-2.5 rounded-xl btn-water-glass text-sm font-bold"
               >
                 따라 말하고 완료 체크
               </button>
@@ -302,7 +302,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
                 onClick={() => setCcStage("study")}
                 className={`px-4 py-2 rounded-xl text-xs font-bold border ${
                   ccStage === "study"
-                    ? "bg-sky-600 text-white border-sky-600"
+                    ? "btn-water-glass"
                     : "bg-white text-slate-600 border-slate-200"
                 }`}
               >
@@ -318,7 +318,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
                 }}
                 className={`px-4 py-2 rounded-xl text-xs font-bold border ${
                   ccStage === "quiz"
-                    ? "bg-sky-600 text-white border-sky-600"
+                    ? "btn-water-glass"
                     : "bg-white text-slate-600 border-slate-200"
                 }`}
               >
@@ -405,7 +405,7 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
                       setQuizDone(false);
                     }
                   }}
-                  className="px-5 py-2 rounded-xl bg-sky-600 text-white text-sm font-bold"
+                  className="px-5 py-2 rounded-xl btn-water-glass text-sm font-bold"
                 >
                   {ccIdx < classCardDeck.length - 1 ? "다음 카드" : "퀴즈로 이동"}
                 </button>
