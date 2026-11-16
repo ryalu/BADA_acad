@@ -122,6 +122,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
   const sentences = useMemo(() => getBookSentences(book), [book]);
   const spreads = useMemo(() => splitBookIntoContextPages(book), [book]);
 
+  const [isCoverOpen, setIsCoverOpen] = useState(false);
   const [pageIdx, setPageIdx] = useState(0);
   const [flipLeaf, setFlipLeaf] = useState<{ dir: "next" | "prev"; key: number } | null>(null);
   const [sentenceIdx, setSentenceIdx] = useState(0);
@@ -276,13 +277,6 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
     (book.page_illustrations || []).find((p) => Number(p.page_index) === pageIdx) ||
     (book.page_illustrations || [])[pageIdx];
   const illustrationImageUrl = currentIllustration?.image_url || "";
-  const safeIllustrationSvg =
-    !illustrationImageUrl &&
-    currentIllustration?.svg &&
-    currentIllustration.svg.includes("<svg") &&
-    !/<script|on[a-z]+\s*=/i.test(currentIllustration.svg)
-      ? currentIllustration.svg
-      : "";
   const activeSent = sentences[sentenceIdx] || "";
   const activeWords = useMemo(() => activeSent.split(/\s+/).filter(Boolean), [activeSent]);
   const activeChunks = useMemo(() => getSentenceChunksForWeek2(activeSent, book), [activeSent, book]);
@@ -711,6 +705,11 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
   const handleTurnPage = (dir: -1 | 1) => {
     stopVoiceSession();
+    if (dir === -1 && pageIdx === 0) {
+      playPageFlipSound();
+      setIsCoverOpen(false);
+      return;
+    }
     const nextP = Math.min(spreads.length - 1, Math.max(0, pageIdx + dir));
     if (nextP === pageIdx) return;
     triggerBookFlip(dir > 0 ? "next" : "prev");
@@ -746,6 +745,42 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
         phonetic: activeWordInfo.phonetic,
         nextWord: activeWords[safeWordIdx + 1] || ""
       };
+
+  if (!isCoverOpen) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-6 h-[calc(100vh-88px)] min-h-[560px]">
+        <div className="w-full max-w-sm space-y-5 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f4efe5] border border-[#e5dcc9] text-xs font-bold text-amber-900">
+            {weekNum}주차 원서 읽기 · 반복 {completedRepeats}/5
+          </div>
+
+          <BookCover
+            book={book}
+            size="lg"
+            onClick={() => {
+              playPageFlipSound();
+              setIsCoverOpen(true);
+            }}
+            className="shadow-[0_24px_48px_-14px_rgba(30,41,59,0.28)]"
+          />
+
+          <p className="text-xs text-slate-600">{weekGuidance}</p>
+
+          <button
+            type="button"
+            onClick={() => {
+              playPageFlipSound();
+              setIsCoverOpen(true);
+            }}
+            className="w-full py-3.5 px-6 rounded-full bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition inline-flex items-center justify-center gap-2"
+          >
+            책 펼치기 (1쪽 시작)
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col justify-between gap-2.5 h-[calc(100vh-88px)] min-h-[580px]">
@@ -838,23 +873,16 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
       {/* Open Picture-Book Spread (No black border · 2/3 Illustration + 1/3 Story Text) */}
       <div className="book-stage relative flex-1 min-h-0 rounded-2xl shadow-[0_18px_44px_-12px_rgba(92,74,48,0.22)] border border-[#e5dcc9] bg-[#fdfaf2] overflow-hidden flex flex-col">
-        {/* TOP 2/3: Full-Spread Picture-Book Illustration */}
-        {(illustrationImageUrl || safeIllustrationSvg) && (
-          <div className="relative flex-[1.55] min-h-[220px] w-full overflow-hidden border-b border-[#e8dfd1] bg-[#eef7fa]">
-            {illustrationImageUrl ? (
-              <img
-                src={illustrationImageUrl}
-                alt={currentIllustration?.scene_caption_kr || book.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div
-                className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:object-cover"
-                dangerouslySetInnerHTML={{ __html: safeIllustrationSvg }}
-              />
-            )}
+        {/* TOP 2/3: Uncropped Full-Spread Picture-Book Illustration */}
+        {illustrationImageUrl && (
+          <div className="relative flex-[1.7] min-h-[240px] w-full overflow-hidden border-b border-[#e8dfd1] bg-[#f7f2e7] flex items-center justify-center">
+            <img
+              src={illustrationImageUrl}
+              alt={currentIllustration?.scene_caption_kr || book.title}
+              className="w-full h-full object-contain"
+            />
             {/* Subtle vertical spine fold shadow across the double-page illustration */}
-            <div className="hidden md:block pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 w-8 bg-gradient-to-r from-transparent via-stone-900/18 to-transparent" />
+            <div className="hidden md:block pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 w-8 bg-gradient-to-r from-transparent via-stone-900/14 to-transparent" />
 
             {/* Subtle visual word tags & caption overlay */}
             <div className="absolute inset-x-0 bottom-0 px-4 py-2 bg-gradient-to-t from-slate-950/55 via-slate-950/20 to-transparent flex flex-wrap items-center justify-between gap-2">
@@ -1115,11 +1143,10 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
           <button
             type="button"
             onClick={() => handleTurnPage(-1)}
-            disabled={pageIdx === 0}
-            className="inline-flex items-center gap-1 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 text-xs font-bold transition"
+            className="inline-flex items-center gap-1 px-3.5 py-2.5 rounded-xl bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700 text-xs font-bold transition"
           >
             <ChevronLeft className="w-4 h-4" />
-            이전 장
+            {pageIdx === 0 ? "표지로" : "이전 장"}
           </button>
           <span className="text-xs font-bold text-slate-600 px-2">
             {pageIdx + 1} / {spreads.length} 장

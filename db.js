@@ -1252,6 +1252,9 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
   let skipped = 0;
 
   if (pgPool) {
+    if (force) {
+      await pgPool.query("UPDATE vocab_chunks SET page_illustrations_json = '[]'::jsonb");
+    }
     const { rows: books } = await pgPool.query("SELECT * FROM books ORDER BY id");
     for (const b of books) {
       const tHash = b.text_hash || hashText(b.full_text);
@@ -1307,6 +1310,9 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
     return { updated, skipped, engine: "postgresql" };
   }
 
+  if (force) {
+    sqliteDb.exec("UPDATE vocab_chunks SET page_illustrations_json = '[]'");
+  }
   const books = sqliteDb.prepare("SELECT * FROM books ORDER BY id").all();
   for (const b of books) {
     const tHash = b.text_hash || hashText(b.full_text);

@@ -897,12 +897,7 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
 
   const openaiKey = process.env.OPENAI_API_KEY || "";
   if (!openaiKey) {
-    return pages.map((p) => ({
-      page_index: p.page_index,
-      scene_caption_kr: "이야기 장면 그림",
-      key_objects: [],
-      svg: buildFallbackPageIllustrationSvg(p.text)
-    }));
+    return [];
   }
 
   try {
@@ -915,21 +910,21 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
       },
       body: JSON.stringify({
         model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-        temperature: 0.35,
+        temperature: 0.25,
         max_tokens: 4000,
         response_format: { type: "json_object" },
         messages: [
           {
             role: "system",
             content:
-              "You are a children's picture-book art director. For each storybook page, write a rich visual prompt for an image generation model so young students can understand every English word on the page visually. " +
-              "Include EVERY concrete noun, animal, character, and setting on that page (e.g., starfish, sandy floor, baby blue whale, coral reef, sea turtle, treasure chest, puppy, bunny, tree, baby owl with yellow backpack, schoolhouse). " +
-              "Specify: 'Warm Pixar-style 3D painterly children's picture-book illustration, soft sunlit colors, wide horizontal spread composition, friendly expressive characters, NO text or letters anywhere in the image.' " +
-              "Return ONLY JSON: { \"pages\": [ { \"page_index\": 0, \"scene_caption_kr\": \"짧은 한국어 장면 설명 (~해요 체)\", \"key_objects\": [\"starfish\", \"sandy floor\"], \"image_prompt\": \"...\" } ] }."
+              "You are a children's picture-book art director ensuring 100% visual consistency across every page of ONE storybook. " +
+              "Step 1: Define `art_style_bible` (consistent 3D painterly picture-book style, lighting, and pastel color palette for the whole book) and `character_sheet` (exact fixed visual design of EVERY character — colors, clothes/accessories, species — AND species rule: if the protagonist is an owl or woodland animal like Little Hoo, ALL classmates, teachers, and background characters MUST also be cute woodland animals like owls, bunnies, squirrels, bears, NEVER human children; if Popo is a baby blue whale, Popo always has the exact same sky-blue body, cream belly, big smiling eyes, and ocean friends). " +
+              "Step 2: For each page, write `scene_action` describing the exact pose, setting, and EVERY concrete noun/object on that page so young students can understand the English text visually, with NO text or letters anywhere in the image. " +
+              "Return ONLY JSON: { \"art_style_bible\": \"...\", \"character_sheet\": \"...\", \"pages\": [ { \"page_index\": 0, \"scene_caption_kr\": \"짧은 한국어 장면 설명 (~해요 체)\", \"key_objects\": [\"starfish\", \"sandy floor\"], \"scene_action\": \"...\" } ] }."
           },
           {
             role: "user",
-            content: `Book Title: ${title}\nLevel: ${level}\nPages:\n${pagesPrompt}`
+            content: `Book Title: ${title}\nLevel: ${level}\nFull Story:\n${fullText}\n\nPages:\n${pagesPrompt}`
           }
         ]
       })
@@ -938,14 +933,18 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
     if (!resp.ok) throw new Error(`OpenAI Scene Prompt HTTP ${resp.status}`);
     const data = await resp.json();
     const parsed = JSON.parse(data?.choices?.[0]?.message?.content || "{}");
+    const styleBible = String(
+      parsed.art_style_bible ||
+        "Consistent warm Pixar-style 3D painterly children's picture-book illustration, soft sunlit pastel palette, gentle rounded shapes, NO text or letters anywhere."
+    ).trim();
+    const characterSheet = String(parsed.character_sheet || "").trim();
     const llmPages = Array.isArray(parsed.pages) ? parsed.pages : [];
 
     const results = [];
     for (const p of pages) {
       const match = llmPages.find((lp) => Number(lp.page_index) === p.page_index) || llmPages[p.page_index];
-      const visualPrompt =
-        String(match?.image_prompt || "").trim() ||
-        `Warm Pixar-style 3D painterly children's picture-book illustration for: "${p.text}". Friendly expressive characters, soft sunlit colors, wide horizontal spread, NO text or letters in the image.`;
+      const sceneAction = String(match?.scene_action || match?.image_prompt || p.text).trim();
+      const visualPrompt = `${styleBible} ${characterSheet ? `Characters (keep exact same appearance on every page): ${characterSheet}. ` : ""}Scene for this page: ${sceneAction}. Wide horizontal 3:2 storybook illustration, zero text or letters in the image.`;
 
       let imageUrl = "";
       try {
@@ -998,20 +997,13 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
         page_index: p.page_index,
         scene_caption_kr: String(match?.scene_caption_kr || "이야기 장면 그림"),
         key_objects: Array.isArray(match?.key_objects) ? match.key_objects.slice(0, 5) : [],
-        image_url: imageUrl,
-        svg: imageUrl ? "" : buildFallbackPageIllustrationSvg(p.text)
+        image_url: imageUrl
       });
     }
     return results;
   } catch (err) {
-    console.warn("⚠️ [BADA IMG] 페이지 일러스트 생성 실패 ➔ 기본 일러스트 전환:", err.message);
-    return pages.map((p) => ({
-      page_index: p.page_index,
-      scene_caption_kr: "이야기 장면 그림",
-      key_objects: [],
-      image_url: "",
-      svg: buildFallbackPageIllustrationSvg(p.text)
-    }));
+    console.warn("⚠️ [BADA IMG] 페이지 일러스트 생성 실패:", err.message);
+    return [];
   }
 }
 
