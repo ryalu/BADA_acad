@@ -9,6 +9,7 @@ import { FlashcardDeck } from "./components/FlashcardDeck";
 import { SpeakingStage } from "./components/SpeakingStage";
 import { CurriculumPlayground } from "./components/CurriculumPlayground";
 import { TeacherDashboard, type TeacherTab } from "./components/TeacherDashboard";
+import { OceanBackdrop } from "./components/OceanBackdrop";
 
 export default function App() {
   const [users, setUsers] = useState<StudentUser[]>([]);
@@ -112,9 +113,12 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-sm font-semibold text-slate-500">
-        BADA 영어를 불러오는 중입니다...
-      </div>
+      <>
+        <OceanBackdrop />
+        <div className="min-h-screen bg-transparent flex items-center justify-center text-sm font-semibold text-slate-600">
+          BADA 영어를 불러오는 중입니다...
+        </div>
+      </>
     );
   }
 
@@ -144,22 +148,25 @@ export default function App() {
   // 1. Entry Portal (/)
   if (route === "/" || (!route.startsWith("/student") && !route.startsWith("/teacher"))) {
     return (
-      <EntryPortal
-        users={users}
-        teachers={teachers}
-        books={books}
-        selectedUserId={selectedUserId}
-        onSelectStudent={handleSelectStudent}
-        onStudentLoginSuccess={(user) => {
-          setSelectedUserId(user.id);
-          setCurrentWeek(getStudentCurrentWeek(user));
-          navigate("/student");
-        }}
-        onTeacherLoginSuccess={(teacher) => {
-          setLoggedTeacher(teacher);
-          navigate("/teacher");
-        }}
-      />
+      <>
+        <OceanBackdrop />
+        <EntryPortal
+          users={users}
+          teachers={teachers}
+          books={books}
+          selectedUserId={selectedUserId}
+          onSelectStudent={handleSelectStudent}
+          onStudentLoginSuccess={(user) => {
+            setSelectedUserId(user.id);
+            setCurrentWeek(getStudentCurrentWeek(user));
+            navigate("/student");
+          }}
+          onTeacherLoginSuccess={(teacher) => {
+            setLoggedTeacher(teacher);
+            navigate("/teacher");
+          }}
+        />
+      </>
     );
   }
 
@@ -174,24 +181,27 @@ export default function App() {
       : "home";
 
     return (
-      <TeacherDashboard
-        activeTab={teacherTab}
-        onChangeTab={(tab) => navigate(tab === "home" ? "/teacher" : `/teacher/${tab}`)}
-        users={users}
-        teachers={teachers}
-        books={books}
-        loggedTeacher={loggedTeacher || teachers[0]}
-        selectedUserId={selectedUserId}
-        onSelectStudent={handleSelectStudent}
-        onDataUpdated={(payload) => {
-          if (payload.users) setUsers(payload.users);
-          if (payload.teachers) setTeachers(payload.teachers);
-          if (payload.books) setBooks(payload.books);
-          if (payload.loggedTeacher) setLoggedTeacher(payload.loggedTeacher);
-        }}
-        onPreviewStudentApp={() => navigate("/student")}
-        onLogout={() => navigate("/")}
-      />
+      <>
+        <OceanBackdrop />
+        <TeacherDashboard
+          activeTab={teacherTab}
+          onChangeTab={(tab) => navigate(tab === "home" ? "/teacher" : `/teacher/${tab}`)}
+          users={users}
+          teachers={teachers}
+          books={books}
+          loggedTeacher={loggedTeacher || teachers[0]}
+          selectedUserId={selectedUserId}
+          onSelectStudent={handleSelectStudent}
+          onDataUpdated={(payload) => {
+            if (payload.users) setUsers(payload.users);
+            if (payload.teachers) setTeachers(payload.teachers);
+            if (payload.books) setBooks(payload.books);
+            if (payload.loggedTeacher) setLoggedTeacher(payload.loggedTeacher);
+          }}
+          onPreviewStudentApp={() => navigate("/student")}
+          onLogout={() => navigate("/")}
+        />
+      </>
     );
   }
 
@@ -218,9 +228,10 @@ export default function App() {
     : "home";
 
   return (
-    <div className="min-h-screen bg-[#fbf8f2] flex flex-col">
+    <div className="min-h-screen bg-transparent flex flex-col">
+      <OceanBackdrop />
       {/* Compact Student Header */}
-      <header className="bg-[#fbf8f2]/95 backdrop-blur-md border-b border-[#e8dfd1] px-4 md:px-8 py-2.5 sticky top-0 z-40">
+      <header className="bg-[#fbf8f2]/80 backdrop-blur-md border-b border-[#e8dfd1] px-4 md:px-8 py-2.5 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div
             onClick={() => navigate("/student")}

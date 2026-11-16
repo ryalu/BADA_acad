@@ -3,7 +3,7 @@
 @layer base {
   body {
     font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: #fbf8f2;
+    background-color: transparent;
     color: #1e293b;
   }
 

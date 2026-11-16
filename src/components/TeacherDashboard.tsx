@@ -395,7 +395,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-transparent flex flex-col md:flex-row">
       {/* Sidebar */}
       <aside className="w-full md:w-64 bg-slate-900 text-slate-100 flex flex-col justify-between p-5 shrink-0">
         <div className="space-y-6">

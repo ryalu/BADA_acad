@@ -82,7 +82,7 @@ export const EntryPortal: React.FC<EntryPortalProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 px-4 md:px-8 flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-transparent py-8 px-4 md:px-8 flex flex-col items-center justify-center">
       <div className="w-full max-w-5xl space-y-6">
         {/* Top Brand Header */}
         <header className="flex items-center gap-4 bg-white border border-slate-200 rounded-2xl px-6 py-4 shadow-sm">
