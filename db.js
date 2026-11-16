@@ -1222,6 +1222,121 @@ async function updateUserProgress(userId, weekNumber, progressVal, audioUrl) {
   return formatUserRow(sqliteDb.prepare("SELECT * FROM users WHERE id = ?").get(userId));
 }
 
+async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
+  const hasExternalKey = Boolean(process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY);
+  if (!hasExternalKey && !force) {
+    return { updated: 0, skipped: 0, reason: "no_external_llm_key" };
+  }
+
+  let updated = 0;
+  let skipped = 0;
+
+  if (pgPool) {
+    const { rows: books } = await pgPool.query("SELECT * FROM books ORDER BY id");
+    for (const b of books) {
+      const tHash = b.text_hash || hashText(b.full_text);
+      const existingRes = await pgPool.query(
+        "SELECT extraction_source FROM vocab_chunks WHERE text_hash = $1 LIMIT 1",
+        [tHash]
+      );
+      const src = existingRes.rows[0]?.extraction_source || "";
+      if (!force && src.startsWith("EXTERNAL_LLM_")) {
+        skipped += 1;
+        continue;
+      }
+
+      const extracted = await analyzeTextWithLLMAsync(b.full_text, b.level);
+      const providerTag =
+        extracted.llm_provider && extracted.llm_provider !== "local_deterministic"
+          ? `EXTERNAL_LLM_${String(extracted.llm_provider).toUpperCase()}`
+          : "LIVE_LLM_EXTRACTED";
+
+      await pgPool.query(
+        `INSERT INTO vocab_chunks (
+           text_hash, book_id, raw_text, vocab_json, chunks_json, core_expressions_json,
+           sentence_translations_json, speaking_questions_json,
+           lookup_count, extraction_source, last_hit_at
+         ) VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8::jsonb, 1, $9, NOW())
+         ON CONFLICT (text_hash) DO UPDATE SET
+           book_id = EXCLUDED.book_id,
+           vocab_json = EXCLUDED.vocab_json,
+           chunks_json = EXCLUDED.chunks_json,
+           core_expressions_json = EXCLUDED.core_expressions_json,
+           sentence_translations_json = EXCLUDED.sentence_translations_json,
+           speaking_questions_json = EXCLUDED.speaking_questions_json,
+           extraction_source = EXCLUDED.extraction_source,
+           last_hit_at = NOW()`,
+        [
+          tHash,
+          b.id,
+          b.full_text.trim(),
+          JSON.stringify(extracted.vocab),
+          JSON.stringify(extracted.chunks),
+          JSON.stringify(extracted.core_expressions),
+          JSON.stringify(extracted.sentence_translations),
+          JSON.stringify(extracted.speaking_questions),
+          providerTag
+        ]
+      );
+      updated += 1;
+    }
+    return { updated, skipped, engine: "postgresql" };
+  }
+
+  const books = sqliteDb.prepare("SELECT * FROM books ORDER BY id").all();
+  for (const b of books) {
+    const tHash = b.text_hash || hashText(b.full_text);
+    const existing = sqliteDb
+      .prepare("SELECT extraction_source FROM vocab_chunks WHERE text_hash = ? LIMIT 1")
+      .get(tHash);
+    const src = existing?.extraction_source || "";
+    if (!force && src.startsWith("EXTERNAL_LLM_")) {
+      skipped += 1;
+      continue;
+    }
+
+    const extracted = await analyzeTextWithLLMAsync(b.full_text, b.level);
+    const providerTag =
+      extracted.llm_provider && extracted.llm_provider !== "local_deterministic"
+        ? `EXTERNAL_LLM_${String(extracted.llm_provider).toUpperCase()}`
+        : "LIVE_LLM_EXTRACTED";
+    const now = new Date().toISOString();
+
+    sqliteDb
+      .prepare(
+        `INSERT INTO vocab_chunks (
+           text_hash, book_id, raw_text, vocab_json, chunks_json, core_expressions_json,
+           sentence_translations_json, speaking_questions_json,
+           lookup_count, extraction_source, created_at, last_hit_at
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+         ON CONFLICT(text_hash) DO UPDATE SET
+           book_id = excluded.book_id,
+           vocab_json = excluded.vocab_json,
+           chunks_json = excluded.chunks_json,
+           core_expressions_json = excluded.core_expressions_json,
+           sentence_translations_json = excluded.sentence_translations_json,
+           speaking_questions_json = excluded.speaking_questions_json,
+           extraction_source = excluded.extraction_source,
+           last_hit_at = excluded.last_hit_at`
+      )
+      .run(
+        tHash,
+        b.id,
+        b.full_text.trim(),
+        JSON.stringify(extracted.vocab),
+        JSON.stringify(extracted.chunks),
+        JSON.stringify(extracted.core_expressions),
+        JSON.stringify(extracted.sentence_translations),
+        JSON.stringify(extracted.speaking_questions),
+        providerTag,
+        now,
+        now
+      );
+    updated += 1;
+  }
+  return { updated, skipped, engine: "sqlite" };
+}
+
 function getDbEngineInfo() {
   return {
     engine: activeDbEngine,
@@ -1245,5 +1360,6 @@ module.exports = {
   deleteStudent,
   createTeacher,
   deleteTeacher,
-  createBook
+  createBook,
+  reanalyzeAllBooksWithLLM
 };

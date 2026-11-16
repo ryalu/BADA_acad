@@ -20,7 +20,8 @@ const {
   deleteStudent,
   createTeacher,
   deleteTeacher,
-  createBook
+  createBook,
+  reanalyzeAllBooksWithLLM
 } = require("./db");
 const {
   POPO_MASTER_PROMPT_SPEC,
@@ -267,6 +268,18 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
+    // 2.6 Re-analyze all books in DB with external LLM
+    if (pathname === "/api/books/reanalyze" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const result = await reanalyzeAllBooksWithLLM({ force: Boolean(body.force) });
+        const updatedBootstrap = await getAllBootstrapData();
+        return sendJson(res, 200, { ok: true, result, books: updatedBootstrap.books });
+      } catch (err) {
+        return sendJson(res, 500, { ok: false, error: err.message });
+      }
+    }
+
     // 3. Week 3 Popo Speaking Feedback endpoint
     if (pathname === "/api/popo/feedback" && req.method === "POST") {
       const body = await parseJsonBody(req);
@@ -415,6 +428,17 @@ async function startServer() {
   server.listen(PORT, HOST, () => {
     console.log(`🌊 BADA 영어 웹 서비스가 실행되었습니다: http://localhost:${PORT} (DB Engine: ${info.engine.toUpperCase()})`);
   });
+
+  // Automatically upgrade any un-analyzed / fallback-analyzed books in DB using configured external LLM
+  reanalyzeAllBooksWithLLM({ force: false })
+    .then((res) => {
+      if (res.updated > 0) {
+        console.log(`✨ [BADA LLM] 기존 원서 ${res.updated}권 외부 LLM 재분석 및 DB 저장 완료`);
+      }
+    })
+    .catch((err) => {
+      console.warn("⚠️ [BADA LLM] 시작 시 원서 재분석 중 오류:", err.message);
+    });
 }
 
 startServer();

@@ -5,214 +5,172 @@ export type CoverThemeId =
   | "ocean_friends"
   | "deep_current"
   | "bubble_song"
+  | "yard"
+  | "school"
   | "forest"
   | "space"
   | "magic"
   | "sunny";
 
-interface ThemePalette {
+interface ThemeConfig {
   id: CoverThemeId;
+  imageUrl?: string;
   bgGradient: string;
   spineBg: string;
   badgeBg: string;
   accentColor: string;
-  textColor: string;
-  subTextColor: string;
 }
 
-const THEMES: Record<CoverThemeId, ThemePalette> = {
+const THEMES: Record<CoverThemeId, ThemeConfig> = {
   ocean_friends: {
     id: "ocean_friends",
+    imageUrl: "/assets/cover-ocean-friends.jpg",
     bgGradient: "from-sky-500 via-cyan-600 to-teal-700",
-    spineBg: "bg-teal-900/45",
-    badgeBg: "bg-white/20 text-white border-white/30",
-    accentColor: "#bae6fd",
-    textColor: "text-white",
-    subTextColor: "text-sky-100"
+    spineBg: "bg-teal-950/45",
+    badgeBg: "bg-white/25 text-white border-white/40",
+    accentColor: "#bae6fd"
   },
   deep_current: {
     id: "deep_current",
+    imageUrl: "/assets/cover-deep-current.jpg",
     bgGradient: "from-slate-800 via-indigo-900 to-cyan-900",
     spineBg: "bg-slate-950/60",
-    badgeBg: "bg-cyan-400/20 text-cyan-100 border-cyan-300/30",
-    accentColor: "#67e8f9",
-    textColor: "text-white",
-    subTextColor: "text-indigo-200"
+    badgeBg: "bg-cyan-400/25 text-cyan-50 border-cyan-200/40",
+    accentColor: "#67e8f9"
   },
   bubble_song: {
     id: "bubble_song",
+    imageUrl: "/assets/cover-bubble-song.jpg",
     bgGradient: "from-cyan-400 via-sky-500 to-blue-600",
-    spineBg: "bg-blue-800/45",
-    badgeBg: "bg-white/25 text-white border-white/35",
-    accentColor: "#fef08a",
-    textColor: "text-white",
-    subTextColor: "text-cyan-50"
+    spineBg: "bg-blue-900/45",
+    badgeBg: "bg-white/25 text-white border-white/40",
+    accentColor: "#fef08a"
+  },
+  yard: {
+    id: "yard",
+    imageUrl: "/assets/cover-yard.jpg",
+    bgGradient: "from-emerald-500 via-green-600 to-teal-700",
+    spineBg: "bg-emerald-950/45",
+    badgeBg: "bg-white/25 text-white border-white/40",
+    accentColor: "#fde68a"
+  },
+  school: {
+    id: "school",
+    imageUrl: "/assets/cover-school.jpg",
+    bgGradient: "from-amber-500 via-orange-500 to-rose-600",
+    spineBg: "bg-amber-950/45",
+    badgeBg: "bg-white/25 text-white border-white/40",
+    accentColor: "#fef08a"
   },
   forest: {
     id: "forest",
     bgGradient: "from-emerald-600 via-teal-700 to-green-900",
     spineBg: "bg-green-950/50",
-    badgeBg: "bg-amber-200/20 text-amber-100 border-amber-200/30",
-    accentColor: "#fde68a",
-    textColor: "text-white",
-    subTextColor: "text-emerald-100"
+    badgeBg: "bg-amber-200/25 text-amber-50 border-amber-200/40",
+    accentColor: "#fde68a"
   },
   space: {
     id: "space",
     bgGradient: "from-indigo-900 via-slate-900 to-violet-950",
     spineBg: "bg-black/50",
-    badgeBg: "bg-amber-300/20 text-amber-100 border-amber-300/30",
-    accentColor: "#fde047",
-    textColor: "text-white",
-    subTextColor: "text-indigo-200"
+    badgeBg: "bg-amber-300/25 text-amber-50 border-amber-300/40",
+    accentColor: "#fde047"
   },
   magic: {
     id: "magic",
     bgGradient: "from-rose-700 via-purple-800 to-indigo-900",
     spineBg: "bg-purple-950/55",
-    badgeBg: "bg-amber-200/20 text-amber-100 border-amber-200/30",
-    accentColor: "#fcd34d",
-    textColor: "text-white",
-    subTextColor: "text-rose-100"
+    badgeBg: "bg-amber-200/25 text-amber-50 border-amber-200/40",
+    accentColor: "#fcd34d"
   },
   sunny: {
     id: "sunny",
     bgGradient: "from-amber-500 via-orange-500 to-rose-500",
     spineBg: "bg-orange-900/40",
-    badgeBg: "bg-white/25 text-white border-white/35",
-    accentColor: "#fef9c3",
-    textColor: "text-white",
-    subTextColor: "text-amber-50"
+    badgeBg: "bg-white/25 text-white border-white/40",
+    accentColor: "#fef9c3"
   }
 };
 
-export function detectCoverTheme(book: Pick<Book, "id" | "title" | "full_text">): ThemePalette {
-  const hay = `${book.title || ""} ${book.full_text || ""}`.toLowerCase();
+export function detectCoverTheme(book: Pick<Book, "id" | "title" | "full_text">): ThemeConfig {
+  const titleLower = (book.title || "").toLowerCase();
+  const hay = `${titleLower} ${(book.full_text || "").toLowerCase()}`;
 
-  if (hay.includes("guardian") || hay.includes("deep current")) {
+  if (titleLower.includes("yard") || titleLower.includes("garden") || hay.includes("backyard") || hay.includes("ladybug")) {
+    return THEMES.yard;
+  }
+  if (titleLower.includes("school") || titleLower.includes("hoo") || hay.includes("classroom") || hay.includes("teacher")) {
+    return THEMES.school;
+  }
+  if (titleLower.includes("guardian") || titleLower.includes("deep current")) {
     return THEMES.deep_current;
   }
-  if (hay.includes("bubble") || hay.includes("song") || hay.includes("music")) {
+  if (titleLower.includes("bubble") || titleLower.includes("song")) {
     return THEMES.bubble_song;
   }
-  if (hay.includes("ocean") || hay.includes("sea") || hay.includes("whale") || hay.includes("turtle") || hay.includes("coral")) {
+  if (titleLower.includes("ocean") || titleLower.includes("popo") || hay.includes("whale") || hay.includes("coral") || hay.includes("sea")) {
     return THEMES.ocean_friends;
   }
-  if (hay.includes("forest") || hay.includes("tree") || hay.includes("wood") || hay.includes("fox") || hay.includes("bear") || hay.includes("garden") || hay.includes("flower")) {
+  if (hay.includes("forest") || hay.includes("tree") || hay.includes("bear") || hay.includes("fox") || hay.includes("flower")) {
     return THEMES.forest;
   }
-  if (hay.includes("space") || hay.includes("star") || hay.includes("moon") || hay.includes("planet") || hay.includes("rocket") || hay.includes("galaxy")) {
+  if (hay.includes("space") || hay.includes("star") || hay.includes("moon") || hay.includes("planet") || hay.includes("rocket")) {
     return THEMES.space;
   }
-  if (hay.includes("castle") || hay.includes("magic") || hay.includes("king") || hay.includes("queen") || hay.includes("dragon") || hay.includes("wizard") || hay.includes("crown")) {
+  if (hay.includes("castle") || hay.includes("magic") || hay.includes("king") || hay.includes("queen") || hay.includes("dragon")) {
     return THEMES.magic;
   }
-  if (hay.includes("sun") || hay.includes("happy") || hay.includes("school") || hay.includes("friend") || hay.includes("cake") || hay.includes("puppy")) {
-    return THEMES.sunny;
-  }
 
-  const keys: CoverThemeId[] = ["ocean_friends", "forest", "space", "sunny", "magic", "bubble_song"];
-  let hash = 0;
-  for (let i = 0; i < hay.length; i += 1) {
-    hash = (hash * 31 + hay.charCodeAt(i)) >>> 0;
-  }
-  return THEMES[keys[hash % keys.length]];
+  return THEMES.sunny;
 }
 
-const CoverArtwork: React.FC<{ themeId: CoverThemeId; accent: string }> = ({ themeId, accent }) => {
-  if (themeId === "ocean_friends") {
-    return (
-      <svg viewBox="0 0 220 120" className="w-full h-full opacity-90" aria-hidden="true">
-        <path d="M0 90 Q55 74 110 90 T220 90 L220 120 L0 120 Z" fill="white" fillOpacity="0.16" />
-        <path d="M0 102 Q55 88 110 102 T220 102 L220 120 L0 120 Z" fill="white" fillOpacity="0.22" />
-        {/* Friendly whale silhouette */}
-        <path
-          d="M65 62 C65 40 105 34 128 46 C142 53 148 56 156 52 C158 43 166 40 172 45 C168 53 166 58 175 63 C167 68 159 66 154 62 C142 74 118 78 90 76 C74 75 65 70 65 62 Z"
-          fill={accent}
-          fillOpacity="0.92"
-        />
-        <circle cx="84" cy="57" r="2.6" fill="#0f172a" />
-        <circle cx="48" cy="36" r="5" fill="white" fillOpacity="0.35" />
-        <circle cx="38" cy="24" r="3" fill="white" fillOpacity="0.3" />
-        <circle cx="182" cy="28" r="4" fill="white" fillOpacity="0.3" />
-      </svg>
-    );
-  }
-
-  if (themeId === "deep_current") {
-    return (
-      <svg viewBox="0 0 220 120" className="w-full h-full opacity-90" aria-hidden="true">
-        <path d="M10 35 Q70 15 130 42 T215 32" stroke={accent} strokeWidth="2.5" fill="none" strokeOpacity="0.55" />
-        <path d="M5 62 Q75 40 140 68 T215 58" stroke={accent} strokeWidth="3" fill="none" strokeOpacity="0.7" />
-        <path d="M15 88 Q80 68 145 92 T210 84" stroke="white" strokeWidth="2" fill="none" strokeOpacity="0.35" />
-        <polygon points="110,22 142,56 110,70 78,56" fill={accent} fillOpacity="0.82" />
-        <circle cx="52" cy="24" r="2" fill="white" fillOpacity="0.7" />
-        <circle cx="176" cy="22" r="2.5" fill="white" fillOpacity="0.6" />
-        <circle cx="164" cy="94" r="2" fill={accent} fillOpacity="0.7" />
-      </svg>
-    );
-  }
-
-  if (themeId === "bubble_song") {
-    return (
-      <svg viewBox="0 0 220 120" className="w-full h-full opacity-95" aria-hidden="true">
-        <circle cx="60" cy="65" r="20" fill="white" fillOpacity="0.18" stroke="white" strokeOpacity="0.55" strokeWidth="2" />
-        <circle cx="115" cy="48" r="26" fill="white" fillOpacity="0.2" stroke="white" strokeOpacity="0.6" strokeWidth="2" />
-        <circle cx="162" cy="70" r="15" fill="white" fillOpacity="0.18" stroke="white" strokeOpacity="0.5" strokeWidth="2" />
-        <circle cx="106" cy="40" r="6" fill="white" fillOpacity="0.45" />
-        <circle cx="53" cy="58" r="4" fill="white" fillOpacity="0.45" />
-        {/* Musical note */}
-        <path d="M112 58 L112 36 L126 32 L126 52" stroke={accent} strokeWidth="3" fill="none" strokeLinecap="round" />
-        <circle cx="108" cy="59" r="4.5" fill={accent} />
-        <circle cx="122" cy="53" r="4.5" fill={accent} />
-      </svg>
-    );
-  }
-
+// Cute character SVG fallback for newly registered custom themes
+const CuteCharacterSvg: React.FC<{ themeId: CoverThemeId; accent: string }> = ({ themeId, accent }) => {
   if (themeId === "forest") {
     return (
-      <svg viewBox="0 0 220 120" className="w-full h-full opacity-90" aria-hidden="true">
-        <path d="M0 100 Q110 82 220 100 L220 120 L0 120 Z" fill="white" fillOpacity="0.18" />
-        <polygon points="58,95 80,40 102,95" fill="white" fillOpacity="0.28" />
-        <polygon points="118,95 145,28 172,95" fill={accent} fillOpacity="0.72" />
-        <circle cx="42" cy="30" r="10" fill={accent} fillOpacity="0.8" />
+      <svg viewBox="0 0 220 120" className="w-full h-full" aria-hidden="true">
+        <path d="M0 98 Q110 80 220 98 L220 120 L0 120 Z" fill="white" fillOpacity="0.2" />
+        {/* Cute bear character */}
+        <circle cx="92" cy="46" r="9" fill="#d97706" />
+        <circle cx="128" cy="46" r="9" fill="#d97706" />
+        <circle cx="110" cy="64" r="24" fill="#f59e0b" />
+        <ellipse cx="110" cy="70" rx="11" ry="8" fill="#fef3c7" />
+        <circle cx="101" cy="60" r="2.8" fill="#1e293b" />
+        <circle cx="119" cy="60" r="2.8" fill="#1e293b" />
+        <circle cx="95" cy="66" r="3.5" fill="#fb7185" fillOpacity="0.55" />
+        <circle cx="125" cy="66" r="3.5" fill="#fb7185" fillOpacity="0.55" />
+        <circle cx="110" cy="67" r="3" fill="#78350f" />
+        <path d="M106 72 Q110 76 114 72" stroke="#78350f" strokeWidth="2" fill="none" strokeLinecap="round" />
       </svg>
     );
   }
 
   if (themeId === "space") {
     return (
-      <svg viewBox="0 0 220 120" className="w-full h-full opacity-95" aria-hidden="true">
-        <circle cx="112" cy="58" r="24" fill={accent} fillOpacity="0.88" />
-        <ellipse cx="112" cy="58" rx="46" ry="11" stroke="white" strokeOpacity="0.65" strokeWidth="3" fill="none" transform="rotate(-14 112 58)" />
-        <circle cx="44" cy="32" r="2.5" fill="white" />
+      <svg viewBox="0 0 220 120" className="w-full h-full" aria-hidden="true">
+        <circle cx="45" cy="30" r="2.5" fill="white" />
         <circle cx="176" cy="28" r="3" fill="white" />
         <circle cx="164" cy="88" r="2" fill="white" />
-        <circle cx="52" cy="86" r="2" fill="white" />
+        {/* Cute smiling planet */}
+        <circle cx="110" cy="58" r="24" fill={accent} />
+        <ellipse cx="110" cy="58" rx="44" ry="10" stroke="white" strokeOpacity="0.75" strokeWidth="3" fill="none" transform="rotate(-12 110 58)" />
+        <circle cx="102" cy="55" r="2.5" fill="#1e293b" />
+        <circle cx="118" cy="55" r="2.5" fill="#1e293b" />
+        <path d="M105 62 Q110 66 115 62" stroke="#1e293b" strokeWidth="2" fill="none" strokeLinecap="round" />
       </svg>
     );
   }
 
-  if (themeId === "magic") {
-    return (
-      <svg viewBox="0 0 220 120" className="w-full h-full opacity-90" aria-hidden="true">
-        <rect x="78" y="54" width="64" height="54" fill="white" fillOpacity="0.2" rx="2" />
-        <polygon points="72,54 90,28 108,54" fill={accent} fillOpacity="0.8" />
-        <polygon points="112,54 130,28 148,54" fill={accent} fillOpacity="0.8" />
-        <polygon points="94,54 110,20 126,54" fill="white" fillOpacity="0.45" />
-        <circle cx="46" cy="36" r="3" fill={accent} />
-        <circle cx="178" cy="40" r="3" fill={accent} />
-      </svg>
-    );
-  }
-
-  // sunny
+  // sunny / magic cute character
   return (
-    <svg viewBox="0 0 220 120" className="w-full h-full opacity-90" aria-hidden="true">
-      <circle cx="110" cy="52" r="22" fill={accent} fillOpacity="0.92" />
-      <path d="M0 95 Q60 76 120 92 T220 90 L220 120 L0 120 Z" fill="white" fillOpacity="0.22" />
-      <path d="M40 38 Q56 26 72 38" stroke="white" strokeOpacity="0.6" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      <path d="M148 34 Q164 22 180 34" stroke="white" strokeOpacity="0.6" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+    <svg viewBox="0 0 220 120" className="w-full h-full" aria-hidden="true">
+      <circle cx="110" cy="58" r="25" fill={accent} />
+      <circle cx="101" cy="54" r="2.8" fill="#1e293b" />
+      <circle cx="119" cy="54" r="2.8" fill="#1e293b" />
+      <circle cx="94" cy="60" r="3.5" fill="#fb7185" fillOpacity="0.6" />
+      <circle cx="126" cy="60" r="3.5" fill="#fb7185" fillOpacity="0.6" />
+      <path d="M103 63 Q110 70 117 63" stroke="#1e293b" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      <path d="M0 98 Q110 82 220 98 L220 120 L0 120 Z" fill="white" fillOpacity="0.2" />
     </svg>
   );
 };
@@ -240,23 +198,35 @@ export const BookCover: React.FC<BookCoverProps> = ({
           onClick ? "cursor-pointer hover:scale-[1.03] transition" : ""
         } ${className}`}
       >
-        <div className={`absolute inset-y-0 left-0 w-1.5 ${theme.spineBg}`} />
+        {theme.imageUrl && (
+          <>
+            <img
+              src={theme.imageUrl}
+              alt={book.title}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-transparent to-slate-950/70" />
+          </>
+        )}
+        <div className={`absolute inset-y-0 left-0 w-1.5 ${theme.spineBg} z-10`} />
         <div className="pl-1.5 relative z-10">
-          <div className="text-[7px] font-bold uppercase tracking-wider text-white/80 truncate">
+          <div className="text-[7px] font-bold uppercase tracking-wider text-white/90 truncate">
             {book.level}
           </div>
-          <div className="book-serif text-[9px] font-bold text-white leading-tight line-clamp-2 mt-0.5">
+          <div className="book-serif text-[9px] font-bold text-white leading-tight line-clamp-2 mt-0.5 drop-shadow">
             {book.title}
           </div>
         </div>
-        <div className="h-8 w-full relative z-10">
-          <CoverArtwork themeId={theme.id} accent={theme.accentColor} />
-        </div>
+        {!theme.imageUrl && (
+          <div className="h-8 w-full relative z-10">
+            <CuteCharacterSvg themeId={theme.id} accent={theme.accentColor} />
+          </div>
+        )}
       </div>
     );
   }
 
-  const heightCls = size === "lg" ? "min-h-[260px] p-6" : "min-h-[200px] p-5";
+  const heightCls = size === "lg" ? "min-h-[340px] p-6" : "min-h-[250px] p-5";
 
   return (
     <div
@@ -265,34 +235,45 @@ export const BookCover: React.FC<BookCoverProps> = ({
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={(e) => onClick && e.key === "Enter" && onClick()}
       className={`relative rounded-2xl bg-gradient-to-br ${theme.bgGradient} ${heightCls} shadow-md overflow-hidden border border-black/10 flex flex-col justify-between ${
-        onClick ? "cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition" : ""
+        onClick ? "cursor-pointer hover:shadow-xl hover:-translate-y-0.5 transition" : ""
       } ${className}`}
     >
+      {theme.imageUrl && (
+        <>
+          <img
+            src={theme.imageUrl}
+            alt={book.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/65 via-slate-950/10 to-slate-950/75" />
+        </>
+      )}
+
       {/* Left Hardcover Spine Crease */}
-      <div className={`absolute inset-y-0 left-0 w-3.5 ${theme.spineBg} border-r border-white/15`} />
-      {/* Subtle Top Page Edge */}
-      <div className="absolute top-1.5 right-1.5 bottom-1.5 left-4 rounded-xl border border-white/15 pointer-events-none" />
+      <div className={`absolute inset-y-0 left-0 w-3.5 ${theme.spineBg} border-r border-white/20 z-10`} />
+      <div className="absolute top-1.5 right-1.5 bottom-1.5 left-4 rounded-xl border border-white/20 pointer-events-none z-10" />
 
       <div className="pl-3 relative z-10 flex items-start justify-between gap-2">
-        <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${theme.badgeBg}`}>
+        <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border backdrop-blur-xs ${theme.badgeBg}`}>
           {book.level}
         </span>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-white/75">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-white/85 drop-shadow">
           BADA Storybook
         </span>
       </div>
 
-      <div className="pl-3 my-2 h-24 w-full relative z-10">
-        <CoverArtwork themeId={theme.id} accent={theme.accentColor} />
-      </div>
+      {!theme.imageUrl && (
+        <div className="pl-3 my-2 h-24 w-full relative z-10">
+          <CuteCharacterSvg themeId={theme.id} accent={theme.accentColor} />
+        </div>
+      )}
 
-      <div className="pl-3 relative z-10">
-        <h4 className={`book-serif text-lg md:text-xl font-bold leading-snug ${theme.textColor}`}>
+      <div className="pl-3 relative z-10 mt-auto">
+        <h4 className="book-serif text-xl md:text-2xl font-bold leading-snug text-white drop-shadow">
           {book.title}
         </h4>
-        <p className={`text-xs mt-1 font-medium ${theme.subTextColor}`}>{book.subtitle_kr}</p>
+        <p className="text-xs mt-1 font-semibold text-white/90 drop-shadow">{book.subtitle_kr}</p>
       </div>
     </div>
   );
 };
-

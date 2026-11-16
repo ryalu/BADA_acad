@@ -759,10 +759,10 @@ async function analyzeTextWithExternalLLM(rawText, level = "Level 2") {
   const systemPrompt =
     "You are an elementary English storybook curriculum analyzer for Korean students (BADA English). " +
     "Return ONLY valid JSON with keys: vocab, chunks, core_expressions, sentence_translations, speaking_questions. " +
-    "1) vocab: array of {word (lowercase), surface, meaning_kr (natural Korean gloss), phonetic, pos (Korean POS like 명사/동사/형용사/전치사/관사), popo_tip (short friendly Korean tip)}. Include every meaningful word in the story. " +
-    "2) chunks: array of {sentence_index (0-based), text (exact English phrase substring), meaning_kr (natural Korean phrase meaning)}. Split each sentence into natural 2-5 word reading chunks covering the whole sentence in order. " +
+    "1) vocab: array of {word (lowercase), surface (exact token in story), meaning_kr (natural Korean gloss for this story's context), phonetic (IPA like /ˈwɔː.tər/), pos (Korean POS like 명사/동사/형용사/부사/전치사/관사/대명사), popo_tip (short friendly Korean tip)}. CRITICAL: Include EVERY SINGLE unique word that appears in the story — do NOT skip short words, articles, pronouns, prepositions, plurals, or verb forms (e.g., a, the, in, my, on, is, goes, friends, flowers). " +
+    "2) chunks: array of {sentence_index (0-based), text (exact English phrase substring), meaning_kr (natural Korean phrase meaning)}. Split EVERY sentence into natural 2-5 word reading chunks covering the whole sentence in order. " +
     "3) core_expressions: 3-4 items of {rank, expression, meaning_kr, pattern_note}. " +
-    "4) sentence_translations: array of {index, en, kr (natural elementary-friendly Korean translation)} for every sentence in order. " +
+    "4) sentence_translations: array of {index, en, kr (natural, accurate elementary-friendly Korean translation)} for EVERY sentence in order. " +
     "5) speaking_questions: 3-4 items of {en (question encouraging the student to USE the expressions learned, not just plot trivia), kr (Korean subtitle/guide), target (expected English sample answer), expression}.";
 
   const userPrompt = `Level: ${level}\nStory text:\n${rawText.trim()}`;
@@ -779,7 +779,8 @@ async function analyzeTextWithExternalLLM(rawText, level = "Level 2") {
         },
         body: JSON.stringify({
           model,
-          temperature: 0.3,
+          temperature: 0.25,
+          max_tokens: 4096,
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: systemPrompt },
@@ -843,11 +844,26 @@ async function analyzeTextWithLLMAsync(rawText, level = "Level 2", customKoreanT
         }))
       : localFallback.sentence_translations;
 
+  const llmVocab = Array.isArray(p.vocab) && p.vocab.length ? p.vocab : [];
+  const coveredKeys = new Set();
+  for (const v of llmVocab) {
+    if (v.word) coveredKeys.add(String(v.word).toLowerCase().replace(/[^a-z']/g, ""));
+    if (v.surface) coveredKeys.add(String(v.surface).toLowerCase().replace(/[^a-z']/g, ""));
+  }
+  const mergedVocab = [...llmVocab];
+  for (const fv of localFallback.vocab || []) {
+    const k = String(fv.word || "").toLowerCase().replace(/[^a-z']/g, "");
+    if (k && !coveredKeys.has(k) && fv.meaning_kr && !fv.meaning_kr.includes("핵심 단어")) {
+      coveredKeys.add(k);
+      mergedVocab.push(fv);
+    }
+  }
+
   return {
     level,
     extracted_at: new Date().toISOString(),
     llm_provider: ext.provider,
-    vocab: Array.isArray(p.vocab) && p.vocab.length ? p.vocab : localFallback.vocab,
+    vocab: mergedVocab.length ? mergedVocab : localFallback.vocab,
     chunks: Array.isArray(p.chunks) && p.chunks.length ? p.chunks : localFallback.chunks,
     core_expressions:
       Array.isArray(p.core_expressions) && p.core_expressions.length
