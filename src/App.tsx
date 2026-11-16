@@ -191,11 +191,13 @@ export default function App() {
   if (route.startsWith("/teacher")) {
     const teacherTab: TeacherTab = route.includes("/coaching")
       ? "coaching"
-      : route.includes("/reports")
-        ? "reports"
-        : route.includes("/database")
-          ? "database"
-          : "home";
+      : route.includes("/worksheets")
+        ? "worksheets"
+        : route.includes("/reports")
+          ? "reports"
+          : route.includes("/database")
+            ? "database"
+            : "home";
 
     return (
       <>

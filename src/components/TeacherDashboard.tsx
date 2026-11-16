@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   BookPlus,
   Download,
+  FileText,
   GraduationCap,
   LogOut,
   MessageCircle,
@@ -20,7 +21,7 @@ import { ALL_BADA_LEVELS, getBookSentences, getStudentCurrentWeek } from "../uti
 import { playSoftTone, speakEnglish } from "../utils/speech";
 import { BookCover } from "./BookCover";
 
-export type TeacherTab = "home" | "coaching" | "reports" | "database";
+export type TeacherTab = "home" | "coaching" | "worksheets" | "reports" | "database";
 
 interface TeacherDashboardProps {
   activeTab: TeacherTab;
@@ -347,15 +348,16 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   };
 
   const handlePrintWorksheet = async (
-    weekKey: "week1" | "week2" | "week3_4_study" | "week3_4_test"
+    weekKey: "week1" | "week2" | "week3_4_study" | "week3_4_test",
+    targetBook: Book | undefined = currentBook
   ) => {
-    if (!currentBook) return;
-    setWorksheetLoading(weekKey);
+    if (!targetBook) return;
+    setWorksheetLoading(`${targetBook.id}:${weekKey}`);
     try {
       const res = await fetch("/api/books/worksheets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookId: currentBook.id })
+        body: JSON.stringify({ bookId: targetBook.id })
       });
       const data = await res.json();
       if (!res.ok || !data.ok || !data.worksheets) return;
@@ -381,7 +383,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       const coreWords = (
         ws.week1?.vocab_test?.length
           ? ws.week1.vocab_test
-          : (currentBook.vocab || []).map((v) => ({
+          : (targetBook.vocab || []).map((v) => ({
               word: v.surface || v.word,
               meaning_kr: v.meaning_kr,
               hint: v.popo_tip || ""
@@ -391,7 +393,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       const coreSentences = (
         ws.week3_4?.sentence_copy?.length
           ? ws.week3_4.sentence_copy
-          : (currentBook.sentence_translations || []).map((s) => ({ en: s.en, kr: s.kr }))
+          : (targetBook.sentence_translations || []).map((s) => ({ en: s.en, kr: s.kr }))
       ).slice(0, 4);
 
       let bodyHtml = "";
@@ -507,7 +509,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
       const win = window.open("", "_blank", "width=920,height=1040");
       if (!win) return;
-      win.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${esc(currentBook.title)} 학습지</title>
+      win.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${esc(targetBook.title)} 학습지</title>
         <style>
           @page { size: A4; margin: 13mm; }
           body { font-family: "Pretendard", "Malgun Gothic", sans-serif; color: #0f172a; line-height: 1.5; margin: 0; padding: 14px; }
@@ -544,7 +546,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           <button onclick="window.print()" style="padding:8px 16px; background:#0284c7; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">인쇄 / PDF로 저장</button>
         </div>
         <div class="top">
-          <div><div class="brand">BADA ENGLISH · 저학년 맞춤 줄노트 학습지</div><div style="font-size:16px;font-weight:800;">《${esc(currentBook.title)}》 (${esc(currentBook.level)})</div></div>
+          <div><div class="brand">BADA ENGLISH · 저학년 맞춤 줄노트 학습지</div><div style="font-size:16px;font-weight:800;">《${esc(targetBook.title)}》 (${esc(targetBook.level)})</div></div>
           <div class="meta">이름: <strong>${esc(studentName)}</strong> &nbsp;|&nbsp; 날짜: ____년 __월 __일</div>
         </div>
         ${bodyHtml}
@@ -788,6 +790,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   const navItems: { id: TeacherTab; label: string; icon: React.ReactNode }[] = [
     { id: "home", label: "학생 관리 & 원서 배정", icon: <Users className="w-4 h-4" /> },
     { id: "coaching", label: "학생 학습 관리", icon: <Video className="w-4 h-4" /> },
+    { id: "worksheets", label: "오프라인 학습지", icon: <FileText className="w-4 h-4" /> },
     { id: "database", label: "원서 교재 등록 · 관리", icon: <BookPlus className="w-4 h-4" /> }
   ];
 
@@ -810,7 +813,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 type="button"
                 onClick={() => onChangeTab(item.id)}
                 className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-left ${activeTab === item.id
-                  ? "btn-water-glass !text-white ![text-shadow:0_1px_2px_rgba(15,23,42,0.5)]"
+                  ? "btn-slate-glass"
                   : "text-slate-300 hover:bg-slate-800 hover:text-white"
                   }`}
               >
@@ -826,13 +829,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             <div className="text-xs font-bold text-white">{loggedTeacher.name}</div>
             <div className="text-[11px] text-slate-400">{loggedTeacher.title_label}</div>
           </div>
-          <button
-            type="button"
-            onClick={onPreviewStudentApp}
-            className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition"
-          >
-            학생 화면 미리보기
-          </button>
           <button
             type="button"
             onClick={onLogout}
@@ -863,7 +859,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     setShowNewStudentForm((v) => !v);
                     setShowTeacherSettings(false);
                   }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full btn-water-glass text-xs font-bold"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full btn-slate-glass text-xs font-bold"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   {showNewStudentForm ? "등록 창 닫기" : "+ 신규 학생 등록"}
@@ -965,7 +961,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                           onChange={(e) =>
                             setStuCcMode(toggleCcMode(stuCcMode, "phonics", e.target.checked))
                           }
-                          className="w-4 h-4 accent-sky-600 rounded focus:outline-none"
+                          className="w-4 h-4 accent-slate-700 rounded focus:outline-none"
                         />
                         파닉스
                       </label>
@@ -976,7 +972,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                           onChange={(e) =>
                             setStuCcMode(toggleCcMode(stuCcMode, "book", e.target.checked))
                           }
-                          className="w-4 h-4 accent-sky-600 rounded focus:outline-none"
+                          className="w-4 h-4 accent-slate-700 rounded focus:outline-none"
                         />
                         원서
                       </label>
@@ -1003,14 +999,14 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       maxLength={4}
                       value={stuPin}
                       onChange={(e) => setStuPin(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                     />
                   </div>
                   <div className="flex items-end">
                     <button
                       type="button"
                       onClick={handleRegisterStudent}
-                      className="w-full py-2 px-4 rounded-full btn-water-glass text-sm font-bold"
+                      className="w-full py-2 px-4 rounded-full btn-slate-glass text-sm font-bold"
                     >
                       등록 완료
                     </button>
@@ -1033,12 +1029,12 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                         value={inlineDirectorPw}
                         onChange={(e) => setInlineDirectorPw(e.target.value)}
                         placeholder="원장님 비밀번호"
-                        className="px-3 py-1.5 rounded-lg bg-white/90 border border-[#d8ceb8] text-xs"
+                        className="px-3 py-1.5 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-xs"
                       />
                       <button
                         type="button"
                         onClick={handleUnlockDirector}
-                        className="px-3.5 py-1.5 rounded-full btn-water-glass text-xs font-bold"
+                        className="px-3.5 py-1.5 rounded-full btn-slate-glass text-xs font-bold"
                       >
                         권한 전환
                       </button>
@@ -1055,34 +1051,34 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                           value={dirName}
                           onChange={(e) => setDirName(e.target.value)}
                           placeholder="원장님 성함"
-                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                          className="px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                         />
                         <input
                           type="text"
                           value={dirTitle}
                           onChange={(e) => setDirTitle(e.target.value)}
                           placeholder="직함"
-                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                          className="px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                         />
                         <input
                           type="email"
                           value={dirEmail}
                           onChange={(e) => setDirEmail(e.target.value)}
                           placeholder="이메일"
-                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                          className="px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                         />
                         <input
                           type="password"
                           value={dirNewPw}
                           onChange={(e) => setDirNewPw(e.target.value)}
                           placeholder="새 비밀번호 (변경 시 입력)"
-                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                          className="px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                         />
                         <button
                           type="button"
                           onClick={handleUpdateDirectorProfile}
                           disabled={dirSaving}
-                          className="py-2 px-4 rounded-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold disabled:opacity-60"
+                          className="py-2 px-4 rounded-full btn-slate-glass text-xs font-bold disabled:opacity-60"
                         >
                           {dirSaving ? "저장 중..." : "원장 정보 저장"}
                         </button>
@@ -1098,33 +1094,33 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                           value={tchName}
                           onChange={(e) => setTchName(e.target.value)}
                           placeholder="선생님 성함"
-                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                          className="px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                         />
                         <input
                           type="text"
                           value={tchTitle}
                           onChange={(e) => setTchTitle(e.target.value)}
                           placeholder="직책"
-                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                          className="px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                         />
                         <input
                           type="email"
                           value={tchEmail}
                           onChange={(e) => setTchEmail(e.target.value)}
                           placeholder="이메일"
-                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                          className="px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                         />
                         <input
                           type="text"
                           value={tchPw}
                           onChange={(e) => setTchPw(e.target.value)}
                           placeholder="비밀번호"
-                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                          className="px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                         />
                         <select
                           value={tchRole}
                           onChange={(e) => setTchRole(e.target.value as "teacher" | "director")}
-                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                          className="px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                         >
                           <option value="teacher">일반 강사</option>
                           <option value="director">공동 원장님</option>
@@ -1132,7 +1128,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                         <button
                           type="button"
                           onClick={handleRegisterTeacher}
-                          className="py-2 px-4 rounded-full btn-water-glass text-xs font-bold"
+                          className="py-2 px-4 rounded-full btn-slate-glass text-xs font-bold"
                         >
                           선생님 등록
                         </button>
@@ -1181,7 +1177,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       onClick={() => setStudentLevelFilter(lv)}
                       className={`px-3 py-1 rounded-full text-xs font-bold transition ${
                         studentLevelFilter === lv
-                          ? "btn-water-glass"
+                          ? "btn-slate-glass"
                           : "bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700"
                       }`}
                     >
@@ -1195,7 +1191,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 value={studentSearch}
                 onChange={(e) => setStudentSearch(e.target.value)}
                 placeholder="학생 이름 검색..."
-                className="px-3.5 py-1.5 rounded-full bg-white/85 border border-[#d8ceb8] text-xs w-48 focus:outline-none focus:border-sky-600"
+                className="px-3.5 py-1.5 rounded-full bg-[#fbf8f2]/80 border border-[#e5dcc9] text-xs w-48 focus:outline-none focus:border-slate-500"
               />
             </div>
 
@@ -1308,7 +1304,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                                       }
                                     })
                                   }
-                                  className="w-3.5 h-3.5 accent-sky-600 rounded focus:outline-none"
+                                  className="w-3.5 h-3.5 accent-slate-700 rounded focus:outline-none"
                                 />
                                 파닉스
                               </label>
@@ -1325,7 +1321,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                                       }
                                     })
                                   }
-                                  className="w-3.5 h-3.5 accent-sky-600 rounded focus:outline-none"
+                                  className="w-3.5 h-3.5 accent-slate-700 rounded focus:outline-none"
                                 />
                                 원서
                               </label>
@@ -1374,9 +1370,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                             <button
                               type="button"
                               onClick={() => handleSaveStudentAssign(u)}
-                              className="px-3 py-1.5 rounded-full btn-water-glass text-xs font-bold"
+                              className="inline-flex items-center justify-center p-1.5 rounded-full btn-slate-glass"
+                              title="저장"
                             >
-                              저장
+                              <Save className="w-3.5 h-3.5" />
                             </button>
                             <button
                               type="button"
@@ -1425,7 +1422,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     setParentMsg("");
                     setParentMsgCopied(false);
                   }}
-                  className="px-3.5 py-2 rounded-xl bg-white/85 border border-[#d8ceb8] text-sm font-semibold text-slate-900"
+                  className="px-3.5 py-2 rounded-xl bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm font-semibold text-slate-900"
                 >
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
@@ -1472,7 +1469,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       <div key={rec.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full btn-water-glass">
+                            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full btn-slate-glass">
                               {rec.week_num}주차 · {rec.repeat_num}회차
                             </span>
                             <span className="text-xs font-semibold text-slate-700">
@@ -1553,7 +1550,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                         <select
                           value={prog}
                           onChange={(e) => handleManualProgressChange(wk, Number(e.target.value))}
-                          className="px-2.5 py-1 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/75 font-bold text-sky-800"
+                          className="px-2.5 py-1 rounded-lg border border-[#e5dcc9] bg-[#fbf8f2]/80 focus:outline-none focus:border-slate-500 font-bold text-slate-800"
                         >
                           {[0, 20, 40, 60, 80, 100].map((v) => (
                             <option key={v} value={v}>
@@ -1566,46 +1563,19 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   })}
                 </div>
 
-                {/* Offline Printable Worksheets (Cached once per book in DB) */}
-                <div className="pt-3 space-y-2">
-                  <div className="flex items-baseline justify-between">
+                {/* Shortcut to Dedicated Offline Worksheets Page */}
+                <div className="pt-3 flex items-center justify-between gap-3">
+                  <div>
                     <h4 className="text-xs font-bold text-slate-800">주차별 오프라인 학습지 (PDF 인쇄)</h4>
-                    <span className="text-[11px] text-slate-500">원서당 1회 생성 후 DB 재사용</span>
+                    <p className="text-[11px] text-slate-500">전체 원서 학습지 목록에서 선택해 인쇄할 수 있습니다.</p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handlePrintWorksheet("week1")}
-                      disabled={worksheetLoading !== null}
-                      className="px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-800 text-xs font-bold transition disabled:opacity-50"
-                    >
-                      {worksheetLoading === "week1" ? "생성 중..." : "1주차 · 핵심 단어 그림자 쓰기"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handlePrintWorksheet("week2")}
-                      disabled={worksheetLoading !== null}
-                      className="px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-800 text-xs font-bold transition disabled:opacity-50"
-                    >
-                      {worksheetLoading === "week2" ? "생성 중..." : "2주차 · 표현 그림자 쓰기"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handlePrintWorksheet("week3_4_study")}
-                      disabled={worksheetLoading !== null}
-                      className="px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-800 text-xs font-bold transition disabled:opacity-50"
-                    >
-                      {worksheetLoading === "week3_4_study" ? "생성 중..." : "3·4주차 · 보고 쓰기"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handlePrintWorksheet("week3_4_test")}
-                      disabled={worksheetLoading !== null}
-                      className="px-3 py-1.5 rounded-full surface-water-glass text-slate-900 text-xs font-bold transition disabled:opacity-50"
-                    >
-                      {worksheetLoading === "week3_4_test" ? "생성 중..." : "3·4주차 · 안 보고 쓰기"}
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onChangeTab("worksheets")}
+                    className="px-3.5 py-1.5 rounded-full btn-slate-glass text-xs font-bold shrink-0"
+                  >
+                    학습지 목록 열기
+                  </button>
                 </div>
 
                 {studentRecordings.length === 0 ? (
@@ -1675,7 +1645,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     type="button"
                     onClick={handleGenerateParentMsg}
                     disabled={parentMsgLoading}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full btn-water-glass text-xs font-bold disabled:opacity-60"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full btn-slate-glass text-xs font-bold disabled:opacity-60"
                   >
                     <MessageCircle className="w-3.5 h-3.5" />
                     {parentMsgLoading ? "생성 중..." : "AI 피드백 생성"}
@@ -1687,7 +1657,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   value={parentMsg}
                   onChange={(e) => setParentMsg(e.target.value)}
                   placeholder="오른쪽 위 'AI 피드백 생성' 버튼을 누르면 학생의 실제 진도와 발음 분석을 반영한 학부모 안내 메시지가 자동으로 작성됩니다."
-                  className="w-full px-4 py-3 rounded-xl bg-white/85 border border-[#d8ceb8] text-sm text-slate-800 leading-relaxed focus:outline-none focus:border-sky-600"
+                  className="w-full px-4 py-3 rounded-xl bg-[#fbf8f2]/80 border border-[#e5dcc9] text-sm text-slate-800 leading-relaxed focus:outline-none focus:border-slate-500"
                 />
 
                 <div className="flex items-center justify-between gap-3">
@@ -1695,7 +1665,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     type="button"
                     onClick={handleCopyParentMsg}
                     disabled={!parentMsg.trim()}
-                    className="px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-900 disabled:opacity-40 text-white text-xs font-bold transition"
+                    className="px-4 py-2 rounded-full btn-slate-glass disabled:opacity-40 text-xs font-bold"
                   >
                     {parentMsgCopied ? "복사 완료! (붙여넣기 하세요)" : "메시지 복사하기"}
                   </button>
@@ -1734,6 +1704,134 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           </div>
         )}
 
+        {activeTab === "worksheets" && (
+          <div className="space-y-6 max-w-6xl">
+            <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#e5dcc9]">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">오프라인 학습지 관리 · 인쇄</h2>
+                <p className="text-sm text-slate-600 mt-1">
+                  원서별로 생성된 저학년용 4선 줄노트 학습지를 목록에서 바로 확인하고 PDF로 인쇄할 수 있습니다. (원서당 1회 생성 후 DB 재사용)
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <label htmlFor="wsStudentSelect" className="text-xs font-bold text-slate-600">
+                  이름 표기 학생
+                </label>
+                <select
+                  id="wsStudentSelect"
+                  value={currentUser?.id || ""}
+                  onChange={(e) => onSelectStudent(e.target.value)}
+                  className="px-3.5 py-2 rounded-xl bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-xs font-semibold text-slate-900"
+                >
+                  {users.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.level})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5">
+              {["ALL", ...ALL_BADA_LEVELS].map((lv) => {
+                const count =
+                  lv === "ALL" ? books.length : books.filter((b) => b.level === lv).length;
+                if (lv !== "ALL" && count === 0) return null;
+                const active = bookLevelFilter === lv;
+                return (
+                  <button
+                    key={lv}
+                    type="button"
+                    onClick={() => setBookLevelFilter(lv)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold transition ${
+                      active
+                        ? "btn-slate-glass"
+                        : "bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700"
+                    }`}
+                  >
+                    {lv === "ALL" ? `전체 (${count})` : `${lv} (${count})`}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="overflow-x-auto border-y border-[#e5dcc9]">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[#e5dcc9] text-[11px] font-bold text-slate-500 uppercase">
+                    <th className="py-3 pr-3">레벨 · 원서명</th>
+                    <th className="py-3 px-2">생성 상태</th>
+                    <th className="py-3 pl-2 text-right">학습지 인쇄 (PDF)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#e5dcc9]">
+                  {books
+                    .filter((b) => bookLevelFilter === "ALL" || b.level === bookLevelFilter)
+                    .map((b) => {
+                      const hasCached = Boolean(b.worksheets?.week1);
+                      return (
+                        <tr key={b.id} className="hover:bg-[#f4efe5]/55 transition">
+                          <td className="py-3.5 pr-3">
+                            <div className="text-[11px] font-bold text-slate-500">{b.level}</div>
+                            <div className="text-sm font-bold text-slate-900">{b.title}</div>
+                            <div className="text-xs text-slate-500">{b.subtitle_kr}</div>
+                          </td>
+                          <td className="py-3.5 px-2 whitespace-nowrap">
+                            <span
+                              className={`inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                                hasCached
+                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                  : "bg-[#f2ece1] text-slate-600"
+                              }`}
+                            >
+                              {hasCached ? "DB 저장됨" : "첫 인쇄 시 생성"}
+                            </span>
+                          </td>
+                          <td className="py-3.5 pl-2 text-right">
+                            <div className="inline-flex flex-wrap justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => handlePrintWorksheet("week1", b)}
+                                disabled={worksheetLoading !== null}
+                                className="px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-800 text-xs font-bold transition disabled:opacity-50"
+                              >
+                                {worksheetLoading === `${b.id}:week1` ? "생성 중..." : "1주차 그림자"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handlePrintWorksheet("week2", b)}
+                                disabled={worksheetLoading !== null}
+                                className="px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-800 text-xs font-bold transition disabled:opacity-50"
+                              >
+                                {worksheetLoading === `${b.id}:week2` ? "생성 중..." : "2주차 그림자"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handlePrintWorksheet("week3_4_study", b)}
+                                disabled={worksheetLoading !== null}
+                                className="px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-800 text-xs font-bold transition disabled:opacity-50"
+                              >
+                                {worksheetLoading === `${b.id}:week3_4_study` ? "생성 중..." : "3·4주차 보고쓰기"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handlePrintWorksheet("week3_4_test", b)}
+                                disabled={worksheetLoading !== null}
+                                className="px-3 py-1.5 rounded-full btn-slate-glass text-xs font-bold disabled:opacity-50"
+                              >
+                                {worksheetLoading === `${b.id}:week3_4_test` ? "생성 중..." : "3·4주차 안보고쓰기"}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {activeTab === "database" && (
           <div className="space-y-6 max-w-5xl">
             <div>
@@ -1767,7 +1865,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       value={bookTitle}
                       onChange={(e) => setBookTitle(e.target.value)}
                       placeholder="예: Popo and the Shining Starfish"
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                     />
                   </div>
                   <div>
@@ -1777,7 +1875,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       value={bookSubKr}
                       onChange={(e) => setBookSubKr(e.target.value)}
                       placeholder="예: 포포와 빛나는 불가사리"
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                     />
                   </div>
                   <div>
@@ -1785,7 +1883,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     <select
                       value={bookLevel}
                       onChange={(e) => setBookLevel(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                     >
                       {ALL_BADA_LEVELS.map((lv) => (
                         <option key={lv} value={lv}>
@@ -1800,7 +1898,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       type="text"
                       value={bookGrade}
                       onChange={(e) => setBookGrade(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                     />
                   </div>
                 </div>
@@ -1812,7 +1910,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     value={bookEnText}
                     onChange={(e) => setBookEnText(e.target.value)}
                     placeholder="등록할 영어 원서 전체 문장을 입력하세요..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                   />
                 </div>
 
@@ -1825,7 +1923,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     value={bookKrText}
                     onChange={(e) => setBookKrText(e.target.value)}
                     placeholder="문장별 한국어 해석을 줄바꿈으로 입력하세요 (선택)"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-slate-500 text-sm"
                   />
                 </div>
 
@@ -1833,7 +1931,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   type="button"
                   onClick={handleCreateBook}
                   disabled={bookSaving}
-                  className="px-5 py-2.5 rounded-full btn-water-glass text-sm font-bold disabled:opacity-60"
+                  className="px-5 py-2.5 rounded-full btn-slate-glass text-sm font-bold disabled:opacity-60"
                 >
                   {bookSaving
                     ? "저장 및 AI 분석 중..."
@@ -1872,7 +1970,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                         onClick={() => setBookLevelFilter(lv)}
                         className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition ${
                           active
-                            ? "btn-water-glass"
+                            ? "btn-slate-glass"
                             : "bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700"
                         }`}
                       >
