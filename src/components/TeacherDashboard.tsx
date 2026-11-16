@@ -72,6 +72,20 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     Record<string, { level: string; bookId: string; cc: number; pin: string }>
   >({});
 
+  // Home Roster & Modals/Panels
+  const [showNewStudentForm, setShowNewStudentForm] = useState(false);
+  const [showTeacherSettings, setShowTeacherSettings] = useState(false);
+  const [studentSearch, setStudentSearch] = useState("");
+  const [studentLevelFilter, setStudentLevelFilter] = useState("ALL");
+
+  // Director profile edit
+  const directorAccount = teachers.find((t) => t.id === "tch_director") || loggedTeacher;
+  const [dirName, setDirName] = useState(directorAccount?.name || "원장님 (총괄)");
+  const [dirTitle, setDirTitle] = useState(directorAccount?.title_label || "원장 · 최고관리자");
+  const [dirEmail, setDirEmail] = useState(directorAccount?.email || "director@bada.kr");
+  const [dirNewPw, setDirNewPw] = useState("");
+  const [dirSaving, setDirSaving] = useState(false);
+
   // Director teacher management
   const [inlineDirectorPw, setInlineDirectorPw] = useState("");
   const [tchName, setTchName] = useState("");
@@ -336,6 +350,43 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     }
   };
 
+  const handleUpdateDirectorProfile = async () => {
+    if (!dirName.trim()) {
+      setTchMsg("원장님 성함을 입력해 주세요.");
+      return;
+    }
+    setDirSaving(true);
+    setTchMsg("");
+    try {
+      const targetId = directorAccount?.id || "tch_director";
+      const res = await fetch("/api/teachers/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          teacherId: targetId,
+          name: dirName.trim(),
+          title_label: dirTitle.trim() || "원장 · 최고관리자",
+          email: dirEmail.trim() || "director@bada.kr",
+          password: dirNewPw.trim() || undefined
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setDirNewPw("");
+        onDataUpdated({
+          teachers: data.teachers,
+          loggedTeacher: loggedTeacher.id === targetId ? data.teacher : loggedTeacher
+        });
+        setTchMsg("원장 계정 정보가 저장되었습니다.");
+        playSoftTone(760, 0.14);
+      } else {
+        setTchMsg(data.error || "계정 정보 수정에 실패했습니다.");
+      }
+    } finally {
+      setDirSaving(false);
+    }
+  };
+
   const handleDeleteTeacher = async (tid: string) => {
     const res = await fetch("/api/teachers/delete", {
       method: "POST",
@@ -527,375 +578,467 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       <main className="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto bg-[#fbf8f2]/72 backdrop-blur-xs">
         {activeTab === "home" && (
           <div className="space-y-6 max-w-6xl">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+            {/* Clean Academy Header (No 4-box KPI boilerplate) */}
+            <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#e5dcc9]">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">
-                  학생 등록 · 등급/원서 배정 &amp; 선생님 관리
-                </h2>
-                <p className="text-sm text-slate-500 mt-1">
-                  새로운 원서를 배정하면 자동으로 1주차(0%)부터 새로 시작합니다.
+                <h2 className="text-2xl font-bold text-slate-900">학생 관리 &amp; 원서 배정</h2>
+                <p className="text-xs text-slate-600 mt-1">
+                  재원생 {users.length}명 · 등록 원서 {books.length}권 · 원서를 새로 배정하면 1주차부터 자동 시작됩니다.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => onChangeTab("database")}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold"
-              >
-                <Plus className="w-4 h-4" />
-                신규 원서 교재 등록
-              </button>
-            </div>
-
-            {/* KPI Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white border border-slate-200 rounded-xl p-4">
-                <div className="text-xs text-slate-500">등록된 학생</div>
-                <div className="text-2xl font-bold text-slate-900 mt-1">{users.length}명</div>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-xl p-4">
-                <div className="text-xs text-slate-500">등록된 원서 교재</div>
-                <div className="text-2xl font-bold text-slate-900 mt-1">{books.length}권</div>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-xl p-4">
-                <div className="text-xs text-slate-500">강사 · 원장님 계정</div>
-                <div className="text-2xl font-bold text-slate-900 mt-1">{teachers.length}명</div>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-xl p-4">
-                <div className="text-xs text-slate-500">새 원서 배정 규칙</div>
-                <div className="text-lg font-bold text-sky-700 mt-1.5">1주차 자동 시작</div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewStudentForm((v) => !v);
+                    setShowTeacherSettings(false);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  {showNewStudentForm ? "등록 창 닫기" : "+ 신규 학생 등록"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowTeacherSettings((v) => !v);
+                    setShowNewStudentForm(false);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-800 text-xs font-bold transition"
+                >
+                  <GraduationCap className="w-3.5 h-3.5 text-sky-700" />
+                  {showTeacherSettings ? "계정 설정 닫기" : "원장 · 강사 계정 설정"}
+                </button>
               </div>
             </div>
 
-            {/* Section 1: New Student Registration */}
-            <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
-              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <UserPlus className="w-4 h-4 text-sky-600" />
-                신규 학생 등록 및 초기 원서 배정
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">학생 이름</label>
-                  <input
-                    type="text"
-                    value={stuName}
-                    onChange={(e) => setStuName(e.target.value)}
-                    placeholder="예: 최유나"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">학년</label>
-                  <select
-                    value={stuGrade}
-                    onChange={(e) => setStuGrade(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                  >
-                    {["초등 1학년", "초등 2학년", "초등 3학년", "초등 4학년", "초등 5학년", "초등 6학년"].map(
-                      (g) => (
-                        <option key={g} value={g}>
-                          {g}
-                        </option>
-                      )
-                    )}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">배정 등급</label>
-                  <select
-                    value={stuLevel}
-                    onChange={(e) => setStuLevel(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                  >
-                    {ALL_BADA_LEVELS.map((lv) => (
-                      <option key={lv} value={lv}>
-                        {lv}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">배정 원서</label>
-                  <select
-                    value={stuBookId}
-                    onChange={(e) => setStuBookId(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                  >
-                    {books.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        [{b.level}] {b.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">클카 레벨 (1~26)</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={26}
-                    value={stuCc}
-                    onChange={(e) => setStuCc(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">담당 선생님</label>
-                  <select
-                    value={stuTeacherId}
-                    onChange={(e) => setStuTeacherId(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                  >
-                    {teachers.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1">출석번호 (4자리)</label>
-                  <input
-                    type="text"
-                    maxLength={4}
-                    value={stuPin}
-                    onChange={(e) => setStuPin(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                  />
-                </div>
-                <div className="flex items-end">
-                  <button
-                    type="button"
-                    onClick={handleRegisterStudent}
-                    className="w-full py-2 px-4 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold"
-                  >
-                    신규 학생 등록
-                  </button>
-                </div>
-              </div>
-              {stuMsg && (
-                <p className="text-xs font-semibold text-sky-800 bg-sky-50 border border-sky-200 rounded-lg px-3.5 py-2">
-                  {stuMsg}
-                </p>
-              )}
-            </div>
-
-            {/* Section 2: Roster & Inline Assignment */}
-            <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
-              <h3 className="text-base font-bold text-slate-900">
-                학생별 등급 · 원서 배정 및 진도 관리
-              </h3>
-              <div className="space-y-3">
-                {users.map((u) => {
-                  const ed = edits[u.id] || {
-                    level: u.level,
-                    bookId: u.current_book_id,
-                    cc: u.classcard_level || 2,
-                    pin: u.pin_code || "1234"
-                  };
-                  const activeWk = getStudentCurrentWeek(u);
-                  return (
-                    <div
-                      key={u.id}
-                      className="border border-slate-200 rounded-xl p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/50"
+            {/* Collapsible New Student Registration Drawer */}
+            {showNewStudentForm && (
+              <div className="pb-6 border-b border-[#e5dcc9] space-y-4">
+                <h3 className="text-sm font-bold text-slate-900">신규 학생 등록</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">학생 이름</label>
+                    <input
+                      type="text"
+                      value={stuName}
+                      onChange={(e) => setStuName(e.target.value)}
+                      placeholder="예: 최유나"
+                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">학년</label>
+                    <select
+                      value={stuGrade}
+                      onChange={(e) => setStuGrade(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
                     >
-                      <div className="space-y-2 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <strong className="text-sm text-slate-900">
-                            {u.name} ({u.grade_label} · {u.level})
-                          </strong>
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 font-semibold">
-                            현재 {activeWk}주차 진행 중 (W1:{u.progress_w1}% W2:{u.progress_w2}% W3:{u.progress_w3}% W4:{u.progress_w4}%)
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <select
-                            value={ed.level}
-                            onChange={(e) =>
-                              setEdits({ ...edits, [u.id]: { ...ed, level: e.target.value } })
-                            }
-                            className="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold"
-                          >
-                            {ALL_BADA_LEVELS.map((lv) => (
-                              <option key={lv} value={lv}>
-                                {lv}
-                              </option>
-                            ))}
-                          </select>
-                          <select
-                            value={ed.bookId}
-                            onChange={(e) =>
-                              setEdits({ ...edits, [u.id]: { ...ed, bookId: e.target.value } })
-                            }
-                            className="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold max-w-xs"
-                          >
-                            {books.map((b) => (
-                              <option key={b.id} value={b.id}>
-                                [{b.level}] {b.title}
-                              </option>
-                            ))}
-                          </select>
-                          <input
-                            type="number"
-                            min={1}
-                            max={26}
-                            value={ed.cc}
-                            onChange={(e) =>
-                              setEdits({ ...edits, [u.id]: { ...ed, cc: Number(e.target.value) } })
-                            }
-                            className="w-16 px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-center"
-                            title="클카 레벨"
-                          />
-                          <input
-                            type="text"
-                            maxLength={4}
-                            value={ed.pin}
-                            onChange={(e) =>
-                              setEdits({ ...edits, [u.id]: { ...ed, pin: e.target.value } })
-                            }
-                            className="w-16 px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-center"
-                            title="출석 PIN"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleSaveStudentAssign(u)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold"
-                          >
-                            <Save className="w-3.5 h-3.5" />
-                            배정 저장
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleResetWeek1(u)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold"
-                          >
-                            <RotateCcw className="w-3 h-3" />
-                            1주차 초기화
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteStudent(u)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 text-xs font-semibold"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                            삭제
-                          </button>
-                        </div>
+                      {["초등 1학년", "초등 2학년", "초등 3학년", "초등 4학년", "초등 5학년", "초등 6학년"].map(
+                        (g) => (
+                          <option key={g} value={g}>
+                            {g}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">배정 등급</label>
+                    <select
+                      value={stuLevel}
+                      onChange={(e) => setStuLevel(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                    >
+                      {ALL_BADA_LEVELS.map((lv) => (
+                        <option key={lv} value={lv}>
+                          {lv}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">배정 원서</label>
+                    <select
+                      value={stuBookId}
+                      onChange={(e) => setStuBookId(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                    >
+                      {books.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          [{b.level}] {b.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">클카 레벨</label>
+                    <select
+                      value={stuCc}
+                      onChange={(e) => setStuCc(Number(e.target.value))}
+                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                    >
+                      {Array.from({ length: 26 }, (_, i) => i + 1).map((lv) => (
+                        <option key={lv} value={lv}>
+                          Level {lv}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">담당 선생님</label>
+                    <select
+                      value={stuTeacherId}
+                      onChange={(e) => setStuTeacherId(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                    >
+                      {teachers.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">출석번호 (4자리)</label>
+                    <input
+                      type="text"
+                      maxLength={4}
+                      value={stuPin}
+                      onChange={(e) => setStuPin(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={handleRegisterStudent}
+                      className="w-full py-2 px-4 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold"
+                    >
+                      등록 완료
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Collapsible Director & Teacher Account Settings (includes Director Profile Edit) */}
+            {showTeacherSettings && (
+              <div className="pb-6 border-b border-[#e5dcc9] space-y-6">
+                {loggedTeacher.role !== "director" ? (
+                  <div className="flex flex-wrap items-center justify-between gap-3 py-2">
+                    <p className="text-xs text-slate-600">
+                      원장 계정 수정 및 선생님 계정을 관리하려면 원장님 비밀번호로 권한을 전환하세요.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="password"
+                        value={inlineDirectorPw}
+                        onChange={(e) => setInlineDirectorPw(e.target.value)}
+                        placeholder="원장님 비밀번호"
+                        className="px-3 py-1.5 rounded-lg bg-white/90 border border-[#d8ceb8] text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleUnlockDirector}
+                        className="px-3.5 py-1.5 rounded-full bg-sky-600 text-white text-xs font-bold"
+                      >
+                        권한 전환
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Director Own Account Edit */}
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-bold text-slate-900">원장 계정 정보 수정</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                        <input
+                          type="text"
+                          value={dirName}
+                          onChange={(e) => setDirName(e.target.value)}
+                          placeholder="원장님 성함"
+                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={dirTitle}
+                          onChange={(e) => setDirTitle(e.target.value)}
+                          placeholder="직함"
+                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                        />
+                        <input
+                          type="email"
+                          value={dirEmail}
+                          onChange={(e) => setDirEmail(e.target.value)}
+                          placeholder="이메일"
+                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                        />
+                        <input
+                          type="password"
+                          value={dirNewPw}
+                          onChange={(e) => setDirNewPw(e.target.value)}
+                          placeholder="새 비밀번호 (변경 시 입력)"
+                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleUpdateDirectorProfile}
+                          disabled={dirSaving}
+                          className="py-2 px-4 rounded-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold disabled:opacity-60"
+                        >
+                          {dirSaving ? "저장 중..." : "원장 정보 저장"}
+                        </button>
                       </div>
                     </div>
+
+                    {/* Additional Teacher Registration */}
+                    <div className="pt-4 border-t border-[#e5dcc9] space-y-3">
+                      <h3 className="text-sm font-bold text-slate-900">선생님 계정 추가</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                        <input
+                          type="text"
+                          value={tchName}
+                          onChange={(e) => setTchName(e.target.value)}
+                          placeholder="선생님 성함"
+                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={tchTitle}
+                          onChange={(e) => setTchTitle(e.target.value)}
+                          placeholder="직책"
+                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                        />
+                        <input
+                          type="email"
+                          value={tchEmail}
+                          onChange={(e) => setTchEmail(e.target.value)}
+                          placeholder="이메일"
+                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={tchPw}
+                          onChange={(e) => setTchPw(e.target.value)}
+                          placeholder="비밀번호"
+                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                        />
+                        <select
+                          value={tchRole}
+                          onChange={(e) => setTchRole(e.target.value as "teacher" | "director")}
+                          className="px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                        >
+                          <option value="teacher">일반 강사</option>
+                          <option value="director">공동 원장님</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={handleRegisterTeacher}
+                          className="py-2 px-4 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold"
+                        >
+                          선생님 등록
+                        </button>
+                      </div>
+                      <div className="divide-y divide-[#e5dcc9] border-y border-[#e5dcc9]">
+                        {teachers.map((t) => (
+                          <div key={t.id} className="py-2.5 flex items-center justify-between text-xs">
+                            <div>
+                              <strong className="text-slate-900">{t.name}</strong>{" "}
+                              <span className="text-slate-500">· {t.title_label} · {t.email}</span>
+                            </div>
+                            {t.id !== "tch_director" && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteTeacher(t.id)}
+                                className="font-semibold text-rose-600 hover:underline"
+                              >
+                                삭제
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+                {tchMsg && <p className="text-xs font-semibold text-sky-700">{tchMsg}</p>}
+              </div>
+            )}
+
+            {stuMsg && (
+              <p className="text-xs font-semibold text-sky-800 py-1">{stuMsg}</p>
+            )}
+
+            {/* Search & Level Filter Strip */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-1.5">
+                {["ALL", ...ALL_BADA_LEVELS].map((lv) => {
+                  const count =
+                    lv === "ALL" ? users.length : users.filter((u) => u.level === lv).length;
+                  if (lv !== "ALL" && count === 0) return null;
+                  return (
+                    <button
+                      key={lv}
+                      type="button"
+                      onClick={() => setStudentLevelFilter(lv)}
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition ${
+                        studentLevelFilter === lv
+                          ? "bg-sky-600 text-white"
+                          : "bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700"
+                      }`}
+                    >
+                      {lv === "ALL" ? `전체 (${count})` : `${lv} (${count})`}
+                    </button>
                   );
                 })}
               </div>
+              <input
+                type="text"
+                value={studentSearch}
+                onChange={(e) => setStudentSearch(e.target.value)}
+                placeholder="학생 이름 검색..."
+                className="px-3.5 py-1.5 rounded-full bg-white/85 border border-[#d8ceb8] text-xs w-48 focus:outline-none focus:border-sky-600"
+              />
             </div>
 
-            {/* Section 3: Director Teacher Management */}
-            <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4 text-sky-600" />
-                  원장님 전용 · 선생님 계정 관리
-                </h3>
-                <span className="text-xs font-semibold text-slate-500">
-                  {loggedTeacher.role === "director" ? "원장님 권한 활성" : "일반 강사 접속 중"}
-                </span>
-              </div>
-
-              {loggedTeacher.role !== "director" ? (
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-xs text-slate-600">
-                    선생님 계정을 등록하거나 삭제하려면 원장님 비밀번호로 권한을 전환하세요.
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="password"
-                      value={inlineDirectorPw}
-                      onChange={(e) => setInlineDirectorPw(e.target.value)}
-                      placeholder="원장님 비밀번호"
-                      className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleUnlockDirector}
-                      className="px-3.5 py-1.5 rounded-lg bg-sky-600 text-white text-xs font-bold"
-                    >
-                      권한 전환
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                    <input
-                      type="text"
-                      value={tchName}
-                      onChange={(e) => setTchName(e.target.value)}
-                      placeholder="선생님 성함"
-                      className="px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                    />
-                    <input
-                      type="text"
-                      value={tchTitle}
-                      onChange={(e) => setTchTitle(e.target.value)}
-                      placeholder="직책"
-                      className="px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                    />
-                    <input
-                      type="email"
-                      value={tchEmail}
-                      onChange={(e) => setTchEmail(e.target.value)}
-                      placeholder="이메일"
-                      className="px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                    />
-                    <input
-                      type="text"
-                      value={tchPw}
-                      onChange={(e) => setTchPw(e.target.value)}
-                      placeholder="비밀번호"
-                      className="px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                    />
-                    <select
-                      value={tchRole}
-                      onChange={(e) => setTchRole(e.target.value as "teacher" | "director")}
-                      className="px-3 py-2 rounded-lg border border-slate-300 text-sm"
-                    >
-                      <option value="teacher">일반 강사</option>
-                      <option value="director">공동 원장님</option>
-                    </select>
-                    <button
-                      type="button"
-                      onClick={handleRegisterTeacher}
-                      className="py-2 px-4 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold"
-                    >
-                      선생님 등록
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {teachers.map((t) => (
-                      <div
-                        key={t.id}
-                        className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between"
-                      >
-                        <div>
-                          <div className="text-sm font-bold text-slate-900">{t.name}</div>
-                          <div className="text-xs text-slate-500">
-                            {t.title_label} · {t.email}
-                          </div>
-                        </div>
-                        {t.id !== "tch_director" && (
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteTeacher(t.id)}
-                            className="text-xs font-semibold text-rose-600 hover:underline"
-                          >
-                            삭제
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {tchMsg && <p className="text-xs font-semibold text-sky-700">{tchMsg}</p>}
+            {/* Clean Academy Roster Table (Line-separated, zero card boxes) */}
+            <div className="overflow-x-auto border-y border-[#e5dcc9]">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[#e5dcc9] text-[11px] font-bold text-slate-500 uppercase">
+                    <th className="py-3 pr-3">학생</th>
+                    <th className="py-3 px-2">배정 등급</th>
+                    <th className="py-3 px-2">배정 원서</th>
+                    <th className="py-3 px-2">클카</th>
+                    <th className="py-3 px-2">PIN</th>
+                    <th className="py-3 px-2">현재 진도</th>
+                    <th className="py-3 pl-2 text-right">관리</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#e5dcc9]">
+                  {users
+                    .filter((u) => studentLevelFilter === "ALL" || u.level === studentLevelFilter)
+                    .filter((u) => !studentSearch.trim() || u.name.includes(studentSearch.trim()))
+                    .map((u) => {
+                      const ed = edits[u.id] || {
+                        level: u.level,
+                        bookId: u.current_book_id,
+                        cc: u.classcard_level || 2,
+                        pin: u.pin_code || "1234"
+                      };
+                      const activeWk = getStudentCurrentWeek(u);
+                      const wkProg = (u[`progress_w${activeWk}` as keyof StudentUser] as number) || 0;
+                      const repeats = Math.min(5, Math.floor(wkProg / 20));
+                      return (
+                        <tr key={u.id} className="hover:bg-[#f4efe5]/55 transition">
+                          <td className="py-3 pr-3 whitespace-nowrap">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onSelectStudent(u.id);
+                                onChangeTab("coaching");
+                              }}
+                              className="text-left group"
+                            >
+                              <div className="text-sm font-bold text-slate-900 group-hover:text-sky-700 transition">
+                                {u.name}
+                              </div>
+                              <div className="text-[11px] text-slate-500">{u.grade_label}</div>
+                            </button>
+                          </td>
+                          <td className="py-3 px-2">
+                            <select
+                              value={ed.level}
+                              onChange={(e) =>
+                                setEdits({ ...edits, [u.id]: { ...ed, level: e.target.value } })
+                              }
+                              className="px-2.5 py-1.5 rounded-lg border border-[#d8ceb8] bg-white/90 text-xs font-semibold"
+                            >
+                              {ALL_BADA_LEVELS.map((lv) => (
+                                <option key={lv} value={lv}>
+                                  {lv}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="py-3 px-2">
+                            <select
+                              value={ed.bookId}
+                              onChange={(e) =>
+                                setEdits({ ...edits, [u.id]: { ...ed, bookId: e.target.value } })
+                              }
+                              className="px-2.5 py-1.5 rounded-lg border border-[#d8ceb8] bg-white/90 text-xs font-semibold max-w-[210px]"
+                            >
+                              {books.map((b) => (
+                                <option key={b.id} value={b.id}>
+                                  [{b.level}] {b.title}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="py-3 px-2">
+                            <select
+                              value={ed.cc}
+                              onChange={(e) =>
+                                setEdits({ ...edits, [u.id]: { ...ed, cc: Number(e.target.value) } })
+                              }
+                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-white/90 text-xs font-semibold"
+                            >
+                              {Array.from({ length: 26 }, (_, i) => i + 1).map((lv) => (
+                                <option key={lv} value={lv}>
+                                  Lv.{lv}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="py-3 px-2">
+                            <input
+                              type="text"
+                              maxLength={4}
+                              value={ed.pin}
+                              onChange={(e) =>
+                                setEdits({ ...edits, [u.id]: { ...ed, pin: e.target.value } })
+                              }
+                              className="w-14 px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-white/90 text-xs font-semibold text-center"
+                            />
+                          </td>
+                          <td className="py-3 px-2 whitespace-nowrap">
+                            <span className="text-xs font-bold text-sky-700">
+                              {activeWk}주차 · {repeats}/5회
+                            </span>
+                          </td>
+                          <td className="py-3 pl-2 text-right whitespace-nowrap space-x-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleSaveStudentAssign(u)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold"
+                            >
+                              <Save className="w-3 h-3" />
+                              저장
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleResetWeek1(u)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700 text-xs font-semibold"
+                              title="1주차로 초기화"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteStudent(u)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full hover:bg-rose-50 text-rose-600 text-xs font-semibold"
+                              title="학생 삭제"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
             </div>
           </div>
         )}

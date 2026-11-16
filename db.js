@@ -1019,6 +1019,50 @@ async function createTeacher(payload) {
   return sqliteDb.prepare("SELECT id, name, role, title_label, email, created_at FROM teachers WHERE id = ?").get(id);
 }
 
+async function updateTeacher(payload) {
+  const teacherId = String(payload.teacherId || payload.id || "").trim();
+  const name = String(payload.name || "").trim();
+  const title_label = String(payload.title_label || "").trim();
+  const email = String(payload.email || "").trim();
+  const newPassword = String(payload.password || "").trim();
+
+  if (!teacherId) throw new Error("수정할 계정 ID가 필요합니다.");
+  if (!name) throw new Error("이름을 입력해 주세요.");
+  if (newPassword && newPassword.length < 4) {
+    throw new Error("새 비밀번호는 최소 4자리 이상이어야 합니다.");
+  }
+
+  if (pgPool) {
+    if (newPassword) {
+      await pgPool.query(
+        `UPDATE teachers SET name = $1, title_label = $2, email = $3, password_hash = $4 WHERE id = $5`,
+        [name, title_label || "원장 · 최고관리자", email || "director@bada.kr", hashPassword(newPassword), teacherId]
+      );
+    } else {
+      await pgPool.query(
+        `UPDATE teachers SET name = $1, title_label = $2, email = $3 WHERE id = $4`,
+        [name, title_label || "원장 · 최고관리자", email || "director@bada.kr", teacherId]
+      );
+    }
+    const { rows } = await pgPool.query(
+      "SELECT id, name, role, title_label, email, created_at FROM teachers WHERE id = $1",
+      [teacherId]
+    );
+    return rows[0];
+  }
+
+  if (newPassword) {
+    sqliteDb
+      .prepare(`UPDATE teachers SET name = ?, title_label = ?, email = ?, password_hash = ? WHERE id = ?`)
+      .run(name, title_label || "원장 · 최고관리자", email || "director@bada.kr", hashPassword(newPassword), teacherId);
+  } else {
+    sqliteDb
+      .prepare(`UPDATE teachers SET name = ?, title_label = ?, email = ? WHERE id = ?`)
+      .run(name, title_label || "원장 · 최고관리자", email || "director@bada.kr", teacherId);
+  }
+  return sqliteDb.prepare("SELECT id, name, role, title_label, email, created_at FROM teachers WHERE id = ?").get(teacherId);
+}
+
 async function deleteTeacher(teacherId) {
   const cleanId = String(teacherId || "").trim();
   if (!cleanId) throw new Error("삭제할 강사 ID가 필요합니다.");
@@ -1617,6 +1661,7 @@ module.exports = {
   updateStudentAssignment,
   deleteStudent,
   createTeacher,
+  updateTeacher,
   deleteTeacher,
   createBook,
   updateBook,

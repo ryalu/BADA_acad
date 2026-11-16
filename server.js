@@ -19,6 +19,7 @@ const {
   updateStudentAssignment,
   deleteStudent,
   createTeacher,
+  updateTeacher,
   deleteTeacher,
   createBook,
   updateBook,
@@ -219,6 +220,17 @@ const server = http.createServer(async (req, res) => {
       const body = await parseJsonBody(req);
       try {
         const teacher = await createTeacher(body);
+        const bootstrap = await getAllBootstrapData();
+        return sendJson(res, 200, { ok: true, teacher, teachers: bootstrap.teachers });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/teachers/update" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      try {
+        const teacher = await updateTeacher(body);
         const bootstrap = await getAllBootstrapData();
         return sendJson(res, 200, { ok: true, teacher, teachers: bootstrap.teachers });
       } catch (err) {
