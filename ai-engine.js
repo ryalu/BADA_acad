@@ -956,7 +956,7 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
             Authorization: `Bearer ${openaiKey}`
           },
           body: JSON.stringify({
-            model: process.env.OPENAI_IMAGE_MODEL || "gpt-image-1",
+            model: process.env.OPENAI_IMAGE_MODEL || "gpt-image-1-mini",
             prompt: visualPrompt,
             size: "1536x1024",
             quality: process.env.OPENAI_IMAGE_QUALITY || "low",
@@ -973,11 +973,12 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
               Authorization: `Bearer ${openaiKey}`
             },
             body: JSON.stringify({
-              model: "dall-e-3",
+              model: "gpt-image-1.5",
               prompt: visualPrompt,
-              size: "1792x1024",
-              quality: "standard",
-              response_format: "b64_json"
+              size: "1536x1024",
+              quality: "low",
+              output_format: "jpeg",
+              output_compression: 75
             })
           });
         }
