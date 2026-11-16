@@ -759,7 +759,7 @@ async function analyzeTextWithExternalLLM(rawText, level = "Level 2") {
   const systemPrompt =
     "You are an elementary English storybook curriculum analyzer for Korean students (BADA English). " +
     "Return ONLY valid JSON with keys: vocab, chunks, core_expressions, sentence_translations, speaking_questions. " +
-    "1) vocab: array of {word (lowercase), surface (exact token in story), meaning_kr (natural Korean gloss for this story's context), phonetic (IPA like /ˈwɔː.tər/), pos (Korean POS like 명사/동사/형용사/부사/전치사/관사/대명사), popo_tip (short friendly Korean tip)}. CRITICAL: Include EVERY SINGLE unique word that appears in the story — do NOT skip short words, articles, pronouns, prepositions, plurals, or verb forms (e.g., a, the, in, my, on, is, goes, friends, flowers). " +
+    "1) vocab: array of {word (lowercase), surface (exact token in story), meaning_kr (natural Korean gloss for this story's context), phonetic (IPA like /ˈwɔː.tər/), pos (Korean POS like 명사/동사/형용사/부사/전치사/관사/대명사), popo_tip (very short 10-20 char Korean tip)}. CRITICAL: Include EVERY SINGLE unique word that appears in the story — do NOT skip short words, articles, pronouns, prepositions, plurals, or verb forms (e.g., a, the, in, my, on, is, goes, friends, flowers). " +
     "2) chunks: array of {sentence_index (0-based), text (exact English phrase substring), meaning_kr (natural Korean phrase meaning)}. Split EVERY sentence into natural 2-5 word reading chunks covering the whole sentence in order. " +
     "3) core_expressions: 3-4 items of {rank, expression, meaning_kr, pattern_note}. " +
     "4) sentence_translations: array of {index, en, kr (natural, accurate elementary-friendly Korean translation)} for EVERY sentence in order. " +
@@ -780,7 +780,7 @@ async function analyzeTextWithExternalLLM(rawText, level = "Level 2") {
         body: JSON.stringify({
           model,
           temperature: 0.25,
-          max_tokens: 4096,
+          max_tokens: 12000,
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: systemPrompt },
