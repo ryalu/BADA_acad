@@ -85,7 +85,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   const [coachQuestions, setCoachQuestions] = useState<TeacherQuestion[]>([]);
   const [studentRecordings, setStudentRecordings] = useState<StudentRecording[]>([]);
 
-  // Book registration
+  // Book registration & edit
+  const [editingBookId, setEditingBookId] = useState<string | null>(null);
   const [bookTitle, setBookTitle] = useState("");
   const [bookSubKr, setBookSubKr] = useState("");
   const [bookLevel, setBookLevel] = useState("Level 2");
@@ -95,9 +96,11 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   const [bookResultMsg, setBookResultMsg] = useState("");
   const [bookSaving, setBookSaving] = useState(false);
 
-  // Report canvas & toast
+  // Report canvas & AI parent feedback
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [alimtalkMsg, setAlimtalkMsg] = useState("");
+  const [parentMsg, setParentMsg] = useState("");
+  const [parentMsgLoading, setParentMsgLoading] = useState(false);
+  const [parentMsgCopied, setParentMsgCopied] = useState(false);
 
   useEffect(() => {
     if (!stuBookId && books[0]) setStuBookId(books[0].id);
@@ -150,14 +153,14 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   };
 
   useEffect(() => {
-    if (activeTab === "coaching") {
+    if (activeTab === "coaching" || activeTab === "reports") {
       loadCoachingQuestions();
     }
   }, [activeTab, currentUser?.id, currentBook?.id]);
 
-  // Draw certificate when reports tab is active
+  // Draw certificate when coaching/reports tab is active
   useEffect(() => {
-    if (activeTab !== "reports" || !canvasRef.current || !currentUser || !currentBook) return;
+    if ((activeTab !== "coaching" && activeTab !== "reports") || !canvasRef.current || !currentUser || !currentBook) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -352,10 +355,12 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     setBookSaving(true);
     setBookResultMsg("");
     try {
-      const res = await fetch("/api/books/create", {
+      const endpoint = editingBookId ? "/api/books/update" : "/api/books/create";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: editingBookId || undefined,
           title: bookTitle.trim() || `New Storybook #${books.length + 1}`,
           subtitle_kr: bookSubKr.trim() || "신규 등록 영어 원서",
           level: bookLevel,
@@ -367,35 +372,100 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       const data = await res.json();
       if (res.ok && data.ok) {
         onDataUpdated({ books: data.books });
-        setBookTitle("");
-        setBookSubKr("");
-        setBookEnText("");
-        setBookKrText("");
+        if (!editingBookId) {
+          setBookTitle("");
+          setBookSubKr("");
+          setBookEnText("");
+          setBookKrText("");
+        }
         setBookResultMsg(
-          `신규 원서 《${data.book.title}》 (${data.book.level}) 등록 완료 · 단어 ${(data.book.vocab || []).length
+          `${editingBookId ? "수정" : "신규 등록"} 완료: 《${data.book.title}》 (${data.book.level}) · 단어 ${(data.book.vocab || []).length
           }개, 문장 해석 ${(data.book.sentence_translations || []).length}개, 스피킹 질문 ${(data.book.speaking_questions || []).length
           }개가 저장되었습니다.`
         );
         playSoftTone(820, 0.18);
       } else {
-        setBookResultMsg(data.error || "원서 등록에 실패했습니다.");
+        setBookResultMsg(data.error || "원서 저장에 실패했습니다.");
       }
     } finally {
       setBookSaving(false);
     }
   };
 
+  const handleSelectBookForEdit = (b: Book) => {
+    setEditingBookId(b.id);
+    setBookTitle(b.title);
+    setBookSubKr(b.subtitle_kr || "");
+    setBookLevel(b.level || "Level 2");
+    setBookGrade(b.grade_recommended || "초등 1~3학년");
+    setBookEnText(b.full_text || "");
+    setBookKrText((b.sentence_translations || []).map((st) => st.kr).join("\n"));
+    setBookResultMsg(`《${b.title}》 교재를 수정 모드로 불러왔습니다.`);
+    playSoftTone(600, 0.1);
+  };
+
+  const handleResetNewBookMode = () => {
+    setEditingBookId(null);
+    setBookTitle("");
+    setBookSubKr("");
+    setBookEnText("");
+    setBookKrText("");
+    setBookResultMsg("");
+  };
+
+  const handleGenerateParentMsg = async () => {
+    if (!currentUser || !currentBook) return;
+    setParentMsgLoading(true);
+    setParentMsgCopied(false);
+    try {
+      const res = await fetch("/api/teacher/parent-feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: currentUser.id,
+          studentName: currentUser.name,
+          level: currentUser.level,
+          bookTitle: currentBook.title,
+          weeklyProgress: {
+            w1: currentUser.progress_w1,
+            w2: currentUser.progress_w2,
+            w3: currentUser.progress_w3,
+            w4: currentUser.progress_w4
+          }
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.ok && data.message) {
+        setParentMsg(data.message);
+        playSoftTone(760, 0.14);
+      }
+    } finally {
+      setParentMsgLoading(false);
+    }
+  };
+
+  const handleCopyParentMsg = async () => {
+    if (!parentMsg.trim()) return;
+    try {
+      await navigator.clipboard.writeText(parentMsg);
+      setParentMsgCopied(true);
+      playSoftTone(820, 0.12);
+      setTimeout(() => setParentMsgCopied(false), 2500);
+    } catch {
+      // ignore clipboard errors
+    }
+  };
+
   const navItems: { id: TeacherTab; label: string; icon: React.ReactNode }[] = [
     { id: "home", label: "학생 관리 & 원서 배정", icon: <Users className="w-4 h-4" /> },
-    { id: "coaching", label: "4주차 화상수업 코칭", icon: <Video className="w-4 h-4" /> },
-    { id: "reports", label: "학부모 리포트 & 수료증", icon: <MessageCircle className="w-4 h-4" /> },
+    { id: "coaching", label: "학생 학습 관리", icon: <Video className="w-4 h-4" /> },
     { id: "database", label: "원서 교재 등록 · 관리", icon: <BookPlus className="w-4 h-4" /> }
   ];
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col md:flex-row">
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-slate-900 text-slate-100 flex flex-col justify-between p-5 shrink-0">
+      {/* Sticky Sidebar */}
+      <aside className="w-full md:w-64 md:sticky md:top-0 md:h-screen md:overflow-y-auto bg-slate-900/95 backdrop-blur-md text-slate-100 flex flex-col justify-between p-5 shrink-0">
         <div className="space-y-6">
           <div className="flex items-center gap-3 pb-4 border-b border-slate-800">
             <img
@@ -425,21 +495,6 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
               </button>
             ))}
           </nav>
-
-          <div className="pt-2 space-y-1.5">
-            <label className="block text-[11px] font-bold text-slate-400">현재 선택된 코칭 학생</label>
-            <select
-              value={currentUser?.id || ""}
-              onChange={(e) => onSelectStudent(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-white"
-            >
-              {users.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name} ({u.grade_label} · {u.level})
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
         <div className="pt-6 mt-6 border-t border-slate-800 space-y-2.5">
@@ -842,22 +897,36 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           </div>
         )}
 
-        {activeTab === "coaching" && currentUser && currentBook && (
-          <div className="space-y-6 max-w-5xl">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+        {(activeTab === "coaching" || activeTab === "reports") && currentUser && currentBook && (
+          <div className="space-y-8 max-w-5xl">
+            <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#e5dcc9]">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">4주차 원어민 화상 수업 코칭</h2>
-                <p className="text-sm text-slate-500 mt-1">
-                  {currentUser.name} ({currentUser.level}) · {currentBook.title}
+                <h2 className="text-2xl font-bold text-slate-900">학생 학습 관리</h2>
+                <p className="text-sm text-slate-600 mt-1">
+                  {currentUser.name} ({currentUser.grade_label} · {currentUser.level}) · 《{currentBook.title}》
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => onChangeTab("reports")}
-                className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold"
-              >
-                수업 완료 및 학부모 리포트
-              </button>
+              <div className="flex items-center gap-2">
+                <label htmlFor="coachingStudentSelect" className="text-xs font-bold text-slate-600">
+                  학생 선택
+                </label>
+                <select
+                  id="coachingStudentSelect"
+                  value={currentUser.id}
+                  onChange={(e) => {
+                    onSelectStudent(e.target.value);
+                    setParentMsg("");
+                    setParentMsgCopied(false);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-white/85 border border-[#d8ceb8] text-sm font-semibold text-slate-900"
+                >
+                  {users.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.grade_label} · {u.level})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Student Weekly Voice Recordings & AI Pronunciation Feedback */}
@@ -947,54 +1016,68 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
               )}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
-                <h3 className="text-base font-bold text-slate-900">학생 발화 강점 &amp; 취약점 분석</h3>
-                <div className="space-y-3">
-                  <div>
-                    <div className="text-xs font-bold text-emerald-700 mb-1.5">강점 표현</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {(currentUser.strengths || []).map((s) => (
-                        <span
-                          key={s.tag}
-                          className="text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold"
-                        >
-                          {s.tag} ({s.count})
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-amber-700 mb-1.5">집중 교정 포인트</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {(currentUser.weaknesses || []).map((w) => (
-                        <span
-                          key={w.tag}
-                          className="text-xs px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-semibold"
-                        >
-                          {w.tag} ({w.count})
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-[#e5dcc9]">
+              {/* Real Progress & Recording Analysis Summary (no dummy data) */}
+              <div className="space-y-4">
+                <h3 className="text-base font-bold text-slate-900">주차별 진도 &amp; 실제 발음 분석 요약</h3>
+                <div className="divide-y divide-[#e5dcc9] border-y border-[#e5dcc9]">
+                  {([1, 2, 3, 4] as const).map((wk) => {
+                    const prog = (currentUser[`progress_w${wk}` as keyof StudentUser] as number) || 0;
+                    const repeats = Math.min(5, Math.floor(prog / 20));
+                    return (
+                      <div key={wk} className="py-2.5 flex items-center justify-between text-xs">
+                        <span className="font-bold text-slate-700">{wk}주차 학습 진도</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-slate-500">반복 {repeats}/5회</span>
+                          <span className="font-bold text-sky-700 w-10 text-right">{prog}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
+
+                {studentRecordings.length === 0 ? (
+                  <p className="text-xs text-slate-500">
+                    아직 제출된 발음 녹음이 없어 집중 교정 단어가 기록되지 않았습니다.
+                  </p>
+                ) : (
+                  <div className="space-y-2 pt-1">
+                    <div className="text-xs font-bold text-slate-700">
+                      최근 녹음 기준 집중 연습 단어
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {Array.from(
+                        new Set(studentRecordings.flatMap((r) => r.ai_feedback?.weak_words || []))
+                      )
+                        .slice(0, 8)
+                        .map((w) => (
+                          <span
+                            key={w}
+                            className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100/80 text-amber-900 font-semibold"
+                          >
+                            {w}
+                          </span>
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
+              <div className="lg:border-l lg:border-[#e5dcc9] lg:pl-8 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-slate-900">4주차 화상 수업 추천 질문 3선</h3>
+                  <h3 className="text-base font-bold text-slate-900">수업 추천 질문 3선</h3>
                   <button
                     type="button"
                     onClick={loadCoachingQuestions}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-xs font-bold text-slate-700"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     새로고침
                   </button>
                 </div>
-                <div className="space-y-3">
+                <div className="divide-y divide-[#e5dcc9] border-y border-[#e5dcc9]">
                   {coachQuestions.map((q, idx) => (
-                    <div key={q.id || idx} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                    <div key={q.id || idx} className="py-3 space-y-1">
                       <div className="text-[11px] font-bold text-sky-700">
                         질문 0{idx + 1} · {q.category}
                       </div>
@@ -1005,95 +1088,75 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 </div>
               </div>
             </div>
-          </div>
-        )}
 
-        {activeTab === "reports" && currentUser && currentBook && (
-          <div className="space-y-6 max-w-5xl">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">학부모 성장 리포트 &amp; 수료증</h2>
-              <p className="text-sm text-slate-500 mt-1">
-                {currentUser.name} 학생의 1주차 vs 4주차 읽기 성장 비교 및 수료증을 발송합니다.
-              </p>
-            </div>
+            {/* Merged Parent Feedback AI Generator + Copy & Certificate */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-[#e5dcc9]">
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">학부모 피드백 메시지 (AI 작성)</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      진도율과 녹음 분석 결과를 바탕으로 학부모님께 보낼 안내 문구를 생성합니다.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleGenerateParentMsg}
+                    disabled={parentMsgLoading}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition disabled:opacity-60"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    {parentMsgLoading ? "생성 중..." : "AI 피드백 생성"}
+                  </button>
+                </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
-                <h3 className="text-base font-bold text-slate-900">1주차 vs 4주차 읽기 비교</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                    <div className="text-xs font-bold text-slate-500">1주차 (처음 읽기)</div>
-                    <div className="text-lg font-bold text-slate-900">
-                      {currentUser.w1_wpm} WPM · {currentUser.w1_accuracy}%
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => speakEnglish("Look. at. the. star-fish.", 0.65, 1.0)}
-                      className="w-full py-2 px-3 rounded-lg bg-white border border-slate-300 text-xs font-bold text-slate-700 inline-flex items-center justify-center gap-1"
-                    >
-                      <Volume2 className="w-3.5 h-3.5" />
-                      1주차 샘플 듣기
-                    </button>
-                  </div>
-                  <div className="p-4 rounded-xl bg-sky-50 border border-sky-200 space-y-2">
-                    <div className="text-xs font-bold text-sky-700">4주차 (완성 읽기)</div>
-                    <div className="text-lg font-bold text-slate-900">
-                      {currentUser.w4_wpm} WPM · {currentUser.w4_accuracy}%
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        speakEnglish("Look at the starfish shining on the sandy floor!", 0.94, 1.06)
-                      }
-                      className="w-full py-2 px-3 rounded-lg bg-sky-600 text-white text-xs font-bold inline-flex items-center justify-center gap-1"
-                    >
-                      <Volume2 className="w-3.5 h-3.5" />
-                      4주차 샘플 듣기
-                    </button>
-                  </div>
+                <textarea
+                  rows={6}
+                  value={parentMsg}
+                  onChange={(e) => setParentMsg(e.target.value)}
+                  placeholder="오른쪽 위 'AI 피드백 생성' 버튼을 누르면 학생의 실제 진도와 발음 분석을 반영한 학부모 안내 메시지가 자동으로 작성됩니다."
+                  className="w-full px-4 py-3 rounded-xl bg-white/85 border border-[#d8ceb8] text-sm text-slate-800 leading-relaxed focus:outline-none focus:border-sky-600"
+                />
+
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={handleCopyParentMsg}
+                    disabled={!parentMsg.trim()}
+                    className="px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-900 disabled:opacity-40 text-white text-xs font-bold transition"
+                  >
+                    {parentMsgCopied ? "복사 완료! (붙여넣기 하세요)" : "메시지 복사하기"}
+                  </button>
+                  <span className="text-[11px] text-slate-500">
+                    복사 후 카카오톡·문자에 바로 붙여넣어 전송할 수 있습니다.
+                  </span>
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-[#e5dcc9] space-y-4">
+              <div className="lg:border-l lg:border-[#e5dcc9] lg:pl-8 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="text-base font-bold text-slate-900">BADA 탐험 수료증</h3>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!canvasRef.current) return;
-                        const link = document.createElement("a");
-                        link.download = `BADA_수료증_${currentUser.name}.png`;
-                        link.href = canvasRef.current.toDataURL("image/png");
-                        link.click();
-                      }}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      이미지 저장
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setAlimtalkMsg(`${currentUser.name} 학부모님께 성장 리포트와 수료증이 발송되었습니다.`)
-                      }
-                      className="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-xs font-bold"
-                    >
-                      알림톡 발송
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!canvasRef.current) return;
+                      const link = document.createElement("a");
+                      link.download = `BADA_수료증_${currentUser.name}.png`;
+                      link.href = canvasRef.current.toDataURL("image/png");
+                      link.click();
+                    }}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-xs font-bold text-slate-700"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    수료증 이미지 저장
+                  </button>
                 </div>
                 <canvas
                   ref={canvasRef}
                   width={760}
                   height={500}
-                  className="w-full h-auto rounded-xl border border-slate-200"
+                  className="w-full h-auto rounded-xl border border-[#e5dcc9]"
                 />
-                {alimtalkMsg && (
-                  <p className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
-                    {alimtalkMsg}
-                  </p>
-                )}
               </div>
             </div>
           </div>
@@ -1110,7 +1173,20 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
               <div className="lg:col-span-3 pt-4 border-t border-[#e5dcc9] space-y-4">
-                <h3 className="text-base font-bold text-slate-900">신규 원서 교재 등록</h3>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-base font-bold text-slate-900">
+                    {editingBookId ? "기존 원서 교재 수정" : "신규 원서 교재 등록"}
+                  </h3>
+                  {editingBookId && (
+                    <button
+                      type="button"
+                      onClick={handleResetNewBookMode}
+                      className="text-xs font-bold px-3 py-1 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700"
+                    >
+                      + 새 교재 등록 모드로 전환
+                    </button>
+                  )}
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-600 mb-1">원서 영어 제목</label>
@@ -1185,9 +1261,13 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   type="button"
                   onClick={handleCreateBook}
                   disabled={bookSaving}
-                  className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold disabled:opacity-60"
+                  className="px-5 py-2.5 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold disabled:opacity-60"
                 >
-                  {bookSaving ? "분석 및 등록 중..." : "신규 원서 등록하기"}
+                  {bookSaving
+                    ? "저장 및 AI 분석 중..."
+                    : editingBookId
+                    ? "수정 내용 저장하기"
+                    : "신규 원서 등록하기"}
                 </button>
 
                 {bookResultMsg && (
@@ -1197,19 +1277,30 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 )}
               </div>
 
-              {/* Registered Books Catalog */}
+              {/* Registered Books Catalog (click to view & edit) */}
               <div className="lg:col-span-2 lg:border-l lg:border-[#e5dcc9] lg:pl-6 pt-4 border-t border-[#e5dcc9] space-y-3">
-                <h3 className="text-base font-bold text-slate-900">등록된 원서 교재 목록</h3>
-                <div className="space-y-2.5 max-h-[540px] overflow-y-auto pr-1">
+                <div className="flex items-baseline justify-between">
+                  <h3 className="text-base font-bold text-slate-900">등록된 원서 교재 목록</h3>
+                  <span className="text-[11px] text-slate-500">누르면 내용 확인·수정 가능</span>
+                </div>
+                <div className="divide-y divide-[#e5dcc9] border-y border-[#e5dcc9] max-h-[540px] overflow-y-auto pr-1">
                   {books.map((b) => {
                     const sCount = getBookSentences(b).length;
+                    const isEditing = editingBookId === b.id;
                     return (
-                      <div key={b.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3.5">
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => handleSelectBookForEdit(b)}
+                        className={`w-full text-left py-3 px-2 flex items-center gap-3.5 transition ${
+                          isEditing ? "bg-sky-50/80 border-l-4 border-sky-600 pl-3" : "hover:bg-[#f4efe5]/70"
+                        }`}
+                      >
                         <BookCover book={b} size="sm" />
                         <div className="min-w-0 flex-1 space-y-1">
                           <div className="flex items-center justify-between gap-2">
                             <strong className="text-sm text-slate-900 truncate">{b.title}</strong>
-                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white border border-slate-200 text-sky-700 shrink-0">
+                            <span className="text-[11px] font-bold text-sky-700 shrink-0">
                               {b.level}
                             </span>
                           </div>
@@ -1219,7 +1310,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                             {(b.speaking_questions || []).length}개
                           </div>
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>

@@ -1090,6 +1090,59 @@ async function createBook(payload) {
   };
 }
 
+async function updateBook(payload) {
+  const id = String(payload.id || "").trim();
+  const title = String(payload.title || "").trim();
+  const subtitle_kr = String(payload.subtitle_kr || "").trim() || "원서 스토리북";
+  const level = String(payload.level || "Level 2").trim();
+  const grade_recommended = String(payload.grade_recommended || "초등 1~3학년").trim();
+  const full_text = String(payload.full_text || "").trim();
+  const korean_text = String(payload.korean_text || "").trim();
+
+  if (!id || !title || !full_text) {
+    throw new Error("교재 ID, 제목, 영어 원문은 필수입니다.");
+  }
+
+  const tHash = hashText(full_text);
+
+  if (pgPool) {
+    await pgPool.query(
+      `UPDATE books
+       SET title = $1, subtitle_kr = $2, level = $3, grade_recommended = $4, full_text = $5, text_hash = $6
+       WHERE id = $7`,
+      [title, subtitle_kr, level, grade_recommended, full_text, tHash, id]
+    );
+  } else {
+    sqliteDb
+      .prepare(
+        `UPDATE books
+         SET title = ?, subtitle_kr = ?, level = ?, grade_recommended = ?, full_text = ?, text_hash = ?
+         WHERE id = ?`
+      )
+      .run(title, subtitle_kr, level, grade_recommended, full_text, tHash, id);
+  }
+
+  const analysis = await getOrExtractVocabAndChunks(full_text, level, id, false, korean_text);
+  return {
+    book: {
+      id,
+      title,
+      subtitle_kr,
+      level,
+      grade_recommended,
+      full_text,
+      text_hash: tHash,
+      vocab: analysis.vocab,
+      chunks: analysis.chunks,
+      core_expressions: analysis.core_expressions,
+      sentence_translations: analysis.sentence_translations,
+      speaking_questions: analysis.speaking_questions,
+      page_illustrations: analysis.page_illustrations || []
+    },
+    analysis
+  };
+}
+
 async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = null, isSeed = false, customKoreanText = "") {
   if (pgPool) {
     const tHash = hashText(rawText);
@@ -1536,6 +1589,7 @@ module.exports = {
   createTeacher,
   deleteTeacher,
   createBook,
+  updateBook,
   reanalyzeAllBooksWithLLM,
   saveStudentRecording,
   listStudentRecordings,

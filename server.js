@@ -21,6 +21,7 @@ const {
   createTeacher,
   deleteTeacher,
   createBook,
+  updateBook,
   reanalyzeAllBooksWithLLM,
   saveStudentRecording,
   listStudentRecordings,
@@ -30,7 +31,8 @@ const {
 const {
   POPO_MASTER_PROMPT_SPEC,
   evaluatePopoSpeech,
-  generateTeacherQuestions
+  generateTeacherQuestions,
+  generateParentFeedbackMessage
 } = require("./ai-engine");
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -271,6 +273,24 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
+    // 2.55 Update existing storybook
+    if (pathname === "/api/books/update" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const updated = await updateBook(body);
+        const updatedBootstrap = await getAllBootstrapData();
+        return sendJson(res, 200, {
+          ok: true,
+          book: updated.book,
+          analysis: updated.analysis,
+          books: updatedBootstrap.books,
+          auditLogs: updatedBootstrap.auditLogs
+        });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
     // 2.6 Re-analyze all books in DB with external LLM
     if (pathname === "/api/books/reanalyze" && req.method === "POST") {
       try {
@@ -320,6 +340,25 @@ const server = http.createServer(async (req, res) => {
         coreExpressions: Array.isArray(body.coreExpressions) ? body.coreExpressions.slice(0, 8) : []
       });
       return sendJson(res, 200, { questions });
+    }
+
+    // 5.2 AI Parent Feedback Message Generator
+    if (pathname === "/api/teacher/parent-feedback" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      const userId = String(body.userId || "").trim();
+      const recs = userId ? await listStudentRecordings(userId) : [];
+      const message = await generateParentFeedbackMessage({
+        studentName: String(body.studentName || "학생").slice(0, 40),
+        level: String(body.level || "Level 2").slice(0, 40),
+        bookTitle: String(body.bookTitle || "").slice(0, 120),
+        weeklyProgress: body.weeklyProgress || {},
+        recordingsSummary: recs.slice(0, 5).map((r) => ({
+          week_num: r.week_num,
+          weak_words: r.ai_feedback?.weak_words || [],
+          pronunciation_tip_kr: r.ai_feedback?.pronunciation_tip_kr || ""
+        }))
+      });
+      return sendJson(res, 200, { ok: true, message });
     }
 
     // 5.5 Student Voice Recordings (list & upload with AI pronunciation feedback)

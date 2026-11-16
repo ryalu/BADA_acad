@@ -1142,12 +1142,78 @@ async function analyzePronunciationWithLLM({ expectedText = "", spokenTranscript
   };
 }
 
+async function generateParentFeedbackMessage({
+  studentName = "학생",
+  level = "Level 2",
+  bookTitle = "",
+  weeklyProgress = {},
+  recordingsSummary = []
+}) {
+  const openaiKey = process.env.OPENAI_API_KEY || "";
+  const weakList = [...new Set(recordingsSummary.flatMap((r) => r.weak_words || []))].slice(0, 5);
+  const tips = recordingsSummary
+    .map((r) => r.pronunciation_tip_kr)
+    .filter(Boolean)
+    .slice(0, 2);
+
+  if (openaiKey) {
+    try {
+      const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiKey}`
+        },
+        body: JSON.stringify({
+          model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+          temperature: 0.45,
+          max_tokens: 500,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a warm, attentive elementary English academy director writing a KakaoTalk/SMS feedback message to a parent in Korean. " +
+                "Include: 1) Warm greeting mentioning the student's name and current storybook, 2) Specific encouragement based on their weekly progress and recorded pronunciation/reading notes, 3) Gentle home-practice tip (if weak words exist, mention 1-2 naturally), 4) Warm closing. Keep it 4-6 concise sentences, natural Korean, no markdown symbols."
+            },
+            {
+              role: "user",
+              content: JSON.stringify({
+                studentName,
+                level,
+                bookTitle,
+                weeklyProgress,
+                recordedCount: recordingsSummary.length,
+                weakWords: weakList,
+                coachingNotes: tips
+              })
+            }
+          ]
+        })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        const msg = (data?.choices?.[0]?.message?.content || "").trim();
+        if (msg) return msg;
+      }
+    } catch {
+      // fallback below
+    }
+  }
+
+  const weakText = weakList.length
+    ? `집에서는 '${weakList.slice(0, 3).join(", ")}' 단어를 한 번 더 소리 내어 복습할 수 있도록 격려해 주시면 큰 도움이 됩니다.`
+    : "배운 문장을 집에서도 자신감 있게 소리 내어 읽어보도록 칭찬해 주세요.";
+
+  return `안녕하세요, 학부모님! BADA 영어입니다.\n${studentName} 학생이 이번 달 원서 《${bookTitle}》(${level}) 학습을 성실하게 이어가고 있습니다.\n현재 1주차(${weeklyProgress.w1 || 0}%), 2주차(${weeklyProgress.w2 || 0}%), 3주차(${weeklyProgress.w3 || 0}%), 4주차(${weeklyProgress.w4 || 0}%) 단계를 차근차근 밟으며 읽기 자신감이 눈에 띄게 자라고 있어요.\n${weakText}\n항상 따뜻한 응원 감사드립니다!`;
+}
+
 module.exports = {
   POPO_MASTER_PROMPT_SPEC,
   analyzeTextWithLLM,
   analyzeTextWithLLMAsync,
   generatePageIllustrationsWithLLM,
   analyzePronunciationWithLLM,
+  generateParentFeedbackMessage,
   evaluatePopoSpeech,
   generateTeacherQuestions
 };
