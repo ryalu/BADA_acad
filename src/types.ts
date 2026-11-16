@@ -17,6 +17,7 @@ export interface StudentUser {
   pin_code?: string;
   teacher_id?: string;
   classcard_level?: number;
+  classcard_mode?: "both" | "phonics_only" | "book_only";
   progress_w1: number;
   progress_w2: number;
   progress_w3: number;
@@ -84,6 +85,24 @@ export interface PageIllustration {
   svg?: string;
 }
 
+export interface BookWorksheets {
+  week1?: {
+    title_kr: string;
+    vocab_test: { word: string; meaning_kr: string; hint?: string }[];
+    comprehension: { question_kr: string; answer_hint_kr: string }[];
+  };
+  week2?: {
+    title_kr: string;
+    chunk_writing: { en: string; kr: string }[];
+    fill_blanks: { sentence_blank: string; answer: string; kr: string }[];
+  };
+  week3_4?: {
+    title_kr: string;
+    sentence_copy: { en: string; kr: string }[];
+    my_expressions: { base_sentence: string; swap_guide_kr: string; example_en: string }[];
+  };
+}
+
 export interface Book {
   id: string;
   title: string;
@@ -98,6 +117,7 @@ export interface Book {
   sentence_translations?: SentenceTranslation[];
   speaking_questions?: SpeakingQuestion[];
   page_illustrations?: PageIllustration[];
+  worksheets?: BookWorksheets;
 }
 
 export interface TeacherQuestion {

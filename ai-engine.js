@@ -1209,6 +1209,110 @@ async function generateParentFeedbackMessage({
   return `안녕하세요, 학부모님! BADA 영어입니다.\n${studentName} 학생이 이번 달 원서 《${bookTitle}》(${level}) 학습을 성실하게 이어가고 있습니다.\n현재 1주차(${weeklyProgress.w1 || 0}%), 2주차(${weeklyProgress.w2 || 0}%), 3주차(${weeklyProgress.w3 || 0}%), 4주차(${weeklyProgress.w4 || 0}%) 단계를 차근차근 밟으며 읽기 자신감이 눈에 띄게 자라고 있어요.\n${weakText}\n항상 따뜻한 응원 감사드립니다!`;
 }
 
+async function generateBookWorksheetsWithLLM(book) {
+  const title = String(book?.title || "Storybook");
+  const level = String(book?.level || "Level 2");
+  const fullText = String(book?.full_text || "");
+  const vocab = Array.isArray(book?.vocab) ? book.vocab : [];
+  const chunks = Array.isArray(book?.chunks) ? book.chunks : [];
+  const translations = Array.isArray(book?.sentence_translations) ? book.sentence_translations : [];
+
+  const sentences = fullText
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const openaiKey = process.env.OPENAI_API_KEY || "";
+  if (openaiKey && fullText.trim()) {
+    try {
+      const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiKey}`
+        },
+        body: JSON.stringify({
+          model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+          temperature: 0.3,
+          max_tokens: 3500,
+          response_format: { type: "json_object" },
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an elementary English curriculum designer for BADA English. " +
+                "Create printable offline weekly practice worksheets for ONE storybook. Return ONLY valid JSON with keys `week1`, `week2`, `week3_4`: " +
+                "1) `week1`: { title_kr, vocab_test: [8-12 items of {word, meaning_kr, hint}], comprehension: [3-4 items of {question_kr (Korean question checking story understanding), answer_hint_kr}] }. " +
+                "2) `week2`: { title_kr, chunk_writing: [6-10 items of {en (key phrase/chunk from story), kr}], fill_blanks: [4-6 items of {sentence_blank (sentence with _____ for a key phrase/word), answer, kr}] }. " +
+                "3) `week3_4`: { title_kr, sentence_copy: [every sentence of the story as {en, kr}], my_expressions: [3-4 items of {base_sentence (from story), swap_guide_kr (Korean guide telling student which 1-2 words to swap to make their own sentence), example_en}] }."
+            },
+            {
+              role: "user",
+              content: JSON.stringify({
+                title,
+                level,
+                sentences,
+                vocab: vocab.slice(0, 30),
+                chunks: chunks.slice(0, 20),
+                translations: translations.slice(0, 20)
+              })
+            }
+          ]
+        })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        const parsed = JSON.parse(data?.choices?.[0]?.message?.content || "{}");
+        if (parsed.week1 && parsed.week2 && parsed.week3_4) {
+          return parsed;
+        }
+      }
+    } catch (err) {
+      console.warn("⚠️ [BADA Worksheet] LLM 생성 실패 ➔ 기본 학습지 생성:", err.message);
+    }
+  }
+
+  return {
+    week1: {
+      title_kr: `1주차 핵심 단어 쓰기 & 내용 이해 (${title})`,
+      vocab_test: vocab.slice(0, 10).map((v) => ({
+        word: v.surface || v.word,
+        meaning_kr: v.meaning_kr,
+        hint: v.phonetic || ""
+      })),
+      comprehension: [
+        { question_kr: "이 이야기에는 누가 등장하나요?", answer_hint_kr: "주인공의 이름을 떠올려 보세요." },
+        { question_kr: "이야기 속 배경은 어디인가요?", answer_hint_kr: "첫 문장의 장소를 확인해 보세요." },
+        { question_kr: "이야기에서 가장 기억에 남는 장면은 무엇인가요?", answer_hint_kr: "우리말로 자유롭게 적어 보세요." }
+      ]
+    },
+    week2: {
+      title_kr: `2주차 핵심 구·표현 쓰기 & 빈칸 채우기 (${title})`,
+      chunk_writing: chunks.slice(0, 8).map((c) => ({ en: c.text, kr: c.meaning_kr })),
+      fill_blanks: sentences.slice(0, 5).map((s, idx) => {
+        const words = s.split(/\s+/);
+        const targetIdx = Math.max(0, Math.min(words.length - 1, Math.floor(words.length / 2)));
+        const ans = words[targetIdx].replace(/[^a-zA-Z0-9'-]/g, "");
+        const blanked = words.map((w, i) => (i === targetIdx ? "________" : w)).join(" ");
+        return {
+          sentence_blank: blanked,
+          answer: ans,
+          kr: translations[idx]?.kr || ""
+        };
+      })
+    },
+    week3_4: {
+      title_kr: `3·4주차 전체 문장 쓰기 & 나만의 문장 만들기 (${title})`,
+      sentence_copy: sentences.map((en, idx) => ({ en, kr: translations[idx]?.kr || "" })),
+      my_expressions: sentences.slice(0, 3).map((en) => ({
+        base_sentence: en,
+        swap_guide_kr: "위 문장에서 명사나 형용사 1~2단어를 내가 좋아하는 단어로 바꾸어 새 문장을 만들어 보세요.",
+        example_en: en
+      }))
+    }
+  };
+}
+
 module.exports = {
   POPO_MASTER_PROMPT_SPEC,
   analyzeTextWithLLM,
@@ -1216,6 +1320,7 @@ module.exports = {
   generatePageIllustrationsWithLLM,
   analyzePronunciationWithLLM,
   generateParentFeedbackMessage,
+  generateBookWorksheetsWithLLM,
   evaluatePopoSpeech,
   generateTeacherQuestions
 };

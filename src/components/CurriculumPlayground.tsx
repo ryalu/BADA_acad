@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, CheckCircle2, HelpCircle, Layers, Volume2 } from "lucide-react";
-import type { StudentUser } from "../types";
+import type { Book, StudentUser } from "../types";
 import { getClassCardDeckForLevel, getPhonicsModuleForLevel } from "../data/phonicsCurriculum";
 import { playSoftTone, speakEnglish } from "../utils/speech";
 
 interface CurriculumPlaygroundProps {
   user: StudentUser;
+  book?: Book;
   initialSubview?: "hub" | "phonics" | "classcard" | "upper";
   onBackHome: () => void;
 }
@@ -18,11 +19,36 @@ const G4_PATTERNS = [
 
 export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
   user,
+  book,
   initialSubview = "hub",
   onBackHome
 }) => {
   const phonicsModule = useMemo(() => getPhonicsModuleForLevel(user.level), [user.level]);
-  const classCardDeck = useMemo(() => getClassCardDeckForLevel(user.level), [user.level]);
+  const classCardDeck = useMemo(() => {
+    const mode = user.classcard_mode || "both";
+    const baseDeck = getClassCardDeckForLevel(user.level);
+    const filteredBase =
+      mode === "book_only"
+        ? baseDeck.filter((c) => !c.fromPhonics)
+        : baseDeck;
+
+    if (mode === "phonics_only" || !book?.vocab?.length) {
+      return filteredBase;
+    }
+
+    const seen = new Set(filteredBase.map((c) => c.word.toLowerCase()));
+    const bookCards = (book.vocab || [])
+      .filter((v) => v.word && v.meaning_kr && !seen.has(v.word.toLowerCase()))
+      .slice(0, 8)
+      .map((v) => ({
+        word: v.surface || v.word,
+        meaning: v.meaning_kr,
+        example: v.popo_tip || `《${book.title}》 핵심 단어`,
+        fromPhonics: false
+      }));
+
+    return [...filteredBase, ...bookCards];
+  }, [user.level, user.classcard_mode, book]);
 
   const [subview, setSubview] = useState<"hub" | "phonics" | "classcard" | "upper">(initialSubview);
   const [phonicsIdx, setPhonicsIdx] = useState(0);

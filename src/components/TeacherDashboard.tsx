@@ -63,14 +63,26 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   const [stuLevel, setStuLevel] = useState("Level 2");
   const [stuBookId, setStuBookId] = useState(books[0]?.id || "");
   const [stuCc, setStuCc] = useState(2);
-  const [stuTeacherId, setStuTeacherId] = useState(teachers[1]?.id || teachers[0]?.id || "tch_emma");
+  const [stuCcMode, setStuCcMode] = useState<"both" | "phonics_only" | "book_only">("both");
+  const [stuTeacherId, setStuTeacherId] = useState(teachers[0]?.id || "tch_director");
   const [stuPin, setStuPin] = useState("1234");
   const [stuMsg, setStuMsg] = useState("");
 
   // Inline edits per student
   const [edits, setEdits] = useState<
-    Record<string, { level: string; bookId: string; cc: number; pin: string }>
+    Record<
+      string,
+      {
+        level: string;
+        bookId: string;
+        cc: number;
+        ccMode: "both" | "phonics_only" | "book_only";
+        teacherId: string;
+        pin: string;
+      }
+    >
   >({});
+  const [worksheetLoading, setWorksheetLoading] = useState<string | null>(null);
 
   // Home Roster & Modals/Panels
   const [showNewStudentForm, setShowNewStudentForm] = useState(false);
@@ -122,17 +134,29 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   }, [books, stuBookId]);
 
   useEffect(() => {
-    const map: Record<string, { level: string; bookId: string; cc: number; pin: string }> = {};
+    const map: Record<
+      string,
+      {
+        level: string;
+        bookId: string;
+        cc: number;
+        ccMode: "both" | "phonics_only" | "book_only";
+        teacherId: string;
+        pin: string;
+      }
+    > = {};
     users.forEach((u) => {
       map[u.id] = {
         level: u.level,
         bookId: u.current_book_id,
         cc: u.classcard_level || 2,
+        ccMode: u.classcard_mode || "both",
+        teacherId: u.teacher_id || teachers[0]?.id || "tch_director",
         pin: u.pin_code || "1234"
       };
     });
     setEdits(map);
-  }, [users]);
+  }, [users, teachers]);
 
   useEffect(() => {
     if (!selectedUserId) return;
@@ -241,6 +265,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
         level: stuLevel,
         current_book_id: stuBookId || books[0]?.id,
         classcard_level: stuCc,
+        classcard_mode: stuCcMode,
         teacher_id: stuTeacherId,
         pin_code: stuPin
       })
@@ -266,6 +291,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
         level: ed.level,
         current_book_id: ed.bookId,
         classcard_level: ed.cc,
+        classcard_mode: ed.ccMode,
+        teacher_id: ed.teacherId,
         pin_code: ed.pin
       })
     });
@@ -278,6 +305,158 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           : `'${u.name}' 학생 정보가 저장되었습니다.`
       );
       playSoftTone(760, 0.14);
+    }
+  };
+
+  const handleManualProgressChange = async (weekNum: 1 | 2 | 3 | 4, progressVal: number) => {
+    if (!currentUser) return;
+    const res = await fetch("/api/students/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: currentUser.id,
+        [`progress_w${weekNum}`]: progressVal
+      })
+    });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      onDataUpdated({ users: data.users });
+      playSoftTone(720, 0.12);
+    }
+  };
+
+  const handlePrintWorksheet = async (weekKey: "week1" | "week2" | "week3_4") => {
+    if (!currentBook) return;
+    setWorksheetLoading(weekKey);
+    try {
+      const res = await fetch("/api/books/worksheets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookId: currentBook.id })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok || !data.worksheets) return;
+      if (data.books) onDataUpdated({ books: data.books });
+
+      const ws = data.worksheets;
+      const studentName = currentUser?.name || "학생";
+      const esc = (s: string) =>
+        String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+
+      let bodyHtml = "";
+      if (weekKey === "week1" && ws.week1) {
+        bodyHtml = `
+          <h2>${esc(ws.week1.title_kr)}</h2>
+          <div class="sec">
+            <h3>1. 핵심 영단어 쓰기 &amp; 뜻 테스트</h3>
+            <table>
+              <thead><tr><th>번호</th><th>우리말 뜻</th><th>힌트</th><th>영어 단어 쓰기 (2번 연습)</th></tr></thead>
+              <tbody>
+                ${(ws.week1.vocab_test || [])
+                  .map(
+                    (v: any, i: number) =>
+                      `<tr><td>${i + 1}</td><td><strong>${esc(v.meaning_kr)}</strong></td><td>${esc(v.hint || "")}</td><td class="write-cell">_________________ / _________________</td></tr>`
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+          <div class="sec">
+            <h3>2. 원서 내용 이해하기</h3>
+            ${(ws.week1.comprehension || [])
+              .map(
+                (q: any, i: number) =>
+                  `<div class="qbox"><p><strong>Q${i + 1}.</strong> ${esc(q.question_kr)} <span class="hint">(${esc(q.answer_hint_kr)})</span></p><div class="line"></div></div>`
+              )
+              .join("")}
+          </div>`;
+      } else if (weekKey === "week2" && ws.week2) {
+        bodyHtml = `
+          <h2>${esc(ws.week2.title_kr)}</h2>
+          <div class="sec">
+            <h3>1. 핵심 구(청크) 및 표현 따라 쓰기</h3>
+            <table>
+              <thead><tr><th>번호</th><th>영어 표현</th><th>우리말 뜻</th><th>따라 쓰기</th></tr></thead>
+              <tbody>
+                ${(ws.week2.chunk_writing || [])
+                  .map(
+                    (c: any, i: number) =>
+                      `<tr><td>${i + 1}</td><td><strong>${esc(c.en)}</strong></td><td>${esc(c.kr)}</td><td class="write-cell">___________________________</td></tr>`
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+          <div class="sec">
+            <h3>2. 문장 빈칸 채우기</h3>
+            ${(ws.week2.fill_blanks || [])
+              .map(
+                (b: any, i: number) =>
+                  `<div class="qbox"><p><strong>${i + 1}.</strong> ${esc(b.sentence_blank)}</p><p class="hint">해석: ${esc(b.kr)} (정답 확인: ${esc(b.answer)})</p></div>`
+              )
+              .join("")}
+          </div>`;
+      } else if (ws.week3_4) {
+        bodyHtml = `
+          <h2>${esc(ws.week3_4.title_kr)}</h2>
+          <div class="sec">
+            <h3>1. 전체 문장 따라 쓰고 우리말 뜻 적기</h3>
+            ${(ws.week3_4.sentence_copy || [])
+              .map(
+                (s: any, i: number) =>
+                  `<div class="qbox"><p><strong>${i + 1}.</strong> ${esc(s.en)}</p><div class="line"></div><p class="hint">우리말 뜻: ______________________________________________________</p></div>`
+              )
+              .join("")}
+          </div>
+          <div class="sec">
+            <h3>2. 1~2단어 바꿔서 나만의 문장 만들기</h3>
+            ${(ws.week3_4.my_expressions || [])
+              .map(
+                (m: any, i: number) =>
+                  `<div class="qbox"><p><strong>기본 문장 ${i + 1}:</strong> ${esc(m.base_sentence)}</p><p class="hint">${esc(m.swap_guide_kr)} (예시: ${esc(m.example_en)})</p><div class="line"></div></div>`
+              )
+              .join("")}
+          </div>`;
+      }
+
+      const win = window.open("", "_blank", "width=900,height=1000");
+      if (!win) return;
+      win.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${esc(currentBook.title)} 학습지</title>
+        <style>
+          @page { size: A4; margin: 14mm; }
+          body { font-family: "Pretendard", "Malgun Gothic", sans-serif; color: #1e293b; line-height: 1.5; margin: 0; padding: 16px; }
+          .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #0284c7; padding-bottom: 8px; margin-bottom: 14px; }
+          .brand { font-size: 12px; font-weight: 700; color: #0284c7; }
+          .meta { font-size: 12px; color: #475569; }
+          h2 { font-size: 18px; margin: 0 0 12px; }
+          h3 { font-size: 14px; color: #0369a1; margin: 0 0 8px; }
+          .sec { margin-bottom: 18px; }
+          table { width: 100%; border-collapse: collapse; font-size: 12px; }
+          th, td { border: 1px solid #cbd5e1; padding: 7px 8px; text-align: left; }
+          th { background: #f1f5f9; }
+          .write-cell { color: #94a3b8; }
+          .qbox { margin-bottom: 12px; font-size: 13px; }
+          .hint { font-size: 11px; color: #64748b; margin: 2px 0 0; }
+          .line { border-bottom: 1px solid #94a3b8; height: 22px; margin-top: 4px; }
+          @media print { .no-print { display: none; } }
+        </style>
+      </head><body>
+        <div class="no-print" style="margin-bottom:12px; text-align:right;">
+          <button onclick="window.print()" style="padding:8px 16px; background:#0284c7; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">인쇄 / PDF로 저장</button>
+        </div>
+        <div class="top">
+          <div><div class="brand">BADA ENGLISH · 오프라인 워크북</div><div style="font-size:15px;font-weight:700;">《${esc(currentBook.title)}》 (${esc(currentBook.level)})</div></div>
+          <div class="meta">이름: <strong>${esc(studentName)}</strong> &nbsp;|&nbsp; 날짜: ____년 __월 __일</div>
+        </div>
+        ${bodyHtml}
+        <script>setTimeout(() => window.print(), 300);</script>
+      </body></html>`);
+      win.document.close();
+    } finally {
+      setWorksheetLoading(null);
     }
   };
 
@@ -676,13 +855,27 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     <select
                       value={stuCc}
                       onChange={(e) => setStuCc(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#d8ceb8] text-sm"
                     >
                       {Array.from({ length: 26 }, (_, i) => i + 1).map((lv) => (
                         <option key={lv} value={lv}>
                           Level {lv}
                         </option>
                       ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">클카 단어 구성</label>
+                    <select
+                      value={stuCcMode}
+                      onChange={(e) =>
+                        setStuCcMode(e.target.value as "both" | "phonics_only" | "book_only")
+                      }
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#d8ceb8] text-sm"
+                    >
+                      <option value="both">파닉스 + 원서 단어</option>
+                      <option value="phonics_only">파닉스 단어만</option>
+                      <option value="book_only">원서 단어만</option>
                     </select>
                   </div>
                   <div>
@@ -911,8 +1104,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     <th className="py-3 px-2">배정 등급</th>
                     <th className="py-3 px-2">배정 원서</th>
                     <th className="py-3 px-2">클카</th>
+                    <th className="py-3 px-2">클카 구성</th>
+                    <th className="py-3 px-2">담당 선생님</th>
                     <th className="py-3 px-2">PIN</th>
-                    <th className="py-3 px-2">현재 진도</th>
+                    <th className="py-3 px-2">진도</th>
                     <th className="py-3 pl-2 text-right">관리</th>
                   </tr>
                 </thead>
@@ -925,6 +1120,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                         level: u.level,
                         bookId: u.current_book_id,
                         cc: u.classcard_level || 2,
+                        ccMode: u.classcard_mode || "both",
+                        teacherId: u.teacher_id || teachers[0]?.id || "tch_director",
                         pin: u.pin_code || "1234"
                       };
                       const activeWk = getStudentCurrentWeek(u);
@@ -953,7 +1150,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                               onChange={(e) =>
                                 setEdits({ ...edits, [u.id]: { ...ed, level: e.target.value } })
                               }
-                              className="px-2.5 py-1.5 rounded-lg border border-[#d8ceb8] bg-white/90 text-xs font-semibold"
+                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold"
                             >
                               {ALL_BADA_LEVELS.map((lv) => (
                                 <option key={lv} value={lv}>
@@ -968,7 +1165,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                               onChange={(e) =>
                                 setEdits({ ...edits, [u.id]: { ...ed, bookId: e.target.value } })
                               }
-                              className="px-2.5 py-1.5 rounded-lg border border-[#d8ceb8] bg-white/90 text-xs font-semibold max-w-[210px]"
+                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold max-w-[180px]"
                             >
                               {books.map((b) => (
                                 <option key={b.id} value={b.id}>
@@ -983,11 +1180,45 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                               onChange={(e) =>
                                 setEdits({ ...edits, [u.id]: { ...ed, cc: Number(e.target.value) } })
                               }
-                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-white/90 text-xs font-semibold"
+                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold"
                             >
                               {Array.from({ length: 26 }, (_, i) => i + 1).map((lv) => (
                                 <option key={lv} value={lv}>
                                   Lv.{lv}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="py-3 px-2">
+                            <select
+                              value={ed.ccMode}
+                              onChange={(e) =>
+                                setEdits({
+                                  ...edits,
+                                  [u.id]: {
+                                    ...ed,
+                                    ccMode: e.target.value as "both" | "phonics_only" | "book_only"
+                                  }
+                                })
+                              }
+                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold"
+                            >
+                              <option value="both">파닉스+원서</option>
+                              <option value="phonics_only">파닉스만</option>
+                              <option value="book_only">원서만</option>
+                            </select>
+                          </td>
+                          <td className="py-3 px-2">
+                            <select
+                              value={ed.teacherId}
+                              onChange={(e) =>
+                                setEdits({ ...edits, [u.id]: { ...ed, teacherId: e.target.value } })
+                              }
+                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold max-w-[120px]"
+                            >
+                              {teachers.map((t) => (
+                                <option key={t.id} value={t.id}>
+                                  {t.name}
                                 </option>
                               ))}
                             </select>
@@ -1000,21 +1231,28 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                               onChange={(e) =>
                                 setEdits({ ...edits, [u.id]: { ...ed, pin: e.target.value } })
                               }
-                              className="w-14 px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-white/90 text-xs font-semibold text-center"
+                              className="w-13 px-1.5 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold text-center"
                             />
                           </td>
                           <td className="py-3 px-2 whitespace-nowrap">
-                            <span className="text-xs font-bold text-sky-700">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onSelectStudent(u.id);
+                                onChangeTab("coaching");
+                              }}
+                              className="text-xs font-bold text-sky-700 hover:underline"
+                              title="학습 관리에서 진도 직접 수정"
+                            >
                               {activeWk}주차 · {repeats}/5회
-                            </span>
+                            </button>
                           </td>
-                          <td className="py-3 pl-2 text-right whitespace-nowrap space-x-1.5">
+                          <td className="py-3 pl-2 text-right whitespace-nowrap space-x-1">
                             <button
                               type="button"
                               onClick={() => handleSaveStudentAssign(u)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold"
+                              className="px-3 py-1.5 rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold"
                             >
-                              <Save className="w-3 h-3" />
                               저장
                             </button>
                             <button
@@ -1163,23 +1401,66 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-[#e5dcc9]">
-              {/* Real Progress & Recording Analysis Summary (no dummy data) */}
+              {/* Real Progress (Editable by Teacher) & Recording Analysis Summary */}
               <div className="space-y-4">
-                <h3 className="text-base font-bold text-slate-900">주차별 진도 &amp; 실제 발음 분석 요약</h3>
+                <div className="flex items-baseline justify-between">
+                  <h3 className="text-base font-bold text-slate-900">주차별 진도 관리 &amp; 발음 요약</h3>
+                  <span className="text-[11px] text-slate-500">미흡 시 진도를 직접 조정할 수 있습니다</span>
+                </div>
                 <div className="divide-y divide-[#e5dcc9] border-y border-[#e5dcc9]">
                   {([1, 2, 3, 4] as const).map((wk) => {
                     const prog = (currentUser[`progress_w${wk}` as keyof StudentUser] as number) || 0;
-                    const repeats = Math.min(5, Math.floor(prog / 20));
                     return (
                       <div key={wk} className="py-2.5 flex items-center justify-between text-xs">
                         <span className="font-bold text-slate-700">{wk}주차 학습 진도</span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-slate-500">반복 {repeats}/5회</span>
-                          <span className="font-bold text-sky-700 w-10 text-right">{prog}%</span>
-                        </div>
+                        <select
+                          value={prog}
+                          onChange={(e) => handleManualProgressChange(wk, Number(e.target.value))}
+                          className="px-2.5 py-1 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/75 font-bold text-sky-800"
+                        >
+                          {[0, 20, 40, 60, 80, 100].map((v) => (
+                            <option key={v} value={v}>
+                              {v}% (반복 {Math.floor(v / 20)}/5회)
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     );
                   })}
+                </div>
+
+                {/* Offline Printable Worksheets (Cached once per book in DB) */}
+                <div className="pt-3 space-y-2">
+                  <div className="flex items-baseline justify-between">
+                    <h4 className="text-xs font-bold text-slate-800">주차별 오프라인 학습지 (PDF 인쇄)</h4>
+                    <span className="text-[11px] text-slate-500">원서당 1회 생성 후 DB 재사용</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handlePrintWorksheet("week1")}
+                      disabled={worksheetLoading !== null}
+                      className="px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-800 text-xs font-bold transition disabled:opacity-50"
+                    >
+                      {worksheetLoading === "week1" ? "생성 중..." : "1주차 단어·이해 학습지"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handlePrintWorksheet("week2")}
+                      disabled={worksheetLoading !== null}
+                      className="px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-800 text-xs font-bold transition disabled:opacity-50"
+                    >
+                      {worksheetLoading === "week2" ? "생성 중..." : "2주차 구·빈칸 학습지"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handlePrintWorksheet("week3_4")}
+                      disabled={worksheetLoading !== null}
+                      className="px-3 py-1.5 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-800 text-xs font-bold transition disabled:opacity-50"
+                    >
+                      {worksheetLoading === "week3_4" ? "생성 중..." : "3·4주차 문장·응용 학습지"}
+                    </button>
+                  </div>
                 </div>
 
                 {studentRecordings.length === 0 ? (

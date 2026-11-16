@@ -27,7 +27,8 @@ const {
   saveStudentRecording,
   listStudentRecordings,
   getCachedTtsAudio,
-  saveCachedTtsAudio
+  saveCachedTtsAudio,
+  getOrCreateBookWorksheets
 } = require("./db");
 const {
   POPO_MASTER_PROMPT_SPEC,
@@ -314,6 +315,18 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, { ok: true, result, books: updatedBootstrap.books });
       } catch (err) {
         return sendJson(res, 500, { ok: false, error: err.message });
+      }
+    }
+
+    // 2.7 Generate or fetch cached offline printable worksheets for a storybook
+    if (pathname === "/api/books/worksheets" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const worksheets = await getOrCreateBookWorksheets(body.bookId, Boolean(body.force));
+        const updatedBootstrap = await getAllBootstrapData();
+        return sendJson(res, 200, { ok: true, worksheets, books: updatedBootstrap.books });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
       }
     }
 

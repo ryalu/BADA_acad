@@ -13,7 +13,8 @@ const { DatabaseSync } = require("node:sqlite");
 const {
   analyzeTextWithLLM,
   analyzeTextWithLLMAsync,
-  analyzePronunciationWithLLM
+  analyzePronunciationWithLLM,
+  generateBookWorksheetsWithLLM
 } = require("./ai-engine");
 
 // Built-in .env loader (no external dependency required)
@@ -313,9 +314,11 @@ function initSqliteDatabase() {
     "ALTER TABLE users ADD COLUMN pin_code TEXT NOT NULL DEFAULT '1234'",
     "ALTER TABLE users ADD COLUMN teacher_id TEXT DEFAULT 'tch_director'",
     "ALTER TABLE users ADD COLUMN classcard_level INTEGER DEFAULT 2",
+    "ALTER TABLE users ADD COLUMN classcard_mode TEXT DEFAULT 'both'",
     "ALTER TABLE vocab_chunks ADD COLUMN sentence_translations_json TEXT DEFAULT '[]'",
     "ALTER TABLE vocab_chunks ADD COLUMN speaking_questions_json TEXT DEFAULT '[]'",
-    "ALTER TABLE vocab_chunks ADD COLUMN page_illustrations_json TEXT DEFAULT '[]'"
+    "ALTER TABLE vocab_chunks ADD COLUMN page_illustrations_json TEXT DEFAULT '[]'",
+    "ALTER TABLE vocab_chunks ADD COLUMN worksheets_json TEXT DEFAULT '{}'"
   ];
   for (const sql of alterStmts) {
     try {
@@ -631,8 +634,9 @@ function formatUserRow(u) {
   return {
     ...u,
     pin_code: u.pin_code || "1234",
-    teacher_id: u.teacher_id || "tch_emma",
+    teacher_id: u.teacher_id || "tch_director",
     classcard_level: Number(u.classcard_level) || mapLevelToDefaultClasscard(u.level),
+    classcard_mode: u.classcard_mode || "both",
     strengths: typeof u.strengths_json === "string" ? JSON.parse(u.strengths_json) : (u.strengths_json || []),
     weaknesses: typeof u.weaknesses_json === "string" ? JSON.parse(u.weaknesses_json) : (u.weaknesses_json || [])
   };
@@ -704,6 +708,7 @@ async function getAllBootstrapData() {
           sentence_translations: parseJsonField(vc.sentence_translations_json),
           speaking_questions: parseJsonField(vc.speaking_questions_json),
           page_illustrations: parseJsonField(vc.page_illustrations_json),
+          worksheets: parseJsonField(vc.worksheets_json, {}),
           lookup_count: vc.lookup_count || 1
         });
       }
@@ -740,6 +745,7 @@ async function getAllBootstrapData() {
       sentence_translations: parseJsonField(vc.sentence_translations_json),
       speaking_questions: parseJsonField(vc.speaking_questions_json),
       page_illustrations: parseJsonField(vc.page_illustrations_json),
+      worksheets: parseJsonField(vc.worksheets_json, {}),
       lookup_count: vc.lookup_count || 1
     };
   });
@@ -892,28 +898,34 @@ async function updateStudentAssignment(payload) {
     const nextPin = payload.pin_code
       ? String(payload.pin_code).replace(/[^0-9]/g, "").slice(0, 4) || prev.pin_code || "1234"
       : prev.pin_code || "1234";
-    const nextTeacherId = payload.teacher_id ? String(payload.teacher_id).trim() : (prev.teacher_id || "tch_emma");
+    const nextTeacherId = payload.teacher_id ? String(payload.teacher_id).trim() : (prev.teacher_id || "tch_director");
     const nextClasscard = payload.classcard_level !== undefined
       ? Math.min(26, Math.max(1, Number(payload.classcard_level) || 1))
       : (prev.classcard_level || mapLevelToDefaultClasscard(nextLevel));
+    const nextClasscardMode = ["both", "phonics_only", "book_only"].includes(payload.classcard_mode)
+      ? payload.classcard_mode
+      : (prev.classcard_mode || "both");
 
     const bookChanged = nextBookId !== prev.current_book_id;
     const shouldResetWeek1 = bookChanged || Boolean(payload.resetProgress);
 
-    const w1 = shouldResetWeek1 ? 0 : prev.progress_w1;
-    const w2 = shouldResetWeek1 ? 0 : prev.progress_w2;
-    const w3 = shouldResetWeek1 ? 0 : prev.progress_w3;
-    const w4 = shouldResetWeek1 ? 0 : prev.progress_w4;
+    const clampProg = (v, fallback) =>
+      v !== undefined ? Math.min(100, Math.max(0, Number(v) || 0)) : fallback;
+
+    const w1 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w1, prev.progress_w1);
+    const w2 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w2, prev.progress_w2);
+    const w3 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w3, prev.progress_w3);
+    const w4 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w4, prev.progress_w4);
 
     await pgPool.query(
       `UPDATE users
        SET grade_label = $1, grade_group = $2, age = $3, level = $4, current_book_id = $5,
-           pin_code = $6, teacher_id = $7, classcard_level = $8,
-           progress_w1 = $9, progress_w2 = $10, progress_w3 = $11, progress_w4 = $12
-       WHERE id = $13`,
+           pin_code = $6, teacher_id = $7, classcard_level = $8, classcard_mode = $9,
+           progress_w1 = $10, progress_w2 = $11, progress_w3 = $12, progress_w4 = $13
+       WHERE id = $14`,
       [
         nextGradeLabel, grade_group, age, nextLevel, nextBookId,
-        nextPin, nextTeacherId, nextClasscard,
+        nextPin, nextTeacherId, nextClasscard, nextClasscardMode,
         w1, w2, w3, w4,
         userId
       ]
@@ -940,28 +952,34 @@ async function updateStudentAssignment(payload) {
   const nextPin = payload.pin_code
     ? String(payload.pin_code).replace(/[^0-9]/g, "").slice(0, 4) || prev.pin_code || "1234"
     : prev.pin_code || "1234";
-  const nextTeacherId = payload.teacher_id ? String(payload.teacher_id).trim() : (prev.teacher_id || "tch_emma");
+  const nextTeacherId = payload.teacher_id ? String(payload.teacher_id).trim() : (prev.teacher_id || "tch_director");
   const nextClasscard = payload.classcard_level !== undefined
     ? Math.min(26, Math.max(1, Number(payload.classcard_level) || 1))
     : (prev.classcard_level || mapLevelToDefaultClasscard(nextLevel));
+  const nextClasscardMode = ["both", "phonics_only", "book_only"].includes(payload.classcard_mode)
+    ? payload.classcard_mode
+    : (prev.classcard_mode || "both");
 
   const bookChanged = nextBookId !== prev.current_book_id;
   const shouldResetWeek1 = bookChanged || Boolean(payload.resetProgress);
 
-  const w1 = shouldResetWeek1 ? 0 : prev.progress_w1;
-  const w2 = shouldResetWeek1 ? 0 : prev.progress_w2;
-  const w3 = shouldResetWeek1 ? 0 : prev.progress_w3;
-  const w4 = shouldResetWeek1 ? 0 : prev.progress_w4;
+  const clampProg = (v, fallback) =>
+    v !== undefined ? Math.min(100, Math.max(0, Number(v) || 0)) : fallback;
+
+  const w1 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w1, prev.progress_w1);
+  const w2 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w2, prev.progress_w2);
+  const w3 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w3, prev.progress_w3);
+  const w4 = shouldResetWeek1 ? 0 : clampProg(payload.progress_w4, prev.progress_w4);
 
   sqliteDb.prepare(`
     UPDATE users
     SET grade_label = ?, grade_group = ?, age = ?, level = ?, current_book_id = ?,
-        pin_code = ?, teacher_id = ?, classcard_level = ?,
+        pin_code = ?, teacher_id = ?, classcard_level = ?, classcard_mode = ?,
         progress_w1 = ?, progress_w2 = ?, progress_w3 = ?, progress_w4 = ?
     WHERE id = ?
   `).run(
     nextGradeLabel, grade_group, age, nextLevel, nextBookId,
-    nextPin, nextTeacherId, nextClasscard,
+    nextPin, nextTeacherId, nextClasscard, nextClasscardMode,
     w1, w2, w3, w4,
     userId
   );
@@ -1639,6 +1657,35 @@ async function saveCachedTtsAudio(cacheKey, audioBuf) {
     .run(cacheKey, audioBuf, new Date().toISOString());
 }
 
+async function getOrCreateBookWorksheets(bookId, force = false) {
+  const cleanId = String(bookId || "").trim();
+  if (!cleanId) throw new Error("교재 ID가 필요합니다.");
+
+  const bootstrap = await getAllBootstrapData();
+  const book = bootstrap.books.find((b) => b.id === cleanId);
+  if (!book) throw new Error("해당 원서를 찾을 수 없습니다.");
+
+  if (!force && book.worksheets && book.worksheets.week1 && book.worksheets.week2 && book.worksheets.week3_4) {
+    return book.worksheets;
+  }
+
+  const worksheets = await generateBookWorksheetsWithLLM(book);
+  const tHash = book.text_hash || hashText(book.full_text);
+
+  if (pgPool) {
+    await pgPool.query(
+      "UPDATE vocab_chunks SET worksheets_json = $1::jsonb WHERE text_hash = $2",
+      [JSON.stringify(worksheets), tHash]
+    );
+  } else {
+    sqliteDb
+      .prepare("UPDATE vocab_chunks SET worksheets_json = ? WHERE text_hash = ?")
+      .run(JSON.stringify(worksheets), tHash);
+  }
+
+  return worksheets;
+}
+
 function getDbEngineInfo() {
   return {
     engine: activeDbEngine,
@@ -1669,5 +1716,6 @@ module.exports = {
   saveStudentRecording,
   listStudentRecordings,
   getCachedTtsAudio,
-  saveCachedTtsAudio
+  saveCachedTtsAudio,
+  getOrCreateBookWorksheets
 };

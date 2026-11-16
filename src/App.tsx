@@ -455,6 +455,7 @@ export default function App() {
         {studentPage === "curriculum" && (
           <CurriculumPlayground
             user={currentUser}
+            book={currentBook}
             initialSubview={currSubview}
             onBackHome={() => navigate("/student")}
           />
