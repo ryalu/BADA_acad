@@ -14,27 +14,27 @@ interface StudentHomeProps {
 const WEEK_ITEMS: { week: 1 | 2 | 3 | 4; island: string; title: string; desc: string }[] = [
   {
     week: 1,
-    island: "산호초 얕은 바다",
-    title: "1주차 · 한 단어씩 천천히 읽기",
-    desc: "단어 뜻을 확인하며 한 단어씩 천천히 소리 내어 따라 읽습니다."
+    island: "STAGE 1",
+    title: "한 단어씩 천천히 읽기",
+    desc: "단어 뜻을 확인하며 한 단어씩 천천히 소리 내어 따라 말해봐요."
   },
   {
     week: 2,
-    island: "반짝이는 해류 길",
-    title: "2주차 · 의미 단위(구) 끊어 읽기",
-    desc: "문장을 자연스러운 의미 덩어리(구)로 나누어 읽고 표현 카드를 익힙니다."
+    island: "STAGE 2",
+    title: "의미 단위로 끊어 읽기",
+    desc: "새로운 표현을 따라 말하면서 익혀봐요."
   },
   {
     week: 3,
-    island: "포포의 비밀 동굴",
-    title: "3주차 · 줄거리 읽기 & 스피킹 대화",
-    desc: "원서 이야기를 읽고 배운 표현을 활용해 포포의 질문에 답합니다."
+    island: "STAGE 3",
+    title: "문장 단위로 말하기",
+    desc: "한 문장씩 자신있게 읽고 연습해요."
   },
   {
     week: 4,
-    island: "진주 보물섬",
-    title: "4주차 · 전체 스토리 완성 & 리허설",
-    desc: "원서 전체를 유창하게 완독하고 원어민 화상수업 리허설을 진행합니다."
+    island: "STAGE 4",
+    title: "스토리 마스터",
+    desc: "원서 전체를 유창하게 완독하고 나만의 영어로 말해요."
   }
 ];
 
@@ -51,7 +51,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
       (user.progress_w3 || 0) +
       (user.progress_w4 || 0)) /
       400) *
-      12
+    12
   );
 
   const [showTreasureModal, setShowTreasureModal] = useState(false);
@@ -79,15 +79,15 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
     user.grade_group === "grade_1_2"
       ? "초등 1~2학년 맞춤 20분 훈련"
       : user.grade_group === "grade_4_plus"
-      ? "초등 3~5학년 40분 문장 훈련"
-      : "초등 6학년 중등 대비 문법 훈련";
+        ? "초등 3~5학년 40분 문장 훈련"
+        : "초등 6학년 중등 대비 문법 훈련";
 
   const gradeDesc =
     user.grade_group === "grade_1_2"
       ? `통문자 파닉스(10분)와 클카 Level ${user.classcard_level || 2} 학습을 진행합니다.`
       : user.grade_group === "grade_4_plus"
-      ? "1~5형식 핵심 문장 패턴 훈련과 클카 어휘 학습을 진행합니다."
-      : "수동태(be+p.p.)와 간접의문문 어순 훈련 및 어휘 학습을 진행합니다.";
+        ? "1~5형식 핵심 문장 패턴 훈련과 클카 어휘 학습을 진행합니다."
+        : "수동태(be+p.p.)와 간접의문문 어순 훈련 및 어휘 학습을 진행합니다.";
 
   return (
     <div className="space-y-8">
@@ -120,41 +120,13 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-4 self-stretch lg:self-auto justify-between lg:justify-end">
-          {/* Pearl Collection Progress Dots */}
-          <button
-            type="button"
-            onClick={() => setShowTreasureModal(true)}
-            className="flex items-center gap-2.5 pr-3 border-r border-[#e8dfd1] text-left hover:opacity-85 transition cursor-pointer"
-          >
-            <img
-              src="/assets/treasure-pearl-3d.jpg"
-              alt="진주 보물함"
-              className="w-11 h-11 rounded-2xl object-cover border border-amber-200 shadow-xs"
-            />
-            <div>
-              <div className="text-[11px] font-bold text-slate-500">이번 달 진주 보물함</div>
-              <div className="flex items-center gap-1 mt-1">
-                {Array.from({ length: 12 }).map((_, idx) => (
-                  <span
-                    key={idx}
-                    className={`w-2 h-2 rounded-full transition ${
-                      idx < totalPearls
-                        ? "bg-cyan-500 ring-2 ring-cyan-200"
-                        : "bg-[#e3dac9]"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          </button>
-
+        <div className="flex items-center gap-4 self-stretch lg:self-auto justify-end">
           <button
             type="button"
             onClick={() => onStartWeek(activeWk)}
             className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full btn-water-glass font-bold text-sm"
           >
-            {activeWk}주차 항해 시작
+            {activeWk}주차 탐험 시작
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -168,12 +140,11 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
             <div className="flex items-center gap-2.5">
               <img
                 src="/assets/ocean-compass-3d.jpg"
-                alt="항해 나침반"
+                alt="탐험 나침반"
                 className="w-8 h-8 rounded-full object-cover border border-amber-200"
               />
-              <h3 className="text-base font-bold text-slate-900">4주 바다 항해 로드맵</h3>
+              <h3 className="text-base font-bold text-slate-900">나만의 바다 탐험 지도</h3>
             </div>
-            <span className="text-xs text-slate-500">섬을 누르면 해당 주차로 바로 이동합니다</span>
           </div>
 
           <div className="divide-y divide-[#e8dfd1]">
@@ -190,33 +161,23 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => e.key === "Enter" && onStartWeek(item.week)}
-                  className={`py-4 px-3.5 -mx-3 rounded-2xl transition cursor-pointer flex items-center justify-between gap-4 ${
-                    isCurrent
-                      ? "surface-water-glass"
-                      : isLocked
+                  className={`py-4 px-3.5 -mx-3 rounded-2xl transition cursor-pointer flex items-center justify-between gap-4 ${isCurrent
+                    ? "surface-water-glass"
+                    : isLocked
                       ? "opacity-70 hover:opacity-100 hover:bg-[#f4efe5]"
                       : "hover:bg-[#f4efe5]"
-                  }`}
+                    }`}
                 >
                   <div className="space-y-0.5">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
-                        className={`text-xs font-bold ${
-                          isCurrent ? "text-cyan-700" : isDone ? "text-emerald-700" : "text-amber-700"
-                        }`}
+                        className={`text-xs font-bold ${isCurrent ? "text-cyan-700" : isDone ? "text-emerald-700" : "text-amber-700"
+                          }`}
                       >
                         {item.island}
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-full">
-                        <img
-                          src="/assets/pearl-badge-3d.jpg"
-                          alt="진주"
-                          className="w-3.5 h-3.5 rounded-full object-cover"
-                        />
-                        진주 +3
-                      </span>
                       {isCurrent && (
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800">
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full surface-water-glass text-sky-900">
                           현재 위치
                         </span>
                       )}
@@ -232,9 +193,13 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         <ArrowRight className="w-3.5 h-3.5" />
                       </span>
                     ) : isDone ? (
-                      <span className="inline-flex items-center gap-1 text-emerald-700 text-xs font-bold">
-                        <CheckCircle2 className="w-4 h-4" />
-                        진주 획득
+                      <span className="inline-flex items-center gap-1.5 text-emerald-700 text-xs font-bold">
+                        <img
+                          src="/assets/pearl-badge-3d.jpg"
+                          alt="진주"
+                          className="w-4 h-4 rounded-full object-cover shadow-xs"
+                        />
+                        탐험 완료
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-slate-400 text-xs font-semibold">
@@ -255,7 +220,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
                 <BookOpen className="w-4 h-4 text-cyan-700" />
-                이번 항해 원서
+                이번 탐험 원서
               </h3>
               <span className="text-xs font-semibold text-amber-800">{book.level}</span>
             </div>
@@ -395,16 +360,15 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                     return (
                       <div
                         key={stage.week}
-                        className={`rounded-xl p-3 border transition-all duration-500 ${
-                          isStageComplete
-                            ? "bg-white/95 border-cyan-400 shadow-xs"
-                            : isStageReached
+                        className={`rounded-xl p-3 border transition-all duration-500 ${isStageComplete
+                          ? "bg-white/95 border-cyan-400 shadow-xs"
+                          : isStageReached
                             ? "surface-water-glass"
                             : "bg-white/55 border-sky-200/60 opacity-75"
-                        }`}
+                          }`}
                       >
                         <div className="text-[11px] font-bold text-sky-800">
-                          {stage.week}주차 항해
+                          {stage.week}주차 탐험
                         </div>
                         <div className="text-xs font-bold text-slate-900 mt-0.5">
                           {stage.island}
@@ -415,11 +379,10 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                               key={dot}
                               src="/assets/pearl-badge-3d.jpg"
                               alt="진주"
-                              className={`w-4 h-4 rounded-full object-cover transition-all duration-300 ${
-                                dot < stageFilled
-                                  ? "scale-105 opacity-100 ring-1 ring-cyan-400"
-                                  : "scale-90 opacity-25 grayscale"
-                              }`}
+                              className={`w-4 h-4 rounded-full object-cover transition-all duration-300 ${dot < stageFilled
+                                ? "scale-105 opacity-100 ring-1 ring-cyan-400"
+                                : "scale-90 opacity-25 grayscale"
+                                }`}
                             />
                           ))}
                           <span className="ml-auto text-[10px] font-bold text-slate-500">
@@ -462,18 +425,16 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                       return (
                         <div
                           key={idx}
-                          className={`aspect-square rounded-full flex items-center justify-center border transition-all duration-300 ${
-                            filled
-                              ? "bg-white border-cyan-400 shadow-sm scale-105"
-                              : "bg-[#efe7d6] border-[#ddd2bc] scale-95"
-                          }`}
+                          className={`aspect-square rounded-full flex items-center justify-center border transition-all duration-300 ${filled
+                            ? "bg-white border-cyan-400 shadow-sm scale-105"
+                            : "bg-[#efe7d6] border-[#ddd2bc] scale-95"
+                            }`}
                         >
                           <img
                             src="/assets/pearl-badge-3d.jpg"
                             alt={`진주 ${idx + 1}`}
-                            className={`w-full h-full rounded-full object-cover transition-all duration-300 ${
-                              filled ? "opacity-100 scale-100" : "opacity-20 grayscale scale-75"
-                            }`}
+                            className={`w-full h-full rounded-full object-cover transition-all duration-300 ${filled ? "opacity-100 scale-100" : "opacity-20 grayscale scale-75"
+                              }`}
                           />
                         </div>
                       );

@@ -276,11 +276,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => navigate("/student")}
-                className={`px-3.5 py-2 rounded-full text-xs font-bold transition ${
-                  studentPage === "home"
+                className={`px-3.5 py-2 rounded-full text-xs font-bold transition ${studentPage === "home"
                     ? "btn-water-glass"
                     : "text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
-                }`}
+                  }`}
               >
                 학습 맵
               </button>
@@ -307,27 +306,16 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => navigate("/student/treasure")}
-                className={`px-3.5 py-2 rounded-full text-xs font-bold transition ${
-                  studentPage === "treasure"
+                className={`px-3.5 py-2 rounded-full text-xs font-bold transition ${studentPage === "treasure"
                     ? "btn-water-glass"
                     : "text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
-                }`}
+                  }`}
               >
                 나의 보물창고
               </button>
             </nav>
 
             <div className="flex items-center gap-3">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-50/90 border border-cyan-200/80">
-                <img
-                  src="/assets/pearl-badge-3d.jpg"
-                  alt="바다 진주"
-                  className="w-5 h-5 rounded-full object-cover"
-                />
-                <span className="text-xs font-bold text-cyan-900">
-                  진주 {Math.round((((currentUser.progress_w1 || 0) + (currentUser.progress_w2 || 0) + (currentUser.progress_w3 || 0) + (currentUser.progress_w4 || 0)) / 400) * 12)} / 12
-                </span>
-              </div>
               <div className="hidden sm:block text-right">
                 <div className="text-xs font-bold text-slate-800">{currentUser.name}</div>
                 <div className="text-[11px] text-slate-500 truncate max-w-[160px]">{currentBook.title}</div>
@@ -381,7 +369,7 @@ export default function App() {
                     className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-xs font-bold text-slate-700 transition"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
-                    항해 맵
+                    탐험 맵
                   </button>
                   <div className="flex items-center gap-1">
                     {([1, 2, 3, 4] as const).map((wk) => (

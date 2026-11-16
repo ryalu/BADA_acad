@@ -37,13 +37,18 @@ export const TreasureBookshelf: React.FC<TreasureBookshelfProps> = ({
       <div className="pb-5 border-b border-[#e8dfd1] flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-slate-900">
-            {user.name} 대원의 보물창고 책장
+            {user.name} 대원의 보물창고
           </h2>
           <p className="text-sm text-slate-600 mt-1">
-            4주차까지 완주한 영어 원서들이 소중한 보물처럼 보관됩니다. 원서를 클릭하면 e-book으로 스크롤하며 다시 읽을 수 있어요.
+            탐험 완료한 소중한 보물 원서를 보관해요. 원서를 클릭하면 다시 읽을 수 있어요.
           </p>
         </div>
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/80 border border-amber-200 text-xs font-bold text-amber-950">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full surface-water-glass text-xs font-bold text-slate-800">
+          <img
+            src="/assets/pearl-badge-3d.jpg"
+            alt="진주"
+            className="w-4 h-4 rounded-full object-cover"
+          />
           완주한 원서 {completedBooks.length}권
         </div>
       </div>
@@ -99,8 +104,7 @@ export const TreasureBookshelf: React.FC<TreasureBookshelfProps> = ({
                   </div>
                 </div>
                 <div className="pt-2 border-t border-[#ece4d3] flex items-center justify-between text-[11px] font-bold text-sky-700">
-                  <span>e-book으로 읽기</span>
-                  <span>열기 →</span>
+                  <span>다시 읽기 →</span>
                 </div>
               </button>
             ))}
