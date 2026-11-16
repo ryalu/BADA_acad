@@ -261,6 +261,7 @@ const server = http.createServer(async (req, res) => {
       try {
         const created = await createBook(body);
         const updatedBootstrap = await getAllBootstrapData();
+        reanalyzeAllBooksWithLLM({ force: false }).catch(() => {});
         return sendJson(res, 200, {
           ok: true,
           book: created.book,
@@ -279,6 +280,7 @@ const server = http.createServer(async (req, res) => {
         const body = await parseJsonBody(req);
         const updated = await updateBook(body);
         const updatedBootstrap = await getAllBootstrapData();
+        reanalyzeAllBooksWithLLM({ force: false }).catch(() => {});
         return sendJson(res, 200, {
           ok: true,
           book: updated.book,

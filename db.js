@@ -1151,10 +1151,40 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
 
     if (existingRes.rows.length > 0) {
       const existing = existingRes.rows[0];
-      if (needsReanalysis(existing) || String(customKoreanText || "").trim()) {
+      const hasCustomKr = Boolean(String(customKoreanText || "").trim());
+      if (!needsReanalysis(existing) && hasCustomKr) {
+        // Fast path: English text did not change, only Korean translations were edited
+        const customLines = String(customKoreanText).split(/\r?\n+/).map((l) => l.trim()).filter(Boolean);
+        const existingSt = parseJsonField(existing.sentence_translations_json, []);
+        const updatedSt = existingSt.map((st, idx) => ({
+          ...st,
+          kr: customLines[idx] || st.kr
+        }));
+        const nextCount = Number(existing.lookup_count || 1) + 1;
+        await pgPool.query(
+          `UPDATE vocab_chunks SET sentence_translations_json = $1::jsonb, lookup_count = $2, last_hit_at = NOW() WHERE text_hash = $3`,
+          [JSON.stringify(updatedSt), nextCount, tHash]
+        );
+        return {
+          cache_status: "CUSTOM_KR_FAST_UPDATED",
+          llm_called: false,
+          text_hash: tHash,
+          lookup_count: nextCount,
+          book_id: bookId || existing.book_id,
+          vocab: parseJsonField(existing.vocab_json),
+          chunks: parseJsonField(existing.chunks_json),
+          core_expressions: parseJsonField(existing.core_expressions_json),
+          sentence_translations: updatedSt,
+          speaking_questions: parseJsonField(existing.speaking_questions_json),
+          page_illustrations: parseJsonField(existing.page_illustrations_json),
+          last_hit_at: now
+        };
+      }
+
+      if (needsReanalysis(existing)) {
         const refreshed = isSeed
           ? analyzeTextWithLLM(rawText, level, customKoreanText)
-          : await analyzeTextWithLLMAsync(rawText, level, customKoreanText);
+          : await analyzeTextWithLLMAsync(rawText, level, customKoreanText, "", { skipIllustrations: true });
         const nextCount = Number(existing.lookup_count || 1) + 1;
         await pgPool.query(
           `UPDATE vocab_chunks
@@ -1219,7 +1249,7 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
 
     const extracted = isSeed
       ? analyzeTextWithLLM(rawText, level, customKoreanText)
-      : await analyzeTextWithLLMAsync(rawText, level, customKoreanText);
+      : await analyzeTextWithLLMAsync(rawText, level, customKoreanText, "", { skipIllustrations: true });
     const bId = bookId || `custom_${tHash.slice(0, 8)}`;
     await pgPool.query(
       `INSERT INTO vocab_chunks (

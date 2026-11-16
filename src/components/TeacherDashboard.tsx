@@ -87,6 +87,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
 
   // Book registration & edit
   const [editingBookId, setEditingBookId] = useState<string | null>(null);
+  const [bookLevelFilter, setBookLevelFilter] = useState<string>("ALL");
   const [bookTitle, setBookTitle] = useState("");
   const [bookSubKr, setBookSubKr] = useState("");
   const [bookLevel, setBookLevel] = useState("Level 2");
@@ -387,6 +388,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
       } else {
         setBookResultMsg(data.error || "원서 저장에 실패했습니다.");
       }
+    } catch (err) {
+      setBookResultMsg("저장 요청 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {
       setBookSaving(false);
     }
@@ -1277,14 +1280,43 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                 )}
               </div>
 
-              {/* Registered Books Catalog (click to view & edit) */}
+              {/* Registered Books Catalog (with Level Filter & Click-to-Edit) */}
               <div className="lg:col-span-2 lg:border-l lg:border-[#e5dcc9] lg:pl-6 pt-4 border-t border-[#e5dcc9] space-y-3">
                 <div className="flex items-baseline justify-between">
                   <h3 className="text-base font-bold text-slate-900">등록된 원서 교재 목록</h3>
                   <span className="text-[11px] text-slate-500">누르면 내용 확인·수정 가능</span>
                 </div>
+
+                {/* Level Category Filter Pills */}
+                <div className="flex flex-wrap gap-1.5 pb-1">
+                  {["ALL", ...ALL_BADA_LEVELS].map((lv) => {
+                    const count =
+                      lv === "ALL"
+                        ? books.length
+                        : books.filter((b) => b.level === lv).length;
+                    if (lv !== "ALL" && count === 0) return null;
+                    const active = bookLevelFilter === lv;
+                    return (
+                      <button
+                        key={lv}
+                        type="button"
+                        onClick={() => setBookLevelFilter(lv)}
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition ${
+                          active
+                            ? "bg-sky-600 text-white"
+                            : "bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700"
+                        }`}
+                      >
+                        {lv === "ALL" ? `전체 (${count})` : `${lv} (${count})`}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 <div className="divide-y divide-[#e5dcc9] border-y border-[#e5dcc9] max-h-[540px] overflow-y-auto pr-1">
-                  {books.map((b) => {
+                  {books
+                    .filter((b) => bookLevelFilter === "ALL" || b.level === bookLevelFilter)
+                    .map((b) => {
                     const sCount = getBookSentences(b).length;
                     const isEditing = editingBookId === b.id;
                     return (

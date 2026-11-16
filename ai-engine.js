@@ -1007,7 +1007,7 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
   }
 }
 
-async function analyzeTextWithLLMAsync(rawText, level = "Level 2", customKoreanText = "", title = "") {
+async function analyzeTextWithLLMAsync(rawText, level = "Level 2", customKoreanText = "", title = "", options = {}) {
   const localFallback = analyzeTextWithLLM(rawText, level, customKoreanText);
   const ext = await analyzeTextWithExternalLLM(rawText, level);
   if (!ext || !ext.parsed) {
@@ -1044,11 +1044,13 @@ async function analyzeTextWithLLMAsync(rawText, level = "Level 2", customKoreanT
     }
   }
 
-  const pageIllustrations = await generatePageIllustrationsWithLLM({
-    title,
-    fullText: rawText,
-    level
-  });
+  const pageIllustrations = options.skipIllustrations
+    ? []
+    : await generatePageIllustrationsWithLLM({
+        title,
+        fullText: rawText,
+        level
+      });
 
   return {
     level,
