@@ -307,7 +307,8 @@ function initSqliteDatabase() {
     "ALTER TABLE users ADD COLUMN teacher_id TEXT DEFAULT 'tch_director'",
     "ALTER TABLE users ADD COLUMN classcard_level INTEGER DEFAULT 2",
     "ALTER TABLE vocab_chunks ADD COLUMN sentence_translations_json TEXT DEFAULT '[]'",
-    "ALTER TABLE vocab_chunks ADD COLUMN speaking_questions_json TEXT DEFAULT '[]'"
+    "ALTER TABLE vocab_chunks ADD COLUMN speaking_questions_json TEXT DEFAULT '[]'",
+    "ALTER TABLE vocab_chunks ADD COLUMN page_illustrations_json TEXT DEFAULT '[]'"
   ];
   for (const sql of alterStmts) {
     try {
@@ -695,6 +696,7 @@ async function getAllBootstrapData() {
           core_expressions: parseJsonField(vc.core_expressions_json),
           sentence_translations: parseJsonField(vc.sentence_translations_json),
           speaking_questions: parseJsonField(vc.speaking_questions_json),
+          page_illustrations: parseJsonField(vc.page_illustrations_json),
           lookup_count: vc.lookup_count || 1
         });
       }
@@ -730,6 +732,7 @@ async function getAllBootstrapData() {
       core_expressions: parseJsonField(vc.core_expressions_json),
       sentence_translations: parseJsonField(vc.sentence_translations_json),
       speaking_questions: parseJsonField(vc.speaking_questions_json),
+      page_illustrations: parseJsonField(vc.page_illustrations_json),
       lookup_count: vc.lookup_count || 1
     };
   });
@@ -1161,9 +1164,9 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
     await pgPool.query(
       `INSERT INTO vocab_chunks (
          text_hash, book_id, raw_text, vocab_json, chunks_json, core_expressions_json,
-         sentence_translations_json, speaking_questions_json,
+         sentence_translations_json, speaking_questions_json, page_illustrations_json,
          lookup_count, extraction_source
-       ) VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8::jsonb, 1, $9)`,
+       ) VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8::jsonb, $9::jsonb, 1, $10)`,
       [
         tHash,
         bId,
@@ -1173,6 +1176,7 @@ async function getOrExtractVocabAndChunks(rawText, level = "Level 2", bookId = n
         JSON.stringify(extracted.core_expressions),
         JSON.stringify(extracted.sentence_translations),
         JSON.stringify(extracted.speaking_questions),
+        JSON.stringify(extracted.page_illustrations || []),
         isSeed ? "SEED_LLM_EXTRACTED" : "LIVE_LLM_EXTRACTED"
       ]
     );
@@ -1252,16 +1256,17 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
     for (const b of books) {
       const tHash = b.text_hash || hashText(b.full_text);
       const existingRes = await pgPool.query(
-        "SELECT extraction_source FROM vocab_chunks WHERE text_hash = $1 LIMIT 1",
+        "SELECT extraction_source, page_illustrations_json FROM vocab_chunks WHERE text_hash = $1 LIMIT 1",
         [tHash]
       );
       const src = existingRes.rows[0]?.extraction_source || "";
-      if (!force && src.startsWith("EXTERNAL_LLM_")) {
+      const existingIllus = parseJsonField(existingRes.rows[0]?.page_illustrations_json, []);
+      if (!force && src.startsWith("EXTERNAL_LLM_") && existingIllus.length > 0) {
         skipped += 1;
         continue;
       }
 
-      const extracted = await analyzeTextWithLLMAsync(b.full_text, b.level);
+      const extracted = await analyzeTextWithLLMAsync(b.full_text, b.level, "", b.title);
       const providerTag =
         extracted.llm_provider && extracted.llm_provider !== "local_deterministic"
           ? `EXTERNAL_LLM_${String(extracted.llm_provider).toUpperCase()}`
@@ -1270,9 +1275,9 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
       await pgPool.query(
         `INSERT INTO vocab_chunks (
            text_hash, book_id, raw_text, vocab_json, chunks_json, core_expressions_json,
-           sentence_translations_json, speaking_questions_json,
+           sentence_translations_json, speaking_questions_json, page_illustrations_json,
            lookup_count, extraction_source, last_hit_at
-         ) VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8::jsonb, 1, $9, NOW())
+         ) VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8::jsonb, $9::jsonb, 1, $10, NOW())
          ON CONFLICT (text_hash) DO UPDATE SET
            book_id = EXCLUDED.book_id,
            vocab_json = EXCLUDED.vocab_json,
@@ -1280,6 +1285,7 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
            core_expressions_json = EXCLUDED.core_expressions_json,
            sentence_translations_json = EXCLUDED.sentence_translations_json,
            speaking_questions_json = EXCLUDED.speaking_questions_json,
+           page_illustrations_json = EXCLUDED.page_illustrations_json,
            extraction_source = EXCLUDED.extraction_source,
            last_hit_at = NOW()`,
         [
@@ -1291,6 +1297,7 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
           JSON.stringify(extracted.core_expressions),
           JSON.stringify(extracted.sentence_translations),
           JSON.stringify(extracted.speaking_questions),
+          JSON.stringify(extracted.page_illustrations || []),
           providerTag
         ]
       );
@@ -1303,15 +1310,16 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
   for (const b of books) {
     const tHash = b.text_hash || hashText(b.full_text);
     const existing = sqliteDb
-      .prepare("SELECT extraction_source FROM vocab_chunks WHERE text_hash = ? LIMIT 1")
+      .prepare("SELECT extraction_source, page_illustrations_json FROM vocab_chunks WHERE text_hash = ? LIMIT 1")
       .get(tHash);
     const src = existing?.extraction_source || "";
-    if (!force && src.startsWith("EXTERNAL_LLM_")) {
+    const existingIllus = parseJsonField(existing?.page_illustrations_json, []);
+    if (!force && src.startsWith("EXTERNAL_LLM_") && existingIllus.length > 0) {
       skipped += 1;
       continue;
     }
 
-    const extracted = await analyzeTextWithLLMAsync(b.full_text, b.level);
+    const extracted = await analyzeTextWithLLMAsync(b.full_text, b.level, "", b.title);
     const providerTag =
       extracted.llm_provider && extracted.llm_provider !== "local_deterministic"
         ? `EXTERNAL_LLM_${String(extracted.llm_provider).toUpperCase()}`
@@ -1322,9 +1330,9 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
       .prepare(
         `INSERT INTO vocab_chunks (
            text_hash, book_id, raw_text, vocab_json, chunks_json, core_expressions_json,
-           sentence_translations_json, speaking_questions_json,
+           sentence_translations_json, speaking_questions_json, page_illustrations_json,
            lookup_count, extraction_source, created_at, last_hit_at
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
          ON CONFLICT(text_hash) DO UPDATE SET
            book_id = excluded.book_id,
            vocab_json = excluded.vocab_json,
@@ -1332,6 +1340,7 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
            core_expressions_json = excluded.core_expressions_json,
            sentence_translations_json = excluded.sentence_translations_json,
            speaking_questions_json = excluded.speaking_questions_json,
+           page_illustrations_json = excluded.page_illustrations_json,
            extraction_source = excluded.extraction_source,
            last_hit_at = excluded.last_hit_at`
       )
@@ -1344,6 +1353,7 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
         JSON.stringify(extracted.core_expressions),
         JSON.stringify(extracted.sentence_translations),
         JSON.stringify(extracted.speaking_questions),
+        JSON.stringify(extracted.page_illustrations || []),
         providerTag,
         now,
         now

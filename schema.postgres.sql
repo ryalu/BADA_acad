@@ -70,6 +70,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS teacher_id VARCHAR(80) NOT NULL DEFAU
 ALTER TABLE users ADD COLUMN IF NOT EXISTS classcard_level INTEGER NOT NULL DEFAULT 2;
 ALTER TABLE vocab_chunks ADD COLUMN IF NOT EXISTS sentence_translations_json JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE vocab_chunks ADD COLUMN IF NOT EXISTS speaking_questions_json JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE vocab_chunks ADD COLUMN IF NOT EXISTS page_illustrations_json JSONB NOT NULL DEFAULT '[]'::jsonb;
 
 CREATE TABLE IF NOT EXISTS cache_audit_logs (
   id SERIAL PRIMARY KEY,

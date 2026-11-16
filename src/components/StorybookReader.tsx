@@ -272,6 +272,15 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
   }, [stopVoiceSession]);
 
   const currentSpread = spreads[pageIdx] || spreads[0] || { pageIndex: 0, sentences: [] };
+  const currentIllustration =
+    (book.page_illustrations || []).find((p) => Number(p.page_index) === pageIdx) ||
+    (book.page_illustrations || [])[pageIdx];
+  const safeIllustrationSvg =
+    currentIllustration?.svg &&
+    currentIllustration.svg.includes("<svg") &&
+    !/<script|on[a-z]+\s*=/i.test(currentIllustration.svg)
+      ? currentIllustration.svg
+      : "";
   const activeSent = sentences[sentenceIdx] || "";
   const activeWords = useMemo(() => activeSent.split(/\s+/).filter(Boolean), [activeSent]);
   const activeChunks = useMemo(() => getSentenceChunksForWeek2(activeSent, book), [activeSent, book]);
@@ -968,14 +977,40 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
           {/* REALISTIC CENTER BOOK SPINE CREASE */}
           <div className="hidden md:block bg-gradient-to-r from-[#d2c8b4] via-[#9e937e] to-[#d2c8b4]" />
 
-          {/* RIGHT PAGE: Korean Translation & Word/Chunk Bar */}
+          {/* RIGHT PAGE: Page Illustration + Korean Translation & Word/Chunk Bar */}
           <div className="bg-[#faf6ea] book-gutter-right px-6 py-5 md:px-8 md:py-6 flex flex-col justify-between border-t md:border-t-0 border-[#e5dfd2] overflow-y-auto">
             <div className="flex items-center justify-between pb-2 border-b border-[#ece4d3]">
               <span className="text-[11px] font-bold text-stone-400 uppercase tracking-widest">
-                우리말 해석
+                장면 그림 &amp; 우리말 해석
               </span>
               <span className="text-xs text-stone-400">p. {pageIdx * 2 + 2}</span>
             </div>
+
+            {safeIllustrationSvg && (
+              <div className="mt-3 mb-2 space-y-1.5 shrink-0">
+                <div
+                  className="w-full h-[126px] md:h-[138px] rounded-xl overflow-hidden border border-[#e5dcc9] bg-white/70 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"
+                  dangerouslySetInnerHTML={{ __html: safeIllustrationSvg }}
+                />
+                <div className="flex flex-wrap items-center justify-between gap-1.5 text-[11px]">
+                  {currentIllustration?.scene_caption_kr && (
+                    <span className="text-stone-500 font-medium">{currentIllustration.scene_caption_kr}</span>
+                  )}
+                  {currentIllustration?.key_objects && currentIllustration.key_objects.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1">
+                      {currentIllustration.key_objects.map((obj) => (
+                        <span
+                          key={obj}
+                          className="px-2 py-0.5 rounded-full bg-amber-100/80 text-amber-900 font-bold"
+                        >
+                          {obj}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="my-auto py-3 space-y-5 divide-y divide-[#ece4d3]/80">
               {currentSpread.sentences.map((s) => {

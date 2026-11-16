@@ -76,6 +76,13 @@ export interface SpeakingQuestion {
   expression?: string;
 }
 
+export interface PageIllustration {
+  page_index: number;
+  scene_caption_kr?: string;
+  key_objects?: string[];
+  svg: string;
+}
+
 export interface Book {
   id: string;
   title: string;
@@ -89,6 +96,7 @@ export interface Book {
   core_expressions: CoreExpression[];
   sentence_translations?: SentenceTranslation[];
   speaking_questions?: SpeakingQuestion[];
+  page_illustrations?: PageIllustration[];
 }
 
 export interface TeacherQuestion {
