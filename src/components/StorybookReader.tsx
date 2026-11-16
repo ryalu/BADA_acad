@@ -168,12 +168,17 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
-      const recorder = new MediaRecorder(stream);
+      const preferredMime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"].find((m) =>
+        MediaRecorder.isTypeSupported?.(m)
+      );
+      const recorder = preferredMime
+        ? new MediaRecorder(stream, { mimeType: preferredMime, audioBitsPerSecond: 32000 })
+        : new MediaRecorder(stream, { audioBitsPerSecond: 32000 });
       recordedChunksRef.current = [];
       recorder.ondataavailable = (ev) => {
         if (ev.data && ev.data.size > 0) recordedChunksRef.current.push(ev.data);
       };
-      recorder.start(500);
+      recorder.start(400);
       mediaRecorderRef.current = recorder;
     } catch {
       // Mic permission denied or unavailable; speech recognition fallback still works
@@ -200,6 +205,11 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
         finalize();
       } else {
         rec.onstop = finalize;
+        try {
+          if (rec.state === "recording") rec.requestData();
+        } catch {
+          // ignore requestData errors
+        }
         try {
           rec.stop();
         } catch {
@@ -624,9 +634,10 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
     let weakWords: string[] = [];
     let pronunciationTip = "오늘 하루도 정말 잘 읽었어요! 다음 회차도 차근차근 도전해 보아요.";
     let intonationTip = "문장 끝에 리듬을 실어 자연스럽게 읽어 보아요.";
+    let recordingSaved = false;
 
     try {
-      if (userId && audioDataUrl) {
+      if (userId) {
         const recRes = await fetch("/api/recordings", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -635,13 +646,14 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             bookId: book.id,
             weekNum,
             repeatNum: nextRepeat,
-            transcript,
+            transcript: transcript || "(원서 따라 읽기 완료)",
             audioDataUrl,
             expectedText: book.full_text,
             level: book.level
           })
         });
         if (recRes.ok) {
+          recordingSaved = true;
           const recData = await recRes.json();
           const fb = recData?.recording?.ai_feedback;
           if (fb) {
@@ -666,9 +678,13 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
       setAiCoachingTip({ pronunciation: pronunciationTip, intonation: intonationTip, weakWords });
       setRepeatSubmittedMsg(
-        nextRepeat >= 5
-          ? `${weekNum}주차 5회 반복 완주! 진주 5개를 모두 모았어요!`
-          : `오늘 ${nextRepeat}회차 읽기 완료! 진주 ${nextRepeat}/5개를 모았어요.`
+        recordingSaved
+          ? audioDataUrl
+            ? `오늘 ${nextRepeat}회차 완료! 녹음 파일과 학습 기록이 선생님께 전송되었어요.`
+            : `오늘 ${nextRepeat}회차 완료! 학습 기록이 선생님께 전송되었어요. (음성 녹음은 마이크 권한 허용 시 함께 저장됩니다)`
+          : nextRepeat >= 5
+            ? `${weekNum}주차 5회 반복 완주! 진주 5개를 모두 모았어요!`
+            : `오늘 ${nextRepeat}회차 읽기 완료! 진주 ${nextRepeat}/5개를 모았어요.`
       );
       playSoftTone(880, 0.22);
 
@@ -726,12 +742,12 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
   const weekGuidance =
     weekNum === 1
-      ? "1주차 · 한 단어씩 천천히 듣고 따라 말하기 (소리가 인식되면 다음 단어로 넘어갑니다)"
+      ? "한 단어씩 천천히 듣고 따라 말해봐요."
       : weekNum === 2
-        ? "2주차 · 의미 단위(구)로 끊어 읽고 따라 말하기"
+        ? "의미를 생각하며 따라 말해봐요."
         : weekNum === 3
-          ? "3주차 · 이야기 줄거리를 생각하며 한 문장씩 따라 읽기"
-          : "4주차 · 전체 스토리 자연스럽게 완독하기";
+          ? "이야기 줄거리를 생각하며 한 문장씩 따라 읽어봐요."
+          : "전체 이야기를 자신있게 말해봐요.";
 
   const focusDisplay = hoveredWordInfo
     ? hoveredWordInfo
@@ -758,7 +774,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             className="absolute top-2 left-2 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/85 hover:bg-white border border-[#e5dcc9] text-xs font-bold text-slate-700 shadow-xs transition"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
-            항해 맵
+            탐험 맵
           </button>
         )}
         <div className="w-full max-w-sm space-y-5 text-center">
@@ -855,7 +871,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
               className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/85 hover:bg-white text-slate-700 text-[11px] font-bold shadow-xs backdrop-blur-xs transition"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
-              항해 맵
+              탐험 맵
             </button>
           )}
 
@@ -921,10 +937,10 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
                     setChunkIdx(0);
                   }}
                   className={`pt-4 first:pt-0 pl-3.5 py-1.5 border-l-2 transition cursor-pointer ${isActSent
-                      ? "border-sky-600 bg-amber-50/45 rounded-r-lg"
-                      : isDoneSent
-                        ? "border-emerald-400/70 text-slate-600"
-                        : "border-transparent hover:border-stone-300"
+                    ? "border-sky-600 bg-amber-50/45 rounded-r-lg"
+                    : isDoneSent
+                      ? "border-emerald-400/70 text-slate-600"
+                      : "border-transparent hover:border-stone-300"
                     }`}
                 >
                   <p className="book-serif text-xl md:text-[23px] font-semibold text-slate-800 leading-[2.05]">
@@ -967,21 +983,21 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
                               }
                             }}
                             className={`group relative inline-block px-1 py-0.5 mx-0.5 rounded-lg border-b-2 transition cursor-pointer ${isAutoActiveWord
-                                ? "bg-amber-100 border-amber-500 text-slate-900 scale-105 z-20"
-                                : isChunkActive
-                                  ? "bg-sky-100 border-sky-600 text-sky-950"
-                                  : isDoneWord
-                                    ? "text-teal-700 border-emerald-400"
-                                    : info.isCore
-                                      ? "bg-sky-50/80 border-sky-400 text-slate-900 hover:bg-amber-100"
-                                      : "border-dotted border-stone-300 hover:bg-amber-100"
+                              ? "bg-amber-100 border-amber-500 text-slate-900 scale-105 z-20"
+                              : isChunkActive
+                                ? "bg-sky-100 border-sky-600 text-sky-950"
+                                : isDoneWord
+                                  ? "text-teal-700 border-emerald-400"
+                                  : info.isCore
+                                    ? "bg-sky-50/80 border-sky-400 text-slate-900 hover:bg-amber-100"
+                                    : "border-dotted border-stone-300 hover:bg-amber-100"
                               }`}
                           >
                             {tok}
                             <span
                               className={`pointer-events-none font-sans absolute left-1/2 -translate-x-1/2 bottom-[calc(100%+8px)] whitespace-nowrap bg-slate-900 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-lg z-30 transition-opacity ${isPinned
-                                  ? "opacity-100"
-                                  : "opacity-0 group-hover:opacity-100 group-focus:opacity-100"
+                                ? "opacity-100"
+                                : "opacity-0 group-hover:opacity-100 group-focus:opacity-100"
                                 }`}
                             >
                               <span className="text-amber-300 font-bold">{info.kr}</span>
@@ -1056,8 +1072,8 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
           <div
             key={flipLeaf.key}
             className={`hidden md:block pointer-events-none absolute inset-y-0 z-30 ${flipLeaf.dir === "next"
-                ? "left-1/2 right-2 book-leaf-next bg-gradient-to-l from-[#f5eedf] via-[#fdfaf2] to-[#ede4d1] border-l border-[#d8ceb8]"
-                : "left-2 right-1/2 book-leaf-prev bg-gradient-to-r from-[#f5eedf] via-[#fdfaf2] to-[#ede4d1] border-r border-[#d8ceb8]"
+              ? "left-1/2 right-2 book-leaf-next bg-gradient-to-l from-[#f5eedf] via-[#fdfaf2] to-[#ede4d1] border-l border-[#d8ceb8]"
+              : "left-2 right-1/2 book-leaf-prev bg-gradient-to-r from-[#f5eedf] via-[#fdfaf2] to-[#ede4d1] border-r border-[#d8ceb8]"
               }`}
           />
         )}
@@ -1093,12 +1109,12 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
         {voiceStatus !== "idle" && (
           <div
             className={`text-xs font-semibold px-3 py-1.5 rounded-full border flex items-center gap-1.5 ${voiceStatus === "listening"
-                ? "bg-rose-50 text-rose-700 border-rose-200 animate-pulse"
-                : voiceStatus === "matched"
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : voiceStatus === "retry" || voiceStatus === "unsupported"
-                    ? "bg-amber-50 text-amber-800 border-amber-200"
-                    : "bg-sky-50 text-sky-700 border-sky-200"
+              ? "bg-rose-50 text-rose-700 border-rose-200 animate-pulse"
+              : voiceStatus === "matched"
+                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                : voiceStatus === "retry" || voiceStatus === "unsupported"
+                  ? "bg-amber-50 text-amber-800 border-amber-200"
+                  : "bg-sky-50 text-sky-700 border-sky-200"
               }`}
           >
             {voiceStatus === "unsupported" ? (

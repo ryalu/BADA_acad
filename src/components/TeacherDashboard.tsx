@@ -173,15 +173,21 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     setEdits(map);
   }, [users, teachers]);
 
+  const fetchStudentRecordings = async (uid = selectedUserId) => {
+    if (!uid) return;
+    try {
+      const r = await fetch(`/api/recordings?userId=${encodeURIComponent(uid)}`);
+      if (!r.ok) return;
+      const data = await r.json();
+      if (data?.recordings) setStudentRecordings(data.recordings);
+    } catch {
+      // ignore transient network errors
+    }
+  };
+
   useEffect(() => {
-    if (!selectedUserId) return;
-    fetch(`/api/recordings?userId=${encodeURIComponent(selectedUserId)}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data?.recordings) setStudentRecordings(data.recordings);
-      })
-      .catch(() => { });
-  }, [selectedUserId, activeTab]);
+    void fetchStudentRecordings(selectedUserId);
+  }, [selectedUserId, activeTab, users]);
 
   const loadCoachingQuestions = async () => {
     if (!currentUser || !currentBook) return;
@@ -1369,9 +1375,19 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     학생이 따라 말하기를 완료하고 전송한 실제 녹음 파일과 AI 발음·억양 피드백입니다.
                   </p>
                 </div>
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
-                  녹음 {studentRecordings.length}건
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void fetchStudentRecordings(selectedUserId)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#f2ece1] hover:bg-[#e8dfd1] text-slate-700 text-xs font-bold transition"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    새로고침
+                  </button>
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+                    녹음 {studentRecordings.length}건
+                  </span>
+                </div>
               </div>
 
               {studentRecordings.length === 0 ? (
@@ -1403,8 +1419,12 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                           </span>
                         </div>
 
-                        {rec.audio_data_url && (
+                        {rec.audio_data_url ? (
                           <audio controls src={rec.audio_data_url} className="w-full h-9" />
+                        ) : (
+                          <p className="text-[11px] text-slate-400">
+                            음성 녹음 파일 없이 학습·발화 기록만 저장되었습니다.
+                          </p>
                         )}
 
                         {rec.transcript && (

@@ -397,12 +397,16 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === "/api/recordings" && req.method === "POST") {
       try {
-        const body = await parseJsonBody(req, 4 * 1024 * 1024);
+        const body = await parseJsonBody(req, 8 * 1024 * 1024);
         const userId = String(body.userId || "").trim();
         const bookId = String(body.bookId || "").trim();
-        const audioDataUrl = String(body.audioDataUrl || "");
-        if (!userId || !bookId || !audioDataUrl.startsWith("data:audio/")) {
-          return sendJson(res, 400, { ok: false, error: "userId, bookId, and valid audioDataUrl are required." });
+        const rawAudio = String(body.audioDataUrl || "");
+        const audioDataUrl =
+          rawAudio.startsWith("data:audio/") || rawAudio.startsWith("data:video/")
+            ? rawAudio
+            : "";
+        if (!userId || !bookId) {
+          return sendJson(res, 400, { ok: false, error: "userId and bookId are required." });
         }
         const saved = await saveStudentRecording({
           userId,
