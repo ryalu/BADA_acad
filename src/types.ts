@@ -165,3 +165,28 @@ export interface StudentRecording {
   created_at: string;
 }
 
+export interface PhonicsCurriculumWord {
+  word: string;
+  pattern: string;
+  meaning_kr: string;
+  tip_kr: string;
+  example_en: string;
+}
+
+export interface BasicVocabularyWord {
+  word: string;
+  category: string;
+  meaning_kr: string;
+  example_en: string;
+}
+
+export interface PhonicsCurriculumTier {
+  id: string;
+  level_label: string;
+  title_kr: string;
+  desc_kr: string;
+  sort_order: number;
+  phonics_words: PhonicsCurriculumWord[];
+  basic_words: BasicVocabularyWord[];
+}
+

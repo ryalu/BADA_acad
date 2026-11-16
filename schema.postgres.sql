@@ -102,6 +102,16 @@ CREATE TABLE IF NOT EXISTS tts_audio_cache (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS phonics_curriculum (
+  id VARCHAR(60) PRIMARY KEY,
+  level_label VARCHAR(80) NOT NULL,
+  title_kr VARCHAR(120) NOT NULL,
+  desc_kr TEXT NOT NULL,
+  phonics_words_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  basic_words_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  sort_order INTEGER NOT NULL DEFAULT 1
+);
+
 CREATE INDEX IF NOT EXISTS idx_books_text_hash ON books(text_hash);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON cache_audit_logs(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_student_recordings_user ON student_recordings(user_id, created_at DESC);

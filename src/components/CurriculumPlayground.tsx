@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, CheckCircle2, HelpCircle, Layers, Volume2 } from "lucide-react";
-import type { Book, StudentUser } from "../types";
+import type { Book, PhonicsCurriculumTier, StudentUser } from "../types";
 import { getClassCardDeckForLevel, getPhonicsModuleForLevel } from "../data/phonicsCurriculum";
 import { playSoftTone, speakEnglish } from "../utils/speech";
 
 interface CurriculumPlaygroundProps {
   user: StudentUser;
   book?: Book;
+  phonicsCurriculum?: PhonicsCurriculumTier[];
   initialSubview?: "hub" | "phonics" | "classcard" | "upper";
   onBackHome: () => void;
 }
@@ -20,13 +21,17 @@ const G4_PATTERNS = [
 export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
   user,
   book,
+  phonicsCurriculum,
   initialSubview = "hub",
   onBackHome
 }) => {
-  const phonicsModule = useMemo(() => getPhonicsModuleForLevel(user.level), [user.level]);
+  const phonicsModule = useMemo(
+    () => getPhonicsModuleForLevel(user.level, phonicsCurriculum),
+    [user.level, phonicsCurriculum]
+  );
   const classCardDeck = useMemo(() => {
     const mode = user.classcard_mode || "both";
-    const baseDeck = getClassCardDeckForLevel(user.level);
+    const baseDeck = getClassCardDeckForLevel(user.level, phonicsCurriculum);
     const filteredBase =
       mode === "book_only"
         ? baseDeck.filter((c) => !c.fromPhonics)
@@ -44,11 +49,12 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
         word: v.surface || v.word,
         meaning: v.meaning_kr,
         example: v.popo_tip || `《${book.title}》 핵심 단어`,
-        fromPhonics: false
+        fromPhonics: false,
+        category: "원서 단어"
       }));
 
-    return [...filteredBase, ...bookCards];
-  }, [user.level, user.classcard_mode, book]);
+    return mode === "book_only" ? [...bookCards, ...filteredBase] : [...filteredBase, ...bookCards];
+  }, [user.level, user.classcard_mode, book, phonicsCurriculum]);
 
   const [subview, setSubview] = useState<"hub" | "phonics" | "classcard" | "upper">(initialSubview);
   const [phonicsIdx, setPhonicsIdx] = useState(0);
@@ -342,11 +348,15 @@ export const CurriculumPlayground: React.FC<CurriculumPlaygroundProps> = ({
                   <span className="text-xs font-bold text-slate-400">
                     카드 {ccIdx + 1} / {classCardDeck.length} · {ccFlipped ? "뒷면" : "앞면"}
                   </span>
-                  {activeCc.fromPhonics && (
+                  {activeCc.category ? (
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+                      {activeCc.category}
+                    </span>
+                  ) : activeCc.fromPhonics ? (
                     <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
                       파닉스 연계 단어
                     </span>
-                  )}
+                  ) : null}
                 </div>
                 <div className="storybook-font text-4xl font-black text-slate-900 mb-4">
                   {activeCc.word}

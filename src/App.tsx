@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ArrowLeft, BookOpen, Compass, LogOut, Map as MapIcon, Sparkles } from "lucide-react";
-import type { Book, StudentUser, TeacherAccount } from "./types";
+import type { Book, PhonicsCurriculumTier, StudentUser, TeacherAccount } from "./types";
 import { getStudentCurrentWeek } from "./utils/bookHelpers";
 import { EntryPortal } from "./components/EntryPortal";
 import { StudentHome } from "./components/StudentHome";
@@ -15,6 +15,7 @@ export default function App() {
   const [users, setUsers] = useState<StudentUser[]>([]);
   const [teachers, setTeachers] = useState<TeacherAccount[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
+  const [phonicsCurriculum, setPhonicsCurriculum] = useState<PhonicsCurriculumTier[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>("stu_hajun");
   const [loggedTeacher, setLoggedTeacher] = useState<TeacherAccount | null>(null);
   const [route, setRoute] = useState<string>(() => window.location.pathname || "/");
@@ -41,6 +42,9 @@ export default function App() {
       }
       if (data.books?.length) {
         setBooks(data.books);
+      }
+      if (data.phonicsCurriculum?.length) {
+        setPhonicsCurriculum(data.phonicsCurriculum);
       }
     } catch {
       setApiError(true);
@@ -456,6 +460,7 @@ export default function App() {
           <CurriculumPlayground
             user={currentUser}
             book={currentBook}
+            phonicsCurriculum={phonicsCurriculum}
             initialSubview={currSubview}
             onBackHome={() => navigate("/student")}
           />

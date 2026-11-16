@@ -1,3 +1,5 @@
+import type { PhonicsCurriculumTier } from "../types";
+
 export interface PhonicsWordItem {
   sound: string;
   phonetic: string;
@@ -19,6 +21,7 @@ export interface ClassCardItem {
   meaning: string;
   example: string;
   fromPhonics?: boolean;
+  category?: string;
 }
 
 const PHONICS_TIERS: Record<string, PhonicsLevelModule> = {
@@ -112,25 +115,70 @@ export function resolvePhonicsTierKey(level?: string): string {
   return "tier_2";
 }
 
-export function getPhonicsModuleForLevel(level?: string): PhonicsLevelModule {
+export function getPhonicsModuleForLevel(
+  level?: string,
+  dbTiers?: PhonicsCurriculumTier[]
+): PhonicsLevelModule {
   const key = resolvePhonicsTierKey(level);
+  const dbTier = dbTiers?.find((t) => t.id === key);
+  if (dbTier && dbTier.phonics_words?.length) {
+    return {
+      tierLabel: dbTier.level_label,
+      unitTitle: dbTier.title_kr,
+      unitDesc: dbTier.desc_kr,
+      items: dbTier.phonics_words.map((w) => ({
+        sound: w.pattern,
+        phonetic: "",
+        word: w.word,
+        meaning: w.meaning_kr,
+        example: w.example_en,
+        tip: w.tip_kr
+      }))
+    };
+  }
   return PHONICS_TIERS[key] || PHONICS_TIERS.tier_2;
 }
 
 /**
- * ClassCard deck includes BOTH the student's current-level Phonics words
- * AND extra level-matched elementary vocabulary.
+ * ClassCard deck includes BOTH the student's current-level Phonics words (10~15)
+ * AND essential basic words (numbers, days, months, prepositions) from DB.
  */
-export function getClassCardDeckForLevel(level?: string): ClassCardItem[] {
+export function getClassCardDeckForLevel(
+  level?: string,
+  dbTiers?: PhonicsCurriculumTier[]
+): ClassCardItem[] {
   const key = resolvePhonicsTierKey(level);
+  const dbTier = dbTiers?.find((t) => t.id === key);
+  if (dbTier && (dbTier.phonics_words?.length || dbTier.basic_words?.length)) {
+    const phonicsCards: ClassCardItem[] = (dbTier.phonics_words || []).map((p) => ({
+      word: p.word,
+      meaning: p.meaning_kr,
+      example: p.example_en,
+      fromPhonics: true,
+      category: `파닉스 · ${p.pattern}`
+    }));
+    const basicCards: ClassCardItem[] = (dbTier.basic_words || []).map((b) => ({
+      word: b.word,
+      meaning: b.meaning_kr,
+      example: b.example_en,
+      fromPhonics: false,
+      category: b.category
+    }));
+    return [...phonicsCards, ...basicCards];
+  }
+
   const phonics = getPhonicsModuleForLevel(level);
   const phonicsCards: ClassCardItem[] = phonics.items.map((p) => ({
     word: p.word,
     meaning: p.meaning,
     example: p.example,
-    fromPhonics: true
+    fromPhonics: true,
+    category: `파닉스 · ${p.sound}`
   }));
-  const extras = EXTRA_CLASSCARD_BY_TIER[key] || EXTRA_CLASSCARD_BY_TIER.tier_2;
+  const extras = (EXTRA_CLASSCARD_BY_TIER[key] || EXTRA_CLASSCARD_BY_TIER.tier_2).map((e) => ({
+    ...e,
+    category: "기초 어휘"
+  }));
   return [...phonicsCards, ...extras];
 }
 

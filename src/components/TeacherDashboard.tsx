@@ -57,6 +57,21 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   const currentUser = users.find((u) => u.id === selectedUserId) || users[0];
   const currentBook = books.find((b) => b.id === currentUser?.current_book_id) || books[0];
 
+  const toggleCcMode = (
+    current: "both" | "phonics_only" | "book_only",
+    target: "phonics" | "book",
+    checked: boolean
+  ): "both" | "phonics_only" | "book_only" => {
+    const hasPhonics = current === "both" || current === "phonics_only";
+    const hasBook = current === "both" || current === "book_only";
+    const nextPhonics = target === "phonics" ? checked : hasPhonics;
+    const nextBook = target === "book" ? checked : hasBook;
+    if (nextPhonics && nextBook) return "both";
+    if (nextPhonics) return "phonics_only";
+    if (nextBook) return "book_only";
+    return target === "phonics" ? "book_only" : "phonics_only";
+  };
+
   // Student registration form state
   const [stuName, setStuName] = useState("");
   const [stuGrade, setStuGrade] = useState("초등 2학년");
@@ -803,7 +818,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                       value={stuName}
                       onChange={(e) => setStuName(e.target.value)}
                       placeholder="예: 최유나"
-                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-sky-500 text-sm"
                     />
                   </div>
                   <div>
@@ -811,7 +826,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     <select
                       value={stuGrade}
                       onChange={(e) => setStuGrade(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-sky-500 text-sm"
                     >
                       {["초등 1학년", "초등 2학년", "초등 3학년", "초등 4학년", "초등 5학년", "초등 6학년"].map(
                         (g) => (
@@ -827,7 +842,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     <select
                       value={stuLevel}
                       onChange={(e) => setStuLevel(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-sky-500 text-sm"
                     >
                       {ALL_BADA_LEVELS.map((lv) => (
                         <option key={lv} value={lv}>
@@ -841,7 +856,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     <select
                       value={stuBookId}
                       onChange={(e) => setStuBookId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-sky-500 text-sm"
                     >
                       {books.map((b) => (
                         <option key={b.id} value={b.id}>
@@ -855,7 +870,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                     <select
                       value={stuCc}
                       onChange={(e) => setStuCc(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#d8ceb8] text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-sky-500 text-sm"
                     >
                       {Array.from({ length: 26 }, (_, i) => i + 1).map((lv) => (
                         <option key={lv} value={lv}>
@@ -866,24 +881,37 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-600 mb-1">클카 단어 구성</label>
-                    <select
-                      value={stuCcMode}
-                      onChange={(e) =>
-                        setStuCcMode(e.target.value as "both" | "phonics_only" | "book_only")
-                      }
-                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#d8ceb8] text-sm"
-                    >
-                      <option value="both">파닉스 + 원서 단어</option>
-                      <option value="phonics_only">파닉스 단어만</option>
-                      <option value="book_only">원서 단어만</option>
-                    </select>
+                    <div className="flex items-center gap-4 px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] text-sm">
+                      <label className="inline-flex items-center gap-1.5 cursor-pointer select-none font-semibold text-slate-700">
+                        <input
+                          type="checkbox"
+                          checked={stuCcMode === "both" || stuCcMode === "phonics_only"}
+                          onChange={(e) =>
+                            setStuCcMode(toggleCcMode(stuCcMode, "phonics", e.target.checked))
+                          }
+                          className="w-4 h-4 accent-sky-600 rounded focus:outline-none"
+                        />
+                        파닉스
+                      </label>
+                      <label className="inline-flex items-center gap-1.5 cursor-pointer select-none font-semibold text-slate-700">
+                        <input
+                          type="checkbox"
+                          checked={stuCcMode === "both" || stuCcMode === "book_only"}
+                          onChange={(e) =>
+                            setStuCcMode(toggleCcMode(stuCcMode, "book", e.target.checked))
+                          }
+                          className="w-4 h-4 accent-sky-600 rounded focus:outline-none"
+                        />
+                        원서
+                      </label>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-600 mb-1">담당 선생님</label>
                     <select
                       value={stuTeacherId}
                       onChange={(e) => setStuTeacherId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-white/90 border border-[#d8ceb8] text-sm"
+                      className="w-full px-3 py-2 rounded-lg bg-[#fbf8f2]/80 border border-[#e5dcc9] focus:outline-none focus:border-sky-500 text-sm"
                     >
                       {teachers.map((t) => (
                         <option key={t.id} value={t.id}>
@@ -1150,7 +1178,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                               onChange={(e) =>
                                 setEdits({ ...edits, [u.id]: { ...ed, level: e.target.value } })
                               }
-                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold"
+                              className="px-2 py-1.5 rounded-lg border border-[#e5dcc9] focus:outline-none focus:border-sky-500 bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold"
                             >
                               {ALL_BADA_LEVELS.map((lv) => (
                                 <option key={lv} value={lv}>
@@ -1165,7 +1193,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                               onChange={(e) =>
                                 setEdits({ ...edits, [u.id]: { ...ed, bookId: e.target.value } })
                               }
-                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold max-w-[180px]"
+                              className="px-2 py-1.5 rounded-lg border border-[#e5dcc9] focus:outline-none focus:border-sky-500 bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold max-w-[180px]"
                             >
                               {books.map((b) => (
                                 <option key={b.id} value={b.id}>
@@ -1180,7 +1208,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                               onChange={(e) =>
                                 setEdits({ ...edits, [u.id]: { ...ed, cc: Number(e.target.value) } })
                               }
-                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold"
+                              className="px-2 py-1.5 rounded-lg border border-[#e5dcc9] focus:outline-none focus:border-sky-500 bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold"
                             >
                               {Array.from({ length: 26 }, (_, i) => i + 1).map((lv) => (
                                 <option key={lv} value={lv}>
@@ -1189,24 +1217,43 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                               ))}
                             </select>
                           </td>
-                          <td className="py-3 px-2">
-                            <select
-                              value={ed.ccMode}
-                              onChange={(e) =>
-                                setEdits({
-                                  ...edits,
-                                  [u.id]: {
-                                    ...ed,
-                                    ccMode: e.target.value as "both" | "phonics_only" | "book_only"
+                          <td className="py-3 px-2 whitespace-nowrap">
+                            <div className="inline-flex items-center gap-2.5 px-2 py-1.5 rounded-lg border border-[#e5dcc9] bg-[#fbf8f2]/65 text-xs font-semibold text-slate-700">
+                              <label className="inline-flex items-center gap-1 cursor-pointer select-none">
+                                <input
+                                  type="checkbox"
+                                  checked={ed.ccMode === "both" || ed.ccMode === "phonics_only"}
+                                  onChange={(e) =>
+                                    setEdits({
+                                      ...edits,
+                                      [u.id]: {
+                                        ...ed,
+                                        ccMode: toggleCcMode(ed.ccMode, "phonics", e.target.checked)
+                                      }
+                                    })
                                   }
-                                })
-                              }
-                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold"
-                            >
-                              <option value="both">파닉스+원서</option>
-                              <option value="phonics_only">파닉스만</option>
-                              <option value="book_only">원서만</option>
-                            </select>
+                                  className="w-3.5 h-3.5 accent-sky-600 rounded focus:outline-none"
+                                />
+                                파닉스
+                              </label>
+                              <label className="inline-flex items-center gap-1 cursor-pointer select-none">
+                                <input
+                                  type="checkbox"
+                                  checked={ed.ccMode === "both" || ed.ccMode === "book_only"}
+                                  onChange={(e) =>
+                                    setEdits({
+                                      ...edits,
+                                      [u.id]: {
+                                        ...ed,
+                                        ccMode: toggleCcMode(ed.ccMode, "book", e.target.checked)
+                                      }
+                                    })
+                                  }
+                                  className="w-3.5 h-3.5 accent-sky-600 rounded focus:outline-none"
+                                />
+                                원서
+                              </label>
+                            </div>
                           </td>
                           <td className="py-3 px-2">
                             <select
@@ -1214,7 +1261,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                               onChange={(e) =>
                                 setEdits({ ...edits, [u.id]: { ...ed, teacherId: e.target.value } })
                               }
-                              className="px-2 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold max-w-[120px]"
+                              className="px-2 py-1.5 rounded-lg border border-[#e5dcc9] focus:outline-none focus:border-sky-500 bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold max-w-[120px]"
                             >
                               {teachers.map((t) => (
                                 <option key={t.id} value={t.id}>
@@ -1231,7 +1278,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                               onChange={(e) =>
                                 setEdits({ ...edits, [u.id]: { ...ed, pin: e.target.value } })
                               }
-                              className="w-13 px-1.5 py-1.5 rounded-lg border border-[#d8ceb8] bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold text-center"
+                              className="w-13 px-1.5 py-1.5 rounded-lg border border-[#e5dcc9] focus:outline-none focus:border-sky-500 bg-[#fbf8f2]/65 hover:bg-[#fbf8f2]/95 text-xs font-semibold text-center"
                             />
                           </td>
                           <td className="py-3 px-2 whitespace-nowrap">
