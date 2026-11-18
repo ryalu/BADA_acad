@@ -87,25 +87,52 @@ export const SpeakingStage: React.FC<SpeakingStageProps> = ({
 
     if (SpeechRec) {
       try {
+        let handled = false;
+        let latestSpoken = "";
         const rec = new SpeechRec() as {
           lang: string;
           interimResults: boolean;
           maxAlternatives: number;
-          onresult: (e: { results: { [i: number]: { [j: number]: { transcript: string } } } }) => void;
+          onresult: (e: { results: { [i: number]: { [j: number]: { transcript: string } } }; length?: number }) => void;
           onerror: () => void;
+          onend: () => void;
+          abort?: () => void;
           start: () => void;
         };
         rec.lang = "en-US";
-        rec.interimResults = false;
-        rec.maxAlternatives = 1;
-        rec.onresult = (e) => {
+        rec.interimResults = true;
+        rec.maxAlternatives = 3;
+
+        const finishMic = (spoken: string) => {
+          if (handled) return;
+          handled = true;
+          window.clearTimeout(safetyTimer);
           setListening(false);
-          submitSpeech(e.results[0][0].transcript);
+          submitSpeech(spoken || qItem.target);
         };
-        rec.onerror = () => {
-          setListening(false);
-          submitSpeech(qItem.target);
+
+        const safetyTimer = window.setTimeout(() => {
+          try {
+            rec.abort?.();
+          } catch {
+            // ignore
+          }
+          finishMic(latestSpoken || qItem.target);
+        }, 4500);
+
+        rec.onresult = (e: any) => {
+          let txt = "";
+          for (let i = 0; i < e.results.length; i += 1) {
+            txt += " " + (e.results[i]?.[0]?.transcript || "");
+            if (e.results[i]?.isFinal) {
+              finishMic(txt.trim() || qItem.target);
+              return;
+            }
+          }
+          if (txt.trim()) latestSpoken = txt.trim();
         };
+        rec.onerror = () => finishMic(latestSpoken || qItem.target);
+        rec.onend = () => finishMic(latestSpoken || qItem.target);
         rec.start();
         return;
       } catch {

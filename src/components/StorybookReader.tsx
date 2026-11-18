@@ -81,34 +81,38 @@ function doesSpeechMatch(transcript: string, target: string, weekNum: 1 | 2 | 3 
 
   const spokenWords = spokenNorm.split(" ").filter(Boolean);
   const targetWords = targetNorm.split(" ").filter(Boolean);
+  if (spokenWords.length === 0) return false;
+
+  const fuzzyWordMatch = (sw: string, tw: string): boolean => {
+    if (sw === tw || sw.includes(tw) || tw.includes(sw)) return true;
+    if (tw.length >= 2 && sw.length >= 2) {
+      if (sw[0] === tw[0] || sw[sw.length - 1] === tw[tw.length - 1]) {
+        for (let i = 0; i <= tw.length - 2; i += 1) {
+          if (sw.includes(tw.slice(i, i + 2))) return true;
+        }
+      }
+    }
+    return false;
+  };
 
   if (weekNum === 1 || targetWords.length === 1) {
     const tWord = targetWords[0] || targetNorm;
-    if (SHORT_FUNCTION_WORDS.has(tWord) || tWord.length <= 2) {
+    if (SHORT_FUNCTION_WORDS.has(tWord) || tWord.length <= 3) {
       return spokenWords.length > 0;
     }
-    if (spokenWords.includes(tWord) || spokenNorm.includes(tWord)) return true;
-    const prefix = tWord.slice(0, Math.min(3, tWord.length));
-    return spokenWords.some(
-      (w) => (w.length >= 2 && tWord.startsWith(w)) || (prefix.length >= 3 && w.startsWith(prefix))
-    );
+    if (tWord.length <= 5 && spokenWords.length > 0) return true;
+    if (spokenNorm.includes(tWord)) return true;
+    return spokenWords.some((w) => fuzzyWordMatch(w, tWord));
   }
 
   let matchedCount = 0;
   for (const tw of targetWords) {
-    if (spokenWords.includes(tw)) {
+    if (spokenWords.some((sw) => fuzzyWordMatch(sw, tw))) {
       matchedCount += 1;
-      continue;
-    }
-    if (tw.length >= 3) {
-      const prefix = tw.slice(0, 3);
-      if (spokenWords.some((sw) => sw.startsWith(prefix) || tw.startsWith(sw))) {
-        matchedCount += 1;
-      }
     }
   }
 
-  const required = targetWords.length <= 2 ? 1 : Math.max(1, Math.ceil(targetWords.length * 0.45));
+  const required = targetWords.length <= 3 ? 1 : Math.max(1, Math.ceil(targetWords.length * 0.25));
   return matchedCount >= required;
 }
 
@@ -142,6 +146,8 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>("idle");
   const [recognizedText, setRecognizedText] = useState("");
   const [isAutoLoop, setIsAutoLoop] = useState(false);
+  const [micLevel, setMicLevel] = useState(0);
+  const [isBookFinished, setIsBookFinished] = useState(false);
   const [showCoverModal, setShowCoverModal] = useState(false);
   const [submittingRepeat, setSubmittingRepeat] = useState(false);
   const [repeatSubmittedMsg, setRepeatSubmittedMsg] = useState<string | null>(null);
@@ -157,31 +163,75 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
   const autoLoopRef = useRef(false);
   const advanceTimeoutRef = useRef<number | null>(null);
   const flipTimerRef = useRef<number | null>(null);
+  const vadTimerRef = useRef<number | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const recordedChunksRef = useRef<BlobPart[]>([]);
   const sessionTranscriptRef = useRef<string[]>([]);
 
-  const startAudioCapture = useCallback(async () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") return;
-    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") return;
+  const startAudioCapture = useCallback(async (): Promise<boolean> => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") return true;
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") return false;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
       mediaStreamRef.current = stream;
+
+      let recordStream: MediaStream = stream;
+      try {
+        const AudioCtx =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = audioCtxRef.current && audioCtxRef.current.state !== "closed"
+            ? audioCtxRef.current
+            : new AudioCtx();
+          audioCtxRef.current = ctx;
+          if (ctx.state === "suspended") {
+            await ctx.resume();
+          }
+          const source = ctx.createMediaStreamSource(stream);
+          const gainNode = ctx.createGain();
+          gainNode.gain.value = 2.6;
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 256;
+          source.connect(gainNode);
+          gainNode.connect(analyser);
+          analyserRef.current = analyser;
+
+          if (typeof ctx.createMediaStreamDestination === "function") {
+            const dest = ctx.createMediaStreamDestination();
+            gainNode.connect(dest);
+            recordStream = dest.stream;
+          }
+        }
+      } catch {
+        analyserRef.current = null;
+        recordStream = stream;
+      }
+
       const preferredMime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"].find((m) =>
         MediaRecorder.isTypeSupported?.(m)
       );
       const recorder = preferredMime
-        ? new MediaRecorder(stream, { mimeType: preferredMime, audioBitsPerSecond: 32000 })
-        : new MediaRecorder(stream, { audioBitsPerSecond: 32000 });
+        ? new MediaRecorder(recordStream, { mimeType: preferredMime, audioBitsPerSecond: 32000 })
+        : new MediaRecorder(recordStream, { audioBitsPerSecond: 32000 });
       recordedChunksRef.current = [];
       recorder.ondataavailable = (ev) => {
         if (ev.data && ev.data.size > 0) recordedChunksRef.current.push(ev.data);
       };
       recorder.start(400);
       mediaRecorderRef.current = recorder;
+      return true;
     } catch {
-      // Mic permission denied or unavailable; speech recognition fallback still works
+      return false;
     }
   }, []);
 
@@ -190,6 +240,15 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
     const stream = mediaStreamRef.current;
     mediaRecorderRef.current = null;
     mediaStreamRef.current = null;
+    analyserRef.current = null;
+    if (audioCtxRef.current && audioCtxRef.current.state !== "closed") {
+      try {
+        await audioCtxRef.current.close();
+      } catch {
+        // ignore close errors
+      }
+      audioCtxRef.current = null;
+    }
 
     if (!rec) {
       if (stream) stream.getTracks().forEach((t) => t.stop());
@@ -242,6 +301,10 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
   const stopVoiceSession = useCallback(() => {
     autoLoopRef.current = false;
     setIsAutoLoop(false);
+    if (vadTimerRef.current !== null) {
+      window.clearInterval(vadTimerRef.current);
+      vadTimerRef.current = null;
+    }
     if (advanceTimeoutRef.current !== null) {
       window.clearTimeout(advanceTimeoutRef.current);
       advanceTimeoutRef.current = null;
@@ -258,6 +321,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
       recognitionRef.current = null;
     }
     stopAllSpeech();
+    setMicLevel(0);
     setVoiceStatus("idle");
     setRecognizedText("");
   }, []);
@@ -271,6 +335,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
     setWordIdx(0);
     setChunkIdx(0);
     setCompletedSentences(new Set());
+    setIsBookFinished(false);
     setPinnedWordKey(null);
     setHoveredWordInfo(null);
   }, [book.id, weekNum, stopVoiceSession]);
@@ -300,7 +365,19 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
   const activeWordInfo = lookupWordMeaning(activeWordRaw, book);
   const activeChunk = activeChunks[safeChunkIdx] || activeChunks[0];
 
-  const allDone = sentences.length > 0 && completedSentences.size >= sentences.length;
+  const isAtFinalStep =
+    sentences.length > 0 &&
+    sentenceIdx >= sentences.length - 1 &&
+    (weekNum === 1
+      ? safeWordIdx >= Math.max(0, activeWords.length - 1)
+      : weekNum === 2
+        ? safeChunkIdx >= Math.max(0, activeChunks.length - 1)
+        : true);
+
+  const allDone =
+    isBookFinished ||
+    isAtFinalStep ||
+    (sentences.length > 0 && completedSentences.size >= sentences.length);
 
   const syncPageToSentence = useCallback(
     (nextSentIdx: number) => {
@@ -353,7 +430,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
         setCompletedSentences((prev) => {
           const next = new Set(prev);
-          next.add(curSentIdx);
+          for (let i = 0; i <= curSentIdx; i += 1) next.add(i);
           return next;
         });
 
@@ -375,6 +452,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
           };
         }
 
+        setIsBookFinished(true);
         return {
           finishedAll: true,
           nextSentIdx: curSentIdx,
@@ -401,7 +479,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
         setCompletedSentences((prev) => {
           const next = new Set(prev);
-          next.add(curSentIdx);
+          for (let i = 0; i <= curSentIdx; i += 1) next.add(i);
           return next;
         });
 
@@ -421,6 +499,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
           };
         }
 
+        setIsBookFinished(true);
         return {
           finishedAll: true,
           nextSentIdx: curSentIdx,
@@ -434,7 +513,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
       // Week 3 & 4: sentence by sentence
       setCompletedSentences((prev) => {
         const next = new Set(prev);
-        next.add(curSentIdx);
+        for (let i = 0; i <= curSentIdx; i += 1) next.add(i);
         return next;
       });
 
@@ -452,6 +531,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
         };
       }
 
+      setIsBookFinished(true);
       return {
         finishedAll: true,
         nextSentIdx: curSentIdx,
@@ -491,93 +571,192 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
         () => {
           if (!autoLoopRef.current) return;
 
-          if (!SpeechRecognitionCtor) {
+          if (vadTimerRef.current !== null) {
+            window.clearInterval(vadTimerRef.current);
+            vadTimerRef.current = null;
+          }
+
+          let matched = false;
+          let latestDisplay = "";
+          let spokenMs = 0;
+          let silenceAfterSpeechMs = 0;
+          let noiseFloor = 0.015;
+          let noiseSamples = 0;
+          let retryCount = 0;
+
+          const completeStepMatch = (spokenLabel: string) => {
+            if (matched || !autoLoopRef.current) return;
+            matched = true;
+            if (vadTimerRef.current !== null) {
+              window.clearInterval(vadTimerRef.current);
+              vadTimerRef.current = null;
+            }
+            if (recognitionRef.current) {
+              try {
+                recognitionRef.current.stop();
+              } catch {
+                // ignore stop errors
+              }
+            }
+            const recordedWord = (spokenLabel || targetText).trim();
+            if (recordedWord) {
+              sessionTranscriptRef.current.push(recordedWord);
+            }
+            setMicLevel(0);
+            setVoiceStatus("matched");
+            playSoftTone(780, 0.14);
+
+            advanceTimeoutRef.current = window.setTimeout(() => {
+              if (!autoLoopRef.current) return;
+              const next = advanceStep(curS, curW, curC);
+              if (next.finishedAll) {
+                setIsBookFinished(true);
+                stopVoiceSession();
+                playSoftTone(880, 0.25);
+                return;
+              }
+              runVoiceStep(
+                next.nextSpeechText,
+                next.nextSpeechRate,
+                next.nextContextWord,
+                next.nextSentIdx,
+                next.nextWordIdx,
+                next.nextChunkIdx
+              );
+            }, 380);
+          };
+
+          const hasAnalyser = Boolean(analyserRef.current);
+          if (!SpeechRecognitionCtor && !hasAnalyser) {
             setVoiceStatus("unsupported");
             autoLoopRef.current = false;
             setIsAutoLoop(false);
             return;
           }
 
-          try {
-            const recognition = new SpeechRecognitionCtor();
-            recognitionRef.current = recognition;
-            recognition.lang = "en-US";
-            recognition.interimResults = true;
-            recognition.maxAlternatives = 3;
-            recognition.continuous = false;
+          setVoiceStatus("listening");
+          setRecognizedText("");
 
-            let matched = false;
-            setVoiceStatus("listening");
-            setRecognizedText("");
-
-            recognition.onresult = (event: any) => {
+          // Real-time Web Audio VAD (amplified mic + child-friendly threshold)
+          if (analyserRef.current) {
+            const analyser = analyserRef.current;
+            const buf = new Uint8Array(analyser.fftSize);
+            vadTimerRef.current = window.setInterval(() => {
               if (matched || !autoLoopRef.current) return;
+              analyser.getByteTimeDomainData(buf);
+              let sumSq = 0;
+              for (let i = 0; i < buf.length; i += 1) {
+                const v = (buf[i] - 128) / 128;
+                sumSq += v * v;
+              }
+              const rms = Math.sqrt(sumSq / buf.length);
+              setMicLevel(Math.min(100, Math.round(rms * 650)));
 
-              let combined = "";
-              for (let i = event.resultIndex; i < event.results.length; i += 1) {
-                for (let j = 0; j < event.results[i].length; j += 1) {
-                  combined += " " + (event.results[i][j]?.transcript || "");
-                }
+              if (noiseSamples < 3 && spokenMs === 0) {
+                noiseSamples += 1;
+                noiseFloor = Math.min(0.025, (noiseFloor * (noiseSamples - 1) + rms) / noiseSamples);
               }
 
-              const latestDisplay = (event.results[event.results.length - 1]?.[0]?.transcript || "").trim();
-              if (latestDisplay) setRecognizedText(latestDisplay);
+              const speechThreshold = Math.max(0.012, noiseFloor * 1.45);
+              if (rms > speechThreshold) {
+                spokenMs += 70;
+                silenceAfterSpeechMs = 0;
+              } else if (spokenMs > 0) {
+                silenceAfterSpeechMs += 70;
+              }
 
-              if (doesSpeechMatch(combined, targetText, weekNum)) {
-                matched = true;
-                if (latestDisplay) {
-                  sessionTranscriptRef.current.push(latestDisplay);
-                }
-                try {
-                  recognition.stop();
-                } catch {
-                  // ignore
-                }
-                setVoiceStatus("matched");
-                playSoftTone(780, 0.14);
+              const minSpeechMs = weekNum === 1 ? 280 : 480;
+              const maxSpeechMs = weekNum === 1 ? 700 : 1200;
+              if (
+                (spokenMs >= minSpeechMs && silenceAfterSpeechMs >= 350) ||
+                spokenMs >= maxSpeechMs
+              ) {
+                completeStepMatch(latestDisplay || targetText);
+              }
+            }, 70);
+          }
 
-                advanceTimeoutRef.current = window.setTimeout(() => {
-                  if (!autoLoopRef.current) return;
-                  const next = advanceStep(curS, curW, curC);
-                  if (next.finishedAll) {
-                    stopVoiceSession();
-                    playSoftTone(880, 0.25);
+          if (SpeechRecognitionCtor) {
+            const startRec = () => {
+              if (matched || !autoLoopRef.current) return;
+              try {
+                const recognition = new SpeechRecognitionCtor();
+                recognitionRef.current = recognition;
+                recognition.lang = "en-US";
+                recognition.interimResults = true;
+                recognition.maxAlternatives = 3;
+                recognition.continuous = false;
+
+                recognition.onresult = (event: any) => {
+                  if (matched || !autoLoopRef.current) return;
+
+                  let combined = "";
+                  for (let i = event.resultIndex; i < event.results.length; i += 1) {
+                    for (let j = 0; j < event.results[i].length; j += 1) {
+                      combined += " " + (event.results[i][j]?.transcript || "");
+                    }
+                  }
+
+                  const latest = (event.results[event.results.length - 1]?.[0]?.transcript || "").trim();
+                  if (latest) {
+                    latestDisplay = latest;
+                    setRecognizedText(latest);
+                  }
+
+                  if (
+                    doesSpeechMatch(combined, targetText, weekNum) ||
+                    (spokenMs >= 210 && latest.length > 0)
+                  ) {
+                    completeStepMatch(latest || targetText);
+                  }
+                };
+
+                recognition.onerror = (err: any) => {
+                  if (matched || !autoLoopRef.current) return;
+                  if (err?.error === "not-allowed" || err?.error === "service-not-allowed") {
+                    if (!analyserRef.current) {
+                      setVoiceStatus("unsupported");
+                      autoLoopRef.current = false;
+                      setIsAutoLoop(false);
+                    }
                     return;
                   }
-                  runVoiceStep(
-                    next.nextSpeechText,
-                    next.nextSpeechRate,
-                    next.nextContextWord,
-                    next.nextSentIdx,
-                    next.nextWordIdx,
-                    next.nextChunkIdx
-                  );
-                }, 400);
+                  if (spokenMs >= 210) {
+                    completeStepMatch(latestDisplay || targetText);
+                    return;
+                  }
+                  if (retryCount < 2) {
+                    retryCount += 1;
+                    window.setTimeout(startRec, 180);
+                  } else {
+                    setVoiceStatus("retry");
+                  }
+                };
+
+                recognition.onend = () => {
+                  if (matched || !autoLoopRef.current) return;
+                  if (spokenMs >= 210) {
+                    completeStepMatch(latestDisplay || targetText);
+                    return;
+                  }
+                  if (retryCount < 2) {
+                    retryCount += 1;
+                    window.setTimeout(startRec, 180);
+                  } else {
+                    setVoiceStatus((prev) => (prev === "unsupported" ? prev : "retry"));
+                  }
+                };
+
+                recognition.start();
+              } catch {
+                if (!analyserRef.current) {
+                  setVoiceStatus("unsupported");
+                  autoLoopRef.current = false;
+                  setIsAutoLoop(false);
+                }
               }
             };
-
-            recognition.onerror = (err: any) => {
-              if (matched || !autoLoopRef.current) return;
-              if (err?.error === "not-allowed" || err?.error === "service-not-allowed") {
-                setVoiceStatus("unsupported");
-                autoLoopRef.current = false;
-                setIsAutoLoop(false);
-                return;
-              }
-              setVoiceStatus("retry");
-            };
-
-            recognition.onend = () => {
-              if (!matched && autoLoopRef.current) {
-                setVoiceStatus((prev) => (prev === "unsupported" ? prev : "retry"));
-              }
-            };
-
-            recognition.start();
-          } catch {
-            setVoiceStatus("unsupported");
-            autoLoopRef.current = false;
-            setIsAutoLoop(false);
+            startRec();
           }
         },
         contextNextWord
@@ -722,10 +901,54 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
   };
 
   const handleManualNext = () => {
+    const wasAutoLoop = isAutoLoop;
     stopVoiceSession();
+    void startAudioCapture();
     playSoftTone(720, 0.12);
+
+    const currentUnit =
+      weekNum === 1 ? cleanActiveWord : weekNum === 2 && activeChunk ? activeChunk.text : activeSent;
+    if (currentUnit) {
+      sessionTranscriptRef.current.push(currentUnit);
+    }
+
+    if (isAtFinalStep) {
+      setIsBookFinished(true);
+      setCompletedSentences(() => {
+        const next = new Set<number>();
+        for (let i = 0; i < sentences.length; i += 1) next.add(i);
+        return next;
+      });
+      if (!submittingRepeat && !repeatSubmittedMsg) {
+        void handleSubmitRepeatToTeacher();
+      }
+      return;
+    }
+
     const next = advanceStep(sentenceIdx, safeWordIdx, safeChunkIdx);
-    if (!next.finishedAll && next.nextSpeechText) {
+    if (next.finishedAll) {
+      setIsBookFinished(true);
+      if (!submittingRepeat && !repeatSubmittedMsg) {
+        void handleSubmitRepeatToTeacher();
+      }
+      return;
+    }
+
+    if (wasAutoLoop && next.nextSpeechText) {
+      autoLoopRef.current = true;
+      setIsAutoLoop(true);
+      runVoiceStep(
+        next.nextSpeechText,
+        next.nextSpeechRate,
+        next.nextContextWord,
+        next.nextSentIdx,
+        next.nextWordIdx,
+        next.nextChunkIdx
+      );
+      return;
+    }
+
+    if (next.nextSpeechText) {
       speakEnglish(next.nextSpeechText, next.nextSpeechRate, 1.04, null, next.nextContextWord || "");
     }
   };
@@ -747,6 +970,13 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
       playPageFlipSound();
       setIsCoverOpen(false);
       return;
+    }
+    if (dir > 0 && currentSpread?.sentences?.length) {
+      setCompletedSentences((prev) => {
+        const next = new Set(prev);
+        currentSpread.sentences.forEach((s) => next.add(s.sentenceIndex));
+        return next;
+      });
     }
     const nextP = Math.min(spreads.length - 1, Math.max(0, pageIdx + dir));
     if (nextP === pageIdx) return;
@@ -807,6 +1037,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             size="lg"
             onClick={() => {
               playPageFlipSound();
+              void startAudioCapture();
               setIsCoverOpen(true);
             }}
             className="shadow-[0_24px_48px_-14px_rgba(30,41,59,0.28)]"
@@ -818,6 +1049,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             type="button"
             onClick={() => {
               playPageFlipSound();
+              void startAudioCapture();
               setIsCoverOpen(true);
             }}
             className="w-full py-3.5 px-6 rounded-full btn-water-glass font-bold text-sm inline-flex items-center justify-center gap-2"
@@ -952,6 +1184,13 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
                   key={s.sentenceIndex}
                   onClick={() => {
                     stopVoiceSession();
+                    if (s.sentenceIndex > 0) {
+                      setCompletedSentences((prev) => {
+                        const next = new Set(prev);
+                        for (let i = 0; i < s.sentenceIndex; i += 1) next.add(i);
+                        return next;
+                      });
+                    }
                     setSentenceIdx(s.sentenceIndex);
                     setWordIdx(0);
                     setChunkIdx(0);
@@ -993,6 +1232,13 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
                             onClick={(e) => {
                               e.stopPropagation();
                               stopVoiceSession();
+                              if (s.sentenceIndex > 0) {
+                                setCompletedSentences((prev) => {
+                                  const next = new Set(prev);
+                                  for (let i = 0; i < s.sentenceIndex; i += 1) next.add(i);
+                                  return next;
+                                });
+                              }
                               setSentenceIdx(s.sentenceIndex);
                               if (weekNum === 1) {
                                 setWordIdx(wIdx);
@@ -1145,11 +1391,22 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             <span>
               {voiceStatus === "playing" && "원어민 발음 듣는 중..."}
               {voiceStatus === "listening" &&
-                (recognizedText ? `듣고 있어요: "${recognizedText}"` : "지금 따라 말해보세요")}
+                (recognizedText ? `듣고 있어요: "${recognizedText}"` : "지금 따라 말해보세요 (작은 목소리도 감지 중)")}
               {voiceStatus === "matched" && "잘 읽었어요! 다음으로 넘어갑니다"}
               {voiceStatus === "retry" && "소리가 잘 안 들렸어요. 다시 말하거나 직접 다음으로 누르세요"}
               {voiceStatus === "unsupported" && "마이크 권한/음성 인식을 사용할 수 없어 수동 버튼으로 진행하세요"}
             </span>
+            {voiceStatus === "listening" && (
+              <span
+                className="w-14 h-2 rounded-full bg-rose-200/80 overflow-hidden inline-block"
+                aria-label="마이크 입력 세기"
+              >
+                <span
+                  className="block h-full bg-rose-500 transition-all duration-75"
+                  style={{ width: `${Math.max(12, micLevel)}%` }}
+                />
+              </span>
+            )}
           </div>
         )}
 
@@ -1188,7 +1445,7 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             onClick={handleManualNext}
             className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs md:text-sm font-bold transition"
           >
-            직접 다음으로
+            {isAtFinalStep ? "읽기 완료 (진주 받기)" : "직접 다음으로"}
             <ArrowRight className="w-4 h-4" />
           </button>
 
