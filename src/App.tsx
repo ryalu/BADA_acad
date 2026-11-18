@@ -86,31 +86,54 @@ export default function App() {
   const handleCompleteWeek = async () => {
     if (!currentUser) return;
     const wk = currentWeek;
-    const nextWk = (wk < 4 ? wk + 1 : 4) as 1 | 2 | 3 | 4;
+    const curProg = Number(currentUser[`progress_w${wk}` as keyof StudentUser] || 0);
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const dailyStorageKey = `bada_daily_study_${currentUser.id}_w${wk}`;
+    let alreadyCreditedToday = false;
+    try {
+      alreadyCreditedToday = window.localStorage.getItem(dailyStorageKey) === todayKey;
+    } catch {
+      alreadyCreditedToday = false;
+    }
+
+    const nextProg = alreadyCreditedToday
+      ? curProg
+      : Math.min(100, Math.floor(curProg / 20) * 20 + 20);
+    if (!alreadyCreditedToday) {
+      try {
+        window.localStorage.setItem(dailyStorageKey, todayKey);
+      } catch {
+        // ignore storage errors
+      }
+    }
+
+    const nextWk = (nextProg >= 100 && wk < 4 ? wk + 1 : wk) as 1 | 2 | 3 | 4;
 
     setUsers((prev) =>
       prev.map((u) =>
         u.id === currentUser.id
-          ? { ...u, [`progress_w${wk}`]: 100 }
+          ? { ...u, [`progress_w${wk}`]: nextProg }
           : u
       )
     );
     setCurrentWeek(nextWk);
 
-    try {
-      const res = await fetch("/api/users/progress", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: currentUser.id, week: wk, progress: 100 })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.user) {
-          setUsers((prev) => prev.map((u) => (u.id === data.user.id ? data.user : u)));
+    if (!alreadyCreditedToday || nextProg !== curProg) {
+      try {
+        const res = await fetch("/api/users/progress", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: currentUser.id, week: wk, progress: nextProg })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user) {
+            setUsers((prev) => prev.map((u) => (u.id === data.user.id ? data.user : u)));
+          }
         }
+      } catch {
+        // ignore offline
       }
-    } catch {
-      // ignore offline
     }
 
     navigate("/student");

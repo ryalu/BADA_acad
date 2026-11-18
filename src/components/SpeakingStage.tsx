@@ -248,7 +248,7 @@ export const SpeakingStage: React.FC<SpeakingStageProps> = ({
               className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition shadow-sm disabled:opacity-60"
             >
               <CheckCircle2 className="w-4 h-4" />
-              {saving ? "저장 중..." : `${weekNum}주차 학습 완료하기`}
+              {saving ? "저장 중..." : `${weekNum}주차 오늘 학습 완료하기`}
             </button>
           )}
         </div>

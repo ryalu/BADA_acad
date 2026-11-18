@@ -626,8 +626,19 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
     setSubmittingRepeat(true);
     stopVoiceSession();
 
-    const nextRepeat = Math.min(5, completedRepeats + 1);
-    const nextProgress = Math.min(100, nextRepeat * 20);
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const dailyStorageKey = userId ? `bada_daily_study_${userId}_w${weekNum}` : "";
+    let alreadyCreditedToday = false;
+    if (dailyStorageKey) {
+      try {
+        alreadyCreditedToday = window.localStorage.getItem(dailyStorageKey) === todayKey;
+      } catch {
+        alreadyCreditedToday = false;
+      }
+    }
+
+    const nextRepeat = alreadyCreditedToday ? completedRepeats : Math.min(5, completedRepeats + 1);
+    const nextProgress = alreadyCreditedToday ? weekProgress : Math.min(100, nextRepeat * 20);
     const transcript = sessionTranscriptRef.current.join(" ").trim();
     const audioDataUrl = await stopAudioCaptureAndGetDataUrl();
 
@@ -664,7 +675,14 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
         }
       }
 
-      if (userId) {
+      if (userId && !alreadyCreditedToday) {
+        if (dailyStorageKey) {
+          try {
+            window.localStorage.setItem(dailyStorageKey, todayKey);
+          } catch {
+            // ignore storage errors
+          }
+        }
         await fetch("/api/users/progress", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -678,13 +696,15 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
       setAiCoachingTip({ pronunciation: pronunciationTip, intonation: intonationTip, weakWords });
       setRepeatSubmittedMsg(
-        recordingSaved
-          ? audioDataUrl
-            ? `오늘 ${nextRepeat}회차 완료! 녹음 파일과 학습 기록이 선생님께 전송되었어요.`
-            : `오늘 ${nextRepeat}회차 완료! 학습 기록이 선생님께 전송되었어요. (음성 녹음은 마이크 권한 허용 시 함께 저장됩니다)`
-          : nextRepeat >= 5
-            ? `${weekNum}주차 5회 반복 완주! 진주 5개를 모두 모았어요!`
-            : `오늘 ${nextRepeat}회차 읽기 완료! 진주 ${nextRepeat}/5개를 모았어요.`
+        alreadyCreditedToday
+          ? `오늘 ${weekNum}주차 학습(${completedRepeats}/5회)은 이미 기록되었어요! 내일 다시 참여하면 다음 회차가 열립니다.`
+          : recordingSaved
+            ? audioDataUrl
+              ? `오늘 ${nextRepeat}/5회차 완료! 녹음 파일과 학습 기록이 선생님께 전송되었어요.`
+              : `오늘 ${nextRepeat}/5회차 완료! 학습 기록이 선생님께 전송되었어요. (음성 녹음은 마이크 권한 허용 시 함께 저장됩니다)`
+            : nextRepeat >= 5
+              ? `${weekNum}주차 5회 반복 완주! 진주 5개를 모두 모았어요!`
+              : `오늘 ${nextRepeat}회차 읽기 완료! 진주 ${nextRepeat}/5개를 모았어요.`
       );
       playSoftTone(880, 0.22);
 
