@@ -1151,15 +1151,16 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
           <button
             type="button"
             onClick={handleToggleVoicePractice}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs md:text-sm font-bold transition shadow-sm ${isAutoLoop ? "bg-rose-600 hover:bg-rose-700" : "btn-water-glass"
-              }`}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition shadow-sm ${
+              isAutoLoop ? "bg-rose-600 hover:bg-rose-700 text-white" : "btn-water-glass"
+            }`}
           >
             {isAutoLoop ? <Square className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             {isAutoLoop
               ? "따라 말하기 멈추기"
               : allDone
                 ? "음성 인식으로 다시 읽기"
-                : "듣고 따라 말하기 (음성 인식)"}
+                : "듣고 따라 말하기"}
           </button>
 
           <button
