@@ -11,8 +11,9 @@ const {
   initPostgresPoolIfConfigured,
   getDbEngineInfo,
   getAllBootstrapData,
-  getOrExtractVocabAndChunks,
+  cleanupOrphanVocabChunks,
   updateUserProgress,
+  markAgeTrackCompleteToday,
   verifyStudentPin,
   verifyTeacherLogin,
   createStudent,
@@ -23,15 +24,22 @@ const {
   deleteTeacher,
   createBook,
   updateBook,
+  getBookIllustrations,
+  ensureBookIllustrations,
   reanalyzeAllBooksWithLLM,
   saveStudentRecording,
   listStudentRecordings,
   getCachedTtsAudio,
   saveCachedTtsAudio,
-  getOrCreateBookWorksheets
+  getOrCreateBookWorksheets,
+  seedVocabIfEmpty,
+  getStudentVocabState,
+  getVocabUnitContent,
+  buildVocabQuiz,
+  submitVocabAttempt,
+  updateStudentVocabSettings
 } = require("./db");
 const {
-  POPO_MASTER_PROMPT_SPEC,
   evaluatePopoSpeech,
   generateTeacherQuestions,
   generateParentFeedbackMessage
@@ -83,14 +91,15 @@ function checkRateLimit(req) {
   return entry.count <= RATE_LIMIT_MAX_POST;
 }
 
-function sendJson(res, statusCode, payload) {
+function sendJson(res, statusCode, payload, extraHeaders = {}) {
   const allowedOrigin = process.env.ALLOWED_ORIGIN || "*";
   res.writeHead(statusCode, {
     ...SECURITY_HEADERS,
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
+    "Access-Control-Allow-Headers": "Content-Type",
+    ...extraHeaders
   });
   res.end(JSON.stringify(payload, null, 2));
 }
@@ -145,13 +154,10 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // 1. Bootstrap endpoint
+    // 1. Bootstrap endpoint (lightweight; page illustrations & worksheets loaded on demand)
     if (pathname === "/api/bootstrap" && req.method === "GET") {
       const data = await getAllBootstrapData();
-      return sendJson(res, 200, {
-        ...data,
-        popoMasterSpec: POPO_MASTER_PROMPT_SPEC
-      });
+      return sendJson(res, 200, data);
     }
 
     // 1-A. Student PIN Authentication
@@ -250,22 +256,19 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    // 2. Vocab & Chunk DB Deduplication Optimization endpoint
-    if (pathname === "/api/books/analyze" && req.method === "POST") {
-      const body = await parseJsonBody(req);
-      const rawText = String(body.text || "").trim().slice(0, 5000);
-      if (!rawText) {
-        return sendJson(res, 400, { error: "원서 텍스트를 입력해 주세요." });
+    // 2. Lazy-load page illustrations for a single book
+    if (pathname === "/api/books/illustrations" && req.method === "GET") {
+      const bookId = String(urlObj.searchParams.get("bookId") || "").trim();
+      if (!bookId) {
+        return sendJson(res, 400, { ok: false, error: "bookId is required." });
       }
-      const safeLevel = String(body.level || "Level 2").slice(0, 40);
-      const safeBookId = body.bookId ? String(body.bookId).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) : null;
-      const koreanText = String(body.korean_text || "").trim().slice(0, 5000);
-      const result = await getOrExtractVocabAndChunks(rawText, safeLevel, safeBookId, false, koreanText);
-      const updatedBootstrap = await getAllBootstrapData();
-      return sendJson(res, 200, {
-        result,
-        auditLogs: updatedBootstrap.auditLogs
-      });
+      const page_illustrations = await getBookIllustrations(bookId);
+      return sendJson(
+        res,
+        200,
+        { ok: true, bookId, page_illustrations },
+        { "Cache-Control": "private, max-age=60" }
+      );
     }
 
     // 2-B. Register New Book into DB (so it appears in Student Assignment Dropdown)
@@ -274,13 +277,12 @@ const server = http.createServer(async (req, res) => {
       try {
         const created = await createBook(body);
         const updatedBootstrap = await getAllBootstrapData();
-        reanalyzeAllBooksWithLLM({ force: false }).catch(() => {});
+        ensureBookIllustrations(created.book.id).catch(() => {});
         return sendJson(res, 200, {
           ok: true,
           book: created.book,
           analysis: created.analysis,
-          books: updatedBootstrap.books,
-          auditLogs: updatedBootstrap.auditLogs
+          books: updatedBootstrap.books
         });
       } catch (err) {
         return sendJson(res, 400, { ok: false, error: err.message });
@@ -293,28 +295,15 @@ const server = http.createServer(async (req, res) => {
         const body = await parseJsonBody(req);
         const updated = await updateBook(body);
         const updatedBootstrap = await getAllBootstrapData();
-        reanalyzeAllBooksWithLLM({ force: false }).catch(() => {});
+        ensureBookIllustrations(updated.book.id).catch(() => {});
         return sendJson(res, 200, {
           ok: true,
           book: updated.book,
           analysis: updated.analysis,
-          books: updatedBootstrap.books,
-          auditLogs: updatedBootstrap.auditLogs
+          books: updatedBootstrap.books
         });
       } catch (err) {
         return sendJson(res, 400, { ok: false, error: err.message });
-      }
-    }
-
-    // 2.6 Re-analyze all books in DB with external LLM
-    if (pathname === "/api/books/reanalyze" && req.method === "POST") {
-      try {
-        const body = await parseJsonBody(req);
-        const result = await reanalyzeAllBooksWithLLM({ force: Boolean(body.force) });
-        const updatedBootstrap = await getAllBootstrapData();
-        return sendJson(res, 200, { ok: true, result, books: updatedBootstrap.books });
-      } catch (err) {
-        return sendJson(res, 500, { ok: false, error: err.message });
       }
     }
 
@@ -352,8 +341,89 @@ const server = http.createServer(async (req, res) => {
       if (typeof body.audioUrl === "string" && /^(storage:\/\/bada-audio\/|https:\/\/)[a-zA-Z0-9/_.-]+$/.test(body.audioUrl)) {
         safeAudioUrl = body.audioUrl.slice(0, 250);
       }
-      const updatedUser = await updateUserProgress(safeUserId, safeWeek, safeProgress, safeAudioUrl);
-      return sendJson(res, 200, { user: updatedUser });
+      const result = await updateUserProgress(safeUserId, safeWeek, safeProgress, safeAudioUrl, {
+        enforceDailyLimit: Boolean(body.enforceDailyLimit)
+      });
+      return sendJson(res, 200, { ok: true, ...result });
+    }
+
+    if (pathname === "/api/users/age-track-complete" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const safeUserId = String(body.userId || "stu_hajun").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 60);
+        const result = await markAgeTrackCompleteToday(safeUserId);
+        return sendJson(res, 200, { ok: true, ...result });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    // 4-B. 3-Stage Vocabulary Learning APIs
+    if (pathname === "/api/vocab/state" && req.method === "GET") {
+      try {
+        const userId = String(urlObj.searchParams.get("userId") || "stu_hajun").trim();
+        const state = await getStudentVocabState(userId);
+        return sendJson(res, 200, { ok: true, ...state });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/vocab/unit" && req.method === "GET") {
+      try {
+        const tier = String(urlObj.searchParams.get("tier") || "elem_800").trim();
+        const stage = Number(urlObj.searchParams.get("stage")) || 1;
+        const unitKey = String(urlObj.searchParams.get("unitKey") || "A").trim();
+        const content = await getVocabUnitContent({ tier, stage, unitKey });
+        return sendJson(res, 200, { ok: true, ...content });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/vocab/quiz" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const quiz = await buildVocabQuiz({
+          userId: String(body.userId || "").trim(),
+          tier: String(body.tier || "elem_800").trim(),
+          stage: Number(body.stage) || 1,
+          unitKey: String(body.unitKey || "A").trim(),
+          attemptType: body.attemptType === "final_test" ? "final_test" : "daily_quiz"
+        });
+        return sendJson(res, 200, { ok: true, ...quiz });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/vocab/attempt" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const result = await submitVocabAttempt({
+          userId: String(body.userId || "").trim(),
+          tier: String(body.tier || "elem_800").trim(),
+          stage: Number(body.stage) || 1,
+          unitKey: String(body.unitKey || "A").trim(),
+          attemptType: body.attemptType === "final_test" ? "final_test" : "daily_quiz",
+          totalCount: Number(body.totalCount) || 0,
+          correctCount: Number(body.correctCount) || 0,
+          wrongWordIds: Array.isArray(body.wrongWordIds) ? body.wrongWordIds : []
+        });
+        return sendJson(res, 200, { ok: true, ...result });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/vocab/settings" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const state = await updateStudentVocabSettings(body);
+        return sendJson(res, 200, { ok: true, ...state });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
     }
 
     // 5. Teacher SaaS 4th-Week AI Recommended Questions endpoint
@@ -438,10 +508,8 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { error: "text is required" });
       }
       const isSingleWord = !/\s/.test(text);
-      const rawSpeed = Number(body.speed) || 0.92;
-      const speed = isSingleWord
-        ? Math.min(1.05, Math.max(0.84, rawSpeed))
-        : Math.min(1.12, Math.max(0.75, rawSpeed));
+      const rawSpeed = Number(body.speed) || 0.90;
+      const speed = isSingleWord ? 0.85 : rawSpeed < 0.85 ? 0.80 : 0.90;
       const voice = String(body.voice || process.env.OPENAI_TTS_VOICE || "shimmer");
       const crypto = require("node:crypto");
       const rawKey = `v3|${voice}|${speed.toFixed(2)}|${text}`;
@@ -571,6 +639,18 @@ const server = http.createServer(async (req, res) => {
 
 async function startServer() {
   await initPostgresPoolIfConfigured();
+  await cleanupOrphanVocabChunks().catch(() => {});
+  const vocabSeedRes = await seedVocabIfEmpty().catch((err) => {
+    console.warn("⚠️ [BADA Vocab] 초기 어휘 시드 적재 오류:", err.message);
+    return null;
+  });
+  if (vocabSeedRes) {
+    console.log(
+      vocabSeedRes.skipped
+        ? `📚 [BADA Vocab] 어휘 DB 준비 완료 (기존 시드 유지: ${vocabSeedRes.count ?? "ok"})`
+        : `📚 [BADA Vocab] 어휘 DB 자동 시드 완료: ${vocabSeedRes.words}개 단어 / ${vocabSeedRes.units}개 유닛 / ${vocabSeedRes.affixItems}개 접사 (${vocabSeedRes.engine})`
+    );
+  }
   const info = getDbEngineInfo();
   server.listen(PORT, HOST, () => {
     console.log(`🌊 BADA 영어 웹 서비스가 실행되었습니다: http://localhost:${PORT} (DB Engine: ${info.engine.toUpperCase()})`);

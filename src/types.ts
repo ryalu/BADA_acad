@@ -19,6 +19,7 @@ export interface StudentUser {
   classcard_level?: number;
   classcard_mode?: "both" | "phonics_only" | "book_only";
   completed_books?: string[];
+  daily_study_dates?: Record<string, string>;
   progress_w1: number;
   progress_w2: number;
   progress_w3: number;
@@ -111,6 +112,7 @@ export interface Book {
   level: string;
   grade_recommended?: string;
   full_text: string;
+  text_hash?: string;
   cover_theme?: string;
   vocab: VocabItem[];
   chunks: ChunkItem[];
@@ -119,6 +121,8 @@ export interface Book {
   speaking_questions?: SpeakingQuestion[];
   page_illustrations?: PageIllustration[];
   worksheets?: BookWorksheets;
+  has_illustrations?: boolean;
+  has_worksheets?: boolean;
 }
 
 export interface TeacherQuestion {
@@ -189,5 +193,157 @@ export interface PhonicsCurriculumTier {
   sort_order: number;
   phonics_words: PhonicsCurriculumWord[];
   basic_words: BasicVocabularyWord[];
+}
+
+export type VocabTier = "all" | "elem_800" | "mid_high";
+export type VocabInputMode = "tiles" | "typing";
+
+export interface VocabUnit {
+  id: string;
+  tier: string;
+  stage: 1 | 2 | 3;
+  unit_key: string;
+  title_kr: string;
+  rule_summary_kr: string;
+  word_count: number;
+  sort_order: number;
+}
+
+export interface VocabPhonicsSpan {
+  unit_id: string;
+  pattern: string;
+  start: number;
+  end: number;
+  silent_e_index?: number;
+  sound_kr?: string;
+}
+
+export interface VocabWord {
+  id: string;
+  word: string;
+  display_word: string;
+  meaning_kr: string;
+  initial_letter: string;
+  is_elem_800: boolean;
+  is_mid_high: boolean;
+  elem_no: number | null;
+  mh_no: number | null;
+  elem_unit_key: string | null;
+  mh_unit_key: string | null;
+  phonics_spans: VocabPhonicsSpan[];
+  phonics_unit_ids: string[];
+}
+
+export interface VocabAffixItem {
+  id: string;
+  unit_id: string;
+  affix: string;
+  affix_type: "prefix" | "suffix";
+  affix_meaning_kr: string;
+  root_word: string;
+  root_meaning_kr: string;
+  root_pos: string;
+  derived_word: string;
+  derived_meaning_kr: string;
+  derived_pos: string;
+  explanation_kr: string;
+  root_in_pdf: boolean;
+  derived_in_pdf: boolean;
+  sort_order: number;
+}
+
+export interface StudentVocabProgress {
+  user_id: string;
+  vocab_tier: VocabTier;
+  current_stage: 1 | 2 | 3;
+  current_unit_key: string;
+  unit_started_at: string;
+  completed_s1_units: string[];
+  early_test_unlocked: boolean;
+  current_s2_unit: string;
+  s2_input_mode: VocabInputMode;
+  completed_s2_units: string[];
+  current_s3_unit: string;
+  completed_s3_units: string[];
+  updated_at?: string;
+}
+
+export interface StudentVocabAttempt {
+  id: string;
+  user_id: string;
+  tier: string;
+  stage: number;
+  unit_key: string;
+  attempt_type: string;
+  total_count: number;
+  correct_count: number;
+  score_pct: number;
+  passed: boolean;
+  wrong_word_ids: string[];
+  created_at: string;
+}
+
+export interface StudentVocabState {
+  progress: StudentVocabProgress;
+  todayKst: string;
+  daysElapsed: number;
+  monthReady: boolean;
+  todayDailyQuizDone: boolean;
+  recentWrongWordIds: string[];
+  units: {
+    stage1: VocabUnit[];
+    stage2: VocabUnit[];
+    stage3: VocabUnit[];
+  };
+  recentAttempts: StudentVocabAttempt[];
+}
+
+export interface VocabStage1Question {
+  wordId: string;
+  word: string;
+  displayWord: string;
+  initialLetter: string;
+  correctMeaning: string;
+  options: string[];
+}
+
+export interface VocabStage2Question {
+  wordId: string;
+  word: string;
+  meaningKr: string;
+  maskedWord: string;
+  targetPattern: string;
+  targetLetters?: string[];
+  letterOptions?: string[];
+  soundKr: string;
+  span?: VocabPhonicsSpan;
+  tileOptions: string[];
+}
+
+export interface VocabStage3Question {
+  itemId: string;
+  affix: string;
+  affixType: "prefix" | "suffix";
+  affixMeaningKr: string;
+  rootWord: string;
+  rootMeaningKr: string;
+  rootPos: string;
+  derivedWord: string;
+  derivedMeaningKr: string;
+  derivedPos: string;
+  explanationKr: string;
+  meaningOptions: string[];
+  affixOptions: string[];
+}
+
+export interface VocabAttemptResult {
+  id: string;
+  score_pct: number;
+  passed: boolean;
+  total_count: number;
+  correct_count: number;
+  advancedToUnit: string | null;
+  advancedToStage?: 2 | 3 | null;
+  needsExtraMonth: boolean;
 }
 

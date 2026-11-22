@@ -8,6 +8,7 @@ import { StorybookReader } from "./components/StorybookReader";
 import { FlashcardDeck } from "./components/FlashcardDeck";
 import { SpeakingStage } from "./components/SpeakingStage";
 import { CurriculumPlayground } from "./components/CurriculumPlayground";
+import { VocabStudio } from "./components/vocab/VocabStudio";
 import { TreasureBookshelf } from "./components/TreasureBookshelf";
 import { TeacherDashboard, type TeacherTab } from "./components/TeacherDashboard";
 import { OceanBackdrop } from "./components/OceanBackdrop";
@@ -87,55 +88,47 @@ export default function App() {
     if (!currentUser) return;
     const wk = currentWeek;
     const curProg = Number(currentUser[`progress_w${wk}` as keyof StudentUser] || 0);
-    const todayKey = new Date().toISOString().slice(0, 10);
-    const dailyStorageKey = `bada_daily_study_${currentUser.id}_w${wk}`;
-    let alreadyCreditedToday = false;
-    try {
-      alreadyCreditedToday = window.localStorage.getItem(dailyStorageKey) === todayKey;
-    } catch {
-      alreadyCreditedToday = false;
-    }
+    let nextProg = curProg;
 
-    const nextProg = alreadyCreditedToday
-      ? curProg
-      : Math.min(100, Math.floor(curProg / 20) * 20 + 20);
-    if (!alreadyCreditedToday) {
-      try {
-        window.localStorage.setItem(dailyStorageKey, todayKey);
-      } catch {
-        // ignore storage errors
+    try {
+      const res = await fetch("/api/users/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: currentUser.id, week: wk, enforceDailyLimit: true })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.progress === "number") nextProg = data.progress;
+        if (data.user) {
+          setUsers((prev) => prev.map((u) => (u.id === data.user.id ? data.user : u)));
+        }
       }
+    } catch {
+      // ignore offline
     }
 
     const nextWk = (nextProg >= 100 && wk < 4 ? wk + 1 : wk) as 1 | 2 | 3 | 4;
-
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === currentUser.id
-          ? { ...u, [`progress_w${wk}`]: nextProg }
-          : u
-      )
-    );
     setCurrentWeek(nextWk);
+    navigate("/student");
+  };
 
-    if (!alreadyCreditedToday || nextProg !== curProg) {
-      try {
-        const res = await fetch("/api/users/progress", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: currentUser.id, week: wk, progress: nextProg })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.user) {
-            setUsers((prev) => prev.map((u) => (u.id === data.user.id ? data.user : u)));
-          }
+  const handleCompleteAgeTrack = async () => {
+    if (!currentUser) return;
+    try {
+      const res = await fetch("/api/users/age-track-complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: currentUser.id })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) {
+          setUsers((prev) => prev.map((u) => (u.id === data.user.id ? data.user : u)));
         }
-      } catch {
-        // ignore offline
       }
+    } catch {
+      // ignore offline
     }
-
     navigate("/student");
   };
 
@@ -212,12 +205,11 @@ export default function App() {
 
   // 2. Teacher Dashboard (/teacher*)
   if (route.startsWith("/teacher")) {
-    const teacherTab: TeacherTab = route.includes("/coaching")
-      ? "coaching"
-      : route.includes("/worksheets")
-        ? "worksheets"
-        : route.includes("/reports")
-          ? "reports"
+    const teacherTab: TeacherTab =
+      route.includes("/coaching") || route.includes("/reports")
+        ? "coaching"
+        : route.includes("/worksheets")
+          ? "worksheets"
           : route.includes("/database")
             ? "database"
             : "home";
@@ -264,11 +256,13 @@ export default function App() {
 
   const studentPage = route.includes("/learn")
     ? "learn"
-    : route.includes("/curriculum")
-      ? "curriculum"
-      : route.includes("/treasure")
-        ? "treasure"
-        : "home";
+    : route.includes("/vocab")
+      ? "vocab"
+      : route.includes("/curriculum")
+        ? "curriculum"
+        : route.includes("/treasure")
+          ? "treasure"
+          : "home";
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col">
@@ -309,33 +303,13 @@ export default function App() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setLearnStep(1);
-                  navigate("/student/learn");
-                }}
-                className="px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
-              >
-                오늘의 원서 읽기
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setCurrSubview("hub");
-                  navigate("/student/curriculum");
-                }}
-                className="px-3.5 py-2 rounded-full text-xs font-bold transition text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
-              >
-                맞춤 훈련소
-              </button>
-              <button
-                type="button"
                 onClick={() => navigate("/student/treasure")}
                 className={`px-3.5 py-2 rounded-full text-xs font-bold transition ${studentPage === "treasure"
                     ? "btn-water-glass"
                     : "text-slate-600 hover:text-slate-900 hover:bg-[#f2ece1]"
                   }`}
               >
-                나의 보물창고
+                보물창고
               </button>
             </nav>
 
@@ -374,16 +348,24 @@ export default function App() {
               setLearnStep(1);
               navigate("/student/learn");
             }}
-            onOpenCurriculum={(sub = "hub") => {
-              setCurrSubview(sub);
+            onOpenVocab={() => navigate("/student/vocab")}
+            onOpenAgeTrack={() => {
+              setCurrSubview("upper");
               navigate("/student/curriculum");
             }}
           />
         )}
 
+        {studentPage === "vocab" && (
+          <VocabStudio
+            user={currentUser}
+            onBackHome={() => navigate("/student")}
+          />
+        )}
+
         {studentPage === "learn" && (
           <div className={learnStep === 1 ? "" : "space-y-3"}>
-            {/* Clean Hairline Stepper & Week Selector (hidden in full-screen StorybookReader step 1) */}
+            {/* Clean Hairline Stepper (read-only current week; hidden in StorybookReader step 1) */}
             {learnStep !== 1 && (
               <div className="pb-2.5 border-b border-[#e8dfd1] flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
@@ -395,24 +377,9 @@ export default function App() {
                     <ArrowLeft className="w-3.5 h-3.5" />
                     탐험 맵
                   </button>
-                  <div className="flex items-center gap-1">
-                    {([1, 2, 3, 4] as const).map((wk) => (
-                      <button
-                        key={wk}
-                        type="button"
-                        onClick={() => {
-                          setCurrentWeek(wk);
-                          setLearnStep(1);
-                        }}
-                        className={`px-3 py-1 rounded-full text-xs font-bold transition ${currentWeek === wk
-                          ? "btn-water-glass"
-                          : "text-slate-600 hover:bg-[#f2ece1]"
-                          }`}
-                      >
-                        {wk}주차
-                      </button>
-                    ))}
-                  </div>
+                  <span className="px-3 py-1 rounded-full btn-water-glass text-xs font-bold">
+                    {currentWeek}주차 학습
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-1.5">
@@ -450,11 +417,11 @@ export default function App() {
                 weekNum={currentWeek}
                 userId={currentUser.id}
                 weekProgress={(currentUser[`progress_w${currentWeek}` as keyof StudentUser] as number) || 0}
-                onRecordRepeatComplete={({ nextProgress }) => {
+                onRecordRepeatComplete={({ nextProgress, updatedUser }) => {
                   setUsers((prev) =>
                     prev.map((u) =>
                       u.id === currentUser.id
-                        ? { ...u, [`progress_w${currentWeek}`]: nextProgress }
+                        ? updatedUser || { ...u, [`progress_w${currentWeek}`]: nextProgress }
                         : u
                     )
                   );
@@ -490,6 +457,7 @@ export default function App() {
             phonicsCurriculum={phonicsCurriculum}
             initialSubview={currSubview}
             onBackHome={() => navigate("/student")}
+            onCompleteAgeTrack={handleCompleteAgeTrack}
           />
         )}
 

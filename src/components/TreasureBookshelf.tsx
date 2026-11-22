@@ -4,6 +4,7 @@ import type { Book, StudentUser } from "../types";
 import { splitBookIntoContextPages } from "../utils/bookHelpers";
 import { speakEnglish } from "../utils/speech";
 import { BookCover } from "./BookCover";
+import { useBookIllustrations } from "./reader/useBookIllustrations";
 
 interface TreasureBookshelfProps {
   user: StudentUser;
@@ -25,6 +26,7 @@ export const TreasureBookshelf: React.FC<TreasureBookshelfProps> = ({
   }, [user, books]);
 
   const [readingBook, setReadingBook] = useState<Book | null>(null);
+  const readingIllustrations = useBookIllustrations(readingBook);
 
   const spreads = useMemo(() => {
     if (!readingBook) return [];
@@ -166,9 +168,9 @@ export const TreasureBookshelf: React.FC<TreasureBookshelfProps> = ({
 
               {/* All Spreads Rendered Vertically for Scroll Reading */}
               {spreads.map((spread) => {
-                const ill = readingBook.page_illustrations?.find(
-                  (p) => p.page_index === spread.pageIndex
-                );
+                const ill =
+                  readingIllustrations.find((p) => p.page_index === spread.pageIndex) ||
+                  readingIllustrations[spread.pageIndex];
                 return (
                   <article
                     key={spread.pageIndex}

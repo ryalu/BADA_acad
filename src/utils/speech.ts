@@ -207,9 +207,9 @@ async function tryPlayServerNeuralTts(
   token: number
 ): Promise<boolean> {
   if (serverTtsStatus === "unavailable") return false;
-    const isSingle = !/\s/.test(spokenText);
-    const speed = isSingle ? Math.min(1.05, Math.max(0.85, rate)) : Math.min(1.12, Math.max(0.75, rate));
-    const cacheKey = `v3|${speed.toFixed(2)}|${spokenText}`;
+  const isSingle = !/\s/.test(spokenText);
+  const speed = isSingle ? 0.85 : rate < 0.85 ? 0.80 : 0.90;
+  const cacheKey = `v3|${speed.toFixed(2)}|${spokenText}`;
 
   try {
     let url = audioBlobCache.get(cacheKey);

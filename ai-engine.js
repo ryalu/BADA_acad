@@ -849,48 +849,6 @@ function splitSentencesIntoPages(rawText) {
   return pages;
 }
 
-function sanitizeSvg(svgRaw) {
-  const s = String(svgRaw || "").trim();
-  if (!s.includes("<svg")) return "";
-  return s
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
-    .replace(/\son[a-z]+\s*=\s*(['"]).*?\1/gi, "")
-    .replace(/javascript:/gi, "");
-}
-
-function buildFallbackPageIllustrationSvg(pageText) {
-  const t = String(pageText || "").toLowerCase();
-  const isOcean = /ocean|sea|whale|starfish|coral|turtle|bubble|dolphin|crab|water|current|cave|pearl|island/.test(t);
-  const bgTop = isOcean ? "#bae6fd" : "#fef3c7";
-  const bgBot = isOcean ? "#67e8f9" : "#d9f99d";
-  const ground = isOcean ? "#fde68a" : "#86efac";
-
-  const elements = [];
-  if (/starfish/.test(t)) {
-    elements.push(`<polygon points="90,95 97,112 115,112 101,123 106,140 90,130 74,140 79,123 65,112 83,112" fill="#fb923c" stroke="#ea580c" stroke-width="2"/><circle cx="86" cy="116" r="2" fill="#1e293b"/><circle cx="94" cy="116" r="2" fill="#1e293b"/>`);
-  }
-  if (/whale|popo/.test(t)) {
-    elements.push(`<ellipse cx="185" cy="70" rx="46" ry="26" fill="#38bdf8"/><path d="M225 70 Q245 55 252 62 Q245 72 252 82 Q242 84 225 70" fill="#0284c7"/><circle cx="158" cy="66" r="3" fill="#1e293b"/><path d="M154 75 Q162 81 170 75" stroke="#1e293b" stroke-width="2" fill="none" stroke-linecap="round"/>`);
-  }
-  if (/turtle/.test(t)) {
-    elements.push(`<ellipse cx="260" cy="86" rx="24" ry="16" fill="#34d399" stroke="#059669" stroke-width="2"/><circle cx="288" cy="82" r="9" fill="#6ee7b7"/><circle cx="291" cy="80" r="2" fill="#1e293b"/>`);
-  }
-  if (/treasure|chest|pearl/.test(t)) {
-    elements.push(`<rect x="155" y="102" width="46" height="28" rx="4" fill="#d97706" stroke="#92400e" stroke-width="2"/><rect x="153" y="96" width="50" height="10" rx="4" fill="#fbbf24"/><circle cx="178" cy="108" r="5" fill="#fef08a"/>`);
-  }
-  if (/tree|yard|flower|garden/.test(t)) {
-    elements.push(`<rect x="82" y="74" width="14" height="44" rx="3" fill="#92400e"/><circle cx="89" cy="58" r="26" fill="#22c55e"/><circle cx="74" cy="64" r="18" fill="#4ade80"/><circle cx="104" cy="64" r="18" fill="#4ade80"/>`);
-  }
-  if (/owl|hoo|school|backpack/.test(t)) {
-    elements.push(`<ellipse cx="180" cy="82" rx="22" ry="26" fill="#a78bfa"/><circle cx="172" cy="74" r="6" fill="white"/><circle cx="188" cy="74" r="6" fill="white"/><circle cx="172" cy="74" r="2.5" fill="#1e293b"/><circle cx="188" cy="74" r="2.5" fill="#1e293b"/><polygon points="180,79 176,84 184,84" fill="#f59e0b"/>`);
-  }
-  if (elements.length === 0) {
-    elements.push(`<circle cx="180" cy="72" r="26" fill="#38bdf8"/><circle cx="172" cy="68" r="3" fill="#1e293b"/><circle cx="188" cy="68" r="3" fill="#1e293b"/><path d="M172 78 Q180 85 188 78" stroke="#1e293b" stroke-width="2" fill="none" stroke-linecap="round"/>`);
-  }
-
-  return `<svg viewBox="0 0 360 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${bgTop}"/><stop offset="100%" stop-color="${bgBot}"/></linearGradient></defs><rect width="360" height="150" rx="12" fill="url(#bg)"/><path d="M0 116 Q90 106 180 116 T360 116 L360 150 L0 150 Z" fill="${ground}"/>${elements.join("")}</svg>`;
-}
-
 async function generatePageIllustrationsWithLLM({ title = "", fullText = "", level = "Level 2" }) {
   const pages = splitSentencesIntoPages(fullText);
   if (pages.length === 0) return [];
@@ -1314,7 +1272,6 @@ async function generateBookWorksheetsWithLLM(book) {
 }
 
 module.exports = {
-  POPO_MASTER_PROMPT_SPEC,
   analyzeTextWithLLM,
   analyzeTextWithLLMAsync,
   generatePageIllustrationsWithLLM,

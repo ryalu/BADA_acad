@@ -10,4 +10,5 @@ dist/
 *.pen
 .DS_Store
 Thumbs.db
+data/word_raw/
 

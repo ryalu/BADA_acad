@@ -70,6 +70,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS teacher_id VARCHAR(80) NOT NULL DEFAU
 ALTER TABLE users ADD COLUMN IF NOT EXISTS classcard_level INTEGER NOT NULL DEFAULT 2;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS classcard_mode VARCHAR(30) NOT NULL DEFAULT 'both';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS completed_books_json JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_study_dates_json JSONB NOT NULL DEFAULT '{}'::jsonb;
 ALTER TABLE vocab_chunks ADD COLUMN IF NOT EXISTS sentence_translations_json JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE vocab_chunks ADD COLUMN IF NOT EXISTS speaking_questions_json JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE vocab_chunks ADD COLUMN IF NOT EXISTS page_illustrations_json JSONB NOT NULL DEFAULT '[]'::jsonb;
@@ -116,3 +117,88 @@ CREATE TABLE IF NOT EXISTS phonics_curriculum (
 CREATE INDEX IF NOT EXISTS idx_books_text_hash ON books(text_hash);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON cache_audit_logs(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_student_recordings_user ON student_recordings(user_id, created_at DESC);
+
+-- ============================================================================
+-- 3-STAGE VOCABULARY LEARNING (A-Z / PHONICS VISUALIZATION / AFFIX EXPANSION)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS vocab_bank (
+  id VARCHAR(120) PRIMARY KEY,
+  word VARCHAR(120) UNIQUE NOT NULL,
+  display_word VARCHAR(140) NOT NULL,
+  meaning_kr TEXT NOT NULL,
+  initial_letter VARCHAR(4) NOT NULL,
+  is_elem_800 BOOLEAN NOT NULL DEFAULT FALSE,
+  is_mid_high BOOLEAN NOT NULL DEFAULT FALSE,
+  elem_no INTEGER,
+  mh_no INTEGER,
+  elem_unit_key VARCHAR(30),
+  mh_unit_key VARCHAR(30),
+  phonics_spans_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  phonics_unit_ids_json JSONB NOT NULL DEFAULT '[]'::jsonb
+);
+
+CREATE TABLE IF NOT EXISTS vocab_units (
+  id VARCHAR(80) PRIMARY KEY,
+  tier VARCHAR(20) NOT NULL,
+  stage INTEGER NOT NULL,
+  unit_key VARCHAR(40) NOT NULL,
+  title_kr VARCHAR(140) NOT NULL,
+  rule_summary_kr TEXT NOT NULL,
+  word_count INTEGER NOT NULL DEFAULT 0,
+  sort_order INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS vocab_affix_items (
+  id VARCHAR(100) PRIMARY KEY,
+  unit_id VARCHAR(80) NOT NULL,
+  affix VARCHAR(30) NOT NULL,
+  affix_type VARCHAR(20) NOT NULL,
+  affix_meaning_kr VARCHAR(120) NOT NULL,
+  root_word VARCHAR(80) NOT NULL,
+  root_meaning_kr VARCHAR(140) NOT NULL,
+  root_pos VARCHAR(40) NOT NULL,
+  derived_word VARCHAR(80) NOT NULL,
+  derived_meaning_kr VARCHAR(140) NOT NULL,
+  derived_pos VARCHAR(40) NOT NULL,
+  explanation_kr TEXT NOT NULL,
+  root_in_pdf BOOLEAN NOT NULL DEFAULT TRUE,
+  derived_in_pdf BOOLEAN NOT NULL DEFAULT FALSE,
+  sort_order INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS student_vocab_progress (
+  user_id VARCHAR(80) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  vocab_tier VARCHAR(20) NOT NULL DEFAULT 'all',
+  current_stage INTEGER NOT NULL DEFAULT 1,
+  current_unit_key VARCHAR(40) NOT NULL DEFAULT 'A',
+  unit_started_at VARCHAR(20) NOT NULL,
+  completed_s1_units_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  early_test_unlocked BOOLEAN NOT NULL DEFAULT FALSE,
+  current_s2_unit VARCHAR(60) NOT NULL DEFAULT 's2_long_a',
+  s2_input_mode VARCHAR(20) NOT NULL DEFAULT 'tiles',
+  completed_s2_units_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  current_s3_unit VARCHAR(60) NOT NULL DEFAULT 's3_pre_un',
+  completed_s3_units_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS student_vocab_attempts (
+  id VARCHAR(100) PRIMARY KEY,
+  user_id VARCHAR(80) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  tier VARCHAR(20) NOT NULL,
+  stage INTEGER NOT NULL,
+  unit_key VARCHAR(40) NOT NULL,
+  attempt_type VARCHAR(20) NOT NULL,
+  total_count INTEGER NOT NULL,
+  correct_count INTEGER NOT NULL,
+  score_pct INTEGER NOT NULL,
+  passed BOOLEAN NOT NULL DEFAULT FALSE,
+  wrong_word_ids_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_vocab_bank_letter ON vocab_bank(initial_letter);
+CREATE INDEX IF NOT EXISTS idx_vocab_bank_elem_unit ON vocab_bank(elem_unit_key);
+CREATE INDEX IF NOT EXISTS idx_vocab_bank_mh_unit ON vocab_bank(mh_unit_key);
+CREATE INDEX IF NOT EXISTS idx_vocab_units_stage ON vocab_units(stage, tier, sort_order);
+CREATE INDEX IF NOT EXISTS idx_vocab_attempts_user ON student_vocab_attempts(user_id, stage, created_at DESC);

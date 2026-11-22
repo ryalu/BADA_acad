@@ -11,8 +11,10 @@ import {
   Volume2,
   X
 } from "lucide-react";
-import type { Book } from "../types";
+import type { Book, StudentUser } from "../types";
 import { BookCover } from "./BookCover";
+import { useBookIllustrations } from "./reader/useBookIllustrations";
+import { WordMeaningPopup } from "./reader/WordMeaningPopup";
 import {
   getBookSentences,
   getSentenceChunksForWeek2,
@@ -31,6 +33,7 @@ interface StorybookReaderProps {
     nextProgress: number;
     weakWords: string[];
     feedbackTip: string;
+    updatedUser?: StudentUser;
   }) => void;
   onBackHome?: () => void;
   onGoToFlashcards: () => void;
@@ -349,10 +352,11 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
     };
   }, [stopVoiceSession]);
 
+  const pageIllustrations = useBookIllustrations(book);
   const currentSpread = spreads[pageIdx] || spreads[0] || { pageIndex: 0, sentences: [] };
   const currentIllustration =
-    (book.page_illustrations || []).find((p) => Number(p.page_index) === pageIdx) ||
-    (book.page_illustrations || [])[pageIdx];
+    pageIllustrations.find((p) => Number(p.page_index) === pageIdx) ||
+    pageIllustrations[pageIdx];
   const illustrationImageUrl = currentIllustration?.image_url || "";
   const activeSent = sentences[sentenceIdx] || "";
   const activeWords = useMemo(() => activeSent.split(/\s+/).filter(Boolean), [activeSent]);
@@ -805,22 +809,13 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
     setSubmittingRepeat(true);
     stopVoiceSession();
 
-    const todayKey = new Date().toISOString().slice(0, 10);
-    const dailyStorageKey = userId ? `bada_daily_study_${userId}_w${weekNum}` : "";
-    let alreadyCreditedToday = false;
-    if (dailyStorageKey) {
-      try {
-        alreadyCreditedToday = window.localStorage.getItem(dailyStorageKey) === todayKey;
-      } catch {
-        alreadyCreditedToday = false;
-      }
-    }
-
-    const nextRepeat = alreadyCreditedToday ? completedRepeats : Math.min(5, completedRepeats + 1);
-    const nextProgress = alreadyCreditedToday ? weekProgress : Math.min(100, nextRepeat * 20);
     const transcript = sessionTranscriptRef.current.join(" ").trim();
     const audioDataUrl = await stopAudioCaptureAndGetDataUrl();
 
+    let alreadyCreditedToday = false;
+    let nextProgress = weekProgress;
+    let nextRepeat = completedRepeats;
+    let updatedUser: StudentUser | undefined;
     let weakWords: string[] = [];
     let pronunciationTip = "오늘 하루도 정말 잘 읽었어요! 다음 회차도 차근차근 도전해 보아요.";
     let intonationTip = "문장 끝에 리듬을 실어 자연스럽게 읽어 보아요.";
@@ -828,6 +823,27 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
 
     try {
       if (userId) {
+        const progRes = await fetch("/api/users/progress", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            week: weekNum,
+            enforceDailyLimit: true
+          })
+        });
+        if (progRes.ok) {
+          const progData = await progRes.json();
+          alreadyCreditedToday = Boolean(progData.alreadyCreditedToday);
+          if (typeof progData.progress === "number") {
+            nextProgress = progData.progress;
+          }
+          if (progData.user) {
+            updatedUser = progData.user;
+          }
+        }
+        nextRepeat = Math.min(5, Math.max(1, Math.round((nextProgress || 0) / 20)));
+
         const recRes = await fetch("/api/recordings", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -854,25 +870,6 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
         }
       }
 
-      if (userId && !alreadyCreditedToday) {
-        if (dailyStorageKey) {
-          try {
-            window.localStorage.setItem(dailyStorageKey, todayKey);
-          } catch {
-            // ignore storage errors
-          }
-        }
-        await fetch("/api/users/progress", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId,
-            week: weekNum,
-            progress: nextProgress
-          })
-        });
-      }
-
       setAiCoachingTip({ pronunciation: pronunciationTip, intonation: intonationTip, weakWords });
       setRepeatSubmittedMsg(
         alreadyCreditedToday
@@ -892,7 +889,8 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
           repeatNum: nextRepeat,
           nextProgress,
           weakWords,
-          feedbackTip: pronunciationTip
+          feedbackTip: pronunciationTip,
+          updatedUser
         });
       }
     } finally {
@@ -1300,34 +1298,8 @@ export const StorybookReader: React.FC<StorybookReaderProps> = ({
             })}
           </div>
 
-          {/* Active Word/Chunk Quick Meaning & Sound Bar (clean hairline, no heavy box) */}
-          <div className="pt-2.5 border-t border-[#e5dcc9] flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <span className="font-bold text-sm text-slate-900 truncate">{focusDisplay.word}</span>
-              {focusDisplay.phonetic && (
-                <span className="text-xs text-stone-400 shrink-0">{focusDisplay.phonetic}</span>
-              )}
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100/80 text-amber-900 truncate">
-                {focusDisplay.kr}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                speakEnglish(
-                  focusDisplay.word,
-                  weekNum === 1 ? 0.72 : 0.86,
-                  1.04,
-                  null,
-                  focusDisplay.nextWord || ""
-                )
-              }
-              className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#efe8d8] hover:bg-[#e5dcc7] text-slate-700 text-xs font-semibold transition"
-            >
-              <Volume2 className="w-3.5 h-3.5 text-sky-700" />
-              발음
-            </button>
-          </div>
+          {/* Active Word/Chunk Quick Meaning & Sound Bar */}
+          <WordMeaningPopup focusDisplay={focusDisplay} weekNum={weekNum} />
         </div>
 
         {/* Right Stacked Paper Thickness */}
