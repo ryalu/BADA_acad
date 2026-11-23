@@ -14,6 +14,7 @@ import json
 import math
 import os
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -69,7 +70,7 @@ def call_openai_image(api_key: str, prompt: str) -> bytes:
     last_err = None
 
     for model in models:
-        for attempt in range(2):
+        for attempt in range(4):
             body = json.dumps({
                 "model": model,
                 "prompt": prompt,
@@ -97,14 +98,14 @@ def call_openai_image(api_key: str, prompt: str) -> bytes:
             except urllib.error.HTTPError as e:
                 err_txt = e.read().decode("utf-8", errors="ignore")
                 last_err = f"HTTP {e.code} ({model}): {err_txt[:300]}"
-                if e.code in (429, 500, 502, 503, 504) and attempt == 0:
-                    time.sleep(2.0)
+                if e.code in (429, 500, 502, 503, 504) and attempt < 3:
+                    time.sleep(2.0 * (2 ** attempt))
                     continue
                 break
             except Exception as e:
                 last_err = f"{model}: {e}"
-                if attempt == 0:
-                    time.sleep(1.5)
+                if attempt < 3:
+                    time.sleep(2.0 * (2 ** attempt))
                     continue
                 break
     raise RuntimeError(last_err or "Image generation failed")
@@ -144,7 +145,7 @@ def build_contact_sheet(word_records: list, out_path: str):
 
     draw.text(
         (pad, 12),
-        f"BADA 초등 영단어 만화 일러스트 샘플 ({len(word_records)}개) - 구체어 18 + 추상어 16",
+        f"BADA 초등 영단어 만화 일러스트 ({len(word_records)}개)",
         fill=(25, 45, 70),
         font=title_font,
     )
@@ -167,6 +168,23 @@ def build_contact_sheet(word_records: list, out_path: str):
     canvas.save(out_path, format="PNG", optimize=True)
 
 
+def flush_master_image_urls(master: dict) -> int:
+    total_with_img = 0
+    for w in master["words"]:
+        webp_path = os.path.join(OUT_DIR, f"{w['id']}.webp")
+        if w.get("is_elem_800") and os.path.exists(webp_path) and os.path.getsize(webp_path) > 500:
+            w["image_url"] = f"/vocab-images/{w['id']}.webp"
+            total_with_img += 1
+        else:
+            w["image_url"] = None
+
+    tmp_path = f"{MASTER_JSON}.tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump(master, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_path, MASTER_JSON)
+    return total_with_img
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--letter", default="A", help="Alphabet letter to generate (e.g. A)")
@@ -174,12 +192,9 @@ def main():
     parser.add_argument("--force", action="store_true", help="Overwrite existing WebP files")
     parser.add_argument("--workers", type=int, default=5, help="Parallel workers")
     parser.add_argument("--sheet", default="", help="Optional path for labeled contact sheet PNG")
+    parser.add_argument("--sheet-only", action="store_true", help="Only build sheet without calling API")
+    parser.add_argument("--sheet-ids", default="", help="Comma-separated word IDs to include in sheet")
     args = parser.parse_args()
-
-    api_key = load_openai_key()
-    if not api_key:
-        print("ERROR: OPENAI_API_KEY not found in environment or .env", file=sys.stderr)
-        sys.exit(1)
 
     with open(MASTER_JSON, "r", encoding="utf-8") as f:
         master = json.load(f)
@@ -191,10 +206,27 @@ def main():
         w for w in master["words"]
         if w.get("is_elem_800") and (args.all or w.get("initial_letter") == target_letter)
     ]
-    # Order concrete first, then abstract
     targets.sort(key=lambda w: (1 if w.get("is_abstract") else 0, w["word"]))
 
     os.makedirs(OUT_DIR, exist_ok=True)
+
+    if args.sheet_only:
+        sheet_targets = targets
+        if args.sheet_ids:
+            wanted = [s.strip() for s in args.sheet_ids.split(",") if s.strip()]
+            by_id = {w["id"]: w for w in master["words"]}
+            sheet_targets = [by_id[i] for i in wanted if i in by_id]
+        total_with_img = flush_master_image_urls(master)
+        if args.sheet:
+            build_contact_sheet(sheet_targets, args.sheet)
+            print(f"Contact sheet written to: {args.sheet}")
+        print(f"Sheet-only synced: total_imaged_in_master={total_with_img}")
+        return
+
+    api_key = load_openai_key()
+    if not api_key:
+        print("ERROR: OPENAI_API_KEY not found in environment or .env", file=sys.stderr)
+        sys.exit(1)
 
     def process_one(rec):
         dest = os.path.join(OUT_DIR, f"{rec['id']}.webp")
@@ -206,7 +238,10 @@ def main():
         return rec["id"], "generated", size_b
 
     done_count = 0
+    generated_count = 0
     errors = []
+    flush_lock = threading.Lock()
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
         futures = {pool.submit(process_one, rec): rec for rec in targets}
         for fut in concurrent.futures.as_completed(futures):
@@ -214,26 +249,27 @@ def main():
             try:
                 wid, status, sz = fut.result()
                 done_count += 1
-                print(f"[{done_count}/{len(targets)}] {wid} ({rec['word']}): {status} ({sz} bytes)")
+                if status == "generated":
+                    generated_count += 1
+                print(f"[{done_count}/{len(targets)}] {wid} ({rec['word']}): {status} ({sz} bytes)", flush=True)
+                if generated_count > 0 and generated_count % 50 == 0:
+                    with flush_lock:
+                        synced = flush_master_image_urls(master)
+                        print(f"  [checkpoint] flushed vocab_master.json ({synced} imaged)", flush=True)
             except Exception as e:
                 errors.append((rec["id"], str(e)))
-                print(f"[ERROR] {rec['id']} ({rec['word']}): {e}", file=sys.stderr)
+                print(f"[ERROR] {rec['id']} ({rec['word']}): {e}", file=sys.stderr, flush=True)
 
-    # Sync image_url in vocab_master.json for all existing files
-    total_with_img = 0
-    for w in master["words"]:
-        webp_path = os.path.join(OUT_DIR, f"{w['id']}.webp")
-        if w.get("is_elem_800") and os.path.exists(webp_path) and os.path.getsize(webp_path) > 500:
-            w["image_url"] = f"/vocab-images/{w['id']}.webp"
-            total_with_img += 1
-        else:
-            w["image_url"] = None
-
-    with open(MASTER_JSON, "w", encoding="utf-8") as f:
-        json.dump(master, f, ensure_ascii=False, indent=2)
+    with flush_lock:
+        total_with_img = flush_master_image_urls(master)
 
     if args.sheet:
-        build_contact_sheet(targets, args.sheet)
+        sheet_targets = targets
+        if args.sheet_ids:
+            wanted = [s.strip() for s in args.sheet_ids.split(",") if s.strip()]
+            by_id = {w["id"]: w for w in master["words"]}
+            sheet_targets = [by_id[i] for i in wanted if i in by_id]
+        build_contact_sheet(sheet_targets, args.sheet)
         print(f"Contact sheet written to: {args.sheet}")
 
     print(f"Done: targets={len(targets)}, errors={len(errors)}, total_imaged_in_master={total_with_img}")

@@ -1,5 +1,5 @@
 {
-  "style_anchor": "Cute Korean children's storybook 2D cartoon illustration, clean soft dark-brown rounded ink outlines, warm cheerful pastel gouache coloring, expressive friendly character or clear object, centered single visual scene on a clean soft warm-white background, strictly no text, no letters, no numbers, no speech-bubble words, no watermark, square 1:1 composition.",
+  "style_anchor": "Cute Korean children's storybook 2D cartoon illustration, clean soft dark-brown rounded ink outlines, warm cheerful pastel gouache coloring, expressive friendly character or clear object, centered single visual scene on a clean soft warm-white background, strictly zero text, zero signs, zero letters, zero words, zero numbers anywhere even on buildings, books, clothes, or boards, no watermark, square 1:1 composition.",
   "words": {
     "vb_act": {
       "is_abstract": false,
@@ -136,6 +136,3070 @@
     "vb_away": {
       "is_abstract": true,
       "scene_prompt": "Cute child standing on a grassy hill beside a cozy cottage waving goodbye happily as a bright red balloon floats far away high into the sky."
+    },
+    "vb_baby": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful baby giggles while playing with colorful toys on a soft blanket in a sunny room filled with playful decorations."
+    },
+    "vb_back": {
+      "is_abstract": true,
+      "scene_prompt": "A playful puppy peeks from behind a big tree, its tail wagging happily as it waits for its friend to find it."
+    },
+    "vb_bad": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character frowns with a sad face while holding a broken toy, surrounded by colorful question marks."
+    },
+    "vb_bag": {
+      "is_abstract": false,
+      "scene_prompt": "A bright backpack sits on the grass, overflowing with books, snacks, and a water bottle, ready for an adventure."
+    },
+    "vb_ball": {
+      "is_abstract": false,
+      "scene_prompt": "Children joyfully kick a bright red ball across a sunny park, laughter and smiles lighting up their faces."
+    },
+    "vb_balloon": {
+      "is_abstract": false,
+      "scene_prompt": "A child reaches up excitedly to grab a bunch of colorful balloons floating above, with a big smile on their face."
+    },
+    "vb_banana": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful monkey happily peels a banana while sitting on a branch, surrounded by vibrant green leaves."
+    },
+    "vb_band": {
+      "is_abstract": false,
+      "scene_prompt": "A lively band of cute animals plays instruments together on a small stage, with colorful lights shining brightly."
+    },
+    "vb_bank": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly bank building with a big smiling face and a colorful awning, surrounded by happy people carrying coins."
+    },
+    "vb_base": {
+      "is_abstract": true,
+      "scene_prompt": "A group of children builds a tower with blocks, each layer labeled with fun shapes and colors, showcasing their strong foundation."
+    },
+    "vb_basket": {
+      "is_abstract": false,
+      "scene_prompt": "A woven basket filled with fresh fruits and flowers sits on a picnic blanket, inviting friends to share a delightful meal."
+    },
+    "vb_bath": {
+      "is_abstract": false,
+      "scene_prompt": "A playful puppy splashes happily in a bathtub filled with bubbles, with rubber ducks floating around it."
+    },
+    "vb_be": {
+      "is_abstract": true,
+      "scene_prompt": "A happy child looks in a mirror, seeing a reflection of themselves dressed as a superhero, beaming with pride."
+    },
+    "vb_beach": {
+      "is_abstract": false,
+      "scene_prompt": "Children build a sandcastle on a sunny beach, with colorful umbrellas and beach balls scattered around them."
+    },
+    "vb_bear": {
+      "is_abstract": false,
+      "scene_prompt": "A cute bear happily picks berries in a lush forest, surrounded by colorful flowers and butterflies fluttering by."
+    },
+    "vb_beautiful": {
+      "is_abstract": true,
+      "scene_prompt": "A child gazes in awe at a vibrant rainbow stretching across the sky, with sparkling stars twinkling nearby."
+    },
+    "vb_because": {
+      "is_abstract": true,
+      "scene_prompt": "A curious child looks at a butterfly, pondering with a thoughtful expression while surrounded by colorful flowers."
+    },
+    "vb_become": {
+      "is_abstract": true,
+      "scene_prompt": "A young artist paints a canvas, transforming a blank space into a colorful landscape filled with imagination."
+    },
+    "vb_bed": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy bedroom with a big fluffy bed, colorful pillows, and a cheerful nightlight glowing softly in the corner."
+    },
+    "vb_before": {
+      "is_abstract": true,
+      "scene_prompt": "A child eagerly waits at a door, looking at a calendar with a big smile, counting down to a fun event."
+    },
+    "vb_begin": {
+      "is_abstract": true,
+      "scene_prompt": "A child holds a sparkler, surrounded by friends, ready to celebrate the beginning of a joyful fireworks display."
+    },
+    "vb_behind": {
+      "is_abstract": true,
+      "scene_prompt": "A playful kitten peeks out from behind a curtain, its big eyes sparkling with mischief as it prepares to pounce."
+    },
+    "vb_bell": {
+      "is_abstract": false,
+      "scene_prompt": "A shiny bell hangs from a colorful ribbon, ringing joyfully as a child reaches up to touch it."
+    },
+    "vb_below": {
+      "is_abstract": true,
+      "scene_prompt": "A child peers down into a deep well, curious about the sparkling water and the colorful fish swimming below."
+    },
+    "vb_bench": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful park bench surrounded by blooming flowers, where friends sit together sharing stories and laughter."
+    },
+    "vb_beside": {
+      "is_abstract": true,
+      "scene_prompt": "Two friends stand side by side, each holding an ice cream cone, sharing smiles and enjoying a sunny day."
+    },
+    "vb_between": {
+      "is_abstract": true,
+      "scene_prompt": "Two colorful trees stand tall on either side of a path, with a happy child walking joyfully between them."
+    },
+    "vb_bicycle": {
+      "is_abstract": false,
+      "scene_prompt": "A child rides a bright blue bicycle down a sunny street, with a big smile and the wind blowing through their hair."
+    },
+    "vb_big": {
+      "is_abstract": true,
+      "scene_prompt": "A child stands next to a giant cartoon character, both smiling and looking up at a huge ice cream cone."
+    },
+    "vb_bird": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful bird sings happily on a branch, surrounded by blooming flowers and fluttering butterflies."
+    },
+    "vb_birthday": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful birthday party with balloons, cake, and children wearing party hats, all celebrating together with laughter."
+    },
+    "vb_black": {
+      "is_abstract": true,
+      "scene_prompt": "A child paints a large canvas with a deep black color, creating a starry night scene filled with bright stars."
+    },
+    "vb_blow": {
+      "is_abstract": true,
+      "scene_prompt": "A child blows gently on a dandelion, watching the fluffy seeds float away into the blue sky."
+    },
+    "vb_blue": {
+      "is_abstract": true,
+      "scene_prompt": "A child splashes in a bright blue puddle, laughing as the water droplets dance around them."
+    },
+    "vb_board": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful wooden board sits on the grass, covered with vibrant drawings made by happy children."
+    },
+    "vb_boat": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful sailboat glides across a sparkling lake, with children waving from the deck under a sunny sky."
+    },
+    "vb_body": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly cartoon character with a big smile shows off its colorful body parts, dancing joyfully in a playful scene."
+    },
+    "vb_book": {
+      "is_abstract": false,
+      "scene_prompt": "A child sits under a tree, engrossed in a colorful storybook, surrounded by playful animals listening intently."
+    },
+    "vb_bottle": {
+      "is_abstract": false,
+      "scene_prompt": "A bright green bottle filled with colorful marbles sits on a sunny windowsill, casting playful shadows."
+    },
+    "vb_bowl": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful bowl filled with colorful fruits sits on a table, inviting friends to share a healthy snack."
+    },
+    "vb_box": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful box sits in a sunny room, surrounded by playful toys and a curious puppy peeking inside."
+    },
+    "vb_boy": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful boy with a bright smile is flying a colorful kite on a sunny day in the park."
+    },
+    "vb_bread": {
+      "is_abstract": false,
+      "scene_prompt": "Freshly baked bread sits on a wooden table, with a little mouse peeking out curiously from behind it."
+    },
+    "vb_break": {
+      "is_abstract": false,
+      "scene_prompt": "A child accidentally drops a colorful toy, and it shatters into pieces, with surprised expressions on their face."
+    },
+    "vb_breakfast": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful family enjoys a bright breakfast table filled with pancakes, fruit, and juice, all smiling together."
+    },
+    "vb_bridge": {
+      "is_abstract": false,
+      "scene_prompt": "A beautiful wooden bridge arches over a sparkling stream, with children playing and ducks swimming below."
+    },
+    "vb_bright": {
+      "is_abstract": true,
+      "scene_prompt": "A sunny day with a big, smiling sun shining brightly over a colorful garden filled with flowers and butterflies."
+    },
+    "vb_bring": {
+      "is_abstract": false,
+      "scene_prompt": "A child joyfully brings a bouquet of flowers to their friend, both smiling brightly in a sunny park."
+    },
+    "vb_brother": {
+      "is_abstract": false,
+      "scene_prompt": "Two brothers are playing together in the backyard, laughing as they build a fort out of colorful blankets."
+    },
+    "vb_brown": {
+      "is_abstract": true,
+      "scene_prompt": "A playful puppy with a shiny brown coat rolls in the grass, surrounded by colorful flowers and butterflies."
+    },
+    "vb_brush": {
+      "is_abstract": false,
+      "scene_prompt": "A child happily paints a rainbow with a big brush, splashes of color flying everywhere in a sunny room."
+    },
+    "vb_build": {
+      "is_abstract": false,
+      "scene_prompt": "Children are building a sandcastle on the beach, with buckets and shovels, all smiling and having fun."
+    },
+    "vb_burn": {
+      "is_abstract": true,
+      "scene_prompt": "A campfire crackles with bright flames, while children roast marshmallows, their faces glowing with warmth and joy."
+    },
+    "vb_bus": {
+      "is_abstract": false,
+      "scene_prompt": "A bright yellow bus is parked at a bus stop, with happy children waiting to board, surrounded by trees."
+    },
+    "vb_busy": {
+      "is_abstract": true,
+      "scene_prompt": "A bustling playground filled with children playing, swinging, and laughing, all busy enjoying their day."
+    },
+    "vb_but": {
+      "is_abstract": true,
+      "scene_prompt": "Two friends are playing, one is happy while the other looks a bit sad, showing a contrast of emotions."
+    },
+    "vb_butter": {
+      "is_abstract": false,
+      "scene_prompt": "A stick of butter sits on a bright plate next to freshly baked bread, with a happy chef nearby."
+    },
+    "vb_button": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful collection of buttons spills out of a jar, with a curious kitten pawing at them playfully."
+    },
+    "vb_buy": {
+      "is_abstract": false,
+      "scene_prompt": "A child excitedly hands money to a friendly shopkeeper in a colorful market filled with fruits and toys."
+    },
+    "vb_by": {
+      "is_abstract": true,
+      "scene_prompt": "A child stands next to a friendly dog, both looking at a beautiful sunset together, sharing a moment."
+    },
+    "vb_bye": {
+      "is_abstract": true,
+      "scene_prompt": "A child waves goodbye to a friend as they ride away on a bicycle, with smiles and a sunny background."
+    },
+    "vb_cake": {
+      "is_abstract": false,
+      "scene_prompt": "A beautifully decorated birthday cake sits on a table, surrounded by balloons and excited children ready to celebrate."
+    },
+    "vb_calendar": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful calendar hangs on the wall, with drawings of seasons and holidays, while children plan a fun event."
+    },
+    "vb_call": {
+      "is_abstract": false,
+      "scene_prompt": "A child joyfully calls their friend over to play, waving excitedly in a sunny park filled with flowers."
+    },
+    "vb_camera": {
+      "is_abstract": false,
+      "scene_prompt": "A child holds a camera, capturing a funny moment of their pet cat playing with a ball of yarn."
+    },
+    "vb_camp": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy campsite with a tent, campfire, and children roasting marshmallows under a starry night sky."
+    },
+    "vb_can": {
+      "is_abstract": true,
+      "scene_prompt": "A child confidently climbs a tree, showing determination and joy, with friends cheering them on from below."
+    },
+    "vb_candle": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful birthday cake with lit candles, as children gather around, ready to sing and celebrate."
+    },
+    "vb_candy": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful child holds a big bag of colorful candies, with bright wrappers shining in the sunlight."
+    },
+    "vb_cap": {
+      "is_abstract": false,
+      "scene_prompt": "A child wearing a bright cap is playing in the park, chasing after a butterfly with a big smile."
+    },
+    "vb_capital": {
+      "is_abstract": true,
+      "scene_prompt": "A large letter 'A' made of colorful blocks stands tall in a playful classroom filled with happy children."
+    },
+    "vb_captain": {
+      "is_abstract": false,
+      "scene_prompt": "A child dressed as a captain stands proudly on a toy ship, looking out at the ocean with a big smile."
+    },
+    "vb_car": {
+      "is_abstract": false,
+      "scene_prompt": "A bright red toy car zooms down a colorful track, with children cheering and clapping in excitement."
+    },
+    "vb_card": {
+      "is_abstract": false,
+      "scene_prompt": "A child holds a handmade card decorated with colorful drawings, ready to give it to a friend with a smile."
+    },
+    "vb_care": {
+      "is_abstract": true,
+      "scene_prompt": "A child gently pets a small kitten, both looking happy and content in a cozy, warm room."
+    },
+    "vb_carry": {
+      "is_abstract": false,
+      "scene_prompt": "A child happily carries a stack of colorful books, smiling as they walk towards a cozy reading nook."
+    },
+    "vb_case": {
+      "is_abstract": true,
+      "scene_prompt": "A child looks thoughtfully at two different paths in a park, pondering which way to go with a smile."
+    },
+    "vb_cassette": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful cassette tape sits on a table, surrounded by children dancing and enjoying music in a fun room."
+    },
+    "vb_cat": {
+      "is_abstract": false,
+      "scene_prompt": "A playful cat chases a ball of yarn across a sunny living room, with children laughing and enjoying the moment."
+    },
+    "vb_catch": {
+      "is_abstract": false,
+      "scene_prompt": "A child joyfully catches a flying frisbee in the park, surrounded by friends cheering and clapping."
+    },
+    "vb_crayon": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful scene of children happily drawing with crayons on a large sheet of paper, surrounded by vibrant art supplies and smiling faces."
+    },
+    "vb_cream": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful kitchen scene where a child is playfully pouring cream into a bowl, with splashes and smiles all around."
+    },
+    "vb_cross": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child crossing a street with a big smile, while a friendly dog waits on the other side, both looking excited."
+    },
+    "vb_cry": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child with a sad face, but a friend is offering a comforting hug, turning the tears into smiles."
+    },
+    "vb_cup": {
+      "is_abstract": false,
+      "scene_prompt": "A bright picnic scene with children sharing colorful cups filled with juice, laughing and toasting together under a sunny sky."
+    },
+    "vb_curtain": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy room with a child peeking out from behind a bright, flowing curtain, with sunlight streaming in and a playful cat nearby."
+    },
+    "vb_cut": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child carefully cutting paper with scissors, creating fun shapes while a friend admires the colorful results."
+    },
+    "vb_dad": {
+      "is_abstract": false,
+      "scene_prompt": "A warm scene of a child running into their dad's open arms, both smiling joyfully in a sunny park filled with trees."
+    },
+    "vb_dance": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic illustrating children dancing joyfully in a circle, with colorful musical notes floating around them."
+    },
+    "vb_danger": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child looking at a 'danger' sign with a surprised expression, while a friend points to a safe path."
+    },
+    "vb_dark": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child with a flashlight exploring a dark room, illuminating fun shadows and hidden treasures."
+    },
+    "vb_date": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child marking a calendar with a big smile, surrounded by balloons and a cake for a birthday celebration."
+    },
+    "vb_daughter": {
+      "is_abstract": false,
+      "scene_prompt": "A heartwarming scene of a dad and his daughter playing together in a sunny garden, surrounded by flowers and laughter."
+    },
+    "vb_day": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child enjoying a bright sunny day at the park, flying a kite and playing with friends."
+    },
+    "vb_dead": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child looking at a wilted flower, then planting a new seedling with a hopeful smile."
+    },
+    "vb_dear": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child writing a heartfelt letter, surrounded by hearts and smiling friends, conveying love and care."
+    },
+    "vb_deep": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic illustrating a child diving into a deep blue pool, surrounded by colorful fish and bubbles, showcasing joy and adventure."
+    },
+    "vb_desk": {
+      "is_abstract": false,
+      "scene_prompt": "A bright classroom scene with children happily working at their desks, filled with books, art supplies, and cheerful decorations."
+    },
+    "vb_dial": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child curiously turning a colorful dial on a toy, with bright lights and sounds sparking excitement."
+    },
+    "vb_diary": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child writing in a diary under a tree, with colorful thoughts and dreams floating around them."
+    },
+    "vb_dictionary": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child flipping through a big, colorful dictionary, with fun illustrations and words popping out."
+    },
+    "vb_die": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic illustrating a child playing a board game, with a die rolling and friends cheering around the table."
+    },
+    "vb_dinner": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful family dinner scene with everyone laughing and sharing food around a beautifully set table, filled with delicious dishes."
+    },
+    "vb_dirty": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child playing in the mud, with a big smile and splashes, while a friend looks on with a playful grin."
+    },
+    "vb_dish": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful kitchen scene with a child serving a big dish of pasta, surrounded by family and delicious aromas wafting in the air."
+    },
+    "vb_do": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child enthusiastically completing various tasks, like cleaning, drawing, and playing, with a big smile."
+    },
+    "vb_doctor": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly doctor's office scene with a child smiling while a doctor checks their heartbeat, with colorful posters and toys around."
+    },
+    "vb_dog": {
+      "is_abstract": false,
+      "scene_prompt": "A playful scene of a child running with a happy dog in a sunny park, both enjoying the day with wagging tails and laughter."
+    },
+    "vb_doll": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful bedroom scene with a child playing dress-up with dolls, surrounded by colorful clothes and accessories, full of imagination."
+    },
+    "vb_dollar": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child counting colorful play money with a big smile, surrounded by toys and a pretend store setup."
+    },
+    "vb_dolphin": {
+      "is_abstract": false,
+      "scene_prompt": "A vibrant underwater scene with a dolphin jumping joyfully out of the water, surrounded by colorful fish and sparkling bubbles."
+    },
+    "vb_door": {
+      "is_abstract": false,
+      "scene_prompt": "A bright scene of a child opening a colorful door, revealing a magical garden filled with flowers, butterflies, and sunshine."
+    },
+    "vb_down": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child sliding down a colorful slide at a playground, with laughter and joy radiating all around."
+    },
+    "vb_draw": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child drawing a big rainbow on a canvas, with vibrant colors splashing everywhere and a smile on their face."
+    },
+    "vb_dream": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child sleeping peacefully, with colorful dream clouds filled with stars and playful animals floating above."
+    },
+    "vb_dress": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful scene of a child twirling in a beautiful dress, surrounded by friends clapping and cheering in a sunny garden."
+    },
+    "vb_drink": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful picnic scene with children happily sipping colorful drinks from fun cups, surrounded by snacks and laughter."
+    },
+    "vb_drive": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child pretending to drive a toy car, with a big smile and imaginary steering wheel, surrounded by friends."
+    },
+    "vb_drop": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child watching a raindrop fall from a leaf, with wide eyes and a sense of wonder."
+    },
+    "vb_drum": {
+      "is_abstract": false,
+      "scene_prompt": "A lively scene of children playing colorful drums together, with smiles and rhythm filling the air during a cheerful music session."
+    },
+    "vb_ceiling": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful room with a bright blue ceiling, adorned with fluffy white clouds and cheerful stars, creating a joyful atmosphere."
+    },
+    "vb_center": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene showing a group of children gathered around a big, colorful circle drawn on the ground, all smiling and pointing at each other."
+    },
+    "vb_chair": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy living room with a bright red chair, where a cute cat is lounging comfortably, surrounded by colorful cushions."
+    },
+    "vb_chalk": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful classroom scene with a child happily drawing on a chalkboard with colorful chalk, surrounded by colorful drawings and smiling classmates."
+    },
+    "vb_chance": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child looking at a big wheel of fortune, with bright colors and exciting symbols, contemplating their next move."
+    },
+    "vb_change": {
+      "is_abstract": true,
+      "scene_prompt": "A visual story of a child transforming a plain drawing into a colorful masterpiece, with sparkles and bright colors appearing around."
+    },
+    "vb_cheap": {
+      "is_abstract": true,
+      "scene_prompt": "A happy market scene where a child finds a treasure chest filled with shiny toys and colorful stickers, looking delighted at the great deals."
+    },
+    "vb_cheese": {
+      "is_abstract": false,
+      "scene_prompt": "A playful picnic scene with a big block of cheese surrounded by happy mice, each trying to take a bite, with flowers and sunshine around."
+    },
+    "vb_chicken": {
+      "is_abstract": false,
+      "scene_prompt": "A farmyard scene with a fluffy yellow chick happily pecking at the ground, surrounded by green grass and colorful flowers."
+    },
+    "vb_child": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful playground scene with a smiling child swinging high on a swing, surrounded by friends cheering and colorful balloons in the sky."
+    },
+    "vb_chopstick": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful dining table scene where a child is skillfully using chopsticks to pick up colorful sushi, with a big smile on their face."
+    },
+    "vb_church": {
+      "is_abstract": false,
+      "scene_prompt": "A picturesque church with a tall steeple, surrounded by blooming flowers and happy birds flying around, creating a peaceful atmosphere."
+    },
+    "vb_circle": {
+      "is_abstract": true,
+      "scene_prompt": "A vibrant scene of children playing hopscotch on a colorful circle drawn on the ground, laughing and having fun together."
+    },
+    "vb_city": {
+      "is_abstract": false,
+      "scene_prompt": "A bustling cityscape with tall buildings, colorful buses, and happy people walking, creating a lively urban atmosphere."
+    },
+    "vb_class": {
+      "is_abstract": true,
+      "scene_prompt": "A fun classroom scene where children are sitting in a circle, sharing stories and laughing, with colorful art supplies scattered around."
+    },
+    "vb_classmate": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful scene of two classmates sharing a book under a tree, with smiles on their faces and colorful leaves falling around them."
+    },
+    "vb_clean": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful scene of a child happily cleaning their room, surrounded by sparkling stars and a big smile, showing the joy of tidiness."
+    },
+    "vb_climb": {
+      "is_abstract": false,
+      "scene_prompt": "A fun outdoor scene where a child is climbing a colorful tree, reaching for a bright blue bird perched on a branch."
+    },
+    "vb_clock": {
+      "is_abstract": false,
+      "scene_prompt": "A whimsical scene of a clock with colorful hands and cheerful characters dancing around it, celebrating the passing of time."
+    },
+    "vb_close": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child gently closing a big book, with sparkles and a satisfied smile, indicating the end of a fun story."
+    },
+    "vb_clothes": {
+      "is_abstract": false,
+      "scene_prompt": "A vibrant scene of a child playing dress-up, surrounded by colorful clothes and accessories, with a big smile and a playful pose."
+    },
+    "vb_cloud": {
+      "is_abstract": false,
+      "scene_prompt": "A bright blue sky filled with fluffy white clouds, where a cheerful sun peeks out, casting warm rays over a happy landscape."
+    },
+    "vb_club": {
+      "is_abstract": true,
+      "scene_prompt": "A lively scene of children gathered around a colorful banner, excitedly discussing their club activities with bright smiles and energy."
+    },
+    "vb_coat": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy winter scene where a child is putting on a bright red coat, surrounded by snowflakes and a cheerful snowman."
+    },
+    "vb_coffee": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful café scene with a steaming cup of coffee on a table, surrounded by colorful pastries and happy customers chatting."
+    },
+    "vb_coin": {
+      "is_abstract": false,
+      "scene_prompt": "A fun treasure hunt scene where a child discovers a shiny coin buried in the sand, with excitement sparkling in their eyes."
+    },
+    "vb_cold": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child bundling up in warm clothes, shivering with a smile while snowflakes fall around them."
+    },
+    "vb_color": {
+      "is_abstract": true,
+      "scene_prompt": "A vibrant scene of children painting a big mural, splashing bright colors everywhere with joyful expressions on their faces."
+    },
+    "vb_come": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful scene of a child waving and running towards a group of friends playing in the park, radiating excitement and joy."
+    },
+    "vb_computer": {
+      "is_abstract": false,
+      "scene_prompt": "A bright room with a child happily typing on a colorful computer, surrounded by fun stickers and drawings on the walls."
+    },
+    "vb_cook": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful kitchen scene where a child is stirring a big pot of soup, with colorful vegetables and a warm smile on their face."
+    },
+    "vb_cool": {
+      "is_abstract": true,
+      "scene_prompt": "A fun scene of children enjoying ice cream on a hot day, with big smiles and colorful ice cream cones in their hands."
+    },
+    "vb_copy": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child carefully tracing a drawing, with bright colors and a focused expression, showcasing the art of copying."
+    },
+    "vb_corner": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene showing a child peeking around a colorful corner, with a big smile, ready to surprise their friends."
+    },
+    "vb_count": {
+      "is_abstract": true,
+      "scene_prompt": "A fun scene of children counting colorful balloons together, with smiles and excitement as they reach for the sky."
+    },
+    "vb_country": {
+      "is_abstract": true,
+      "scene_prompt": "A vibrant scene depicting children from different countries holding hands around a globe, smiling and celebrating their diversity."
+    },
+    "vb_course": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful classroom scene where children are engaged in a fun learning activity, with colorful books and materials spread out."
+    },
+    "vb_cousin": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful scene of two cousins playing together in a sunny backyard, surrounded by flowers and laughter."
+    },
+    "vb_cover": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child gently covering a sleeping puppy with a cozy blanket, with a warm smile and a heartwarming atmosphere."
+    },
+    "vb_cow": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful farm scene with a friendly cow happily grazing in a green field, surrounded by colorful flowers and butterflies."
+    },
+    "vb_find": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful child happily discovering a hidden treasure chest filled with colorful toys under a big tree."
+    },
+    "vb_fine": {
+      "is_abstract": true,
+      "scene_prompt": "A bright sunny day with a smiling sun and fluffy clouds, children playing joyfully in a vibrant park."
+    },
+    "vb_finger": {
+      "is_abstract": false,
+      "scene_prompt": "A close-up of a child's hand pointing excitedly at a colorful butterfly fluttering nearby."
+    },
+    "vb_finish": {
+      "is_abstract": true,
+      "scene_prompt": "A child crossing a finish line at a fun race, arms raised in victory with a big smile."
+    },
+    "vb_fire": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy campfire with children roasting marshmallows, surrounded by twinkling stars in the night sky."
+    },
+    "vb_fish": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful scene of a child fishing at a serene lake, with colorful fish jumping out of the water."
+    },
+    "vb_fix": {
+      "is_abstract": true,
+      "scene_prompt": "A child carefully fixing a toy car with a wrench, surrounded by colorful building blocks."
+    },
+    "vb_flag": {
+      "is_abstract": false,
+      "scene_prompt": "A child waving a bright, colorful flag while standing on a hilltop, with a beautiful landscape behind."
+    },
+    "vb_floor": {
+      "is_abstract": false,
+      "scene_prompt": "A child playing on a wooden floor, surrounded by colorful toys and a playful puppy."
+    },
+    "vb_flower": {
+      "is_abstract": false,
+      "scene_prompt": "A child happily picking bright flowers in a lush garden, with butterflies fluttering around."
+    },
+    "vb_fly": {
+      "is_abstract": true,
+      "scene_prompt": "A child with a paper airplane, joyfully running and pretending to fly through a sunny field."
+    },
+    "vb_follow": {
+      "is_abstract": true,
+      "scene_prompt": "A child playfully following a trail of colorful footprints leading to a surprise picnic."
+    },
+    "vb_food": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful picnic scene with children enjoying a variety of delicious foods on a bright blanket."
+    },
+    "vb_fool": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene where a child is pretending to trip over a banana peel, laughing with friends."
+    },
+    "vb_foot": {
+      "is_abstract": false,
+      "scene_prompt": "A close-up of a child's foot splashing in a puddle, with bright rain boots and colorful raindrops."
+    },
+    "vb_for": {
+      "is_abstract": true,
+      "scene_prompt": "A child holding a gift, looking excited as they prepare to give it to a friend."
+    },
+    "vb_forget": {
+      "is_abstract": true,
+      "scene_prompt": "A child looking puzzled, scratching their head while surrounded by colorful toys, trying to remember something."
+    },
+    "vb_fork": {
+      "is_abstract": false,
+      "scene_prompt": "A child happily using a fork to eat spaghetti, with a big smile and sauce on their cheek."
+    },
+    "vb_free": {
+      "is_abstract": true,
+      "scene_prompt": "A child joyfully running through an open field, arms wide open, feeling the freedom of the wind."
+    },
+    "vb_fresh": {
+      "is_abstract": true,
+      "scene_prompt": "A child smelling a freshly bloomed flower, with a delighted expression and bright colors surrounding them."
+    },
+    "vb_friend": {
+      "is_abstract": false,
+      "scene_prompt": "Two children laughing and playing together in a park, sharing a big ice cream cone."
+    },
+    "vb_from": {
+      "is_abstract": true,
+      "scene_prompt": "A child pointing to a map, excitedly showing where they came from on a colorful adventure."
+    },
+    "vb_front": {
+      "is_abstract": true,
+      "scene_prompt": "A child standing proudly in front of a colorful art display, showcasing their creative artwork."
+    },
+    "vb_fruit": {
+      "is_abstract": false,
+      "scene_prompt": "A child joyfully picking fresh fruits from a tree, with a basket full of colorful apples and oranges."
+    },
+    "vb_full": {
+      "is_abstract": true,
+      "scene_prompt": "A child looking satisfied and happy, surrounded by a pile of toys, feeling content and full of joy."
+    },
+    "vb_fun": {
+      "is_abstract": true,
+      "scene_prompt": "A group of children laughing and playing games in a sunny park, filled with balloons and smiles."
+    },
+    "vb_game": {
+      "is_abstract": false,
+      "scene_prompt": "Children playing a fun outdoor game, running and laughing in a bright, sunny playground."
+    },
+    "vb_garden": {
+      "is_abstract": false,
+      "scene_prompt": "A beautiful garden scene with children planting flowers, surrounded by butterflies and buzzing bees."
+    },
+    "vb_gas": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful gas station with a cartoon car happily filling up, surrounded by cheerful cartoon characters."
+    },
+    "vb_gate": {
+      "is_abstract": false,
+      "scene_prompt": "A charming garden gate opening to a colorful flower-filled garden, inviting children to explore."
+    },
+    "vb_gentle": {
+      "is_abstract": true,
+      "scene_prompt": "A child gently petting a small, fluffy bunny, both looking happy and peaceful in a sunny garden."
+    },
+    "vb_get": {
+      "is_abstract": true,
+      "scene_prompt": "A child reaching up to grab a shiny star from a tree, filled with wonder and excitement."
+    },
+    "vb_girl": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful girl twirling in a colorful dress, surrounded by flowers and butterflies in a sunny meadow."
+    },
+    "vb_give": {
+      "is_abstract": true,
+      "scene_prompt": "A child happily handing a gift to a friend, both beaming with joy in a bright park."
+    },
+    "vb_glad": {
+      "is_abstract": true,
+      "scene_prompt": "A child jumping with joy, surrounded by colorful balloons and confetti, celebrating a happy moment."
+    },
+    "vb_glass": {
+      "is_abstract": false,
+      "scene_prompt": "A child drinking juice from a colorful glass, with a big smile and a sunny background."
+    },
+    "vb_glove": {
+      "is_abstract": false,
+      "scene_prompt": "A child putting on a bright red glove, ready to play in the snow with a joyful expression."
+    },
+    "vb_go": {
+      "is_abstract": true,
+      "scene_prompt": "A child excitedly running towards a colorful playground, arms outstretched, ready for fun."
+    },
+    "vb_god": {
+      "is_abstract": true,
+      "scene_prompt": "A serene scene of a child looking up at a starry sky, feeling a sense of wonder and peace."
+    },
+    "vb_gold": {
+      "is_abstract": false,
+      "scene_prompt": "A child discovering a shiny gold coin in the sand at the beach, eyes wide with excitement."
+    },
+    "vb_dry": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful sun shining down on a field of dry grass, with a child happily skipping along, leaving footprints in the dust."
+    },
+    "vb_duck": {
+      "is_abstract": false,
+      "scene_prompt": "A cute cartoon duck waddling by a pond, splashing water as it flaps its wings, surrounded by colorful flowers."
+    },
+    "vb_ear": {
+      "is_abstract": false,
+      "scene_prompt": "A smiling child with oversized cartoon ears, listening intently to a tiny bird chirping happily on a branch."
+    },
+    "vb_early": {
+      "is_abstract": true,
+      "scene_prompt": "A bright morning scene with a child eagerly running towards a rising sun, while birds flutter around in the sky."
+    },
+    "vb_earth": {
+      "is_abstract": true,
+      "scene_prompt": "A joyful cartoon Earth character with arms and legs, smiling and surrounded by children from different cultures holding hands."
+    },
+    "vb_east": {
+      "is_abstract": true,
+      "scene_prompt": "A colorful sunrise with a child pointing excitedly towards the horizon, where the sun is rising in the east."
+    },
+    "vb_easy": {
+      "is_abstract": true,
+      "scene_prompt": "A child effortlessly riding a bicycle down a gentle hill, with a big smile and a breeze blowing through their hair."
+    },
+    "vb_eat": {
+      "is_abstract": false,
+      "scene_prompt": "A happy family gathered around a picnic blanket, enjoying a variety of delicious foods with smiles on their faces."
+    },
+    "vb_egg": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful cartoon egg with arms and legs, dancing happily in a sunny kitchen surrounded by colorful vegetables."
+    },
+    "vb_empty": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character looking surprised at an empty treasure chest, with sparkles around it and a puzzled expression."
+    },
+    "vb_end": {
+      "is_abstract": true,
+      "scene_prompt": "A child happily closing a colorful storybook, with stars and sparkles floating around, signaling the end of a fun adventure."
+    },
+    "vb_engine": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly cartoon train engine with a big smile, puffing colorful smoke as it travels along a bright landscape."
+    },
+    "vb_enjoy": {
+      "is_abstract": true,
+      "scene_prompt": "A child jumping with joy on a sunny day, surrounded by butterflies and flowers, radiating happiness and enjoyment."
+    },
+    "vb_enough": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character happily surrounded by plenty of fruits and toys, with a satisfied smile showing they have enough."
+    },
+    "vb_eraser": {
+      "is_abstract": false,
+      "scene_prompt": "A playful eraser character bouncing around a desk, happily erasing pencil marks while a child watches with delight."
+    },
+    "vb_evening": {
+      "is_abstract": true,
+      "scene_prompt": "A peaceful evening scene with a child sitting on a grassy hill, watching the sunset and glowing fireflies dancing around."
+    },
+    "vb_every": {
+      "is_abstract": true,
+      "scene_prompt": "A diverse group of children playing together in a park, showcasing the joy of every child being included and happy."
+    },
+    "vb_example": {
+      "is_abstract": true,
+      "scene_prompt": "A child pointing at a colorful chart filled with different shapes, showcasing examples of fun learning activities."
+    },
+    "vb_excite": {
+      "is_abstract": true,
+      "scene_prompt": "A child jumping up with excitement, surrounded by colorful balloons and confetti, celebrating a fun surprise party."
+    },
+    "vb_excuse": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with a sheepish smile, holding a small sign that says 'Oops!' while surrounded by giggling friends."
+    },
+    "vb_exellent": {
+      "is_abstract": true,
+      "scene_prompt": "A child proudly holding a shiny gold star sticker, surrounded by friends cheering and celebrating their excellent achievement."
+    },
+    "vb_exercise": {
+      "is_abstract": true,
+      "scene_prompt": "A group of children joyfully playing various sports in a sunny park, showing the fun of exercising together."
+    },
+    "vb_eye": {
+      "is_abstract": false,
+      "scene_prompt": "A cartoon eye character with a big smile, curiously peeking out from behind a colorful flower in a garden."
+    },
+    "vb_face": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful child making funny faces in front of a mirror, with colorful decorations around the room."
+    },
+    "vb_fact": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character holding a magnifying glass, looking at a glowing light bulb above their head, symbolizing discovery."
+    },
+    "vb_fair": {
+      "is_abstract": true,
+      "scene_prompt": "Two children sharing toys equally, smiling at each other with a sunny background, representing fairness and friendship."
+    },
+    "vb_fall": {
+      "is_abstract": false,
+      "scene_prompt": "A child joyfully jumping into a pile of colorful autumn leaves, with leaves swirling around in the air."
+    },
+    "vb_family": {
+      "is_abstract": false,
+      "scene_prompt": "A warm family scene with parents and children hugging each other, surrounded by a cozy home setting."
+    },
+    "vb_famous": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with sunglasses and a big smile, surrounded by fans holding up stars and cheering."
+    },
+    "vb_far": {
+      "is_abstract": true,
+      "scene_prompt": "A child looking through binoculars, gazing at a distant mountain range under a bright blue sky."
+    },
+    "vb_farm": {
+      "is_abstract": false,
+      "scene_prompt": "A vibrant farm scene with happy animals, a red barn, and children playing among the crops under a sunny sky."
+    },
+    "vb_fast": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character racing on a skateboard, zooming past colorful flowers and trees with a big grin."
+    },
+    "vb_fat": {
+      "is_abstract": false,
+      "scene_prompt": "A cute, chubby cartoon cat lounging lazily in a sunny spot, surrounded by playful butterflies."
+    },
+    "vb_father": {
+      "is_abstract": false,
+      "scene_prompt": "A loving father playing catch with his child in a sunny park, both laughing and having fun together."
+    },
+    "vb_feel": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with a heart symbol above their head, surrounded by colorful flowers, expressing joy and love."
+    },
+    "vb_few": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character looking at a small pile of colorful blocks, pondering with a thoughtful expression."
+    },
+    "vb_field": {
+      "is_abstract": false,
+      "scene_prompt": "A lively soccer field with children playing a game, cheering, and having fun under a bright sky."
+    },
+    "vb_fight": {
+      "is_abstract": false,
+      "scene_prompt": "Two cartoon animals playfully sparring with oversized boxing gloves, surrounded by cheering friends."
+    },
+    "vb_fill": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character happily pouring colorful marbles into a jar, with a big smile on their face."
+    },
+    "vb_film": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful film reel character dancing on a movie set, surrounded by bright lights and colorful props."
+    },
+    "vb_good": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful child giving a thumbs up while surrounded by friends, all smiling and playing together in a sunny park."
+    },
+    "vb_grandmother": {
+      "is_abstract": false,
+      "scene_prompt": "A warm-hearted grandmother baking cookies in a cozy kitchen, with flour dusting her apron and a child eagerly watching."
+    },
+    "vb_grape": {
+      "is_abstract": false,
+      "scene_prompt": "A bunch of plump, purple grapes hanging from a vine, with a happy child reaching up to pick one."
+    },
+    "vb_grass": {
+      "is_abstract": false,
+      "scene_prompt": "A vibrant green lawn where children are playing tag, with daisies dotting the grass under a bright blue sky."
+    },
+    "vb_gray": {
+      "is_abstract": true,
+      "scene_prompt": "A cute gray kitten playing with a ball of yarn, surrounded by colorful toys and a sunny window."
+    },
+    "vb_great": {
+      "is_abstract": true,
+      "scene_prompt": "A child standing proudly next to a tall stack of colorful blocks, smiling widely at their impressive creation."
+    },
+    "vb_green": {
+      "is_abstract": true,
+      "scene_prompt": "A lush green forest with playful animals peeking out from behind trees, creating a lively and cheerful atmosphere."
+    },
+    "vb_ground": {
+      "is_abstract": true,
+      "scene_prompt": "A child planting flowers in the soil, with colorful petals scattered around, showing the beauty of nature."
+    },
+    "vb_group": {
+      "is_abstract": true,
+      "scene_prompt": "A diverse group of children joyfully playing together in a circle, sharing toys and laughter in a sunny playground."
+    },
+    "vb_grow": {
+      "is_abstract": true,
+      "scene_prompt": "A small seedling sprouting from the ground, with a child watering it and smiling, surrounded by blooming flowers."
+    },
+    "vb_guitar": {
+      "is_abstract": false,
+      "scene_prompt": "A child strumming a colorful guitar while sitting on a grassy hill, with friends clapping and dancing around."
+    },
+    "vb_hair": {
+      "is_abstract": false,
+      "scene_prompt": "A child with long, flowing hair blowing in the wind, playing joyfully on a swing set in a sunny park."
+    },
+    "vb_half": {
+      "is_abstract": true,
+      "scene_prompt": "Two children sharing a large pizza, each holding half, with smiles and laughter as they enjoy their meal."
+    },
+    "vb_hall": {
+      "is_abstract": false,
+      "scene_prompt": "A bright and spacious hall decorated with balloons and streamers, where children are celebrating a birthday party."
+    },
+    "vb_hamburger": {
+      "is_abstract": false,
+      "scene_prompt": "A delicious, oversized hamburger on a picnic table, with children excitedly reaching for it during a sunny outdoor lunch."
+    },
+    "vb_hand": {
+      "is_abstract": false,
+      "scene_prompt": "A child’s hand reaching out to touch a butterfly resting on a colorful flower, with a joyful expression on their face."
+    },
+    "vb_handle": {
+      "is_abstract": false,
+      "scene_prompt": "A close-up of a child’s hand grasping a bright red door handle, ready to enter a fun playroom filled with toys."
+    },
+    "vb_happen": {
+      "is_abstract": true,
+      "scene_prompt": "A child watching in amazement as colorful fireworks explode in the night sky, surrounded by friends celebrating."
+    },
+    "vb_happy": {
+      "is_abstract": true,
+      "scene_prompt": "A group of children jumping in the air, all smiling widely with arms raised, celebrating a sunny day at the park."
+    },
+    "vb_hard": {
+      "is_abstract": true,
+      "scene_prompt": "A child trying to lift a large rock while friends cheer them on, showcasing determination and teamwork in a fun outdoor setting."
+    },
+    "vb_hat": {
+      "is_abstract": false,
+      "scene_prompt": "A child wearing a colorful, oversized hat while playing in the sand at the beach, with a big smile on their face."
+    },
+    "vb_hate": {
+      "is_abstract": true,
+      "scene_prompt": "A child making a funny face while looking at a plate of broccoli, surrounded by friends laughing and enjoying their food."
+    },
+    "vb_have": {
+      "is_abstract": true,
+      "scene_prompt": "A child holding a basket filled with colorful fruits and smiling, surrounded by friends who are excited to share."
+    },
+    "vb_he": {
+      "is_abstract": true,
+      "scene_prompt": "A boy happily flying a kite in a sunny field, with the kite soaring high in the sky, showcasing joy and freedom."
+    },
+    "vb_head": {
+      "is_abstract": false,
+      "scene_prompt": "A close-up of a child's head with a big smile, wearing a funny hat, as they look up at a colorful balloon."
+    },
+    "vb_hear": {
+      "is_abstract": true,
+      "scene_prompt": "A child with big, curious ears listening intently to a bird singing on a branch, with a look of wonder on their face."
+    },
+    "vb_heart": {
+      "is_abstract": true,
+      "scene_prompt": "A child drawing a big red heart on a piece of paper, surrounded by colorful crayons and smiling proudly."
+    },
+    "vb_heavy": {
+      "is_abstract": true,
+      "scene_prompt": "A child struggling to lift a large box while friends cheer them on, showcasing teamwork and determination."
+    },
+    "vb_hello": {
+      "is_abstract": true,
+      "scene_prompt": "A child waving excitedly with a big smile while greeting a friend at the park, surrounded by colorful flowers."
+    },
+    "vb_help": {
+      "is_abstract": true,
+      "scene_prompt": "A child helping another child tie their shoelaces, both smiling and enjoying the moment in a sunny playground."
+    },
+    "vb_hen": {
+      "is_abstract": false,
+      "scene_prompt": "A fluffy hen pecking at the ground in a sunny farmyard, with chicks happily following her around."
+    },
+    "vb_here": {
+      "is_abstract": true,
+      "scene_prompt": "A child pointing excitedly at a treasure map, indicating a spot marked with an 'X' while friends gather around."
+    },
+    "vb_hi": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful child waving hello to a friend, with a bright sun shining in the background and flowers blooming around."
+    },
+    "vb_hide": {
+      "is_abstract": true,
+      "scene_prompt": "A child playfully hiding behind a tree, peeking out with a big smile while friends search for them in a game of hide and seek."
+    },
+    "vb_high": {
+      "is_abstract": true,
+      "scene_prompt": "A child reaching up to touch the branches of a tall tree, with a look of wonder and excitement on their face."
+    },
+    "vb_hiking": {
+      "is_abstract": true,
+      "scene_prompt": "A group of children happily hiking up a scenic trail, with backpacks and smiles, surrounded by tall trees and nature."
+    },
+    "vb_hill": {
+      "is_abstract": false,
+      "scene_prompt": "Children rolling down a grassy hill, laughing and having fun under a bright blue sky filled with fluffy clouds."
+    },
+    "vb_hit": {
+      "is_abstract": true,
+      "scene_prompt": "A child playfully hitting a piñata with a stick, surrounded by friends cheering and colorful candies spilling out."
+    },
+    "vb_hold": {
+      "is_abstract": true,
+      "scene_prompt": "A child holding a bright balloon tightly while running joyfully through a field of flowers, with a big smile."
+    },
+    "vb_hole": {
+      "is_abstract": false,
+      "scene_prompt": "A curious child peering into a small hole in a tree trunk, with a look of wonder and excitement on their face."
+    },
+    "vb_holiday": {
+      "is_abstract": true,
+      "scene_prompt": "A joyful family picnic in a sunny park, with colorful balloons, a picnic blanket, and kids playing games under a bright blue sky."
+    },
+    "vb_home": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy, cheerful house with a white picket fence, blooming flowers, and children playing in the yard, smiling and laughing."
+    },
+    "vb_hope": {
+      "is_abstract": true,
+      "scene_prompt": "A child looking up at a bright rainbow in the sky, with a hopeful smile, surrounded by colorful flowers and butterflies."
+    },
+    "vb_horse": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly brown horse trotting happily in a green meadow, with children feeding it carrots and laughing joyfully."
+    },
+    "vb_hose": {
+      "is_abstract": false,
+      "scene_prompt": "A garden scene with kids spraying water from a colorful hose, creating a rainbow mist as they play and giggle."
+    },
+    "vb_hospital": {
+      "is_abstract": false,
+      "scene_prompt": "A bright and welcoming hospital building with a red cross symbol, surrounded by cheerful flowers and a friendly nurse waving."
+    },
+    "vb_hot": {
+      "is_abstract": true,
+      "scene_prompt": "A child holding a steaming cup of cocoa, with a big smile, while snowflakes fall around them in a winter wonderland."
+    },
+    "vb_hotel": {
+      "is_abstract": false,
+      "scene_prompt": "A tall, colorful hotel with a welcoming entrance, palm trees, and children excitedly checking in with their luggage."
+    },
+    "vb_hour": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene with a sun and moon, depicting day and night, with children playing during the day and sleeping peacefully at night."
+    },
+    "vb_house": {
+      "is_abstract": false,
+      "scene_prompt": "A charming house with a red roof and a garden full of flowers, where kids are playing hide and seek around it."
+    },
+    "vb_how": {
+      "is_abstract": true,
+      "scene_prompt": "A curious child with a magnifying glass, exploring nature, surrounded by various animals and plants, pondering questions."
+    },
+    "vb_hundred": {
+      "is_abstract": true,
+      "scene_prompt": "A colorful scene with balloons and confetti, celebrating a birthday with a cheerful cake that has many candles on it."
+    },
+    "vb_hungry": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with a big, exaggerated stomach growling, surrounded by delicious food like pizza, fruits, and ice cream."
+    },
+    "vb_hurry": {
+      "is_abstract": true,
+      "scene_prompt": "A child running with a big smile, holding a backpack, as they dash towards a school bus that is waiting with open doors."
+    },
+    "vb_hurt": {
+      "is_abstract": true,
+      "scene_prompt": "A child with a small bandage on their knee, sitting on a swing, while a friend offers them a comforting hug and a smile."
+    },
+    "vb_i": {
+      "is_abstract": true,
+      "scene_prompt": "A child pointing at themselves with a big smile, surrounded by friends who are happily playing together in a park."
+    },
+    "vb_ice": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful scene of kids building a snowman with snow and ice, wearing colorful scarves and hats, laughing in the winter sun."
+    },
+    "vb_idea": {
+      "is_abstract": true,
+      "scene_prompt": "A child with a light bulb above their head, surrounded by art supplies, happily creating a colorful drawing on a canvas."
+    },
+    "vb_if": {
+      "is_abstract": true,
+      "scene_prompt": "A child imagining different scenarios, depicted as thought bubbles with fun activities like flying a kite and swimming in a pool."
+    },
+    "vb_ill": {
+      "is_abstract": true,
+      "scene_prompt": "A child resting in bed with a cozy blanket, while a caring parent brings them a bowl of soup and a book to read."
+    },
+    "vb_in": {
+      "is_abstract": true,
+      "scene_prompt": "A child peeking into a treasure chest filled with colorful toys and surprises, eyes wide with excitement and wonder."
+    },
+    "vb_ink": {
+      "is_abstract": false,
+      "scene_prompt": "A playful scene of kids painting with colorful ink, making a mess but laughing joyfully as they create art together."
+    },
+    "vb_interest": {
+      "is_abstract": true,
+      "scene_prompt": "A child looking through a telescope at the stars, with a look of wonder and excitement, surrounded by friends sharing the moment."
+    },
+    "vb_into": {
+      "is_abstract": true,
+      "scene_prompt": "A child diving joyfully into a pool, with splashes of water flying around, surrounded by friends cheering them on."
+    },
+    "vb_introduce": {
+      "is_abstract": true,
+      "scene_prompt": "A child happily introducing their pet to friends, with everyone smiling and the pet wagging its tail excitedly."
+    },
+    "vb_island": {
+      "is_abstract": false,
+      "scene_prompt": "A sunny island scene with palm trees, a sandy beach, and children building sandcastles while playing in the waves."
+    },
+    "vb_it": {
+      "is_abstract": true,
+      "scene_prompt": "A child holding a mystery box with a curious expression, surrounded by friends eagerly waiting to see what’s inside."
+    },
+    "vb_job": {
+      "is_abstract": true,
+      "scene_prompt": "A child dressed as a firefighter, pretending to put out a fire with a hose, surrounded by friends cheering and clapping."
+    },
+    "vb_join": {
+      "is_abstract": true,
+      "scene_prompt": "A group of children happily joining hands in a circle, smiling and laughing together in a sunny playground."
+    },
+    "vb_juice": {
+      "is_abstract": false,
+      "scene_prompt": "A bright scene of children enjoying colorful fruit juices at a picnic, with fruits scattered around and smiles on their faces."
+    },
+    "vb_jump": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful child jumping high on a trampoline, with arms spread wide and a big smile, surrounded by colorful balloons."
+    },
+    "vb_jungle": {
+      "is_abstract": false,
+      "scene_prompt": "A vibrant jungle scene with lush green trees, colorful birds, and children exploring with binoculars and safari hats."
+    },
+    "vb_just": {
+      "is_abstract": true,
+      "scene_prompt": "A child looking at a small, simple toy with a big smile, showing that happiness can come from the simplest things."
+    },
+    "vb_keep": {
+      "is_abstract": true,
+      "scene_prompt": "A child carefully placing a flower in a pot, with a proud smile, showing the importance of taking care of nature."
+    },
+    "vb_key": {
+      "is_abstract": false,
+      "scene_prompt": "A child holding a large, colorful key, standing in front of a big, whimsical door that looks inviting and magical."
+    },
+    "vb_kick": {
+      "is_abstract": false,
+      "scene_prompt": "A child kicking a soccer ball with enthusiasm, while friends cheer on the side, under a bright blue sky."
+    },
+    "vb_kid": {
+      "is_abstract": false,
+      "scene_prompt": "A group of happy kids playing together in a park, laughing and enjoying a sunny day filled with fun activities."
+    },
+    "vb_kill": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with a playful expression, pretending to 'kill' a giant spider with a shoe, while friends giggle."
+    },
+    "vb_kind": {
+      "is_abstract": true,
+      "scene_prompt": "A child sharing their toys with a friend, both smiling happily, surrounded by colorful toys and a warm, friendly atmosphere."
+    },
+    "vb_king": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful scene of a child dressed as a king, wearing a crown and cape, sitting on a throne surrounded by friends."
+    },
+    "vb_kitchen": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'kitchen' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_knee": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'knee' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_knife": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'knife' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_knock": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'knock' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_know": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'know' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_lady": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'lady' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_lake": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'lake' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_lamp": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'lamp' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_land": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'land' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_large": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'large' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_last": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'last' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_late": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'late' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_laugh": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'laugh' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_lead": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'lead' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_leaf": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'leaf' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_learn": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'learn' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_leave": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'leave' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_left": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'left' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_leg": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'leg' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_lesson": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'lesson' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_let": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'let' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_letter": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'letter' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_library": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'library' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_lie": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'lie' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_light": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'light' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_like": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'like' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_line": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'line' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_lion": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'lion' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_lip": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'lip' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_list": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'list' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_listen": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'listen' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_little": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'little' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_live": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'live' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_long": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'long' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_look": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'look' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_lose": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'lose' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_lot": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'lot' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_loud": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'loud' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_love": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'love' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_low": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'low' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_luck": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful cartoon scene of a child finding a four-leaf clover, surrounded by sparkles and smiling animals, symbolizing good luck."
+    },
+    "vb_lunch": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful picnic scene with children sitting on a blanket, enjoying sandwiches, fruits, and juice boxes under a sunny sky."
+    },
+    "vb_ma_am": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly cartoon lady in a bright dress waving at children playing in the park, with flowers and butterflies around her."
+    },
+    "vb_mad": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a cartoon character with a frowning face, crossed arms, and stormy clouds above, expressing feelings of anger."
+    },
+    "vb_mail": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful postman delivering colorful letters and packages to happy children waiting by a mailbox in a sunny neighborhood."
+    },
+    "vb_make": {
+      "is_abstract": false,
+      "scene_prompt": "Children happily crafting a colorful paper boat together, surrounded by scissors, glue, and vibrant art supplies on a table."
+    },
+    "vb_man": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly cartoon man wearing a hat and apron, smiling as he serves ice cream to excited kids at a sunny park."
+    },
+    "vb_many": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a cartoon character surrounded by numerous colorful balloons, illustrating the concept of 'many' with joy."
+    },
+    "vb_map": {
+      "is_abstract": false,
+      "scene_prompt": "A cartoon child holding a large treasure map, looking excited while standing next to a big red 'X' marked on the ground."
+    },
+    "vb_march": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing children marching in a line with musical instruments, celebrating the month of March with flowers blooming."
+    },
+    "vb_market": {
+      "is_abstract": false,
+      "scene_prompt": "A lively market scene with colorful stalls filled with fruits, vegetables, and happy shoppers exploring the vibrant atmosphere."
+    },
+    "vb_marry": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful cartoon couple holding hands, surrounded by flowers and smiling friends, celebrating their wedding in a beautiful garden."
+    },
+    "vb_matter": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a curious child pondering over different objects like a rock, a feather, and a water droplet, exploring 'matter'."
+    },
+    "vb_may": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a cheerful child surrounded by blooming flowers and sunshine, representing the month of May with joy."
+    },
+    "vb_meat": {
+      "is_abstract": false,
+      "scene_prompt": "A cartoon butcher smiling as he displays fresh cuts of meat in a bright shop, with colorful vegetables in the background."
+    },
+    "vb_medal": {
+      "is_abstract": false,
+      "scene_prompt": "A happy child proudly wearing a shiny gold medal around their neck, surrounded by cheering friends and colorful confetti."
+    },
+    "vb_meet": {
+      "is_abstract": false,
+      "scene_prompt": "Two cartoon children joyfully meeting each other at the playground, with big smiles and open arms for a friendly hug."
+    },
+    "vb_melon": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful scene of children slicing a big, juicy melon at a picnic, with bright colors and happy expressions all around."
+    },
+    "vb_meter": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a cartoon character measuring different objects with a ruler, illustrating the concept of 'meter' playfully."
+    },
+    "vb_middle": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a cartoon character standing in the center of a circle of friends, symbolizing the concept of 'middle'."
+    },
+    "vb_milk": {
+      "is_abstract": false,
+      "scene_prompt": "A happy cow in a sunny field, with children joyfully pouring fresh milk into glasses, surrounded by green grass and flowers."
+    },
+    "vb_million": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a cartoon character surrounded by a mountain of colorful coins, illustrating the concept of 'million' with excitement."
+    },
+    "vb_minute": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a cartoon character waiting eagerly with a big clock behind them, representing the concept of 'minute' with anticipation."
+    },
+    "vb_mirror": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful child looking into a fun, colorful mirror, making silly faces and laughing at their reflection in a bright room."
+    },
+    "vb_miss": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a cartoon character waving goodbye with a sad face, illustrating the feeling of 'miss' with a heart."
+    },
+    "vb_model": {
+      "is_abstract": false,
+      "scene_prompt": "A child proudly displaying a colorful model airplane they built, with friends admiring it and a sunny sky in the background."
+    },
+    "vb_mom": {
+      "is_abstract": false,
+      "scene_prompt": "A loving cartoon mom baking cookies in the kitchen, surrounded by flour, chocolate chips, and smiling children waiting eagerly."
+    },
+    "vb_money": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful cartoon character counting colorful coins and bills at a bright table, with a big smile and a piggy bank nearby."
+    },
+    "vb_monkey": {
+      "is_abstract": false,
+      "scene_prompt": "A playful monkey swinging from tree branches in a vibrant jungle, surrounded by colorful flowers and laughing children watching."
+    },
+    "vb_month": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a cartoon character flipping through a calendar with colorful drawings for each month, celebrating the passage of time."
+    },
+    "vb_moon": {
+      "is_abstract": false,
+      "scene_prompt": "A bright, smiling moon shining down on a peaceful night scene with children stargazing and a cozy blanket under the stars."
+    },
+    "vb_morning": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a cheerful sun rising over a landscape, with a cartoon character stretching and yawning to start the day."
+    },
+    "vb_mother": {
+      "is_abstract": false,
+      "scene_prompt": "A warm scene of a cartoon mother reading a story to her children, surrounded by cozy pillows and a gentle glow from a lamp."
+    },
+    "vb_mountain": {
+      "is_abstract": false,
+      "scene_prompt": "A majestic mountain landscape with children hiking up a trail, smiling and enjoying the fresh air and beautiful scenery."
+    },
+    "vb_mouth": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful cartoon character with a big smile, showing off their teeth while eating a delicious slice of watermelon."
+    },
+    "vb_move": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful scene of children dancing and moving energetically to music in a bright, colorful room filled with balloons."
+    },
+    "vb_movie": {
+      "is_abstract": false,
+      "scene_prompt": "A fun cartoon scene of children sitting in a cozy living room, excitedly watching a movie on a big screen with popcorn."
+    },
+    "vb_mr_": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly cartoon man tipping his hat while standing outside a charming house, with flowers blooming and children playing nearby."
+    },
+    "vb_mrs_": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful cartoon woman waving hello while gardening, surrounded by colorful flowers and butterflies fluttering around her."
+    },
+    "vb_much": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a cartoon character surrounded by a pile of colorful toys, expressing joy and excitement about having 'much'."
+    },
+    "vb_page": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'page' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_paint": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'paint' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pair": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pair' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pants": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pants' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_paper": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'paper' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pardon": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pardon' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_parent": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'parent' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_park": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'park' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_party": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'party' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pass": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pass' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pay": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pay' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_peace": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'peace' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pear": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pear' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pen": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pen' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pencil": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pencil' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_people": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'people' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_piano": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'piano' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pick": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pick' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_picnic": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'picnic' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_picture": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'picture' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_piece": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'piece' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pig": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pig' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pilot": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pilot' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pin": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pin' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pine": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pine' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pink": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pink' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pipe": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pipe' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_place": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'place' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_plan": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'plan' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_plane": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'plane' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_plant": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'plant' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_play": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'play' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_please": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'please' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pocket": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pocket' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_point": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'point' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_police": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'police' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_pool": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'pool' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_poor": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'poor' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_post": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'post' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_postato": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful children's cartoon scene clearly illustrating 'postato' with friendly child or animal characters and pure visual cues, zero text or numbers."
+    },
+    "vb_music": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful cartoon band of animals playing various instruments in a colorful park, with musical notes floating in the air and children dancing joyfully around them."
+    },
+    "vb_must": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child with a determined expression pointing to a list of fun activities, emphasizing the importance of completing them."
+    },
+    "vb_name": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a friendly character holding a name tag, surrounded by colorful balloons, as they introduce themselves to new friends."
+    },
+    "vb_narrow": {
+      "is_abstract": false,
+      "scene_prompt": "A cartoon scene of a narrow pathway between tall trees, where a playful squirrel is darting through, with flowers blooming on either side."
+    },
+    "vb_near": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic illustrating two friends waving at each other from a short distance, with a bright sun shining above them."
+    },
+    "vb_neck": {
+      "is_abstract": false,
+      "scene_prompt": "A cartoon character with a long, flexible neck, happily reaching for a delicious fruit hanging from a tree branch."
+    },
+    "vb_need": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child looking thoughtfully at a toy store, pondering what they need to buy with a big smile."
+    },
+    "vb_never": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child shaking their head with a playful expression, surrounded by tempting sweets they are refusing."
+    },
+    "vb_new": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child excitedly unwrapping a brightly colored gift, with sparkles and stars around them to signify something new."
+    },
+    "vb_news": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic featuring a group of animals gathered around a newspaper, eagerly sharing exciting news with wide eyes."
+    },
+    "vb_next": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child pointing forward with enthusiasm, indicating the next fun activity in a series of colorful events."
+    },
+    "vb_nice": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child giving a thumbs up with a big smile, surrounded by friends enjoying a sunny day at the park."
+    },
+    "vb_night": {
+      "is_abstract": false,
+      "scene_prompt": "A whimsical nighttime scene with a glowing moon and twinkling stars, as animals gather around a campfire telling stories."
+    },
+    "vb_no": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child shaking their head with a playful expression, surrounded by tempting sweets they are refusing."
+    },
+    "vb_noise": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a character covering their ears with a surprised expression as colorful sound waves vibrate around them."
+    },
+    "vb_north": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a cartoon compass with a bright arrow pointing north, while a cheerful character looks at it curiously."
+    },
+    "vb_nose": {
+      "is_abstract": false,
+      "scene_prompt": "A cartoon character with an oversized nose, sniffing a flower with a delighted expression, surrounded by colorful butterflies."
+    },
+    "vb_not": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child with a playful expression, crossing their arms and shaking their head in a 'not' gesture."
+    },
+    "vb_note": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful character writing in a colorful notebook under a tree, surrounded by playful animals watching curiously."
+    },
+    "vb_now": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child looking at a bright sun with excitement, indicating it's time for fun activities right now."
+    },
+    "vb_number": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child playing with colorful blocks, stacking them to form numbers while smiling happily."
+    },
+    "vb_nurse": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly cartoon nurse with a big smile, helping a small animal with a bandage in a bright and cheerful clinic."
+    },
+    "vb_o_clock": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child looking at a clock with excitement, indicating it's time for their favorite activity."
+    },
+    "vb_of": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic illustrating a character pointing to a treasure chest filled with toys, signifying the 'of' relationship."
+    },
+    "vb_off": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a character happily turning off a light switch, with a bright smile as the room dims."
+    },
+    "vb_office": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful cartoon office scene with cheerful characters working at desks, surrounded by plants and fun decorations."
+    },
+    "vb_often": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child happily playing outside, with a sun and clouds indicating they often enjoy sunny days."
+    },
+    "vb_oh": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child's surprised expression with wide eyes and raised hands, as they discover something exciting."
+    },
+    "vb_oil": {
+      "is_abstract": false,
+      "scene_prompt": "A cartoon chef happily pouring colorful oil into a frying pan, with delicious food sizzling and popping around."
+    },
+    "vb_okay": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child giving a thumbs up with a big smile, surrounded by friends enjoying a sunny day at the park."
+    },
+    "vb_old": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic illustrating a wise old owl wearing glasses, sharing stories with young animals gathered around."
+    },
+    "vb_on": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a character balancing a colorful ball on their head, indicating the 'on' position with a big smile."
+    },
+    "vb_once": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child joyfully recounting a fun adventure, with sparkles around them to signify 'once' upon a time."
+    },
+    "vb_only": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child pointing to a single cupcake on a plate, with a playful expression indicating 'only' one."
+    },
+    "vb_open": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a character excitedly opening a treasure chest filled with colorful toys and sparkles flying out."
+    },
+    "vb_or": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a character holding two different colored balloons, happily deciding between them with a smile."
+    },
+    "vb_orange": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful cartoon scene of a bright orange fruit tree, with playful animals happily picking oranges and sharing them."
+    },
+    "vb_other": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child looking at a variety of colorful toys, deciding which other one to play with."
+    },
+    "vb_out": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child joyfully stepping out of a colorful house into a sunny garden filled with flowers."
+    },
+    "vb_over": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a character jumping over a small puddle with a big smile, enjoying a rainy day adventure."
+    },
+    "vb_rose": {
+      "is_abstract": false,
+      "scene_prompt": "A vibrant rose in full bloom surrounded by cheerful butterflies fluttering around it in a sunny garden."
+    },
+    "vb_round": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene where children are drawing various round shapes like balls and circles on a big sheet of paper."
+    },
+    "vb_ruler": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful ruler lying on a desk among pencils, erasers, and a bright notebook, ready for schoolwork."
+    },
+    "vb_run": {
+      "is_abstract": false,
+      "scene_prompt": "A group of children joyfully running in a park, laughing and playing tag under a clear blue sky."
+    },
+    "vb_sad": {
+      "is_abstract": true,
+      "scene_prompt": "A small cartoon character with big teary eyes sitting alone on a swing, looking down at the ground."
+    },
+    "vb_safe": {
+      "is_abstract": true,
+      "scene_prompt": "A cozy home with a happy family inside, a big heart symbol glowing above the house to show safety."
+    },
+    "vb_salad": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful bowl of salad filled with fresh vegetables, surrounded by happy cartoon characters ready to eat."
+    },
+    "vb_salt": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful kitchen scene with a salt shaker happily sprinkling salt over a delicious meal on the table."
+    },
+    "vb_same": {
+      "is_abstract": true,
+      "scene_prompt": "Two identical cartoon characters wearing matching outfits, smiling and pointing at each other in a fun way."
+    },
+    "vb_sand": {
+      "is_abstract": false,
+      "scene_prompt": "Children building a sandcastle on the beach, with colorful buckets and shovels scattered around."
+    },
+    "vb_say": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with a big smile, animatedly gesturing and pointing to their mouth as if sharing a secret."
+    },
+    "vb_school": {
+      "is_abstract": false,
+      "scene_prompt": "A bright and welcoming school building with colorful windows, surrounded by happy children playing outside."
+    },
+    "vb_score": {
+      "is_abstract": true,
+      "scene_prompt": "A scoreboard with cheerful characters celebrating a big win, jumping in the air with joy."
+    },
+    "vb_sea": {
+      "is_abstract": false,
+      "scene_prompt": "A beautiful beach scene with gentle waves, children splashing in the water, and a bright sun shining above."
+    },
+    "vb_season": {
+      "is_abstract": true,
+      "scene_prompt": "Four cartoon trees, each representing a different season, with colorful leaves, flowers, snow, and fruits."
+    },
+    "vb_seat": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy living room with a comfy chair and a small table, inviting a friendly cat to take a nap."
+    },
+    "vb_see": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with big eyes looking through a telescope at colorful stars in the night sky."
+    },
+    "vb_sell": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful market scene with a friendly vendor selling fruits and vegetables to happy customers."
+    },
+    "vb_send": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character happily sending a colorful letter through a mailbox with a big smile."
+    },
+    "vb_service": {
+      "is_abstract": true,
+      "scene_prompt": "A friendly character helping an elderly person cross the street, both smiling and feeling happy."
+    },
+    "vb_set": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character carefully placing colorful building blocks one on top of the other, creating a tower."
+    },
+    "vb_shall": {
+      "is_abstract": true,
+      "scene_prompt": "Two characters pointing to a bright future ahead, with a shining path leading into the distance."
+    },
+    "vb_shape": {
+      "is_abstract": true,
+      "scene_prompt": "Children drawing various shapes like stars, triangles, and squares on a large piece of paper together."
+    },
+    "vb_she": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful girl with a bright dress waving at her friends in a sunny park, radiating happiness."
+    },
+    "vb_sheep": {
+      "is_abstract": false,
+      "scene_prompt": "A fluffy sheep happily grazing in a green meadow, surrounded by colorful flowers and butterflies."
+    },
+    "vb_sheet": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful sheet of paper with various drawings and stickers scattered around on a child's desk."
+    },
+    "vb_ship": {
+      "is_abstract": false,
+      "scene_prompt": "A large cartoon ship sailing smoothly on a bright blue ocean, with happy characters waving from the deck."
+    },
+    "vb_shirt": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful shirt hanging on a clothesline, flapping in the gentle breeze under a sunny sky."
+    },
+    "vb_shoe": {
+      "is_abstract": false,
+      "scene_prompt": "A pair of bright shoes sitting on a doorstep, ready for a fun adventure outside."
+    },
+    "vb_shoot": {
+      "is_abstract": false,
+      "scene_prompt": "A cartoon character joyfully aiming a toy water gun at friends, who are laughing and running away."
+    },
+    "vb_shop": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly shop with a colorful awning, filled with various toys and treats, inviting children inside."
+    },
+    "vb_short": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character wearing a pair of short pants, happily jumping over a puddle on a sunny day."
+    },
+    "vb_shoulder": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful character playfully shrugging their shoulders with a big smile, surrounded by colorful confetti."
+    },
+    "vb_shout": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with a big mouth open wide, joyfully expressing excitement while jumping up and down."
+    },
+    "vb_show": {
+      "is_abstract": true,
+      "scene_prompt": "A character excitedly pointing at a colorful painting displayed on an easel, beaming with pride."
+    },
+    "vb_shower": {
+      "is_abstract": false,
+      "scene_prompt": "A bright scene of children playing in a gentle rain shower, splashing in puddles and laughing."
+    },
+    "vb_shut": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character gently closing a book with a content smile, surrounded by stars and sparkles."
+    },
+    "vb_sick": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with a sad face lying in bed, surrounded by get-well-soon cards and a warm blanket."
+    },
+    "vb_side": {
+      "is_abstract": true,
+      "scene_prompt": "Two cartoon characters standing side by side, each with a big smile, sharing a joyful moment together."
+    },
+    "vb_sign": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful traffic sign with a smiling face, guiding children safely across a colorful street."
+    },
+    "vb_poster": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful poster of a smiling sun and happy animals hanging on a bright classroom wall."
+    },
+    "vb_practice": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful scene of children practicing music, with one child playing a piano while others sing and dance joyfully."
+    },
+    "vb_present": {
+      "is_abstract": true,
+      "scene_prompt": "A child excitedly unwrapping a beautifully wrapped gift, revealing a shiny toy inside, surrounded by colorful confetti."
+    },
+    "vb_pretty": {
+      "is_abstract": false,
+      "scene_prompt": "A lovely garden filled with vibrant flowers and a smiling girl admiring a butterfly landing on her hand."
+    },
+    "vb_print": {
+      "is_abstract": true,
+      "scene_prompt": "A child using a colorful printer, with paper coming out showing cheerful drawings of animals and rainbows."
+    },
+    "vb_problem": {
+      "is_abstract": true,
+      "scene_prompt": "A child looking puzzled at a math problem on a chalkboard, while a friend offers help with a big smile."
+    },
+    "vb_pull": {
+      "is_abstract": false,
+      "scene_prompt": "A playful puppy pulling on a colorful rope toy while a child laughs and encourages it to play."
+    },
+    "vb_push": {
+      "is_abstract": false,
+      "scene_prompt": "A child pushing a toy car down a bright track, with friends cheering and colorful balloons floating around."
+    },
+    "vb_put": {
+      "is_abstract": false,
+      "scene_prompt": "A child carefully putting a book back on a shelf, surrounded by other colorful books and a cozy reading nook."
+    },
+    "vb_queen": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful queen in a sparkling gown waving from her castle balcony, with happy children gathered below."
+    },
+    "vb_question": {
+      "is_abstract": true,
+      "scene_prompt": "A curious child raising their hand in class, surrounded by colorful question marks floating above their head."
+    },
+    "vb_quick": {
+      "is_abstract": true,
+      "scene_prompt": "A speedy rabbit racing across a sunny meadow, leaving a trail of flowers behind, while a turtle watches in surprise."
+    },
+    "vb_quiet": {
+      "is_abstract": true,
+      "scene_prompt": "A serene scene of a child reading quietly in a cozy corner, with soft pillows and a gentle cat sleeping nearby."
+    },
+    "vb_radio": {
+      "is_abstract": false,
+      "scene_prompt": "A vintage radio playing music, with children dancing joyfully around it, surrounded by colorful notes in the air."
+    },
+    "vb_rain": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful scene of children splashing in puddles under a bright umbrella, with raindrops falling around them."
+    },
+    "vb_rainbow": {
+      "is_abstract": false,
+      "scene_prompt": "A vibrant rainbow arching across the sky, with children pointing and smiling while standing in a green field."
+    },
+    "vb_read": {
+      "is_abstract": false,
+      "scene_prompt": "A child sitting under a tree, deeply engrossed in a colorful book, with a gentle breeze rustling the leaves."
+    },
+    "vb_ready": {
+      "is_abstract": true,
+      "scene_prompt": "A child tying their shoelaces with a big smile, surrounded by toys, ready for an exciting adventure."
+    },
+    "vb_real": {
+      "is_abstract": true,
+      "scene_prompt": "A child looking amazed at a real-life dinosaur model in a museum, with wide eyes and hands on their cheeks."
+    },
+    "vb_record": {
+      "is_abstract": true,
+      "scene_prompt": "A child happily drawing on a large sheet of paper, surrounded by colorful crayons and art supplies."
+    },
+    "vb_red": {
+      "is_abstract": false,
+      "scene_prompt": "A bright red apple sitting on a picnic blanket, with children enjoying a sunny day and delicious snacks."
+    },
+    "vb_remember": {
+      "is_abstract": true,
+      "scene_prompt": "A child looking at a photo album with a smile, surrounded by floating memory bubbles of happy moments."
+    },
+    "vb_repeat": {
+      "is_abstract": true,
+      "scene_prompt": "A child joyfully repeating dance moves in front of a mirror, with colorful music notes dancing around."
+    },
+    "vb_rest": {
+      "is_abstract": true,
+      "scene_prompt": "A cozy scene of a child napping on a soft rug, with a gentle sunbeam shining down and a sleepy puppy nearby."
+    },
+    "vb_restaurant": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful restaurant scene with families enjoying meals, colorful plates of food, and a friendly waiter serving drinks."
+    },
+    "vb_return": {
+      "is_abstract": true,
+      "scene_prompt": "A child happily returning home with a backpack, greeted by a smiling parent at the door."
+    },
+    "vb_ribbon": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful ribbon floating in the air, as a child joyfully twirls it around while dancing."
+    },
+    "vb_rice": {
+      "is_abstract": false,
+      "scene_prompt": "A steaming bowl of rice on a table, surrounded by delicious dishes and happy family members enjoying a meal."
+    },
+    "vb_rich": {
+      "is_abstract": true,
+      "scene_prompt": "A child playing with a treasure chest overflowing with colorful gems and coins, looking amazed and excited."
+    },
+    "vb_ride": {
+      "is_abstract": false,
+      "scene_prompt": "A child riding a bicycle down a sunny path, with flowers blooming alongside and a big smile on their face."
+    },
+    "vb_right": {
+      "is_abstract": true,
+      "scene_prompt": "A child pointing to the right with a confident smile, while a friend looks on, both surrounded by bright arrows."
+    },
+    "vb_ring": {
+      "is_abstract": false,
+      "scene_prompt": "A shiny ring resting on a colorful pillow, with a child gazing at it in wonder during a special celebration."
+    },
+    "vb_river": {
+      "is_abstract": false,
+      "scene_prompt": "A sparkling river flowing through a lush green landscape, with children playing and splashing in the water."
+    },
+    "vb_road": {
+      "is_abstract": false,
+      "scene_prompt": "A winding road through a scenic countryside, with children riding scooters and enjoying the sunny day."
+    },
+    "vb_robot": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly robot waving hello to children in a colorful playground, with bright toys scattered around."
+    },
+    "vb_rock": {
+      "is_abstract": false,
+      "scene_prompt": "A child climbing a large rock in a sunny park, with friends cheering them on and colorful butterflies fluttering nearby."
+    },
+    "vb_rocket": {
+      "is_abstract": false,
+      "scene_prompt": "A bright rocket blasting off into a starry sky, with children watching in awe and excitement from below."
+    },
+    "vb_roll": {
+      "is_abstract": false,
+      "scene_prompt": "A playful puppy rolling on the grass, with children laughing and joining in the fun under a sunny sky."
+    },
+    "vb_roof": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful house with a bright red roof, surrounded by flowers and a happy family waving from the front yard."
+    },
+    "vb_room": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy children's room filled with toys, colorful drawings on the walls, and a child playing happily on the floor."
+    },
+    "vb_stamp": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful post office scene with a friendly mailman stamping letters, surrounded by colorful envelopes and a bright blue sky."
+    },
+    "vb_stand": {
+      "is_abstract": false,
+      "scene_prompt": "A happy child standing tall on a sunny beach, arms wide open, with waves crashing in the background."
+    },
+    "vb_star": {
+      "is_abstract": false,
+      "scene_prompt": "A night sky filled with twinkling stars, where a smiling child points up in wonder, surrounded by fluffy clouds."
+    },
+    "vb_start": {
+      "is_abstract": false,
+      "scene_prompt": "A group of excited children at the starting line of a race, ready to run with big smiles and colorful balloons."
+    },
+    "vb_station": {
+      "is_abstract": false,
+      "scene_prompt": "A lively train station with a bright red train, children waving goodbye, and colorful suitcases scattered around."
+    },
+    "vb_stay": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy scene of a child snuggled up in a blanket with a book, surrounded by warm sunlight streaming through a window."
+    },
+    "vb_steam": {
+      "is_abstract": true,
+      "scene_prompt": "A playful mini-comic showing a kettle whistling with steam, while a curious cat watches with wide eyes and a paw raised."
+    },
+    "vb_step": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful child taking a big step forward on a colorful path, surrounded by flowers and butterflies fluttering around."
+    },
+    "vb_stick": {
+      "is_abstract": false,
+      "scene_prompt": "A child happily playing with a stick in a park, pretending it's a magic wand while surrounded by playful puppies."
+    },
+    "vb_stone": {
+      "is_abstract": false,
+      "scene_prompt": "A child skipping stones across a shimmering lake, with joyful splashes and a bright sun shining above."
+    },
+    "vb_stop": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful child coming to a stop at a crosswalk, looking both ways with a big smile and a friendly dog beside."
+    },
+    "vb_store": {
+      "is_abstract": false,
+      "scene_prompt": "A bright, colorful store front with a friendly shopkeeper waving, and children looking at toys displayed in the window."
+    },
+    "vb_storm": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a playful storm with cartoon clouds, rain, and lightning, while kids jump in puddles with umbrellas."
+    },
+    "vb_story": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child reading a book, with colorful illustrations popping out of the pages, sparking imagination."
+    },
+    "vb_stove": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy kitchen scene with a cheerful family cooking together, with a bright stove and delicious smells wafting in the air."
+    },
+    "vb_straight": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child drawing a straight line with a ruler, looking proud as they create a colorful picture."
+    },
+    "vb_strange": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic featuring a child encountering a funny creature with big eyes and a silly hat, both looking surprised."
+    },
+    "vb_strawberry": {
+      "is_abstract": false,
+      "scene_prompt": "A vibrant garden filled with ripe strawberries, where children are happily picking them and sharing smiles."
+    },
+    "vb_street": {
+      "is_abstract": false,
+      "scene_prompt": "A lively street scene with children playing hopscotch and riding bikes, surrounded by colorful houses and trees."
+    },
+    "vb_strike": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful scene of children playing baseball, with one child striking the ball with a big swing and friends cheering."
+    },
+    "vb_strong": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child lifting a heavy box with a determined face, while a friend cheers them on."
+    },
+    "vb_student": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful classroom scene with children raising their hands, eager to answer questions, with colorful books and art supplies around."
+    },
+    "vb_study": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child studying at a desk, surrounded by floating books and a light bulb above their head."
+    },
+    "vb_stupid": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child making a funny face after a small mistake, while friends laugh and encourage them."
+    },
+    "vb_subway": {
+      "is_abstract": false,
+      "scene_prompt": "A bustling subway station with a colorful train arriving, and excited passengers getting on with big smiles."
+    },
+    "vb_sugar": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful kitchen scene with children baking cookies, pouring sugar into a mixing bowl with flour flying everywhere."
+    },
+    "vb_summer": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing children enjoying summer activities like swimming, ice cream eating, and playing in the sun."
+    },
+    "vb_sun": {
+      "is_abstract": false,
+      "scene_prompt": "A bright sunny day with a smiling sun shining down on children playing in a park, surrounded by flowers and trees."
+    },
+    "vb_supermarket": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful supermarket scene with children pushing carts filled with fruits and snacks, happily exploring the aisles."
+    },
+    "vb_supper": {
+      "is_abstract": false,
+      "scene_prompt": "A warm family dinner scene with everyone gathered around the table, sharing delicious food and laughter."
+    },
+    "vb_sure": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child nodding confidently while making a decision, with a bright light bulb above their head."
+    },
+    "vb_surprise": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child opening a gift with wide eyes and a big smile, surrounded by colorful confetti."
+    },
+    "vb_sweater": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy winter scene with a child wearing a colorful sweater, building a snowman with friends in a snowy landscape."
+    },
+    "vb_sweet": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child tasting a delicious cupcake, their face lighting up with joy and sweetness."
+    },
+    "vb_swim": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful scene of children swimming in a pool, splashing water and laughing under a bright blue sky."
+    },
+    "vb_swing": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful playground scene with children swinging high on swings, their faces full of joy and excitement."
+    },
+    "vb_switch": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child flipping a light switch, illuminating a dark room filled with colorful toys."
+    },
+    "vb_table": {
+      "is_abstract": false,
+      "scene_prompt": "A bright dining room scene with a beautifully set table full of delicious food, surrounded by happy family members."
+    },
+    "vb_take": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful child reaching out to take a cookie from a plate, with a big smile and a playful puppy nearby."
+    },
+    "vb_talk": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing two children animatedly talking, with colorful speech bubbles filled with fun doodles around them."
+    },
+    "vb_silver": {
+      "is_abstract": false,
+      "scene_prompt": "A shiny silver spoon rests on a colorful tablecloth, surrounded by bright fruits and cheerful flowers."
+    },
+    "vb_sing": {
+      "is_abstract": false,
+      "scene_prompt": "A group of happy animals, including a rabbit and a bird, are singing together under a tree with musical notes floating around."
+    },
+    "vb_sir": {
+      "is_abstract": true,
+      "scene_prompt": "A friendly cartoon character tips his hat to another character, showing respect and kindness in a cheerful park setting."
+    },
+    "vb_sister": {
+      "is_abstract": false,
+      "scene_prompt": "Two sisters are playing together, one is painting while the other is building a colorful block tower, both smiling joyfully."
+    },
+    "vb_sit": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful child sits on a swing in a sunny playground, swinging high with a big smile on their face."
+    },
+    "vb_size": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character holds two different-sized boxes, looking surprised and curious as they compare them in a playful scene."
+    },
+    "vb_skate": {
+      "is_abstract": false,
+      "scene_prompt": "A young girl is skating joyfully at a park, with colorful flowers and butterflies surrounding her as she glides along."
+    },
+    "vb_skirt": {
+      "is_abstract": false,
+      "scene_prompt": "A girl twirls in a vibrant, flowy skirt, with colorful balloons floating in the background, radiating happiness."
+    },
+    "vb_sky": {
+      "is_abstract": true,
+      "scene_prompt": "A bright blue sky filled with fluffy white clouds and a smiling sun shining down on a cheerful landscape."
+    },
+    "vb_sleep": {
+      "is_abstract": false,
+      "scene_prompt": "A cute baby animal snuggles in a cozy bed, surrounded by soft blankets and a gentle nightlight glowing nearby."
+    },
+    "vb_slide": {
+      "is_abstract": false,
+      "scene_prompt": "A child joyfully slides down a bright yellow slide in a playground, with friends cheering at the bottom."
+    },
+    "vb_slow": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon turtle moves slowly across a sunny field, while a rabbit watches in surprise, emphasizing the concept of slow."
+    },
+    "vb_small": {
+      "is_abstract": true,
+      "scene_prompt": "A tiny mouse peeks out from a large shoe, looking curious and playful in a colorful room filled with toys."
+    },
+    "vb_smell": {
+      "is_abstract": true,
+      "scene_prompt": "A child happily sniffs a bouquet of flowers, with colorful scent lines illustrated around their nose, showing delight."
+    },
+    "vb_smile": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character beams with joy, surrounded by sparkles and hearts, radiating happiness in a bright setting."
+    },
+    "vb_smoke": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful chimney puffs out fluffy white smoke as a colorful bird perches nearby, enjoying the sunny day."
+    },
+    "vb_snow": {
+      "is_abstract": false,
+      "scene_prompt": "Children are joyfully playing in a snowy landscape, building a snowman and throwing snowballs with laughter all around."
+    },
+    "vb_so": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character points to a large, colorful sign that shows various items, illustrating the concept of 'so' with excitement."
+    },
+    "vb_soap": {
+      "is_abstract": false,
+      "scene_prompt": "A bubbly cartoon character happily washes their hands with bright soap bubbles floating around in a cheerful bathroom."
+    },
+    "vb_soccer": {
+      "is_abstract": false,
+      "scene_prompt": "A group of kids are playing soccer in a sunny park, kicking a colorful ball and cheering as they run."
+    },
+    "vb_sock": {
+      "is_abstract": false,
+      "scene_prompt": "A playful puppy is tugging on a colorful sock, while a child laughs and tries to pull it back in a cozy room."
+    },
+    "vb_soft": {
+      "is_abstract": true,
+      "scene_prompt": "A fluffy kitten cuddles with a soft pillow, surrounded by gentle clouds and stars, illustrating the feeling of softness."
+    },
+    "vb_some": {
+      "is_abstract": true,
+      "scene_prompt": "A character holds a handful of colorful candies, looking excited and happy, showing the idea of 'some' in a playful way."
+    },
+    "vb_son": {
+      "is_abstract": false,
+      "scene_prompt": "A father and son are playing catch in a sunny park, both laughing and enjoying their time together."
+    },
+    "vb_song": {
+      "is_abstract": false,
+      "scene_prompt": "A group of animals are gathered around a campfire, singing a joyful song together under a starry night sky."
+    },
+    "vb_soon": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character looks at a calendar with a big smile, eagerly waiting for a fun event to happen soon."
+    },
+    "vb_sorry": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with a sad face offers a flower to another character, showing an apology in a gentle garden setting."
+    },
+    "vb_sound": {
+      "is_abstract": true,
+      "scene_prompt": "A character listens intently to a colorful musical note floating by, with a joyful expression of wonder and delight."
+    },
+    "vb_soup": {
+      "is_abstract": false,
+      "scene_prompt": "A steaming bowl of colorful vegetable soup sits on a table, with a cheerful child eagerly reaching for a spoon."
+    },
+    "vb_south": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character holds a compass pointing south, with a bright sun and playful birds flying in that direction."
+    },
+    "vb_space": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful astronaut floats in outer space, surrounded by colorful planets and twinkling stars, exploring the universe."
+    },
+    "vb_speak": {
+      "is_abstract": false,
+      "scene_prompt": "A cartoon character animatedly talks to a group of friends, using expressive hand gestures and a big smile."
+    },
+    "vb_speed": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon cheetah dashes past a slower animal, illustrating the concept of speed with a blur of motion."
+    },
+    "vb_spell": {
+      "is_abstract": true,
+      "scene_prompt": "A character joyfully arranges colorful letters in the air, creating a magical scene that illustrates the concept of spelling."
+    },
+    "vb_spend": {
+      "is_abstract": true,
+      "scene_prompt": "A character happily counts colorful coins while looking at a fun toy in a store, depicting the idea of spending."
+    },
+    "vb_spoon": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful child uses a bright spoon to eat a bowl of colorful ice cream, with sprinkles flying around."
+    },
+    "vb_sport": {
+      "is_abstract": false,
+      "scene_prompt": "Kids are playing various sports in a sunny park, including soccer, basketball, and frisbee, all having fun together."
+    },
+    "vb_spring": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character jumps on a colorful spring, bouncing high with a big smile in a vibrant garden."
+    },
+    "vb_square": {
+      "is_abstract": true,
+      "scene_prompt": "A character draws a large colorful square on the ground with chalk, surrounded by playful kids admiring the artwork."
+    },
+    "vb_stairs": {
+      "is_abstract": false,
+      "scene_prompt": "A child happily climbs a bright staircase, with colorful paintings on the walls and a sunny window at the top."
+    },
+    "vb_yesterday": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful cartoon scene shows a child pointing at a calendar with a big smile, while a sun rises in the background, indicating the passage of time."
+    },
+    "vb_yet": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic shows a child looking eagerly at a cookie jar, with a clock and an empty plate nearby, conveying anticipation and waiting."
+    },
+    "vb_you": {
+      "is_abstract": true,
+      "scene_prompt": "A friendly cartoon character with open arms stands in a sunny park, inviting another character to join in a fun game of tag."
+    },
+    "vb_young": {
+      "is_abstract": true,
+      "scene_prompt": "A vibrant scene of a group of playful puppies frolicking in a meadow, capturing the essence of youth and energy."
+    },
+    "vb_zero": {
+      "is_abstract": true,
+      "scene_prompt": "A playful illustration of a cute cartoon character holding up a big round balloon shaped like the number zero, surrounded by colorful confetti."
+    },
+    "vb_zoo": {
+      "is_abstract": false,
+      "scene_prompt": "A lively zoo scene filled with various animals like elephants, lions, and monkeys, with children excitedly pointing and laughing at the animals."
+    },
+    "vb_tall": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful giraffe standing next to a group of children, towering above them with a friendly smile under a bright blue sky."
+    },
+    "vb_tape": {
+      "is_abstract": false,
+      "scene_prompt": "A playful kitten unrolling a colorful tape across a sunny living room, with sparkles and toys scattered around."
+    },
+    "vb_taste": {
+      "is_abstract": false,
+      "scene_prompt": "A child eagerly tasting a slice of watermelon, with juice dripping down their chin and a big smile on their face."
+    },
+    "vb_taxi": {
+      "is_abstract": false,
+      "scene_prompt": "A bright yellow taxi cab parked at a busy street corner, with a happy family waving from inside."
+    },
+    "vb_tea": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy tea party scene with children pouring tea from a colorful teapot into cups, surrounded by delicious pastries."
+    },
+    "vb_teach": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly teacher showing a colorful globe to curious children sitting in a circle, with bright classroom decorations around."
+    },
+    "vb_team": {
+      "is_abstract": false,
+      "scene_prompt": "A group of children in matching sports jerseys celebrating a victory with high-fives and big smiles on a sunny field."
+    },
+    "vb_telephone": {
+      "is_abstract": false,
+      "scene_prompt": "A vintage telephone ringing on a bright table, with a curious puppy trying to reach it, surrounded by colorful toys."
+    },
+    "vb_television": {
+      "is_abstract": false,
+      "scene_prompt": "A family gathered on a couch, laughing and watching a cartoon on a large television, with snacks on the table."
+    },
+    "vb_tell": {
+      "is_abstract": false,
+      "scene_prompt": "A child animatedly sharing a story with friends sitting around a campfire, with stars twinkling in the night sky."
+    },
+    "vb_temple": {
+      "is_abstract": false,
+      "scene_prompt": "A beautiful temple with ornate architecture surrounded by lush greenery, where children are exploring and admiring the details."
+    },
+    "vb_tennis": {
+      "is_abstract": false,
+      "scene_prompt": "Two children playing tennis on a sunny court, laughing as they hit the ball back and forth with bright rackets."
+    },
+    "vb_test": {
+      "is_abstract": false,
+      "scene_prompt": "A classroom scene where children are taking a test, some looking focused while others sneak peeks at their friends."
+    },
+    "vb_than": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing two children comparing their heights, one standing on a box and the other looking surprised."
+    },
+    "vb_thank": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child giving a big hug to a parent, both smiling brightly, surrounded by hearts and sparkles."
+    },
+    "vb_that": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child pointing excitedly at a colorful butterfly fluttering nearby, eyes wide with wonder."
+    },
+    "vb_the": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child holding a shiny apple, looking at it with delight, surrounded by colorful fruit."
+    },
+    "vb_then": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child looking at a calendar with a big smile, marking a special day with a star."
+    },
+    "vb_there": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child pointing to a distant rainbow in the sky, eyes sparkling with excitement."
+    },
+    "vb_they": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a group of children playing together, laughing and pointing at each other, full of joy."
+    },
+    "vb_thick": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic illustrating a child trying to lift a thick book, struggling but smiling, with a friend helping."
+    },
+    "vb_thin": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child blowing on a thin piece of paper, making it flutter in the breeze with delight."
+    },
+    "vb_thing": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic where a child is curiously examining various colorful objects on a table, looking amazed."
+    },
+    "vb_think": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child sitting under a tree, with a thoughtful expression, surrounded by floating question marks."
+    },
+    "vb_thirsty": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a child looking longingly at a glass of water on a table, with a sun shining brightly."
+    },
+    "vb_this": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child holding up a colorful toy, looking excitedly at friends who are admiring it."
+    },
+    "vb_thousand": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic depicting a child counting colorful blocks, with a big smile as they stack them high."
+    },
+    "vb_through": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child crawling through a colorful tunnel, with friends cheering them on from the other side."
+    },
+    "vb_throw": {
+      "is_abstract": false,
+      "scene_prompt": "A child joyfully throwing a frisbee in a sunny park, with friends running to catch it and laughter in the air."
+    },
+    "vb_ticket": {
+      "is_abstract": false,
+      "scene_prompt": "A child excitedly holding a colorful ticket, standing in front of a fun amusement park entrance with rides in the background."
+    },
+    "vb_tie": {
+      "is_abstract": false,
+      "scene_prompt": "A child happily tying shoelaces on bright sneakers, surrounded by colorful toys and a sunny room."
+    },
+    "vb_tiger": {
+      "is_abstract": false,
+      "scene_prompt": "A friendly cartoon tiger playfully interacting with children in a jungle setting, surrounded by vibrant plants and flowers."
+    },
+    "vb_till": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child looking at a calendar, marking a special day with a big smile and colorful stars around."
+    },
+    "vb_time": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing children playing outside, with a sun setting in the background, indicating the end of playtime."
+    },
+    "vb_tired": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child yawning and stretching on a cozy bed, surrounded by soft pillows and a sleepy cat."
+    },
+    "vb_to": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child pointing towards a beautiful rainbow in the sky, eyes wide with wonder."
+    },
+    "vb_today": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child holding a sign that says 'Today' while happily playing outside with friends."
+    },
+    "vb_together": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic showing a group of children holding hands in a circle, laughing and playing under a bright sun."
+    },
+    "vb_tomato": {
+      "is_abstract": false,
+      "scene_prompt": "A child happily picking ripe tomatoes from a garden, with green leaves and bright red tomatoes surrounding them."
+    },
+    "vb_tomorrow": {
+      "is_abstract": true,
+      "scene_prompt": "A mini-comic of a child looking at a calendar with a big smile, pointing at a special day marked with a star."
+    },
+    "vb_tonight": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful moon and stars twinkling in the night sky, with a cozy house glowing warmly from inside, inviting everyone to a fun evening."
+    },
+    "vb_too": {
+      "is_abstract": true,
+      "scene_prompt": "Two happy children sharing ice cream cones, both smiling and holding up their treats, showing that they have the same favorite flavor."
+    },
+    "vb_tooth": {
+      "is_abstract": false,
+      "scene_prompt": "A cute cartoon tooth character with a big smile, surrounded by colorful toothbrushes and toothpaste, promoting dental hygiene joyfully."
+    },
+    "vb_top": {
+      "is_abstract": false,
+      "scene_prompt": "A vibrant mountain landscape with a cheerful sun shining down on a group of children celebrating at the mountain's peak, waving flags."
+    },
+    "vb_touch": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene of two children gently touching a fluffy puppy, both giggling with delight as the puppy wags its tail happily."
+    },
+    "vb_town": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful cartoon town bustling with cheerful people, shops with bright awnings, and children playing in a sunny park."
+    },
+    "vb_toy": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful child surrounded by a variety of colorful toys, including a teddy bear, a robot, and a doll, all smiling back."
+    },
+    "vb_train": {
+      "is_abstract": true,
+      "scene_prompt": "A fun mini-comic showing a child practicing different sports, like running and jumping, with a determined expression on their face."
+    },
+    "vb_travel": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful scene of a child with a suitcase, looking excitedly at a colorful map filled with fun destinations and landmarks."
+    },
+    "vb_tree": {
+      "is_abstract": false,
+      "scene_prompt": "A tall, friendly tree with a smiling face, surrounded by playful birds and children climbing its branches, enjoying a sunny day."
+    },
+    "vb_trip": {
+      "is_abstract": true,
+      "scene_prompt": "A joyful comic panel of a family packing a car for a trip, with smiles and excitement as they load up their bags."
+    },
+    "vb_truck": {
+      "is_abstract": false,
+      "scene_prompt": "A bright red truck driving down a sunny road, with happy animals peeking out of the back, enjoying the ride."
+    },
+    "vb_true": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character holding a shiny golden star, looking proud and happy, representing honesty and authenticity."
+    },
+    "vb_try": {
+      "is_abstract": true,
+      "scene_prompt": "A determined child attempting to ride a bicycle for the first time, with friends cheering them on in a sunny park."
+    },
+    "vb_tulip": {
+      "is_abstract": false,
+      "scene_prompt": "A vibrant garden filled with colorful tulips swaying in the breeze, with butterflies fluttering around, creating a joyful atmosphere."
+    },
+    "vb_turn": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene of a child turning around to wave goodbye to friends, with a big smile on their face."
+    },
+    "vb_twice": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful comic showing a child jumping twice in the air, with a big smile, while friends count joyfully beside them."
+    },
+    "vb_umbrella": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful umbrella sheltering a group of laughing children playing in the rain, splashing in puddles with joy."
+    },
+    "vb_uncle": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful uncle kneeling down to play with his niece and nephew in a sunny park, surrounded by toys and laughter."
+    },
+    "vb_under": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene of a child hiding under a table, peeking out with a giggle, while friends search for them."
+    },
+    "vb_understand": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with a light bulb above their head, looking excited and enlightened, as they grasp a new concept."
+    },
+    "vb_until": {
+      "is_abstract": true,
+      "scene_prompt": "A joyful scene of children waiting at a bus stop, looking at a colorful clock with hands pointing to the time they expect."
+    },
+    "vb_up": {
+      "is_abstract": true,
+      "scene_prompt": "A happy child reaching up high to pick an apple from a tree, with a big smile and friends cheering them on."
+    },
+    "vb_use": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful child using a paintbrush to create a colorful masterpiece on a canvas, surrounded by splashes of paint."
+    },
+    "vb_usual": {
+      "is_abstract": true,
+      "scene_prompt": "A cozy morning scene of a family enjoying breakfast together, with smiles and familiar routines creating a warm atmosphere."
+    },
+    "vb_vacation": {
+      "is_abstract": true,
+      "scene_prompt": "A joyful family packing their bags for a vacation, with beach toys and sunscreen, all smiles and excitement."
+    },
+    "vb_vegetable": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful farmer's market filled with vibrant vegetables, where happy children are picking out their favorites with smiles."
+    },
+    "vb_very": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with wide eyes and a big smile, expressing excitement and enthusiasm while jumping in the air."
+    },
+    "vb_video": {
+      "is_abstract": false,
+      "scene_prompt": "A group of children gathered around a TV, laughing and enjoying a fun animated movie together, filled with bright colors."
+    },
+    "vb_village": {
+      "is_abstract": false,
+      "scene_prompt": "A picturesque village scene with charming houses, children playing in the streets, and a sunny sky filled with fluffy clouds."
+    },
+    "vb_violin": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful child playing a violin on a stage, surrounded by colorful musical notes floating in the air, with an audience clapping."
+    },
+    "vb_visit": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful scene of a child excitedly knocking on a door, with a big smile, ready to visit a friend."
+    },
+    "vb_wait": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene of a child sitting on a bench, looking eagerly at the sky, waiting for a balloon to float by."
+    },
+    "vb_wake": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful child stretching and yawning in bed, with sunlight streaming through the window, ready to start a new day."
+    },
+    "vb_walk": {
+      "is_abstract": true,
+      "scene_prompt": "A happy child walking a dog in the park, both with big smiles, enjoying the sunny day together."
+    },
+    "vb_wall": {
+      "is_abstract": false,
+      "scene_prompt": "A colorful mural on a wall, depicting cheerful animals and nature, with children admiring the artwork and pointing excitedly."
+    },
+    "vb_want": {
+      "is_abstract": true,
+      "scene_prompt": "A child with wide eyes looking at a display of toys in a store, hands clasped together in excitement and desire."
+    },
+    "vb_war": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon scene showing children playing peacefully together, symbolizing friendship and harmony instead of conflict."
+    },
+    "vb_warm": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful sun shining brightly over a picnic scene, where children are enjoying food and laughter in a sunny park."
+    },
+    "vb_wash": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene of a child washing hands at a sink, with soap bubbles and a big smile, promoting cleanliness."
+    },
+    "vb_waste": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon child looks disappointed at a pile of unused toys, while a friend suggests sharing them for fun."
+    },
+    "vb_watch": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful child sits on a grassy hill, gazing up at colorful kites soaring in a bright blue sky."
+    },
+    "vb_water": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful scene of children splashing in a puddle, with rainbows reflecting in the water droplets around them."
+    },
+    "vb_way": {
+      "is_abstract": true,
+      "scene_prompt": "Two cartoon characters stand at a fork in a colorful path, looking excitedly at the different directions they can take."
+    },
+    "vb_we": {
+      "is_abstract": true,
+      "scene_prompt": "A group of diverse children hold hands in a circle, smiling and enjoying a sunny day together in a park."
+    },
+    "vb_weak": {
+      "is_abstract": true,
+      "scene_prompt": "A small cartoon kitten struggles to lift a big ball of yarn, while a friendly puppy encourages it with a smile."
+    },
+    "vb_wear": {
+      "is_abstract": false,
+      "scene_prompt": "A happy child twirls in a colorful dress, surrounded by butterflies fluttering around in a sunny garden."
+    },
+    "vb_weather": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon sun shines brightly over a landscape with a rainbow, while children play happily in the grass below."
+    },
+    "vb_week": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene of a calendar with cartoon characters celebrating different activities for each day of the week."
+    },
+    "vb_welcome": {
+      "is_abstract": true,
+      "scene_prompt": "A cheerful cartoon family waves at their friends arriving at their colorful house, with balloons and decorations around."
+    },
+    "vb_well": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character jumps joyfully, surrounded by stars and sparkles, expressing a feeling of happiness and wellness."
+    },
+    "vb_west": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon sun setting behind a mountain range, with a path leading towards the horizon painted in warm colors."
+    },
+    "vb_wet": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon child jumps in a puddle, splashing water everywhere, while a friend laughs and watches from the side."
+    },
+    "vb_what": {
+      "is_abstract": true,
+      "scene_prompt": "A curious cartoon character looks at a question mark floating above their head, surrounded by colorful thought bubbles."
+    },
+    "vb_when": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character looks at a sun and moon, pondering the passage of time with a thoughtful expression."
+    },
+    "vb_where": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character stands with a map, looking around with a puzzled expression, surrounded by whimsical landmarks."
+    },
+    "vb_which": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character points at two colorful doors, contemplating which one to choose with a curious smile."
+    },
+    "vb_white": {
+      "is_abstract": false,
+      "scene_prompt": "A playful scene of a fluffy white puppy rolling in a field of daisies under a bright blue sky."
+    },
+    "vb_who": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character looks at a group of friends, each with a question mark above their heads, wondering who to play with."
+    },
+    "vb_why": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon child looks up at a big question mark in the sky, pondering with a curious expression while surrounded by stars."
+    },
+    "vb_wide": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character stretches their arms wide, smiling as they embrace the beauty of a vast landscape around them."
+    },
+    "vb_will": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon child stands confidently with a superhero cape, looking determined to take on a fun challenge ahead."
+    },
+    "vb_win": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful scene of children cheering and jumping in celebration after winning a fun race in a park."
+    },
+    "vb_wind": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character with a big smile holds a kite, feeling the gentle breeze blowing through their hair."
+    },
+    "vb_window": {
+      "is_abstract": false,
+      "scene_prompt": "A cozy cartoon room with a sunny window, where a child sits reading a book with a warm smile."
+    },
+    "vb_wing": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful bird flaps its colorful wings while soaring high above a vibrant landscape filled with flowers."
+    },
+    "vb_winter": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character bundled in a scarf and hat builds a snowman, surrounded by falling snowflakes and pine trees."
+    },
+    "vb_with": {
+      "is_abstract": true,
+      "scene_prompt": "A happy scene of children playing together in a park, sharing toys and laughter under a bright sun."
+    },
+    "vb_woman": {
+      "is_abstract": false,
+      "scene_prompt": "A kind cartoon woman kneels to help a child tie their shoelaces, both smiling in a sunny park."
+    },
+    "vb_wonder": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon child gazes in awe at a colorful fireworks display in the night sky, eyes wide with excitement."
+    },
+    "vb_wood": {
+      "is_abstract": false,
+      "scene_prompt": "A playful scene of children building a treehouse in a big green tree, surrounded by birds and butterflies."
+    },
+    "vb_word": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character holds a giant colorful book, surrounded by floating letters and words dancing in the air."
+    },
+    "vb_work": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character happily paints a colorful mural on a wall, surrounded by paintbrushes and splashes of color."
+    },
+    "vb_world": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon globe spins with smiling children from different cultures holding hands around it, celebrating diversity."
+    },
+    "vb_write": {
+      "is_abstract": false,
+      "scene_prompt": "A joyful child sits at a desk, writing in a colorful notebook, surrounded by crayons and drawings."
+    },
+    "vb_wrong": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character looks puzzled while trying to fit a square block into a round hole, scratching their head."
+    },
+    "vb_yeah": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character jumps with joy, surrounded by colorful confetti, expressing excitement and agreement."
+    },
+    "vb_year": {
+      "is_abstract": true,
+      "scene_prompt": "A playful scene of a calendar with cartoon characters celebrating various holidays throughout the year."
+    },
+    "vb_yellow": {
+      "is_abstract": false,
+      "scene_prompt": "A cheerful scene of a bright yellow sunflower swaying in the breeze, with a smiling bee buzzing around it."
+    },
+    "vb_yes": {
+      "is_abstract": true,
+      "scene_prompt": "A cartoon character nods enthusiastically with a big smile, surrounded by sparkles and a thumbs-up gesture."
     }
   }
 }

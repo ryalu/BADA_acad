@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T05:38:44.443576+00:00",
+  "generated_at": "2026-11-23T06:18:59.817905+00:00",
   "summary": {
     "elem_800_count": 800,
     "mid_high_1800_count": 1800,
@@ -5101,7 +5101,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_baby.webp"
     },
     {
       "id": "vb_back",
@@ -5128,7 +5128,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_back.webp"
     },
     {
       "id": "vb_bad",
@@ -5145,7 +5145,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bad.webp"
     },
     {
       "id": "vb_bag",
@@ -5162,7 +5162,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bag.webp"
     },
     {
       "id": "vb_balance",
@@ -5196,7 +5196,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ball.webp"
     },
     {
       "id": "vb_balloon",
@@ -5223,7 +5223,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_balloon.webp"
     },
     {
       "id": "vb_ban",
@@ -5257,7 +5257,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_banana.webp"
     },
     {
       "id": "vb_band",
@@ -5274,7 +5274,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_band.webp"
     },
     {
       "id": "vb_bang",
@@ -5328,7 +5328,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bank.webp"
     },
     {
       "id": "vb_bar",
@@ -5518,8 +5518,8 @@
       "phonics_unit_ids": [
         "s2_magic_a_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_base.webp"
     },
     {
       "id": "vb_basis",
@@ -5553,7 +5553,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_basket.webp"
     },
     {
       "id": "vb_bath",
@@ -5580,7 +5580,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bath.webp"
     },
     {
       "id": "vb_bay",
@@ -5624,7 +5624,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_be.webp"
     },
     {
       "id": "vb_beach",
@@ -5659,7 +5659,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_beach.webp"
     },
     {
       "id": "vb_beam",
@@ -5703,7 +5703,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bear.webp"
     },
     {
       "id": "vb_beard",
@@ -5790,8 +5790,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_beautiful.webp"
     },
     {
       "id": "vb_because",
@@ -5808,7 +5808,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_because.webp"
     },
     {
       "id": "vb_become",
@@ -5825,7 +5825,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_become.webp"
     },
     {
       "id": "vb_bed",
@@ -5842,7 +5842,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bed.webp"
     },
     {
       "id": "vb_beer",
@@ -5886,7 +5886,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_before.webp"
     },
     {
       "id": "vb_beg",
@@ -5919,8 +5919,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_begin.webp"
     },
     {
       "id": "vb_behalf",
@@ -5999,7 +5999,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_behind.webp"
     },
     {
       "id": "vb_bell",
@@ -6016,7 +6016,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bell.webp"
     },
     {
       "id": "vb_belong",
@@ -6070,7 +6070,7 @@
         "s2_long_o"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_below.webp"
     },
     {
       "id": "vb_bench",
@@ -6097,7 +6097,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bench.webp"
     },
     {
       "id": "vb_bend",
@@ -6221,7 +6221,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_beside.webp"
     },
     {
       "id": "vb_bet",
@@ -6292,7 +6292,7 @@
         "s2_long_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_between.webp"
     },
     {
       "id": "vb_beyond",
@@ -6360,7 +6360,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bicycle.webp"
     },
     {
       "id": "vb_big",
@@ -6376,8 +6376,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_big.webp"
     },
     {
       "id": "vb_billion",
@@ -6499,7 +6499,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bird.webp"
     },
     {
       "id": "vb_birthday",
@@ -6542,7 +6542,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_birthday.webp"
     },
     {
       "id": "vb_bit",
@@ -6612,8 +6612,8 @@
       "phonics_unit_ids": [
         "s2_ck_ng_nk"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_black.webp"
     },
     {
       "id": "vb_blame",
@@ -6860,8 +6860,8 @@
       "phonics_unit_ids": [
         "s2_long_o"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_blow.webp"
     },
     {
       "id": "vb_blue",
@@ -6877,8 +6877,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_blue.webp"
     },
     {
       "id": "vb_board",
@@ -6895,7 +6895,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_board.webp"
     },
     {
       "id": "vb_boat",
@@ -6922,7 +6922,7 @@
         "s2_long_o"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_boat.webp"
     },
     {
       "id": "vb_body",
@@ -6939,7 +6939,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_body.webp"
     },
     {
       "id": "vb_boil",
@@ -7027,7 +7027,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_book.webp"
     },
     {
       "id": "vb_boom",
@@ -7188,7 +7188,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bottle.webp"
     },
     {
       "id": "vb_bounce",
@@ -7286,7 +7286,7 @@
         "s2_long_o"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bowl.webp"
     },
     {
       "id": "vb_box",
@@ -7303,7 +7303,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_box.webp"
     },
     {
       "id": "vb_boy",
@@ -7330,7 +7330,7 @@
         "s2_oi_oy"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_boy.webp"
     },
     {
       "id": "vb_bread",
@@ -7347,7 +7347,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bread.webp"
     },
     {
       "id": "vb_break",
@@ -7364,7 +7364,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_break.webp"
     },
     {
       "id": "vb_breakfast",
@@ -7381,7 +7381,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_breakfast.webp"
     },
     {
       "id": "vb_breast",
@@ -7542,7 +7542,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bridge.webp"
     },
     {
       "id": "vb_brief",
@@ -7575,8 +7575,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_bright.webp"
     },
     {
       "id": "vb_brilliant",
@@ -7620,7 +7620,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bring.webp"
     },
     {
       "id": "vb_broad",
@@ -7689,7 +7689,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_brother.webp"
     },
     {
       "id": "vb_brown",
@@ -7715,8 +7715,8 @@
       "phonics_unit_ids": [
         "s2_ou_ow"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_brown.webp"
     },
     {
       "id": "vb_brush",
@@ -7743,7 +7743,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_brush.webp"
     },
     {
       "id": "vb_budget",
@@ -7777,7 +7777,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_build.webp"
     },
     {
       "id": "vb_bull",
@@ -7942,8 +7942,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_burn.webp"
     },
     {
       "id": "vb_burst",
@@ -8014,7 +8014,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_bus.webp"
     },
     {
       "id": "vb_bush",
@@ -8057,8 +8057,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_busy.webp"
     },
     {
       "id": "vb_but",
@@ -8075,7 +8075,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_but.webp"
     },
     {
       "id": "vb_butcher",
@@ -8137,7 +8137,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_butter.webp"
     },
     {
       "id": "vb_button",
@@ -8154,7 +8154,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_button.webp"
     },
     {
       "id": "vb_buy",
@@ -8171,7 +8171,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_buy.webp"
     },
     {
       "id": "vb_buzz",
@@ -8205,7 +8205,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_by.webp"
     },
     {
       "id": "vb_bye",
@@ -8221,8 +8221,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_bye.webp"
     },
     {
       "id": "vb_cab",
@@ -8301,7 +8301,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_cake.webp"
     },
     {
       "id": "vb_calculate",
@@ -8356,7 +8356,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_calendar.webp"
     },
     {
       "id": "vb_call",
@@ -8373,7 +8373,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_call.webp"
     },
     {
       "id": "vb_camera",
@@ -8390,7 +8390,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_camera.webp"
     },
     {
       "id": "vb_camp",
@@ -8407,7 +8407,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_camp.webp"
     },
     {
       "id": "vb_can",
@@ -8424,7 +8424,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_can.webp"
     },
     {
       "id": "vb_cancel",
@@ -8502,7 +8502,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_candle.webp"
     },
     {
       "id": "vb_candy",
@@ -8519,7 +8519,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_candy.webp"
     },
     {
       "id": "vb_canvas",
@@ -8553,7 +8553,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_cap.webp"
     },
     {
       "id": "vb_capable",
@@ -8614,8 +8614,8 @@
       "mh_unit_key": "C",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_capital.webp"
     },
     {
       "id": "vb_captain",
@@ -8632,7 +8632,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_captain.webp"
     },
     {
       "id": "vb_capture",
@@ -8676,7 +8676,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_car.webp"
     },
     {
       "id": "vb_card",
@@ -8703,7 +8703,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_card.webp"
     },
     {
       "id": "vb_care",
@@ -8720,7 +8720,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_care.webp"
     },
     {
       "id": "vb_career",
@@ -8774,7 +8774,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_carry.webp"
     },
     {
       "id": "vb_carve",
@@ -8828,8 +8828,8 @@
       "phonics_unit_ids": [
         "s2_magic_a_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_case.webp"
     },
     {
       "id": "vb_cassette",
@@ -8846,7 +8846,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_cassette.webp"
     },
     {
       "id": "vb_cast",
@@ -8897,7 +8897,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_cat.webp"
     },
     {
       "id": "vb_catch",
@@ -8924,7 +8924,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_catch.webp"
     },
     {
       "id": "vb_category",
@@ -9101,7 +9101,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ceiling.webp"
     },
     {
       "id": "vb_celebrate",
@@ -9216,8 +9216,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_center.webp"
     },
     {
       "id": "vb_century",
@@ -9307,7 +9307,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_chair.webp"
     },
     {
       "id": "vb_chairman",
@@ -9369,7 +9369,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_chalk.webp"
     },
     {
       "id": "vb_challenge",
@@ -9423,7 +9423,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_chance.webp"
     },
     {
       "id": "vb_change",
@@ -9450,7 +9450,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_change.webp"
     },
     {
       "id": "vb_chaos",
@@ -9725,8 +9725,8 @@
         "s2_long_e",
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_cheap.webp"
     },
     {
       "id": "vb_cheek",
@@ -9831,7 +9831,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_cheese.webp"
     },
     {
       "id": "vb_chef",
@@ -9971,7 +9971,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_chicken.webp"
     },
     {
       "id": "vb_chief",
@@ -10025,7 +10025,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_child.webp"
     },
     {
       "id": "vb_chill",
@@ -10195,7 +10195,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_chopstick.webp"
     },
     {
       "id": "vb_chorus",
@@ -10247,7 +10247,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_church.webp"
     },
     {
       "id": "vb_cigarette",
@@ -10290,8 +10290,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_circle.webp"
     },
     {
       "id": "vb_circulate",
@@ -10416,7 +10416,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_city.webp"
     },
     {
       "id": "vb_civil",
@@ -10537,8 +10537,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_class.webp"
     },
     {
       "id": "vb_classic",
@@ -10600,7 +10600,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_classmate.webp"
     },
     {
       "id": "vb_clause",
@@ -10670,8 +10670,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_clean.webp"
     },
     {
       "id": "vb_client",
@@ -10739,7 +10739,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_climb.webp"
     },
     {
       "id": "vb_cling",
@@ -10810,7 +10810,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_clock.webp"
     },
     {
       "id": "vb_close",
@@ -10838,7 +10838,7 @@
         "s2_magic_o_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_close.webp"
     },
     {
       "id": "vb_clothes",
@@ -10855,7 +10855,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_clothes.webp"
     },
     {
       "id": "vb_cloud",
@@ -10882,7 +10882,7 @@
         "s2_ou_ow"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_cloud.webp"
     },
     {
       "id": "vb_club",
@@ -10898,8 +10898,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_club.webp"
     },
     {
       "id": "vb_clue",
@@ -11059,7 +11059,7 @@
         "s2_long_o"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_coat.webp"
     },
     {
       "id": "vb_code",
@@ -11114,7 +11114,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_coffee.webp"
     },
     {
       "id": "vb_coin",
@@ -11141,7 +11141,7 @@
         "s2_oi_oy"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_coin.webp"
     },
     {
       "id": "vb_coincide",
@@ -11193,8 +11193,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_cold.webp"
     },
     {
       "id": "vb_collaborate",
@@ -11336,8 +11336,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_color.webp"
     },
     {
       "id": "vb_column",
@@ -11415,8 +11415,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_come.webp"
     },
     {
       "id": "vb_comfort",
@@ -11884,7 +11884,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_computer.webp"
     },
     {
       "id": "vb_conceal",
@@ -12771,7 +12771,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_cook.webp"
     },
     {
       "id": "vb_cool",
@@ -12797,8 +12797,8 @@
       "phonics_unit_ids": [
         "s2_oo"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_cool.webp"
     },
     {
       "id": "vb_cooperate",
@@ -12895,8 +12895,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_copy.webp"
     },
     {
       "id": "vb_copyright",
@@ -13010,8 +13010,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_corner.webp"
     },
     {
       "id": "vb_corporate",
@@ -13296,8 +13296,8 @@
       "phonics_unit_ids": [
         "s2_ou_ow"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_count.webp"
     },
     {
       "id": "vb_counter",
@@ -13340,8 +13340,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_country.webp"
     },
     {
       "id": "vb_courage",
@@ -13374,8 +13374,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_course.webp"
     },
     {
       "id": "vb_cousin",
@@ -13392,7 +13392,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_cousin.webp"
     },
     {
       "id": "vb_cover",
@@ -13418,8 +13418,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_cover.webp"
     },
     {
       "id": "vb_cow",
@@ -13446,7 +13446,7 @@
         "s2_ou_ow"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_cow.webp"
     },
     {
       "id": "vb_cowboy",
@@ -13588,7 +13588,7 @@
         "s2_long_a"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_crayon.webp"
     },
     {
       "id": "vb_cream",
@@ -13615,7 +13615,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_cream.webp"
     },
     {
       "id": "vb_create",
@@ -13911,8 +13911,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_cross.webp"
     },
     {
       "id": "vb_crucial",
@@ -14006,8 +14006,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_cry.webp"
     },
     {
       "id": "vb_crystal",
@@ -14069,7 +14069,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_cup.webp"
     },
     {
       "id": "vb_cupboard",
@@ -14222,7 +14222,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_curtain.webp"
     },
     {
       "id": "vb_curve",
@@ -14282,8 +14282,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_cut.webp"
     },
     {
       "id": "vb_dad",
@@ -14300,7 +14300,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_dad.webp"
     },
     {
       "id": "vb_dairy",
@@ -14394,8 +14394,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_dance.webp"
     },
     {
       "id": "vb_danger",
@@ -14421,8 +14421,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_danger.webp"
     },
     {
       "id": "vb_dare",
@@ -14465,8 +14465,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_dark.webp"
     },
     {
       "id": "vb_darling",
@@ -14583,8 +14583,8 @@
       "phonics_unit_ids": [
         "s2_magic_a_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_date.webp"
     },
     {
       "id": "vb_daughter",
@@ -14611,7 +14611,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_daughter.webp"
     },
     {
       "id": "vb_dawn",
@@ -14654,8 +14654,8 @@
       "phonics_unit_ids": [
         "s2_long_a"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_day.webp"
     },
     {
       "id": "vb_dead",
@@ -14671,8 +14671,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_dead.webp"
     },
     {
       "id": "vb_deal",
@@ -14705,8 +14705,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_dear.webp"
     },
     {
       "id": "vb_debate",
@@ -14976,8 +14976,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_deep.webp"
     },
     {
       "id": "vb_defeat",
@@ -15665,7 +15665,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_desk.webp"
     },
     {
       "id": "vb_despair",
@@ -16026,8 +16026,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_dial.webp"
     },
     {
       "id": "vb_diary",
@@ -16043,8 +16043,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_diary.webp"
     },
     {
       "id": "vb_dictionary",
@@ -16070,8 +16070,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_dictionary.webp"
     },
     {
       "id": "vb_die",
@@ -16087,8 +16087,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_die.webp"
     },
     {
       "id": "vb_dig",
@@ -16159,7 +16159,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_dinner.webp"
     },
     {
       "id": "vb_dip",
@@ -16236,8 +16236,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_dirty.webp"
     },
     {
       "id": "vb_disabled",
@@ -16550,7 +16550,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_dish.webp"
     },
     {
       "id": "vb_dismiss",
@@ -16854,7 +16854,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_do.webp"
     },
     {
       "id": "vb_doctor",
@@ -16881,7 +16881,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_doctor.webp"
     },
     {
       "id": "vb_document",
@@ -16915,7 +16915,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_dog.webp"
     },
     {
       "id": "vb_doll",
@@ -16932,7 +16932,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_doll.webp"
     },
     {
       "id": "vb_dollar",
@@ -16958,8 +16958,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_dollar.webp"
     },
     {
       "id": "vb_dolphin",
@@ -16986,7 +16986,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_dolphin.webp"
     },
     {
       "id": "vb_domain",
@@ -17075,7 +17075,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_door.webp"
     },
     {
       "id": "vb_dot",
@@ -17146,7 +17146,7 @@
         "s2_ou_ow"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_down.webp"
     },
     {
       "id": "vb_dozen",
@@ -17196,8 +17196,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_draw.webp"
     },
     {
       "id": "vb_drawer",
@@ -17250,8 +17250,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_dream.webp"
     },
     {
       "id": "vb_dress",
@@ -17268,7 +17268,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_dress.webp"
     },
     {
       "id": "vb_drink",
@@ -17295,7 +17295,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_drink.webp"
     },
     {
       "id": "vb_drive",
@@ -17322,8 +17322,8 @@
       "phonics_unit_ids": [
         "s2_magic_i_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_drive.webp"
     },
     {
       "id": "vb_drop",
@@ -17339,8 +17339,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_drop.webp"
     },
     {
       "id": "vb_drown",
@@ -17401,7 +17401,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_drum.webp"
     },
     {
       "id": "vb_dry",
@@ -17418,7 +17418,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_dry.webp"
     },
     {
       "id": "vb_duck",
@@ -17445,7 +17445,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_duck.webp"
     },
     {
       "id": "vb_due",
@@ -17651,7 +17651,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ear.webp"
     },
     {
       "id": "vb_early",
@@ -17668,7 +17668,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_early.webp"
     },
     {
       "id": "vb_earn",
@@ -17711,8 +17711,8 @@
       "phonics_unit_ids": [
         "s2_th_wh_ph"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_earth.webp"
     },
     {
       "id": "vb_ease",
@@ -17765,8 +17765,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_east.webp"
     },
     {
       "id": "vb_easy",
@@ -17793,7 +17793,7 @@
         "s2_long_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_easy.webp"
     },
     {
       "id": "vb_eat",
@@ -17820,7 +17820,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_eat.webp"
     },
     {
       "id": "vb_economy",
@@ -17994,7 +17994,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_egg.webp"
     },
     {
       "id": "vb_either",
@@ -18372,8 +18372,8 @@
       "mh_unit_key": "E",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_empty.webp"
     },
     {
       "id": "vb_enclose",
@@ -18462,7 +18462,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_end.webp"
     },
     {
       "id": "vb_endure",
@@ -18552,7 +18552,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_engine.webp"
     },
     {
       "id": "vb_enhance",
@@ -18595,8 +18595,8 @@
       "phonics_unit_ids": [
         "s2_oi_oy"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_enjoy.webp"
     },
     {
       "id": "vb_enormous",
@@ -18640,7 +18640,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_enough.webp"
     },
     {
       "id": "vb_ensure",
@@ -18979,7 +18979,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_eraser.webp"
     },
     {
       "id": "vb_escape",
@@ -19217,8 +19217,8 @@
       "phonics_unit_ids": [
         "s2_ck_ng_nk"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_evening.webp"
     },
     {
       "id": "vb_eventually",
@@ -19279,7 +19279,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_every.webp"
     },
     {
       "id": "vb_evident",
@@ -19426,7 +19426,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_example.webp"
     },
     {
       "id": "vb_exceed",
@@ -19558,8 +19558,8 @@
       "phonics_unit_ids": [
         "s2_magic_i_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_excite.webp"
     },
     {
       "id": "vb_exclude",
@@ -19615,7 +19615,7 @@
         "s2_magic_u_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_excuse.webp"
     },
     {
       "id": "vb_exellent",
@@ -19631,8 +19631,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_exellent.webp"
     },
     {
       "id": "vb_exercise",
@@ -19667,8 +19667,8 @@
         "s2_magic_i_e",
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_exercise.webp"
     },
     {
       "id": "vb_exhaust",
@@ -20138,7 +20138,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_eye.webp"
     },
     {
       "id": "vb_eyebrow",
@@ -20200,7 +20200,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_face.webp"
     },
     {
       "id": "vb_facility",
@@ -20234,7 +20234,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_fact.webp"
     },
     {
       "id": "vb_factor",
@@ -20332,8 +20332,8 @@
       "mh_unit_key": "F",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_fair.webp"
     },
     {
       "id": "vb_faith",
@@ -20385,7 +20385,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_fall.webp"
     },
     {
       "id": "vb_false",
@@ -20464,7 +20464,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_family.webp"
     },
     {
       "id": "vb_famous",
@@ -20480,8 +20480,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_famous.webp"
     },
     {
       "id": "vb_fancy",
@@ -20525,7 +20525,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_far.webp"
     },
     {
       "id": "vb_fare",
@@ -20569,7 +20569,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_farm.webp"
     },
     {
       "id": "vb_fascinate",
@@ -20614,7 +20614,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_fast.webp"
     },
     {
       "id": "vb_fasten",
@@ -20648,7 +20648,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_fat.webp"
     },
     {
       "id": "vb_fate",
@@ -20711,7 +20711,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_father.webp"
     },
     {
       "id": "vb_fault",
@@ -20880,7 +20880,7 @@
         "s2_long_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_feel.webp"
     },
     {
       "id": "vb_fellow",
@@ -20979,7 +20979,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_few.webp"
     },
     {
       "id": "vb_fiber",
@@ -21023,7 +21023,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_field.webp"
     },
     {
       "id": "vb_fierce",
@@ -21057,7 +21057,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_fight.webp"
     },
     {
       "id": "vb_figure",
@@ -21090,8 +21090,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_fill.webp"
     },
     {
       "id": "vb_film",
@@ -21108,7 +21108,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_film.webp"
     },
     {
       "id": "vb_filter",
@@ -21185,8 +21185,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": true,
-      "image_url": null
+      "is_abstract": false,
+      "image_url": "/vocab-images/vb_find.webp"
     },
     {
       "id": "vb_fine",
@@ -21214,7 +21214,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_fine.webp"
     },
     {
       "id": "vb_finger",
@@ -21241,7 +21241,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_finger.webp"
     },
     {
       "id": "vb_finish",
@@ -21267,8 +21267,8 @@
       "phonics_unit_ids": [
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_finish.webp"
     },
     {
       "id": "vb_finite",
@@ -21324,7 +21324,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_fire.webp"
     },
     {
       "id": "vb_firm",
@@ -21378,7 +21378,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_fish.webp"
     },
     {
       "id": "vb_fist",
@@ -21428,8 +21428,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_fix.webp"
     },
     {
       "id": "vb_flag",
@@ -21446,7 +21446,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_flag.webp"
     },
     {
       "id": "vb_flame",
@@ -21711,7 +21711,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_floor.webp"
     },
     {
       "id": "vb_flourish",
@@ -21800,7 +21800,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_flower.webp"
     },
     {
       "id": "vb_fly",
@@ -21816,8 +21816,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_fly.webp"
     },
     {
       "id": "vb_fold",
@@ -21877,8 +21877,8 @@
       "phonics_unit_ids": [
         "s2_long_o"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_follow.webp"
     },
     {
       "id": "vb_food",
@@ -21905,7 +21905,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_food.webp"
     },
     {
       "id": "vb_fool",
@@ -21931,8 +21931,8 @@
       "phonics_unit_ids": [
         "s2_oo"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_fool.webp"
     },
     {
       "id": "vb_foot",
@@ -21959,7 +21959,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_foot.webp"
     },
     {
       "id": "vb_for",
@@ -21986,7 +21986,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_for.webp"
     },
     {
       "id": "vb_forbid",
@@ -22128,7 +22128,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_forget.webp"
     },
     {
       "id": "vb_forgive",
@@ -22182,7 +22182,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_fork.webp"
     },
     {
       "id": "vb_formal",
@@ -22585,7 +22585,7 @@
         "s2_long_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_free.webp"
     },
     {
       "id": "vb_freeze",
@@ -22655,8 +22655,8 @@
       "phonics_unit_ids": [
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_fresh.webp"
     },
     {
       "id": "vb_friend",
@@ -22673,7 +22673,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_friend.webp"
     },
     {
       "id": "vb_fright",
@@ -22707,7 +22707,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_from.webp"
     },
     {
       "id": "vb_front",
@@ -22724,7 +22724,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_front.webp"
     },
     {
       "id": "vb_frown",
@@ -22758,7 +22758,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_fruit.webp"
     },
     {
       "id": "vb_frustrate",
@@ -22837,7 +22837,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_full.webp"
     },
     {
       "id": "vb_fun",
@@ -22854,7 +22854,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_fun.webp"
     },
     {
       "id": "vb_function",
@@ -23092,7 +23092,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_game.webp"
     },
     {
       "id": "vb_gang",
@@ -23191,7 +23191,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_garden.webp"
     },
     {
       "id": "vb_gas",
@@ -23208,7 +23208,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_gas.webp"
     },
     {
       "id": "vb_gate",
@@ -23236,7 +23236,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_gate.webp"
     },
     {
       "id": "vb_gather",
@@ -23433,8 +23433,8 @@
       "mh_unit_key": "G",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_gentle.webp"
     },
     {
       "id": "vb_genuine",
@@ -23512,7 +23512,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_get.webp"
     },
     {
       "id": "vb_girl",
@@ -23539,7 +23539,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_girl.webp"
     },
     {
       "id": "vb_give",
@@ -23555,8 +23555,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_give.webp"
     },
     {
       "id": "vb_glad",
@@ -23573,7 +23573,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_glad.webp"
     },
     {
       "id": "vb_glance",
@@ -23607,7 +23607,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_glass.webp"
     },
     {
       "id": "vb_global",
@@ -23668,7 +23668,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_glove.webp"
     },
     {
       "id": "vb_glow",
@@ -23711,8 +23711,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_go.webp"
     },
     {
       "id": "vb_goat",
@@ -23755,8 +23755,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_god.webp"
     },
     {
       "id": "vb_gold",
@@ -23773,7 +23773,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_gold.webp"
     },
     {
       "id": "vb_good",
@@ -23800,7 +23800,7 @@
         "s2_oo"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_good.webp"
     },
     {
       "id": "vb_goods",
@@ -24067,7 +24067,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_grandmother.webp"
     },
     {
       "id": "vb_grant",
@@ -24112,7 +24112,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_grape.webp"
     },
     {
       "id": "vb_graphic",
@@ -24156,7 +24156,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_grass.webp"
     },
     {
       "id": "vb_grateful",
@@ -24227,8 +24227,8 @@
       "phonics_unit_ids": [
         "s2_long_a"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_gray.webp"
     },
     {
       "id": "vb_great",
@@ -24245,7 +24245,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_great.webp"
     },
     {
       "id": "vb_greed",
@@ -24298,8 +24298,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_green.webp"
     },
     {
       "id": "vb_greet",
@@ -24413,8 +24413,8 @@
       "phonics_unit_ids": [
         "s2_ou_ow"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_ground.webp"
     },
     {
       "id": "vb_group",
@@ -24430,8 +24430,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_group.webp"
     },
     {
       "id": "vb_grow",
@@ -24457,8 +24457,8 @@
       "phonics_unit_ids": [
         "s2_long_o"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_grow.webp"
     },
     {
       "id": "vb_guarantee",
@@ -24574,7 +24574,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_guitar.webp"
     },
     {
       "id": "vb_gun",
@@ -24625,7 +24625,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hair.webp"
     },
     {
       "id": "vb_half",
@@ -24642,7 +24642,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_half.webp"
     },
     {
       "id": "vb_hall",
@@ -24659,7 +24659,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hall.webp"
     },
     {
       "id": "vb_hamburger",
@@ -24686,7 +24686,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hamburger.webp"
     },
     {
       "id": "vb_hammer",
@@ -24730,7 +24730,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hand.webp"
     },
     {
       "id": "vb_handicap",
@@ -24764,7 +24764,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_handle.webp"
     },
     {
       "id": "vb_happen",
@@ -24781,7 +24781,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_happen.webp"
     },
     {
       "id": "vb_happy",
@@ -24797,8 +24797,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_happy.webp"
     },
     {
       "id": "vb_harbor",
@@ -24852,7 +24852,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hard.webp"
     },
     {
       "id": "vb_hardly",
@@ -25002,7 +25002,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hat.webp"
     },
     {
       "id": "vb_hate",
@@ -25029,8 +25029,8 @@
       "phonics_unit_ids": [
         "s2_magic_a_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hate.webp"
     },
     {
       "id": "vb_have",
@@ -25047,7 +25047,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_have.webp"
     },
     {
       "id": "vb_hazard",
@@ -25091,7 +25091,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_he.webp"
     },
     {
       "id": "vb_head",
@@ -25108,7 +25108,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_head.webp"
     },
     {
       "id": "vb_heal",
@@ -25168,8 +25168,8 @@
       "mh_unit_key": "H",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hear.webp"
     },
     {
       "id": "vb_heart",
@@ -25185,8 +25185,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_heart.webp"
     },
     {
       "id": "vb_heavy",
@@ -25202,8 +25202,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_heavy.webp"
     },
     {
       "id": "vb_heel",
@@ -25280,8 +25280,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hello.webp"
     },
     {
       "id": "vb_help",
@@ -25298,7 +25298,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_help.webp"
     },
     {
       "id": "vb_hen",
@@ -25315,7 +25315,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hen.webp"
     },
     {
       "id": "vb_here",
@@ -25332,7 +25332,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_here.webp"
     },
     {
       "id": "vb_hesitate",
@@ -25376,8 +25376,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hi.webp"
     },
     {
       "id": "vb_hide",
@@ -25404,8 +25404,8 @@
       "phonics_unit_ids": [
         "s2_magic_i_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hide.webp"
     },
     {
       "id": "vb_high",
@@ -25422,7 +25422,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_high.webp"
     },
     {
       "id": "vb_highway",
@@ -25475,8 +25475,8 @@
       "phonics_unit_ids": [
         "s2_ck_ng_nk"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hiking.webp"
     },
     {
       "id": "vb_hill",
@@ -25493,7 +25493,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hill.webp"
     },
     {
       "id": "vb_hip",
@@ -25554,8 +25554,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hit.webp"
     },
     {
       "id": "vb_hold",
@@ -25571,8 +25571,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hold.webp"
     },
     {
       "id": "vb_hole",
@@ -25600,7 +25600,7 @@
         "s2_magic_o_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hole.webp"
     },
     {
       "id": "vb_holiday",
@@ -25626,8 +25626,8 @@
       "phonics_unit_ids": [
         "s2_long_a"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_holiday.webp"
     },
     {
       "id": "vb_holy",
@@ -25672,7 +25672,7 @@
         "s2_magic_o_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_home.webp"
     },
     {
       "id": "vb_honor",
@@ -25727,7 +25727,7 @@
         "s2_magic_o_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hope.webp"
     },
     {
       "id": "vb_horizon",
@@ -25798,7 +25798,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_horse.webp"
     },
     {
       "id": "vb_hose",
@@ -25826,7 +25826,7 @@
         "s2_magic_o_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hose.webp"
     },
     {
       "id": "vb_hospital",
@@ -25843,7 +25843,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hospital.webp"
     },
     {
       "id": "vb_host",
@@ -25876,8 +25876,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hot.webp"
     },
     {
       "id": "vb_hotel",
@@ -25894,7 +25894,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_hotel.webp"
     },
     {
       "id": "vb_hour",
@@ -25920,8 +25920,8 @@
       "phonics_unit_ids": [
         "s2_ou_ow"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hour.webp"
     },
     {
       "id": "vb_house",
@@ -25948,7 +25948,7 @@
         "s2_ou_ow"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_house.webp"
     },
     {
       "id": "vb_household",
@@ -25992,7 +25992,7 @@
         "s2_ou_ow"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_how.webp"
     },
     {
       "id": "vb_hug",
@@ -26053,8 +26053,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hundred.webp"
     },
     {
       "id": "vb_hungry",
@@ -26070,8 +26070,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hungry.webp"
     },
     {
       "id": "vb_hurry",
@@ -26097,8 +26097,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hurry.webp"
     },
     {
       "id": "vb_hurt",
@@ -26124,8 +26124,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_hurt.webp"
     },
     {
       "id": "vb_hut",
@@ -26159,7 +26159,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_i.webp"
     },
     {
       "id": "vb_ice",
@@ -26176,7 +26176,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ice.webp"
     },
     {
       "id": "vb_idea",
@@ -26193,7 +26193,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_idea.webp"
     },
     {
       "id": "vb_ideal",
@@ -26261,7 +26261,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_if.webp"
     },
     {
       "id": "vb_ignore",
@@ -26294,8 +26294,8 @@
       "mh_unit_key": "I",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_ill.webp"
     },
     {
       "id": "vb_illustrate",
@@ -26525,7 +26525,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_in.webp"
     },
     {
       "id": "vb_incentive",
@@ -26993,7 +26993,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ink.webp"
     },
     {
       "id": "vb_inn",
@@ -27505,8 +27505,8 @@
       "mh_unit_key": "I",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_interest.webp"
     },
     {
       "id": "vb_interfere",
@@ -27740,7 +27740,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_into.webp"
     },
     {
       "id": "vb_introduce",
@@ -27767,8 +27767,8 @@
       "phonics_unit_ids": [
         "s2_magic_u_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_introduce.webp"
     },
     {
       "id": "vb_invade",
@@ -27962,7 +27962,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_island.webp"
     },
     {
       "id": "vb_isolate",
@@ -28007,7 +28007,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_it.webp"
     },
     {
       "id": "vb_item",
@@ -28128,8 +28128,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_job.webp"
     },
     {
       "id": "vb_jog",
@@ -28172,8 +28172,8 @@
       "phonics_unit_ids": [
         "s2_oi_oy"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_join.webp"
     },
     {
       "id": "vb_joint",
@@ -28296,7 +28296,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_juice.webp"
     },
     {
       "id": "vb_jump",
@@ -28313,7 +28313,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_jump.webp"
     },
     {
       "id": "vb_jungle",
@@ -28330,7 +28330,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_jungle.webp"
     },
     {
       "id": "vb_junior",
@@ -28391,7 +28391,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_just.webp"
     },
     {
       "id": "vb_justice",
@@ -28452,7 +28452,7 @@
         "s2_long_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_keep.webp"
     },
     {
       "id": "vb_key",
@@ -28469,7 +28469,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_key.webp"
     },
     {
       "id": "vb_kick",
@@ -28496,7 +28496,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_kick.webp"
     },
     {
       "id": "vb_kid",
@@ -28513,7 +28513,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_kid.webp"
     },
     {
       "id": "vb_kill",
@@ -28529,8 +28529,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_kill.webp"
     },
     {
       "id": "vb_kind",
@@ -28547,7 +28547,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_kind.webp"
     },
     {
       "id": "vb_king",
@@ -28574,7 +28574,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_king.webp"
     },
     {
       "id": "vb_kit",
@@ -28618,7 +28618,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_kitchen.webp"
     },
     {
       "id": "vb_knee",
@@ -28645,7 +28645,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_knee.webp"
     },
     {
       "id": "vb_knife",
@@ -28673,7 +28673,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_knife.webp"
     },
     {
       "id": "vb_knight",
@@ -28717,7 +28717,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_knock.webp"
     },
     {
       "id": "vb_know",
@@ -28744,7 +28744,7 @@
         "s2_long_o"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_know.webp"
     },
     {
       "id": "vb_label",
@@ -28886,7 +28886,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_lady.webp"
     },
     {
       "id": "vb_lake",
@@ -28914,7 +28914,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_lake.webp"
     },
     {
       "id": "vb_lamb",
@@ -28948,7 +28948,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_lamp.webp"
     },
     {
       "id": "vb_land",
@@ -28965,7 +28965,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_land.webp"
     },
     {
       "id": "vb_landscape",
@@ -29082,7 +29082,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_large.webp"
     },
     {
       "id": "vb_last",
@@ -29099,7 +29099,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_last.webp"
     },
     {
       "id": "vb_late",
@@ -29127,7 +29127,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_late.webp"
     },
     {
       "id": "vb_latter",
@@ -29171,7 +29171,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_laugh.webp"
     },
     {
       "id": "vb_launch",
@@ -29357,7 +29357,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_lead.webp"
     },
     {
       "id": "vb_leaf",
@@ -29384,7 +29384,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_leaf.webp"
     },
     {
       "id": "vb_leak",
@@ -29482,7 +29482,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_learn.webp"
     },
     {
       "id": "vb_leather",
@@ -29544,7 +29544,7 @@
         "s2_long_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_leave.webp"
     },
     {
       "id": "vb_lecture",
@@ -29578,7 +29578,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_left.webp"
     },
     {
       "id": "vb_leg",
@@ -29595,7 +29595,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_leg.webp"
     },
     {
       "id": "vb_legal",
@@ -29691,7 +29691,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_lesson.webp"
     },
     {
       "id": "vb_let",
@@ -29708,7 +29708,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_let.webp"
     },
     {
       "id": "vb_letter",
@@ -29735,7 +29735,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_letter.webp"
     },
     {
       "id": "vb_level",
@@ -29823,7 +29823,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_library.webp"
     },
     {
       "id": "vb_license",
@@ -29874,7 +29874,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_lie.webp"
     },
     {
       "id": "vb_lift",
@@ -29908,7 +29908,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_light.webp"
     },
     {
       "id": "vb_like",
@@ -29936,7 +29936,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_like.webp"
     },
     {
       "id": "vb_likely",
@@ -30026,7 +30026,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_line.webp"
     },
     {
       "id": "vb_linguistic",
@@ -30087,7 +30087,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_lion.webp"
     },
     {
       "id": "vb_lip",
@@ -30104,7 +30104,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_lip.webp"
     },
     {
       "id": "vb_liquid",
@@ -30138,7 +30138,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_list.webp"
     },
     {
       "id": "vb_listen",
@@ -30155,7 +30155,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_listen.webp"
     },
     {
       "id": "vb_literature",
@@ -30189,7 +30189,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_little.webp"
     },
     {
       "id": "vb_live",
@@ -30206,7 +30206,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_live.webp"
     },
     {
       "id": "vb_load",
@@ -30393,7 +30393,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_long.webp"
     },
     {
       "id": "vb_look",
@@ -30420,7 +30420,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_look.webp"
     },
     {
       "id": "vb_loose",
@@ -30464,7 +30464,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_lose.webp"
     },
     {
       "id": "vb_loss",
@@ -30498,7 +30498,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_lot.webp"
     },
     {
       "id": "vb_loud",
@@ -30525,7 +30525,7 @@
         "s2_ou_ow"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_loud.webp"
     },
     {
       "id": "vb_lounge",
@@ -30559,7 +30559,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_love.webp"
     },
     {
       "id": "vb_low",
@@ -30586,7 +30586,7 @@
         "s2_long_o"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_low.webp"
     },
     {
       "id": "vb_loyal",
@@ -30640,7 +30640,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_luck.webp"
     },
     {
       "id": "vb_lunch",
@@ -30667,7 +30667,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_lunch.webp"
     },
     {
       "id": "vb_luxury",
@@ -30711,7 +30711,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ma_am.webp"
     },
     {
       "id": "vb_machine",
@@ -30744,8 +30744,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_mad.webp"
     },
     {
       "id": "vb_magazine",
@@ -30806,7 +30806,7 @@
         "s2_long_a"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_mail.webp"
     },
     {
       "id": "vb_main",
@@ -30931,8 +30931,8 @@
       "phonics_unit_ids": [
         "s2_magic_a_e"
       ],
-      "is_abstract": true,
-      "image_url": null
+      "is_abstract": false,
+      "image_url": "/vocab-images/vb_make.webp"
     },
     {
       "id": "vb_male",
@@ -30977,7 +30977,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_man.webp"
     },
     {
       "id": "vb_manage",
@@ -31066,7 +31066,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_many.webp"
     },
     {
       "id": "vb_map",
@@ -31083,7 +31083,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_map.webp"
     },
     {
       "id": "vb_march",
@@ -31117,8 +31117,8 @@
         "s2_r_vowel",
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_march.webp"
     },
     {
       "id": "vb_margin",
@@ -31227,7 +31227,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_market.webp"
     },
     {
       "id": "vb_marry",
@@ -31254,7 +31254,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_marry.webp"
     },
     {
       "id": "vb_marvel",
@@ -31423,8 +31423,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_matter.webp"
     },
     {
       "id": "vb_mature",
@@ -31496,7 +31496,7 @@
         "s2_long_a"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_may.webp"
     },
     {
       "id": "vb_maybe",
@@ -31682,7 +31682,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_meat.webp"
     },
     {
       "id": "vb_mechanic",
@@ -31733,7 +31733,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_medal.webp"
     },
     {
       "id": "vb_mediate",
@@ -31828,7 +31828,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_meet.webp"
     },
     {
       "id": "vb_melon",
@@ -31845,7 +31845,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_melon.webp"
     },
     {
       "id": "vb_melt",
@@ -32008,8 +32008,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_meter.webp"
     },
     {
       "id": "vb_method",
@@ -32117,7 +32117,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_middle.webp"
     },
     {
       "id": "vb_mild",
@@ -32178,7 +32178,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_milk.webp"
     },
     {
       "id": "vb_mill",
@@ -32211,8 +32211,8 @@
       "mh_unit_key": "M",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_million.webp"
     },
     {
       "id": "vb_miner",
@@ -32351,7 +32351,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_minute.webp"
     },
     {
       "id": "vb_miracle",
@@ -32395,7 +32395,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_mirror.webp"
     },
     {
       "id": "vb_miss",
@@ -32412,7 +32412,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_miss.webp"
     },
     {
       "id": "vb_missile",
@@ -32564,7 +32564,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_model.webp"
     },
     {
       "id": "vb_modern",
@@ -32635,7 +32635,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_mom.webp"
     },
     {
       "id": "vb_moment",
@@ -32669,7 +32669,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_money.webp"
     },
     {
       "id": "vb_monitor",
@@ -32723,7 +32723,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_monkey.webp"
     },
     {
       "id": "vb_monster",
@@ -32776,8 +32776,8 @@
       "phonics_unit_ids": [
         "s2_th_wh_ph"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_month.webp"
     },
     {
       "id": "vb_mood",
@@ -32831,7 +32831,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_moon.webp"
     },
     {
       "id": "vb_moral",
@@ -32909,8 +32909,8 @@
         "s2_r_vowel",
         "s2_ck_ng_nk"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_morning.webp"
     },
     {
       "id": "vb_mother",
@@ -32945,7 +32945,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_mother.webp"
     },
     {
       "id": "vb_motion",
@@ -33034,7 +33034,7 @@
         "s2_ou_ow"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_mountain.webp"
     },
     {
       "id": "vb_mouth",
@@ -33069,7 +33069,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_mouth.webp"
     },
     {
       "id": "vb_move",
@@ -33086,7 +33086,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_move.webp"
     },
     {
       "id": "vb_movie",
@@ -33103,7 +33103,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_movie.webp"
     },
     {
       "id": "vb_mr_",
@@ -33119,8 +33119,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": true,
-      "image_url": null
+      "is_abstract": false,
+      "image_url": "/vocab-images/vb_mr_.webp"
     },
     {
       "id": "vb_mrs_",
@@ -33136,8 +33136,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": true,
-      "image_url": null
+      "is_abstract": false,
+      "image_url": "/vocab-images/vb_mrs_.webp"
     },
     {
       "id": "vb_much",
@@ -33164,7 +33164,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_much.webp"
     },
     {
       "id": "vb_mud",
@@ -33311,7 +33311,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_music.webp"
     },
     {
       "id": "vb_must",
@@ -33328,7 +33328,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_must.webp"
     },
     {
       "id": "vb_myth",
@@ -33427,7 +33427,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_name.webp"
     },
     {
       "id": "vb_narrate",
@@ -33498,7 +33498,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_narrow.webp"
     },
     {
       "id": "vb_native",
@@ -33549,7 +33549,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_near.webp"
     },
     {
       "id": "vb_neat",
@@ -33630,7 +33630,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_neck.webp"
     },
     {
       "id": "vb_need",
@@ -33657,7 +33657,7 @@
         "s2_long_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_need.webp"
     },
     {
       "id": "vb_needle",
@@ -33956,7 +33956,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_never.webp"
     },
     {
       "id": "vb_nevertheless",
@@ -34008,7 +34008,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_new.webp"
     },
     {
       "id": "vb_news",
@@ -34024,8 +34024,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_news.webp"
     },
     {
       "id": "vb_next",
@@ -34042,7 +34042,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_next.webp"
     },
     {
       "id": "vb_nice",
@@ -34070,7 +34070,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_nice.webp"
     },
     {
       "id": "vb_night",
@@ -34087,7 +34087,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_night.webp"
     },
     {
       "id": "vb_nightmare",
@@ -34132,7 +34132,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_no.webp"
     },
     {
       "id": "vb_noble",
@@ -34209,8 +34209,8 @@
       "phonics_unit_ids": [
         "s2_oi_oy"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_noise.webp"
     },
     {
       "id": "vb_none",
@@ -34332,8 +34332,8 @@
         "s2_r_vowel",
         "s2_th_wh_ph"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_north.webp"
     },
     {
       "id": "vb_nose",
@@ -34361,7 +34361,7 @@
         "s2_magic_o_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_nose.webp"
     },
     {
       "id": "vb_not",
@@ -34378,7 +34378,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_not.webp"
     },
     {
       "id": "vb_note",
@@ -34406,7 +34406,7 @@
         "s2_magic_o_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_note.webp"
     },
     {
       "id": "vb_notice",
@@ -34467,7 +34467,7 @@
         "s2_ou_ow"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_now.webp"
     },
     {
       "id": "vb_nowadays",
@@ -34565,7 +34565,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_number.webp"
     },
     {
       "id": "vb_nurse",
@@ -34592,7 +34592,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_nurse.webp"
     },
     {
       "id": "vb_nut",
@@ -34636,7 +34636,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_o_clock.webp"
     },
     {
       "id": "vb_oak",
@@ -34897,7 +34897,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_of.webp"
     },
     {
       "id": "vb_off",
@@ -34914,7 +34914,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_off.webp"
     },
     {
       "id": "vb_offend",
@@ -34975,7 +34975,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_office.webp"
     },
     {
       "id": "vb_officer",
@@ -35036,7 +35036,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_often.webp"
     },
     {
       "id": "vb_oh",
@@ -35053,7 +35053,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_oh.webp"
     },
     {
       "id": "vb_oil",
@@ -35080,7 +35080,7 @@
         "s2_oi_oy"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_oil.webp"
     },
     {
       "id": "vb_okay",
@@ -35107,7 +35107,7 @@
         "s2_long_a"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_okay.webp"
     },
     {
       "id": "vb_old",
@@ -35124,7 +35124,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_old.webp"
     },
     {
       "id": "vb_olive",
@@ -35158,7 +35158,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_on.webp"
     },
     {
       "id": "vb_once",
@@ -35175,7 +35175,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_once.webp"
     },
     {
       "id": "vb_only",
@@ -35192,7 +35192,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_only.webp"
     },
     {
       "id": "vb_open",
@@ -35209,7 +35209,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_open.webp"
     },
     {
       "id": "vb_operate",
@@ -35360,7 +35360,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_or.webp"
     },
     {
       "id": "vb_oral",
@@ -35394,7 +35394,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_orange.webp"
     },
     {
       "id": "vb_orchestra",
@@ -35634,7 +35634,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_other.webp"
     },
     {
       "id": "vb_otherwise",
@@ -35722,7 +35722,7 @@
         "s2_ou_ow"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_out.webp"
     },
     {
       "id": "vb_outcome",
@@ -35875,7 +35875,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_over.webp"
     },
     {
       "id": "vb_overall",
@@ -36249,7 +36249,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_page.webp"
     },
     {
       "id": "vb_pain",
@@ -36303,7 +36303,7 @@
         "s2_long_a"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_paint.webp"
     },
     {
       "id": "vb_pair",
@@ -36320,7 +36320,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pair.webp"
     },
     {
       "id": "vb_pale",
@@ -36416,7 +36416,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pants.webp"
     },
     {
       "id": "vb_paper",
@@ -36443,7 +36443,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_paper.webp"
     },
     {
       "id": "vb_paragraph",
@@ -36497,7 +36497,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pardon.webp"
     },
     {
       "id": "vb_parent",
@@ -36514,7 +36514,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_parent.webp"
     },
     {
       "id": "vb_park",
@@ -36541,7 +36541,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_park.webp"
     },
     {
       "id": "vb_participate",
@@ -36631,7 +36631,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_party.webp"
     },
     {
       "id": "vb_pass",
@@ -36648,7 +36648,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pass.webp"
     },
     {
       "id": "vb_passage",
@@ -36868,7 +36868,7 @@
         "s2_long_a"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pay.webp"
     },
     {
       "id": "vb_peace",
@@ -36895,7 +36895,7 @@
         "s2_long_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_peace.webp"
     },
     {
       "id": "vb_peak",
@@ -36939,7 +36939,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pear.webp"
     },
     {
       "id": "vb_peel",
@@ -37010,7 +37010,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pen.webp"
     },
     {
       "id": "vb_penalty",
@@ -37044,7 +37044,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pencil.webp"
     },
     {
       "id": "vb_people",
@@ -37061,7 +37061,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_people.webp"
     },
     {
       "id": "vb_pepper",
@@ -37580,7 +37580,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_piano.webp"
     },
     {
       "id": "vb_pick",
@@ -37607,7 +37607,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pick.webp"
     },
     {
       "id": "vb_picnic",
@@ -37624,7 +37624,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_picnic.webp"
     },
     {
       "id": "vb_picture",
@@ -37641,7 +37641,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_picture.webp"
     },
     {
       "id": "vb_piece",
@@ -37658,7 +37658,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_piece.webp"
     },
     {
       "id": "vb_pig",
@@ -37675,7 +37675,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pig.webp"
     },
     {
       "id": "vb_pile",
@@ -37737,7 +37737,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pilot.webp"
     },
     {
       "id": "vb_pin",
@@ -37754,7 +37754,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pin.webp"
     },
     {
       "id": "vb_pine",
@@ -37782,7 +37782,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pine.webp"
     },
     {
       "id": "vb_pink",
@@ -37809,7 +37809,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pink.webp"
     },
     {
       "id": "vb_pioneer",
@@ -37864,7 +37864,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pipe.webp"
     },
     {
       "id": "vb_pity",
@@ -37909,7 +37909,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_place.webp"
     },
     {
       "id": "vb_plain",
@@ -37953,7 +37953,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_plan.webp"
     },
     {
       "id": "vb_plane",
@@ -37981,7 +37981,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_plane.webp"
     },
     {
       "id": "vb_planet",
@@ -38015,7 +38015,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_plant.webp"
     },
     {
       "id": "vb_plate",
@@ -38097,7 +38097,7 @@
         "s2_long_a"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_play.webp"
     },
     {
       "id": "vb_pleasant",
@@ -38151,7 +38151,7 @@
         "s2_long_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_please.webp"
     },
     {
       "id": "vb_pleasure",
@@ -38246,7 +38246,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pocket.webp"
     },
     {
       "id": "vb_poem",
@@ -38307,7 +38307,7 @@
         "s2_oi_oy"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_point.webp"
     },
     {
       "id": "vb_poison",
@@ -38406,7 +38406,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_police.webp"
     },
     {
       "id": "vb_policy",
@@ -38557,7 +38557,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pool.webp"
     },
     {
       "id": "vb_poor",
@@ -38574,7 +38574,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_poor.webp"
     },
     {
       "id": "vb_pop",
@@ -38829,7 +38829,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_post.webp"
     },
     {
       "id": "vb_postato",
@@ -38846,7 +38846,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_postato.webp"
     },
     {
       "id": "vb_poster",
@@ -38873,7 +38873,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_poster.webp"
     },
     {
       "id": "vb_pot",
@@ -38984,8 +38984,8 @@
       "mh_unit_key": "P",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_practice.webp"
     },
     {
       "id": "vb_praise",
@@ -39224,7 +39224,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_present.webp"
     },
     {
       "id": "vb_preserve",
@@ -39318,8 +39318,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": true,
-      "image_url": null
+      "is_abstract": false,
+      "image_url": "/vocab-images/vb_pretty.webp"
     },
     {
       "id": "vb_prevent",
@@ -39576,8 +39576,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_print.webp"
     },
     {
       "id": "vb_prison",
@@ -39662,7 +39662,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_problem.webp"
     },
     {
       "id": "vb_proceed",
@@ -40235,7 +40235,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_pull.webp"
     },
     {
       "id": "vb_pump",
@@ -40494,7 +40494,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_push.webp"
     },
     {
       "id": "vb_put",
@@ -40511,7 +40511,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_put.webp"
     },
     {
       "id": "vb_qualify",
@@ -40616,7 +40616,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_queen.webp"
     },
     {
       "id": "vb_question",
@@ -40632,8 +40632,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_question.webp"
     },
     {
       "id": "vb_quick",
@@ -40660,7 +40660,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_quick.webp"
     },
     {
       "id": "vb_quiet",
@@ -40677,7 +40677,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_quiet.webp"
     },
     {
       "id": "vb_quit",
@@ -40745,7 +40745,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_radio.webp"
     },
     {
       "id": "vb_rail",
@@ -40799,7 +40799,7 @@
         "s2_long_a"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_rain.webp"
     },
     {
       "id": "vb_rainbow",
@@ -40834,7 +40834,7 @@
         "s2_long_o"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_rainbow.webp"
     },
     {
       "id": "vb_raise",
@@ -41132,7 +41132,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_read.webp"
     },
     {
       "id": "vb_ready",
@@ -41149,7 +41149,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ready.webp"
     },
     {
       "id": "vb_real",
@@ -41166,7 +41166,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_real.webp"
     },
     {
       "id": "vb_realize",
@@ -41405,8 +41405,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_record.webp"
     },
     {
       "id": "vb_recover",
@@ -41467,7 +41467,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_red.webp"
     },
     {
       "id": "vb_reduce",
@@ -41991,7 +41991,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_remember.webp"
     },
     {
       "id": "vb_remind",
@@ -42113,8 +42113,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_repeat.webp"
     },
     {
       "id": "vb_replace",
@@ -42495,8 +42495,8 @@
       "mh_unit_key": "R",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_rest.webp"
     },
     {
       "id": "vb_restaurant",
@@ -42513,7 +42513,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_restaurant.webp"
     },
     {
       "id": "vb_restore",
@@ -42612,8 +42612,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_return.webp"
     },
     {
       "id": "vb_reveal",
@@ -42791,7 +42791,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ribbon.webp"
     },
     {
       "id": "vb_rice",
@@ -42819,7 +42819,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_rice.webp"
     },
     {
       "id": "vb_rich",
@@ -42845,8 +42845,8 @@
       "phonics_unit_ids": [
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_rich.webp"
     },
     {
       "id": "vb_ride",
@@ -42874,7 +42874,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ride.webp"
     },
     {
       "id": "vb_right",
@@ -42891,7 +42891,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_right.webp"
     },
     {
       "id": "vb_ring",
@@ -42918,7 +42918,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ring.webp"
     },
     {
       "id": "vb_rise",
@@ -43007,7 +43007,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_river.webp"
     },
     {
       "id": "vb_road",
@@ -43034,7 +43034,7 @@
         "s2_long_o"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_road.webp"
     },
     {
       "id": "vb_roast",
@@ -43095,7 +43095,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_robot.webp"
     },
     {
       "id": "vb_rock",
@@ -43122,7 +43122,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_rock.webp"
     },
     {
       "id": "vb_rocket",
@@ -43149,7 +43149,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_rocket.webp"
     },
     {
       "id": "vb_role",
@@ -43194,7 +43194,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_roll.webp"
     },
     {
       "id": "vb_romantic",
@@ -43238,7 +43238,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_roof.webp"
     },
     {
       "id": "vb_room",
@@ -43265,7 +43265,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_room.webp"
     },
     {
       "id": "vb_root",
@@ -43348,7 +43348,7 @@
         "s2_magic_o_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_rose.webp"
     },
     {
       "id": "vb_rough",
@@ -43392,7 +43392,7 @@
         "s2_ou_ow"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_round.webp"
     },
     {
       "id": "vb_route",
@@ -43624,7 +43624,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ruler.webp"
     },
     {
       "id": "vb_rumor",
@@ -43668,7 +43668,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_run.webp"
     },
     {
       "id": "vb_rural",
@@ -43774,7 +43774,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sad.webp"
     },
     {
       "id": "vb_safe",
@@ -43802,7 +43802,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_safe.webp"
     },
     {
       "id": "vb_sail",
@@ -43846,7 +43846,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_salad.webp"
     },
     {
       "id": "vb_salary",
@@ -43890,7 +43890,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_salt.webp"
     },
     {
       "id": "vb_same",
@@ -43918,7 +43918,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_same.webp"
     },
     {
       "id": "vb_sand",
@@ -43935,7 +43935,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sand.webp"
     },
     {
       "id": "vb_satellite",
@@ -44007,7 +44007,7 @@
         "s2_long_a"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_say.webp"
     },
     {
       "id": "vb_scale",
@@ -44185,7 +44185,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_school.webp"
     },
     {
       "id": "vb_scold",
@@ -44218,8 +44218,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_score.webp"
     },
     {
       "id": "vb_scramble",
@@ -44344,7 +44344,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sea.webp"
     },
     {
       "id": "vb_seal",
@@ -44414,8 +44414,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_season.webp"
     },
     {
       "id": "vb_seat",
@@ -44442,7 +44442,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_seat.webp"
     },
     {
       "id": "vb_secret",
@@ -44567,8 +44567,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_see.webp"
     },
     {
       "id": "vb_seed",
@@ -44700,7 +44700,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sell.webp"
     },
     {
       "id": "vb_send",
@@ -44716,8 +44716,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_send.webp"
     },
     {
       "id": "vb_senior",
@@ -44906,8 +44906,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_service.webp"
     },
     {
       "id": "vb_session",
@@ -44940,8 +44940,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_set.webp"
     },
     {
       "id": "vb_settle",
@@ -45160,7 +45160,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_shall.webp"
     },
     {
       "id": "vb_shallow",
@@ -45266,8 +45266,8 @@
         "s2_magic_a_e",
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_shape.webp"
     },
     {
       "id": "vb_share",
@@ -45392,7 +45392,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_she.webp"
     },
     {
       "id": "vb_sheep",
@@ -45427,7 +45427,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sheep.webp"
     },
     {
       "id": "vb_sheet",
@@ -45462,7 +45462,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sheet.webp"
     },
     {
       "id": "vb_shelf",
@@ -45606,7 +45606,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ship.webp"
     },
     {
       "id": "vb_shirt",
@@ -45641,7 +45641,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_shirt.webp"
     },
     {
       "id": "vb_shoe",
@@ -45668,7 +45668,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_shoe.webp"
     },
     {
       "id": "vb_shoot",
@@ -45703,7 +45703,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_shoot.webp"
     },
     {
       "id": "vb_shop",
@@ -45730,7 +45730,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_shop.webp"
     },
     {
       "id": "vb_shore",
@@ -45792,7 +45792,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_short.webp"
     },
     {
       "id": "vb_shoulder",
@@ -45827,7 +45827,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_shoulder.webp"
     },
     {
       "id": "vb_shout",
@@ -45861,8 +45861,8 @@
         "s2_ou_ow",
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_shout.webp"
     },
     {
       "id": "vb_show",
@@ -45896,8 +45896,8 @@
         "s2_long_o",
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_show.webp"
     },
     {
       "id": "vb_shower",
@@ -45940,7 +45940,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_shower.webp"
     },
     {
       "id": "vb_shut",
@@ -45966,8 +45966,8 @@
       "phonics_unit_ids": [
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_shut.webp"
     },
     {
       "id": "vb_sick",
@@ -45993,8 +45993,8 @@
       "phonics_unit_ids": [
         "s2_ck_ng_nk"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_sick.webp"
     },
     {
       "id": "vb_side",
@@ -46022,7 +46022,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_side.webp"
     },
     {
       "id": "vb_sigh",
@@ -46073,7 +46073,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sign.webp"
     },
     {
       "id": "vb_significant",
@@ -46168,7 +46168,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_silver.webp"
     },
     {
       "id": "vb_similar",
@@ -46273,7 +46273,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sing.webp"
     },
     {
       "id": "vb_single",
@@ -46344,7 +46344,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sir.webp"
     },
     {
       "id": "vb_sister",
@@ -46371,7 +46371,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sister.webp"
     },
     {
       "id": "vb_sit",
@@ -46388,7 +46388,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sit.webp"
     },
     {
       "id": "vb_site",
@@ -46460,8 +46460,8 @@
       "phonics_unit_ids": [
         "s2_magic_i_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_size.webp"
     },
     {
       "id": "vb_skate",
@@ -46489,7 +46489,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_skate.webp"
     },
     {
       "id": "vb_skill",
@@ -46550,7 +46550,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_skirt.webp"
     },
     {
       "id": "vb_sky",
@@ -46566,8 +46566,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_sky.webp"
     },
     {
       "id": "vb_slave",
@@ -46622,7 +46622,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sleep.webp"
     },
     {
       "id": "vb_slice",
@@ -46678,7 +46678,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_slide.webp"
     },
     {
       "id": "vb_slim",
@@ -46739,7 +46739,7 @@
         "s2_long_o"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_slow.webp"
     },
     {
       "id": "vb_small",
@@ -46756,7 +46756,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_small.webp"
     },
     {
       "id": "vb_smash",
@@ -46799,8 +46799,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_smell.webp"
     },
     {
       "id": "vb_smile",
@@ -46827,8 +46827,8 @@
       "phonics_unit_ids": [
         "s2_magic_i_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_smile.webp"
     },
     {
       "id": "vb_smoke",
@@ -46856,7 +46856,7 @@
         "s2_magic_o_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_smoke.webp"
     },
     {
       "id": "vb_smooth",
@@ -46963,7 +46963,7 @@
         "s2_long_o"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_snow.webp"
     },
     {
       "id": "vb_so",
@@ -46980,7 +46980,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_so.webp"
     },
     {
       "id": "vb_soak",
@@ -47034,7 +47034,7 @@
         "s2_long_o"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_soap.webp"
     },
     {
       "id": "vb_soccer",
@@ -47061,7 +47061,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_soccer.webp"
     },
     {
       "id": "vb_social",
@@ -47139,7 +47139,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sock.webp"
     },
     {
       "id": "vb_soft",
@@ -47155,8 +47155,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_soft.webp"
     },
     {
       "id": "vb_software",
@@ -47296,7 +47296,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_some.webp"
     },
     {
       "id": "vb_somewhat",
@@ -47340,7 +47340,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_son.webp"
     },
     {
       "id": "vb_song",
@@ -47367,7 +47367,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_song.webp"
     },
     {
       "id": "vb_soon",
@@ -47394,7 +47394,7 @@
         "s2_oo"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_soon.webp"
     },
     {
       "id": "vb_sore",
@@ -47438,7 +47438,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sorry.webp"
     },
     {
       "id": "vb_sort",
@@ -47508,8 +47508,8 @@
       "phonics_unit_ids": [
         "s2_ou_ow"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_sound.webp"
     },
     {
       "id": "vb_soup",
@@ -47526,7 +47526,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_soup.webp"
     },
     {
       "id": "vb_source",
@@ -47577,8 +47577,8 @@
         "s2_ou_ow",
         "s2_th_wh_ph"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_south.webp"
     },
     {
       "id": "vb_space",
@@ -47605,8 +47605,8 @@
       "phonics_unit_ids": [
         "s2_magic_a_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_space.webp"
     },
     {
       "id": "vb_spare",
@@ -47677,7 +47677,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_speak.webp"
     },
     {
       "id": "vb_special",
@@ -47789,8 +47789,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_speed.webp"
     },
     {
       "id": "vb_spell",
@@ -47806,8 +47806,8 @@
       "mh_unit_key": "S",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_spell.webp"
     },
     {
       "id": "vb_spend",
@@ -47823,8 +47823,8 @@
       "mh_unit_key": "S",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_spend.webp"
     },
     {
       "id": "vb_spin",
@@ -47912,7 +47912,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_spoon.webp"
     },
     {
       "id": "vb_sport",
@@ -47939,7 +47939,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sport.webp"
     },
     {
       "id": "vb_spot",
@@ -47999,8 +47999,8 @@
       "phonics_unit_ids": [
         "s2_ck_ng_nk"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_spring.webp"
     },
     {
       "id": "vb_square",
@@ -48016,8 +48016,8 @@
       "mh_unit_key": "S",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_square.webp"
     },
     {
       "id": "vb_squeeze",
@@ -48133,7 +48133,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_stairs.webp"
     },
     {
       "id": "vb_stamp",
@@ -48150,7 +48150,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_stamp.webp"
     },
     {
       "id": "vb_stand",
@@ -48167,7 +48167,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_stand.webp"
     },
     {
       "id": "vb_standard",
@@ -48221,7 +48221,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_star.webp"
     },
     {
       "id": "vb_stare",
@@ -48264,8 +48264,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": true,
-      "image_url": null
+      "is_abstract": false,
+      "image_url": "/vocab-images/vb_start.webp"
     },
     {
       "id": "vb_state",
@@ -48310,7 +48310,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_station.webp"
     },
     {
       "id": "vb_statue",
@@ -48371,7 +48371,7 @@
         "s2_long_a"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_stay.webp"
     },
     {
       "id": "vb_steady",
@@ -48441,8 +48441,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_steam.webp"
     },
     {
       "id": "vb_steel",
@@ -48503,7 +48503,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_step.webp"
     },
     {
       "id": "vb_stick",
@@ -48530,7 +48530,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_stick.webp"
     },
     {
       "id": "vb_still",
@@ -48619,7 +48619,7 @@
         "s2_magic_o_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_stone.webp"
     },
     {
       "id": "vb_stop",
@@ -48635,8 +48635,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": true,
-      "image_url": null
+      "is_abstract": false,
+      "image_url": "/vocab-images/vb_stop.webp"
     },
     {
       "id": "vb_store",
@@ -48653,7 +48653,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_store.webp"
     },
     {
       "id": "vb_storm",
@@ -48679,8 +48679,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_storm.webp"
     },
     {
       "id": "vb_story",
@@ -48706,8 +48706,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_story.webp"
     },
     {
       "id": "vb_stove",
@@ -48735,7 +48735,7 @@
         "s2_magic_o_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_stove.webp"
     },
     {
       "id": "vb_straight",
@@ -48761,8 +48761,8 @@
       "phonics_unit_ids": [
         "s2_long_a"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_straight.webp"
     },
     {
       "id": "vb_strange",
@@ -48779,7 +48779,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_strange.webp"
     },
     {
       "id": "vb_strategy",
@@ -48840,7 +48840,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_strawberry.webp"
     },
     {
       "id": "vb_stream",
@@ -48894,7 +48894,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_street.webp"
     },
     {
       "id": "vb_stretch",
@@ -48966,7 +48966,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_strike.webp"
     },
     {
       "id": "vb_string",
@@ -49048,7 +49048,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_strong.webp"
     },
     {
       "id": "vb_structure",
@@ -49099,7 +49099,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_student.webp"
     },
     {
       "id": "vb_study",
@@ -49115,8 +49115,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_study.webp"
     },
     {
       "id": "vb_stuff",
@@ -49149,8 +49149,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_stupid.webp"
     },
     {
       "id": "vb_subject",
@@ -49249,7 +49249,7 @@
         "s2_long_a"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_subway.webp"
     },
     {
       "id": "vb_succeed",
@@ -49391,7 +49391,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sugar.webp"
     },
     {
       "id": "vb_suggest",
@@ -49523,8 +49523,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_summer.webp"
     },
     {
       "id": "vb_summit",
@@ -49558,7 +49558,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sun.webp"
     },
     {
       "id": "vb_super",
@@ -49656,7 +49656,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_supermarket.webp"
     },
     {
       "id": "vb_supper",
@@ -49683,7 +49683,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_supper.webp"
     },
     {
       "id": "vb_supply",
@@ -49772,7 +49772,7 @@
         "s2_magic_u_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sure.webp"
     },
     {
       "id": "vb_surface",
@@ -49862,7 +49862,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_surprise.webp"
     },
     {
       "id": "vb_surround",
@@ -50058,7 +50058,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sweater.webp"
     },
     {
       "id": "vb_sweet",
@@ -50085,7 +50085,7 @@
         "s2_long_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_sweet.webp"
     },
     {
       "id": "vb_swim",
@@ -50102,7 +50102,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_swim.webp"
     },
     {
       "id": "vb_swing",
@@ -50129,7 +50129,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_swing.webp"
     },
     {
       "id": "vb_switch",
@@ -50155,8 +50155,8 @@
       "phonics_unit_ids": [
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_switch.webp"
     },
     {
       "id": "vb_symbol",
@@ -50278,7 +50278,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_table.webp"
     },
     {
       "id": "vb_tackle",
@@ -50350,7 +50350,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_take.webp"
     },
     {
       "id": "vb_tale",
@@ -50411,8 +50411,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_talk.webp"
     },
     {
       "id": "vb_tall",
@@ -50429,7 +50429,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_tall.webp"
     },
     {
       "id": "vb_tap",
@@ -50474,7 +50474,7 @@
         "s2_magic_a_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_tape.webp"
     },
     {
       "id": "vb_target",
@@ -50535,7 +50535,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_taste.webp"
     },
     {
       "id": "vb_tattoo",
@@ -50596,7 +50596,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_taxi.webp"
     },
     {
       "id": "vb_tea",
@@ -50623,7 +50623,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_tea.webp"
     },
     {
       "id": "vb_teach",
@@ -50658,7 +50658,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_teach.webp"
     },
     {
       "id": "vb_team",
@@ -50685,7 +50685,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_team.webp"
     },
     {
       "id": "vb_tear",
@@ -50774,7 +50774,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_telephone.webp"
     },
     {
       "id": "vb_television",
@@ -50791,7 +50791,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_television.webp"
     },
     {
       "id": "vb_tell",
@@ -50807,8 +50807,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": true,
-      "image_url": null
+      "is_abstract": false,
+      "image_url": "/vocab-images/vb_tell.webp"
     },
     {
       "id": "vb_temperature",
@@ -50842,7 +50842,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_temple.webp"
     },
     {
       "id": "vb_tend",
@@ -50903,7 +50903,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_tennis.webp"
     },
     {
       "id": "vb_tense",
@@ -51072,7 +51072,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_test.webp"
     },
     {
       "id": "vb_text",
@@ -51116,7 +51116,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_than.webp"
     },
     {
       "id": "vb_thank",
@@ -51151,7 +51151,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_thank.webp"
     },
     {
       "id": "vb_that",
@@ -51178,7 +51178,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_that.webp"
     },
     {
       "id": "vb_the",
@@ -51205,7 +51205,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_the.webp"
     },
     {
       "id": "vb_theater",
@@ -51294,7 +51294,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_then.webp"
     },
     {
       "id": "vb_theory",
@@ -51348,7 +51348,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_there.webp"
     },
     {
       "id": "vb_therefore",
@@ -51402,7 +51402,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_they.webp"
     },
     {
       "id": "vb_thick",
@@ -51436,8 +51436,8 @@
         "s2_th_wh_ph",
         "s2_ck_ng_nk"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_thick.webp"
     },
     {
       "id": "vb_thief",
@@ -51490,8 +51490,8 @@
       "phonics_unit_ids": [
         "s2_th_wh_ph"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_thin.webp"
     },
     {
       "id": "vb_thing",
@@ -51526,7 +51526,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_thing.webp"
     },
     {
       "id": "vb_think",
@@ -51561,7 +51561,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_think.webp"
     },
     {
       "id": "vb_thirsty",
@@ -51595,8 +51595,8 @@
         "s2_r_vowel",
         "s2_th_wh_ph"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_thirsty.webp"
     },
     {
       "id": "vb_this",
@@ -51623,7 +51623,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_this.webp"
     },
     {
       "id": "vb_thorough",
@@ -51711,8 +51711,8 @@
         "s2_ou_ow",
         "s2_th_wh_ph"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_thousand.webp"
     },
     {
       "id": "vb_threat",
@@ -51836,7 +51836,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_through.webp"
     },
     {
       "id": "vb_throw",
@@ -51871,7 +51871,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_throw.webp"
     },
     {
       "id": "vb_thumb",
@@ -51952,7 +51952,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_ticket.webp"
     },
     {
       "id": "vb_tide",
@@ -52014,7 +52014,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_tie.webp"
     },
     {
       "id": "vb_tiger",
@@ -52041,7 +52041,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_tiger.webp"
     },
     {
       "id": "vb_tight",
@@ -52075,7 +52075,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_till.webp"
     },
     {
       "id": "vb_time",
@@ -52103,7 +52103,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_time.webp"
     },
     {
       "id": "vb_tin",
@@ -52198,8 +52198,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_tired.webp"
     },
     {
       "id": "vb_tissue",
@@ -52250,7 +52250,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_to.webp"
     },
     {
       "id": "vb_tobacco",
@@ -52294,7 +52294,7 @@
         "s2_long_a"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_today.webp"
     },
     {
       "id": "vb_toe",
@@ -52346,7 +52346,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_together.webp"
     },
     {
       "id": "vb_toilet",
@@ -52390,7 +52390,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_tomato.webp"
     },
     {
       "id": "vb_tomorrow",
@@ -52425,7 +52425,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_tomorrow.webp"
     },
     {
       "id": "vb_tone",
@@ -52486,8 +52486,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_tonight.webp"
     },
     {
       "id": "vb_too",
@@ -52514,7 +52514,7 @@
         "s2_oo"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_too.webp"
     },
     {
       "id": "vb_tool",
@@ -52576,7 +52576,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_tooth.webp"
     },
     {
       "id": "vb_top",
@@ -52593,7 +52593,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_top.webp"
     },
     {
       "id": "vb_toss",
@@ -52653,8 +52653,8 @@
       "phonics_unit_ids": [
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_touch.webp"
     },
     {
       "id": "vb_tough",
@@ -52725,7 +52725,7 @@
         "s2_ou_ow"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_town.webp"
     },
     {
       "id": "vb_toxic",
@@ -52769,7 +52769,7 @@
         "s2_oi_oy"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_toy.webp"
     },
     {
       "id": "vb_trace",
@@ -52902,8 +52902,8 @@
       "phonics_unit_ids": [
         "s2_long_a"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_train.webp"
     },
     {
       "id": "vb_transfer",
@@ -53045,8 +53045,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_travel.webp"
     },
     {
       "id": "vb_tray",
@@ -53144,7 +53144,7 @@
         "s2_long_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_tree.webp"
     },
     {
       "id": "vb_trend",
@@ -53249,8 +53249,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_trip.webp"
     },
     {
       "id": "vb_triumph",
@@ -53402,7 +53402,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_truck.webp"
     },
     {
       "id": "vb_true",
@@ -53419,7 +53419,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_true.webp"
     },
     {
       "id": "vb_trunk",
@@ -53507,7 +53507,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_try.webp"
     },
     {
       "id": "vb_tube",
@@ -53552,7 +53552,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_tulip.webp"
     },
     {
       "id": "vb_tune",
@@ -53624,7 +53624,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_turn.webp"
     },
     {
       "id": "vb_tutor",
@@ -53679,7 +53679,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_twice.webp"
     },
     {
       "id": "vb_twin",
@@ -53775,7 +53775,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_umbrella.webp"
     },
     {
       "id": "vb_uncle",
@@ -53792,7 +53792,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_uncle.webp"
     },
     {
       "id": "vb_under",
@@ -53819,7 +53819,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_under.webp"
     },
     {
       "id": "vb_understand",
@@ -53846,7 +53846,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_understand.webp"
     },
     {
       "id": "vb_uniform",
@@ -54057,7 +54057,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_until.webp"
     },
     {
       "id": "vb_up",
@@ -54074,7 +54074,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_up.webp"
     },
     {
       "id": "vb_update",
@@ -54288,7 +54288,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_use.webp"
     },
     {
       "id": "vb_usual",
@@ -54305,7 +54305,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_usual.webp"
     },
     {
       "id": "vb_vacation",
@@ -54321,8 +54321,8 @@
       "mh_unit_key": "V",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_vacation.webp"
     },
     {
       "id": "vb_vacuum",
@@ -54468,7 +54468,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_vegetable.webp"
     },
     {
       "id": "vb_vehicle",
@@ -54584,7 +54584,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_very.webp"
     },
     {
       "id": "vb_via",
@@ -54662,7 +54662,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_video.webp"
     },
     {
       "id": "vb_view",
@@ -54696,7 +54696,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_village.webp"
     },
     {
       "id": "vb_violent",
@@ -54730,7 +54730,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_violin.webp"
     },
     {
       "id": "vb_visible",
@@ -54763,8 +54763,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_visit.webp"
     },
     {
       "id": "vb_visual",
@@ -54982,7 +54982,7 @@
         "s2_long_a"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_wait.webp"
     },
     {
       "id": "vb_wake",
@@ -55009,8 +55009,8 @@
       "phonics_unit_ids": [
         "s2_magic_a_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_wake.webp"
     },
     {
       "id": "vb_walk",
@@ -55026,8 +55026,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_walk.webp"
     },
     {
       "id": "vb_wall",
@@ -55044,7 +55044,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_wall.webp"
     },
     {
       "id": "vb_want",
@@ -55061,7 +55061,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_want.webp"
     },
     {
       "id": "vb_war",
@@ -55087,8 +55087,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_war.webp"
     },
     {
       "id": "vb_warm",
@@ -55114,8 +55114,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_warm.webp"
     },
     {
       "id": "vb_warn",
@@ -55168,8 +55168,8 @@
       "phonics_unit_ids": [
         "s2_sh_ch"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_wash.webp"
     },
     {
       "id": "vb_waste",
@@ -55185,8 +55185,8 @@
       "mh_unit_key": "W",
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_waste.webp"
     },
     {
       "id": "vb_watch",
@@ -55213,7 +55213,7 @@
         "s2_sh_ch"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_watch.webp"
     },
     {
       "id": "vb_water",
@@ -55240,7 +55240,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_water.webp"
     },
     {
       "id": "vb_wave",
@@ -55295,7 +55295,7 @@
         "s2_long_a"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_way.webp"
     },
     {
       "id": "vb_we",
@@ -55312,7 +55312,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_we.webp"
     },
     {
       "id": "vb_weak",
@@ -55339,7 +55339,7 @@
         "s2_long_e"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_weak.webp"
     },
     {
       "id": "vb_wealth",
@@ -55400,7 +55400,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_wear.webp"
     },
     {
       "id": "vb_weather",
@@ -55434,8 +55434,8 @@
         "s2_r_vowel",
         "s2_th_wh_ph"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_weather.webp"
     },
     {
       "id": "vb_week",
@@ -55461,8 +55461,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_week.webp"
     },
     {
       "id": "vb_weigh",
@@ -55513,7 +55513,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_welcome.webp"
     },
     {
       "id": "vb_welfare",
@@ -55558,7 +55558,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_well.webp"
     },
     {
       "id": "vb_west",
@@ -55574,8 +55574,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_west.webp"
     },
     {
       "id": "vb_wet",
@@ -55591,8 +55591,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_wet.webp"
     },
     {
       "id": "vb_whale",
@@ -55655,7 +55655,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_what.webp"
     },
     {
       "id": "vb_wheat",
@@ -55752,7 +55752,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_when.webp"
     },
     {
       "id": "vb_where",
@@ -55779,7 +55779,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_where.webp"
     },
     {
       "id": "vb_whether",
@@ -55849,7 +55849,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_which.webp"
     },
     {
       "id": "vb_while",
@@ -55983,7 +55983,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_white.webp"
     },
     {
       "id": "vb_who",
@@ -56000,7 +56000,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_who.webp"
     },
     {
       "id": "vb_whole",
@@ -56055,7 +56055,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_why.webp"
     },
     {
       "id": "vb_wide",
@@ -56082,8 +56082,8 @@
       "phonics_unit_ids": [
         "s2_magic_i_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_wide.webp"
     },
     {
       "id": "vb_widespread",
@@ -56144,7 +56144,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_will.webp"
     },
     {
       "id": "vb_win",
@@ -56161,7 +56161,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_win.webp"
     },
     {
       "id": "vb_wind",
@@ -56177,8 +56177,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_wind.webp"
     },
     {
       "id": "vb_window",
@@ -56205,7 +56205,7 @@
         "s2_long_o"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_window.webp"
     },
     {
       "id": "vb_wing",
@@ -56232,7 +56232,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_wing.webp"
     },
     {
       "id": "vb_winter",
@@ -56258,8 +56258,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_winter.webp"
     },
     {
       "id": "vb_wipe",
@@ -56387,7 +56387,7 @@
         "s2_th_wh_ph"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_with.webp"
     },
     {
       "id": "vb_within",
@@ -56475,7 +56475,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_woman.webp"
     },
     {
       "id": "vb_wonder",
@@ -56502,7 +56502,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_wonder.webp"
     },
     {
       "id": "vb_wood",
@@ -56529,7 +56529,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_wood.webp"
     },
     {
       "id": "vb_wool",
@@ -56583,7 +56583,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_word.webp"
     },
     {
       "id": "vb_work",
@@ -56610,7 +56610,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_work.webp"
     },
     {
       "id": "vb_world",
@@ -56636,8 +56636,8 @@
       "phonics_unit_ids": [
         "s2_r_vowel"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_world.webp"
     },
     {
       "id": "vb_worship",
@@ -56786,7 +56786,7 @@
         "s2_magic_i_e"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_write.webp"
     },
     {
       "id": "vb_wrong",
@@ -56813,7 +56813,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_wrong.webp"
     },
     {
       "id": "vb_yeah",
@@ -56839,8 +56839,8 @@
       "phonics_unit_ids": [
         "s2_long_e"
       ],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_yeah.webp"
     },
     {
       "id": "vb_year",
@@ -56856,8 +56856,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_year.webp"
     },
     {
       "id": "vb_yell",
@@ -56901,7 +56901,7 @@
         "s2_long_o"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_yellow.webp"
     },
     {
       "id": "vb_yes",
@@ -56918,7 +56918,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_yes.webp"
     },
     {
       "id": "vb_yesterday",
@@ -56953,7 +56953,7 @@
         "s2_r_vowel"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_yesterday.webp"
     },
     {
       "id": "vb_yet",
@@ -56970,7 +56970,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_yet.webp"
     },
     {
       "id": "vb_you",
@@ -56987,7 +56987,7 @@
       "phonics_spans": [],
       "phonics_unit_ids": [],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_you.webp"
     },
     {
       "id": "vb_young",
@@ -57014,7 +57014,7 @@
         "s2_ck_ng_nk"
       ],
       "is_abstract": true,
-      "image_url": null
+      "image_url": "/vocab-images/vb_young.webp"
     },
     {
       "id": "vb_zero",
@@ -57030,8 +57030,8 @@
       "mh_unit_key": null,
       "phonics_spans": [],
       "phonics_unit_ids": [],
-      "is_abstract": false,
-      "image_url": null
+      "is_abstract": true,
+      "image_url": "/vocab-images/vb_zero.webp"
     },
     {
       "id": "vb_zone",
@@ -57086,7 +57086,7 @@
         "s2_oo"
       ],
       "is_abstract": false,
-      "image_url": null
+      "image_url": "/vocab-images/vb_zoo.webp"
     }
   ],
   "affix_items": [
