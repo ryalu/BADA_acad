@@ -11,7 +11,10 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { getPgPool, getSqliteDb, parseJsonField, getKstTodayDateString } = require("./connection");
-const { selectPronunciationFocusItems } = require("./pronunciationRules");
+const {
+  buildDay1ListenSession,
+  buildDay2SpeakSession
+} = require("./pronunciationRules");
 
 const MASTER_JSON_PATH = path.resolve(__dirname, "..", "data", "vocab_master.json");
 
@@ -95,8 +98,32 @@ function formatVocabProgressRow(r) {
     current_s3_unit: r.current_s3_unit || "s3_pre_un",
     completed_s3_units: parseJsonField(r.completed_s3_units_json, []),
     pronunciation_done_date: r.pronunciation_done_date || null,
+    pronunciation_cycle: normalizePronunciationCycle(parseJsonField(r.pronunciation_cycle_json, {})),
     updated_at: r.updated_at
   };
+}
+
+function normalizePronunciationCycle(raw) {
+  const obj = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+  return {
+    unit_scope: obj.unit_scope ? String(obj.unit_scope) : "",
+    pending_speak_words: Array.isArray(obj.pending_speak_words) ? obj.pending_speak_words : [],
+    pending_created_date: obj.pending_created_date ? String(obj.pending_created_date) : null,
+    practiced_word_ids: Array.isArray(obj.practiced_word_ids) ? obj.practiced_word_ids : [],
+    last_mode: obj.last_mode ? String(obj.last_mode) : null,
+    last_completed_date: obj.last_completed_date ? String(obj.last_completed_date) : null
+  };
+}
+
+function resolveNextPronunciationMode({ progress, stage, unitKey, tier, todayKst }) {
+  const cycle = normalizePronunciationCycle(progress?.pronunciation_cycle);
+  const scopeKey = `${Number(stage) || 1}:${String(unitKey || "A").trim()}:${normalizeVocabTier(tier)}`;
+  const hasPendingFromEarlierDay =
+    cycle.unit_scope === scopeKey &&
+    cycle.pending_speak_words.length > 0 &&
+    Boolean(cycle.pending_created_date) &&
+    cycle.pending_created_date !== todayKst;
+  return hasPendingFromEarlierDay ? "day2_speak" : "day1_listen";
 }
 
 /**
@@ -546,6 +573,19 @@ async function getStudentVocabState(userId) {
   const todayQuizAttempted = attempts.some((a) => toKstDate(a.created_at) === todayKst);
   const todayPronunciationDone = progress.pronunciation_done_date === todayKst;
   const todayDailyQuizDone = todayQuizAttempted && todayPronunciationDone;
+  const activeUnitKey =
+    progress.current_stage === 1
+      ? progress.current_unit_key
+      : progress.current_stage === 2
+        ? progress.current_s2_unit
+        : progress.current_s3_unit;
+  const nextPronunciationMode = resolveNextPronunciationMode({
+    progress,
+    stage: progress.current_stage,
+    unitKey: activeUnitKey,
+    tier: progress.vocab_tier,
+    todayKst
+  });
 
   const recentWrongWordIds = Array.from(
     new Set(
@@ -564,6 +604,7 @@ async function getStudentVocabState(userId) {
     todayQuizAttempted,
     todayPronunciationDone,
     todayDailyQuizDone,
+    nextPronunciationMode,
     recentWrongWordIds,
     stage1ByTier,
     units: {
@@ -1237,15 +1278,17 @@ async function getPronunciationFocusForStudent({
   stage = 1,
   unitKey = "A",
   tier,
+  forceMode,
   quizWordIds = [],
   wrongWordIds = []
 }) {
   let effectiveTier = tier ? normalizeVocabTier(tier) : "all";
   let effectiveStage = Number(stage) || 1;
   let effectiveKey = String(unitKey || "A").trim();
+  let state = null;
 
   if (userId) {
-    const state = await getStudentVocabState(userId);
+    state = await getStudentVocabState(userId);
     if (!tier) effectiveTier = state.progress.vocab_tier;
     if (!stage) effectiveStage = state.progress.current_stage;
     if (!unitKey) {
@@ -1277,37 +1320,148 @@ async function getPronunciationFocusForStudent({
   const quizWords = unitWords.filter((w) => quizSet.has(w.id));
   const wrongWords = unitWords.filter((w) => wrongSet.has(w.id));
 
-  const items = selectPronunciationFocusItems({
-    unitWords,
-    quizWords,
-    wrongWords,
-    maxItems: 3
-  });
+  const todayKst = getKstTodayDateString();
+  const scopeKey = `${effectiveStage}:${effectiveKey}:${effectiveTier}`;
+  const cycle = normalizePronunciationCycle(state?.progress?.pronunciation_cycle);
+  const autoMode = state
+    ? resolveNextPronunciationMode({
+        progress: state.progress,
+        stage: effectiveStage,
+        unitKey: effectiveKey,
+        tier: effectiveTier,
+        todayKst
+      })
+    : "day1_listen";
+
+  const requestedMode =
+    forceMode === "day2_speak" || forceMode === "day1_listen" ? forceMode : autoMode;
+
+  let session;
+  if (requestedMode === "day2_speak") {
+    const hasSavedPending =
+      cycle.unit_scope === scopeKey && Array.isArray(cycle.pending_speak_words) && cycle.pending_speak_words.length > 0;
+    if (hasSavedPending) {
+      session = buildDay2SpeakSession(cycle.pending_speak_words, unitWords);
+    } else {
+      const prevPracticed = cycle.unit_scope === scopeKey ? cycle.practiced_word_ids : [];
+      const fallbackDay1 = buildDay1ListenSession({
+        unitWords,
+        quizWords,
+        wrongWords,
+        practicedWordIds: prevPracticed.length >= unitWords.length ? [] : prevPracticed,
+        maxWords: 6
+      });
+      session = buildDay2SpeakSession(fallbackDay1.items, unitWords);
+    }
+  } else {
+    const prevPracticed = cycle.unit_scope === scopeKey ? cycle.practiced_word_ids : [];
+    const effectivePracticed = prevPracticed.length >= unitWords.length ? [] : prevPracticed;
+    session = buildDay1ListenSession({
+      unitWords,
+      quizWords,
+      wrongWords,
+      practicedWordIds: effectivePracticed,
+      maxWords: 6
+    });
+  }
 
   return {
     stage: effectiveStage,
     unitKey: effectiveKey,
     tier: effectiveTier,
-    items
+    mode: session.mode,
+    todayKst,
+    unitWordCount: unitWords.length,
+    items: session.items
   };
 }
 
-async function completePronunciationFocusToday(userId) {
-  const cleanUid = String(userId || "").trim();
+function sanitizePronunciationWordSnapshot(w) {
+  const word = String(w?.word || "").trim();
+  if (!word) return null;
+  return {
+    wordId: String(w.wordId || w.id || word.toLowerCase()),
+    word,
+    meaningKr: String(w.meaningKr || w.meaning_kr || ""),
+    imageUrl: w.imageUrl || w.image_url || null,
+    ruleId: String(w.ruleId || ""),
+    phonicsLabel: String(w.phonicsLabel || ""),
+    focusText: String(w.focusText || ""),
+    matchStart: Number(w.matchStart) || 0,
+    matchEnd: Number(w.matchEnd) || 1,
+    titleKr: String(w.titleKr || ""),
+    mouthTipKr: String(w.mouthTipKr || "")
+  };
+}
+
+async function completePronunciationFocusToday(payload) {
+  const opts = typeof payload === "string" ? { userId: payload } : payload || {};
+  const cleanUid = String(opts.userId || "").trim();
   if (!cleanUid) throw new Error("학생 ID가 필요합니다.");
-  await getOrInitStudentVocabProgress(cleanUid);
+  const state = await getStudentVocabState(cleanUid);
   const todayKst = getKstTodayDateString();
   const pgPool = getPgPool();
 
+  const effectiveStage = Number(opts.stage) || state.progress.current_stage || 1;
+  const effectiveTier = normalizeVocabTier(opts.tier || state.progress.vocab_tier);
+  const effectiveKey = String(
+    opts.unitKey ||
+      (effectiveStage === 1
+        ? state.progress.current_unit_key
+        : effectiveStage === 2
+          ? state.progress.current_s2_unit
+          : state.progress.current_s3_unit) ||
+      "A"
+  ).trim();
+
+  const scopeKey = `${effectiveStage}:${effectiveKey}:${effectiveTier}`;
+  const prevCycle = normalizePronunciationCycle(state.progress.pronunciation_cycle);
+  const completedMode = opts.completedMode === "day2_speak" ? "day2_speak" : "day1_listen";
+
+  const snapshots = (Array.isArray(opts.words) ? opts.words : [])
+    .map(sanitizePronunciationWordSnapshot)
+    .filter(Boolean)
+    .slice(0, 12);
+
+  const prevPracticed = prevCycle.unit_scope === scopeKey ? prevCycle.practiced_word_ids : [];
+  const nextPracticed = Array.from(
+    new Set([...prevPracticed, ...snapshots.map((s) => s.wordId)])
+  );
+
+  const nextCycle =
+    completedMode === "day1_listen"
+      ? {
+          unit_scope: scopeKey,
+          pending_speak_words: snapshots,
+          pending_created_date: todayKst,
+          practiced_word_ids: nextPracticed,
+          last_mode: "day1_listen",
+          last_completed_date: todayKst
+        }
+      : {
+          unit_scope: scopeKey,
+          pending_speak_words: [],
+          pending_created_date: null,
+          practiced_word_ids: nextPracticed,
+          last_mode: "day2_speak",
+          last_completed_date: todayKst
+        };
+
   if (pgPool) {
     await pgPool.query(
-      "UPDATE student_vocab_progress SET pronunciation_done_date = $1, updated_at = NOW() WHERE user_id = $2",
-      [todayKst, cleanUid]
+      `UPDATE student_vocab_progress
+       SET pronunciation_done_date = $1, pronunciation_cycle_json = $2::jsonb, updated_at = NOW()
+       WHERE user_id = $3`,
+      [todayKst, JSON.stringify(nextCycle), cleanUid]
     );
   } else {
     getSqliteDb()
-      .prepare("UPDATE student_vocab_progress SET pronunciation_done_date = ?, updated_at = ? WHERE user_id = ?")
-      .run(todayKst, new Date().toISOString(), cleanUid);
+      .prepare(
+        `UPDATE student_vocab_progress
+         SET pronunciation_done_date = ?, pronunciation_cycle_json = ?, updated_at = ?
+         WHERE user_id = ?`
+      )
+      .run(todayKst, JSON.stringify(nextCycle), new Date().toISOString(), cleanUid);
   }
 
   return await getStudentVocabState(cleanUid);

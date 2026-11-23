@@ -129,7 +129,10 @@ export const TeacherVocabPanel: React.FC<TeacherVocabPanelProps> = ({ student })
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
             완료 현황: 1단계 {completedS1}/{s1Units.length} · 2단계 {completedS2}/{s2Units.length} ·
-            3단계 {completedS3}/{s3Units.length} · 현재 유닛 {state.daysElapsed + 1}일째
+            3단계 {completedS3}/{s3Units.length} · 현재 유닛 {state.daysElapsed + 1}일째 · 다음 발음:{" "}
+            {state.nextPronunciationMode === "day2_speak"
+              ? "Day 2 직접 발음 체크"
+              : "Day 1 듣기·구분"}
           </p>
         </div>
         <button

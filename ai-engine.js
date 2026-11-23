@@ -1271,6 +1271,355 @@ async function generateBookWorksheetsWithLLM(book) {
   };
 }
 
+const SINGLE_WORD_HOMOPHONES = {
+  ant: ["aunt"],
+  aunt: ["ant"],
+  ate: ["eight"],
+  eight: ["ate"],
+  be: ["bee"],
+  bee: ["be"],
+  blue: ["blew"],
+  blew: ["blue"],
+  buy: ["by", "bye"],
+  by: ["buy", "bye"],
+  bye: ["buy", "by"],
+  dear: ["deer"],
+  deer: ["dear"],
+  eye: ["i"],
+  i: ["eye"],
+  flower: ["flour"],
+  flour: ["flower"],
+  for: ["four"],
+  four: ["for"],
+  hair: ["hare"],
+  hare: ["hair"],
+  hear: ["here"],
+  here: ["hear"],
+  hole: ["whole"],
+  whole: ["hole"],
+  hour: ["our"],
+  our: ["hour"],
+  knew: ["new"],
+  new: ["knew"],
+  know: ["no"],
+  no: ["know"],
+  knight: ["night"],
+  night: ["knight"],
+  meat: ["meet"],
+  meet: ["meat"],
+  one: ["won"],
+  won: ["one"],
+  pair: ["pear"],
+  pear: ["pair"],
+  peace: ["piece"],
+  piece: ["peace"],
+  plain: ["plane"],
+  plane: ["plain"],
+  read: ["red"],
+  red: ["read"],
+  right: ["write"],
+  write: ["right"],
+  road: ["rode"],
+  rode: ["road"],
+  sail: ["sale"],
+  sale: ["sail"],
+  sea: ["see"],
+  see: ["sea"],
+  son: ["sun"],
+  sun: ["son"],
+  stair: ["stare"],
+  stare: ["stair"],
+  steal: ["steel"],
+  steel: ["steal"],
+  tail: ["tale"],
+  tale: ["tail"],
+  to: ["too", "two"],
+  too: ["to", "two"],
+  two: ["to", "too"],
+  wait: ["weight"],
+  weight: ["wait"],
+  way: ["weigh"],
+  weigh: ["way"],
+  weak: ["week"],
+  week: ["weak"],
+  wear: ["where"],
+  where: ["wear"],
+  weather: ["whether"],
+  whether: ["weather"],
+  wood: ["would"],
+  would: ["wood"]
+};
+
+function computeLevenshteinRatio(a, b) {
+  if (a === b) return 1;
+  if (!a || !b) return 0;
+  const m = a.length;
+  const n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i += 1) dp[i][0] = i;
+  for (let j = 0; j <= n; j += 1) dp[0][j] = j;
+  for (let i = 1; i <= m; i += 1) {
+    for (let j = 1; j <= n; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return Math.max(0, 1 - dp[m][n] / Math.max(m, n));
+}
+
+function parseAudioDataUrl(audioDataUrl) {
+  const raw = String(audioDataUrl || "").trim();
+  const match = /^data:([^;,\s]+)(?:;[^,]*)?,(.*)$/i.exec(raw);
+  if (!match) {
+    return { mimeType: "audio/webm", buffer: Buffer.alloc(0) };
+  }
+  const mimeType = match[1].toLowerCase();
+  const b64 = match[2] || "";
+  return {
+    mimeType,
+    buffer: Buffer.from(b64, "base64")
+  };
+}
+
+function mimeToFilename(mimeType) {
+  if (mimeType.includes("mp4") || mimeType.includes("m4a")) return "speech.mp4";
+  if (mimeType.includes("ogg")) return "speech.ogg";
+  if (mimeType.includes("wav")) return "speech.wav";
+  return "speech.webm";
+}
+
+async function transcribeSingleWordWithOpenAI(audioBuf, mimeType, apiKey) {
+  const filename = mimeToFilename(mimeType);
+  const models = ["gpt-4o-mini-transcribe", "whisper-1"];
+
+  for (const model of models) {
+    try {
+      const form = new FormData();
+      form.append("file", new Blob([audioBuf], { type: mimeType || "audio/webm" }), filename);
+      form.append("model", model);
+      form.append("language", "en");
+      // Strictly neutral prompt so silence or noise does not hallucinate the target word
+      form.append("prompt", "Single English vocabulary word spoken aloud by a child.");
+
+      const resp = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`
+        },
+        body: form
+      });
+
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      if (typeof data?.text === "string") {
+        return data.text.trim();
+      }
+    } catch (_) {
+      // Try next transcription model
+    }
+  }
+  return "";
+}
+
+async function generatePopoPronunciationCoach({
+  targetWord,
+  heardText,
+  phonicsLabel,
+  mouthTipKr,
+  apiKey
+}) {
+  const fallbackFeedback = heardText
+    ? `방금 소리가 "${heardText}"처럼 들렸어요! "${targetWord}"의 ${phonicsLabel || "발음"} 포인트를 살려 한 번 더 말해보자!`
+    : `소리가 조금 작거나 뭉개졌어요! "${targetWord}"를 천천히 또렷하게 한 번 더 말해보자!`;
+
+  if (!apiKey) {
+    return {
+      feedbackKr: fallbackFeedback,
+      tipKr: mouthTipKr || "입 모양을 크게 열고 끝소리까지 또렷하게 발음해 보세요."
+    };
+  }
+
+  try {
+    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0.4,
+        max_tokens: 180,
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content:
+              "당신은 한국 초등/중등 영어 학생을 응원하는 귀여운 물개 선생님 '포포(Popo)'입니다. " +
+              "학생이 목표 영단어를 발음했을 때 AI 음성인식이 들은 단어를 바탕으로, 따뜻하고 구체적인 한국어 교정 1~2문장(feedbackKr)과 1문장 입모양 팁(tipKr)을 JSON으로 답하세요. " +
+              "혼내지 말고 용기를 주며 한국인이 어려워하는 포인트를 정확히 짚어주세요."
+          },
+          {
+            role: "user",
+            content: JSON.stringify({
+              targetWord,
+              heardText: heardText || "(잘 들리지 않음)",
+              phonicsLabel: phonicsLabel || "",
+              mouthTipKr: mouthTipKr || ""
+            })
+          }
+        ]
+      })
+    });
+
+    if (!resp.ok) {
+      return { feedbackKr: fallbackFeedback, tipKr: mouthTipKr || "" };
+    }
+    const json = await resp.json();
+    const content = json?.choices?.[0]?.message?.content;
+    if (!content) {
+      return { feedbackKr: fallbackFeedback, tipKr: mouthTipKr || "" };
+    }
+    const parsed = JSON.parse(content);
+    return {
+      feedbackKr: String(parsed.feedbackKr || fallbackFeedback).trim(),
+      tipKr: String(parsed.tipKr || mouthTipKr || "").trim()
+    };
+  } catch (_) {
+    return {
+      feedbackKr: fallbackFeedback,
+      tipKr: mouthTipKr || "입 모양을 크게 열고 끝소리까지 또렷하게 발음해 보세요."
+    };
+  }
+}
+
+async function evaluateWordPronunciationWithAI({
+  targetWord,
+  phonicsLabel = "",
+  mouthTipKr = "",
+  audioDataUrl = "",
+  attemptNumber = 1
+}) {
+  const cleanTarget = String(targetWord || "").trim();
+  const normTarget = cleanTarget.toLowerCase().replace(/[^a-z]/g, "");
+  const cleanAttempt = Math.max(1, Number(attemptNumber) || 1);
+  const apiKey = String(process.env.OPENAI_API_KEY || "").trim();
+
+  if (!cleanTarget) {
+    throw new Error("평가할 목표 단어가 필요합니다.");
+  }
+
+  const { mimeType, buffer } = parseAudioDataUrl(audioDataUrl);
+
+  // Guard tiny or empty audio before paying transcription API cost
+  if (buffer.length <= 600) {
+    if (cleanAttempt >= 3) {
+      return {
+        ok: true,
+        passed: true,
+        softPassed: true,
+        heardText: "",
+        confidence: 0.7,
+        feedbackKr: "세 번 모두 열심히 도전했어요! 포포가 큰 박수를 보내며 다음 단어로 넘어가요!",
+        tipKr: mouthTipKr || ""
+      };
+    }
+    return {
+      ok: true,
+      passed: false,
+      softPassed: false,
+      heardText: "",
+      confidence: 0,
+      feedbackKr: "마이크에 소리가 너무 작거나 짧게 들어왔어요! 조금 더 크게 또렷이 말해보자!",
+      tipKr: mouthTipKr || "녹음 버튼을 누르고 1초 뒤에 천천히 소리 내어 보세요."
+    };
+  }
+
+  // Graceful fallback if OpenAI API key is absent (local dev without key)
+  if (!apiKey) {
+    return {
+      ok: true,
+      passed: true,
+      softPassed: true,
+      heardText: cleanTarget,
+      confidence: 0.85,
+      feedbackKr: `좋아요! "${cleanTarget}"를 입 밖으로 소리 내어 잘 연습했어요!`,
+      tipKr: mouthTipKr || ""
+    };
+  }
+
+  const heardText = await transcribeSingleWordWithOpenAI(buffer, mimeType, apiKey);
+  const cleanHeard = heardText.toLowerCase().replace(/[^a-z\s]/g, " ").trim();
+  const tokens = cleanHeard.split(/\s+/).filter(Boolean);
+
+  const homophones = SINGLE_WORD_HOMOPHONES[normTarget] || [];
+  let bestSimilarity = computeLevenshteinRatio(normTarget, cleanHeard.replace(/\s+/g, ""));
+  let matched = false;
+
+  if (tokens.includes(normTarget) || cleanHeard.replace(/\s+/g, "") === normTarget) {
+    matched = true;
+    bestSimilarity = 1;
+  } else if (tokens.some((tok) => homophones.includes(tok))) {
+    matched = true;
+    bestSimilarity = Math.max(bestSimilarity, 0.96);
+  } else {
+    for (const tok of tokens) {
+      const sim = computeLevenshteinRatio(normTarget, tok);
+      if (sim > bestSimilarity) bestSimilarity = sim;
+      if (sim >= 0.78) {
+        matched = true;
+        break;
+      }
+    }
+  }
+
+  if (matched) {
+    return {
+      ok: true,
+      passed: true,
+      softPassed: false,
+      heardText,
+      confidence: Number(bestSimilarity.toFixed(2)),
+      feedbackKr: `와, 정확해요! "${cleanTarget}" 발음이 포포 귀에 아주 또렷하게 들렸어요!`,
+      tipKr: ""
+    };
+  }
+
+  if (cleanAttempt >= 3) {
+    return {
+      ok: true,
+      passed: true,
+      softPassed: true,
+      heardText,
+      confidence: Number(bestSimilarity.toFixed(2)),
+      feedbackKr: "끝까지 포기하지 않고 여러 번 도전한 게 정말 대단해요! 다음 단어로 넘어가 볼까요?",
+      tipKr: mouthTipKr || ""
+    };
+  }
+
+  const coach = await generatePopoPronunciationCoach({
+    targetWord: cleanTarget,
+    heardText,
+    phonicsLabel,
+    mouthTipKr,
+    apiKey
+  });
+
+  return {
+    ok: true,
+    passed: false,
+    softPassed: false,
+    heardText,
+    confidence: Number(bestSimilarity.toFixed(2)),
+    feedbackKr: coach.feedbackKr,
+    tipKr: coach.tipKr || mouthTipKr || ""
+  };
+}
+
 module.exports = {
   analyzeTextWithLLM,
   analyzeTextWithLLMAsync,
@@ -1279,6 +1628,7 @@ module.exports = {
   generateParentFeedbackMessage,
   generateBookWorksheetsWithLLM,
   evaluatePopoSpeech,
+  evaluateWordPronunciationWithAI,
   generateTeacherQuestions
 };
 

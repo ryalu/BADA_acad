@@ -270,6 +270,7 @@ export interface StudentVocabProgress {
   current_s3_unit: string;
   completed_s3_units: string[];
   pronunciation_done_date?: string | null;
+  pronunciation_cycle?: PronunciationCycleState;
   updated_at?: string;
 }
 
@@ -296,6 +297,7 @@ export interface StudentVocabState {
   todayQuizAttempted?: boolean;
   todayPronunciationDone?: boolean;
   todayDailyQuizDone: boolean;
+  nextPronunciationMode?: PronunciationMode;
   recentWrongWordIds: string[];
   stage1ByTier?: Record<VocabTier, VocabUnit[]>;
   units: {
@@ -318,32 +320,66 @@ export interface VocabStage1Question {
   options: string[];
 }
 
+export type PronunciationMode = "day1_listen" | "day2_speak";
+
+export interface PronunciationCycleState {
+  unit_scope?: string;
+  pending_speak_words?: Array<{
+    wordId?: string;
+    word: string;
+    meaningKr?: string;
+    imageUrl?: string | null;
+    ruleId?: string;
+    phonicsLabel?: string;
+    focusText?: string;
+    matchStart?: number;
+    matchEnd?: number;
+    titleKr?: string;
+    mouthTipKr?: string;
+  }>;
+  pending_created_date?: string | null;
+  practiced_word_ids?: string[];
+  last_mode?: PronunciationMode | null;
+  last_completed_date?: string | null;
+}
+
+export interface PronunciationFocusOption {
+  wordId: string;
+  word: string;
+  meaningKr: string;
+  phonicsLabel: string;
+  focusText: string;
+  matchStart: number;
+  matchEnd: number;
+  isCorrect: boolean;
+}
+
 export interface PronunciationFocusItem {
+  wordId: string;
+  word: string;
+  meaningKr: string;
+  imageUrl?: string | null;
   ruleId: string;
-  label: string;
+  phonicsLabel: string;
+  focusText: string;
+  matchStart: number;
+  matchEnd: number;
   titleKr: string;
   mouthTipKr: string;
-  matchedTodayWords: {
-    word: string;
-    meaning_kr: string;
-    matchStart: number;
-    matchEnd: number;
-  }[];
-  pair: {
-    leftWord: string;
-    leftMeaning: string;
-    leftHighlight: string;
-    rightWord: string;
-    rightMeaning: string;
-    rightHighlight: string;
-  };
-  earQuiz: {
-    promptKr: string;
-    audioWord: string;
-    correctSide: "left" | "right";
-    leftOption: string;
-    rightOption: string;
-  };
+  priority?: number;
+  listenPromptKr?: string;
+  listenOptions?: PronunciationFocusOption[];
+  speakPromptKr?: string;
+}
+
+export interface PronunciationEvalResult {
+  ok: boolean;
+  passed: boolean;
+  softPassed: boolean;
+  heardText: string;
+  confidence: number;
+  feedbackKr: string;
+  tipKr: string;
 }
 
 export interface VocabStage2Question {

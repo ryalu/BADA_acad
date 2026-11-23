@@ -1,341 +1,641 @@
-/**
- * Korean-learner confusing pronunciation rules & automatic focus selector.
- * Automatically picks 2-3 high-yield pronunciation checkpoints from today's studied words.
- */
+// Current-unit-only Day 1 (Listen & Discriminate) and Day 2 (Speak & AI Check)
+// pronunciation focus selector for BADA English Vocab.
+// Every word card and every multiple-choice distractor MUST originate strictly
+// from the student's current unit (`unitWords`).
 
-const PRONUNCIATION_RULES = [
+const PHONICS_WORD_RULES = [
+  // 1. Silent letters (highest pedagogical yield)
   {
-    id: "sl_blend",
-    label: "sl vs sh/s",
-    title_kr: "sl [슬] — s 뒤에 '으'를 넣지 않고 혀끝을 바로 윗니 뒤 L로 올려요",
-    mouth_tip_kr: "sleep을 '슬립'처럼 끊어 발음하지 말고, [쓰-] 소리를 내자마자 혀끝을 윗니 뒤에 붙여 부드럽게 이어서 말해요!",
-    pattern: "sl",
-    regex: /sl/i,
-    contrastPairs: [
-      { leftWord: "sleep", leftMeaning: "자다", leftHighlight: "sl", rightWord: "sheep", rightMeaning: "양", rightHighlight: "sh" },
-      { leftWord: "slide", leftMeaning: "미끄러지다", leftHighlight: "sl", rightWord: "side", rightMeaning: "옆", rightHighlight: "s" }
-    ]
+    id: "silent_kn",
+    label: "묵음 k (kn)",
+    priority: 100,
+    test: (w) => /^kn/.exec(w),
+    titleKr: "'kn'의 'k'는 소리 나지 않아요!",
+    tipKr: "앞의 'k'는 입 밖으로 내지 말고 바로 [ㄴ] 소리로 시작해요."
   },
   {
-    id: "l_vs_r",
-    label: "L vs R",
-    title_kr: "L [을] vs R [르] — 혀끝이 닿으면 L, 혀를 말아 띄우면 R",
-    mouth_tip_kr: "L은 혀끝을 윗니 뒷잇몸에 꼭 붙이고, R은 입술을 살짝 오므리며 혀를 천장에 대지 않고 안으로 말아요.",
-    pattern: "l/r",
-    regex: /\b(?:l|r)[a-z]/i,
-    contrastPairs: [
-      { leftWord: "light", leftMeaning: "빛 · 가벼운", leftHighlight: "l", rightWord: "right", rightMeaning: "오른쪽 · 맞는", rightHighlight: "r" },
-      { leftWord: "long", leftMeaning: "긴", leftHighlight: "l", rightWord: "wrong", rightMeaning: "틀린", rightHighlight: "wr" }
-    ]
+    id: "silent_wr",
+    label: "묵음 w (wr)",
+    priority: 100,
+    test: (w) => /^wr/.exec(w),
+    titleKr: "'wr'의 'w'는 조용히 숨어요!",
+    tipKr: "'w' 소리는 빼고 혀끝을 말아서 바로 [r] 소리로 시작해요."
   },
   {
-    id: "bl_vs_br",
-    label: "bl vs br",
-    title_kr: "bl [블] vs br [브르] — b 뒤의 L과 R 구별하기",
-    mouth_tip_kr: "입술을 붙였다 터뜨린 뒤 L은 혀끝을 윗니 뒤에 대고(blue), R은 혀를 둥글게 말아요(brown)!",
-    pattern: "bl/br",
-    regex: /\b(?:bl|br)[a-z]/i,
-    contrastPairs: [
-      { leftWord: "black", leftMeaning: "검은색", leftHighlight: "bl", rightWord: "bread", rightMeaning: "빵", rightHighlight: "br" },
-      { leftWord: "blow", leftMeaning: "불다", leftHighlight: "bl", rightWord: "brown", rightMeaning: "갈색", rightHighlight: "br" }
-    ]
+    id: "silent_mb",
+    label: "묵음 b (mb)",
+    priority: 99,
+    test: (w) => /mb$/.exec(w),
+    titleKr: "끝의 'mb'에서 'b'는 묵음이에요!",
+    tipKr: "입술을 다물어 [ㅁ] 소리만 내고 끝의 'b'는 발음하지 않아요."
   },
   {
-    id: "cl_vs_cr",
-    label: "cl vs cr",
-    title_kr: "cl [클] vs cr [크르] — '크' 소리에 이어지는 L과 R",
-    mouth_tip_kr: "class의 cl은 혀끝이 윗니 뒤에 닿고, cry의 cr은 혀가 어디에도 닿지 않고 뒤로 말립니다.",
-    pattern: "cl/cr",
-    regex: /\b(?:cl|cr)[a-z]/i,
-    contrastPairs: [
-      { leftWord: "cloud", leftMeaning: "구름", leftHighlight: "cl", rightWord: "crowd", rightMeaning: "군중", rightHighlight: "cr" },
-      { leftWord: "clean", leftMeaning: "깨끗한", leftHighlight: "cl", rightWord: "cream", rightMeaning: "크림", rightHighlight: "cr" }
-    ]
+    id: "silent_mn",
+    label: "묵음 n (mn)",
+    priority: 99,
+    test: (w) => /mn$/.exec(w),
+    titleKr: "끝의 'mn'에서 'n'은 소리 나지 않아요!",
+    tipKr: "'m' 소리로 입술을 닫으며 자연스럽게 멈추세요."
   },
   {
-    id: "fl_vs_fr",
-    label: "fl vs fr",
-    title_kr: "fl [플] vs fr [프르] — 윗니-아랫입술 바람 + L/R",
-    mouth_tip_kr: "윗니로 아랫입술을 살짝 스치며 바람(F)을 낸 다음, 혀를 올리면 fl(fly), 혀를 말면 fr(frog)이에요.",
-    pattern: "fl/fr",
-    regex: /\b(?:fl|fr)[a-z]/i,
-    contrastPairs: [
-      { leftWord: "fly", leftMeaning: "날다", leftHighlight: "fl", rightWord: "fry", rightMeaning: "튀기다", rightHighlight: "fr" },
-      { leftWord: "flower", leftMeaning: "꽃", leftHighlight: "fl", rightWord: "friend", rightMeaning: "친구", rightHighlight: "fr" }
-    ]
+    id: "silent_w_word",
+    label: "묵음 w",
+    priority: 99,
+    test: (w) => /^(answer|two|sword|who|whom|whose|whole)$/.test(w) ? /w/.exec(w) : null,
+    titleKr: "단어 속 'w'가 조용히 쉬고 있어요!",
+    tipKr: "글자에는 'w'가 보이지만 읽을 때는 [우] 소리를 넣지 않고 부드럽게 이어 읽어요."
   },
   {
-    id: "gl_vs_gr",
-    label: "gl vs gr",
-    title_kr: "gl [글] vs gr [그르] — 부드럽게 연결하는 L과 R",
-    mouth_tip_kr: "glass(유리)는 [그] 뒤에 혀끝을 대고, grass(풀)는 [그] 뒤에 혀를 말며 소리가 갈라져요.",
-    pattern: "gl/gr",
-    regex: /\b(?:gl|gr)[a-z]/i,
-    contrastPairs: [
-      { leftWord: "glass", leftMeaning: "유리 · 컵", leftHighlight: "gl", rightWord: "grass", rightMeaning: "풀 · 잔디", rightHighlight: "gr" },
-      { leftWord: "glad", leftMeaning: "기쁜", leftHighlight: "gl", rightWord: "green", rightMeaning: "초록색", rightHighlight: "gr" }
-    ]
+    id: "silent_h_word",
+    label: "묵음 h",
+    priority: 98,
+    test: (w) => /^(hour|honest|honor|heir)/.test(w) ? /^h/.exec(w) : null,
+    titleKr: "맨 앞 'h'는 묵음이에요!",
+    tipKr: "'h' 소리([ㅎ])를 내지 말고 바로 뒤 모음 소리로 시작해요."
   },
   {
-    id: "pl_vs_pr",
-    label: "pl vs pr",
-    title_kr: "pl [플] vs pr [프르] — 두 입술을 터뜨린 뒤 L/R",
-    mouth_tip_kr: "play는 두 입술을 힘차게 터뜨린 뒤 바로 혀를 윗니 뒤에 대고, pray는 혀를 안으로 말아요.",
-    pattern: "pl/pr",
-    regex: /\b(?:pl|pr)[a-z]/i,
-    contrastPairs: [
-      { leftWord: "play", leftMeaning: "놀다", leftHighlight: "pl", rightWord: "pray", rightMeaning: "기도하다", rightHighlight: "pr" },
-      { leftWord: "plane", leftMeaning: "비행기", leftHighlight: "pl", rightWord: "present", rightMeaning: "선물", rightHighlight: "pr" }
-    ]
+    id: "silent_l_al",
+    label: "묵음 l",
+    priority: 98,
+    test: (w) => /l(?=[kmf]$)/.exec(w),
+    titleKr: "이 단어의 'l'은 소리가 숨어 있어요!",
+    tipKr: "혀를 윗니 뒤에 대지 말고 앞 모음을 길고 둥글게 소리 내세요."
   },
   {
-    id: "s_vs_sh",
-    label: "s vs sh",
-    title_kr: "s [쓰] vs sh [쉬] — 입술 모양에 따라 완전히 달라지는 소리",
-    mouth_tip_kr: "s는 입꼬리를 옆으로 당기며 가느다란 바람 소리 [쓰], sh는 입술을 동그랗게 내밀며 조용히 [쉬~] 소리예요.",
-    pattern: "s/sh",
-    regex: /sh|\bs[aeiou]/i,
-    contrastPairs: [
-      { leftWord: "sea", leftMeaning: "바다", leftHighlight: "s", rightWord: "she", rightMeaning: "그녀", rightHighlight: "sh" },
-      { leftWord: "seat", leftMeaning: "자리", leftHighlight: "s", rightWord: "sheet", rightMeaning: "종이 한 장", rightHighlight: "sh" }
-    ]
+    id: "silent_gh",
+    label: "묵음 gh",
+    priority: 97,
+    test: (w) => /(?<=[aiou])gh/.exec(w) || /gh(?=[t])/.exec(w),
+    titleKr: "'gh'는 소리가 나지 않아요!",
+    tipKr: "'gh'는 글자로만 남고 앞 모음을 길고 또렷하게 소리 내면 돼요."
   },
   {
-    id: "th_dental",
-    label: "th vs s/d",
-    title_kr: "th [쓰/드] — 혀끝을 윗니·아랫니 사이에 살짝 물고 바람 내기",
-    mouth_tip_kr: "th를 '스'나 '드'로 읽지 말고, 거울을 보고 혀끝이 앞니 사이에 살짝 보인 상태에서 바람을 후 불어요.",
-    pattern: "th",
-    regex: /th/i,
-    contrastPairs: [
-      { leftWord: "think", leftMeaning: "생각하다", leftHighlight: "th", rightWord: "sink", rightMeaning: "가라앉다", rightHighlight: "s" },
-      { leftWord: "three", leftMeaning: "셋 (3)", leftHighlight: "th", rightWord: "tree", rightMeaning: "나무", rightHighlight: "tr" }
-    ]
+    id: "silent_st",
+    label: "묵음 t",
+    priority: 96,
+    test: (w) => /(?<=s)t(?=(?:le|en)$)/.exec(w),
+    titleKr: "'s' 뒤의 't'는 조용히 넘어가요!",
+    tipKr: "[ㅌ] 소리를 끊어 내지 말고 앞뒤 소리를 자연스럽게 이어 주세요."
   },
   {
-    id: "f_vs_p",
-    label: "F vs P",
-    title_kr: "F [프(바람)] vs P [프(터짐)] — 입술이 닿는지 윗니가 닿는지 확인!",
-    mouth_tip_kr: "P는 위아래 두 입술을 딱 붙였다가 빵 터뜨리고, F는 윗니 끝으로 아랫입술을 살짝 스치며 바람을 불어요.",
-    pattern: "f/p",
-    regex: /\b(?:f|p)[a-z]/i,
-    contrastPairs: [
-      { leftWord: "fan", leftMeaning: "선풍기 · 팬", leftHighlight: "f", rightWord: "pan", rightMeaning: "프라이팬", rightHighlight: "p" },
-      { leftWord: "fast", leftMeaning: "빠른", leftHighlight: "f", rightWord: "past", rightMeaning: "과거 · 지난", rightHighlight: "p" }
-    ]
+    id: "silent_s_island",
+    label: "묵음 s",
+    priority: 96,
+    test: (w) => /^island/.test(w) ? /s/.exec(w) : null,
+    titleKr: "'island'의 's'는 소리가 나지 않아요!",
+    tipKr: "[아이슬란드]가 아니라 [아일런드]처럼 's'를 빼고 읽어요."
+  },
+
+  // 2. Multi-letter endings & digraphs
+  {
+    id: "suffix_tion",
+    label: "tion [션] 덩어리",
+    priority: 93,
+    test: (w) => /tion/.exec(w),
+    titleKr: "'tion'은 한 번에 [션]으로 읽어요!",
+    tipKr: "글자를 하나씩 끊지 말고 입술을 살짝 내밀어 부드럽게 [션] 하고 묶어 발음해요."
   },
   {
-    id: "v_vs_b",
-    label: "V vs B",
-    title_kr: "V [브(진동)] vs B [브] — 아랫입술이 떨리는 V 소리",
-    mouth_tip_kr: "B는 두 입술을 붙였다 떼는 소리, V는 윗니를 아랫입술 위에 가볍게 대고 목을 울리며 진동시키는 소리예요.",
-    pattern: "v/b",
-    regex: /\b(?:v|b)[a-z]/i,
-    contrastPairs: [
-      { leftWord: "very", leftMeaning: "매우", leftHighlight: "v", rightWord: "berry", rightMeaning: "딸기류 열매", rightHighlight: "b" },
-      { leftWord: "vest", leftMeaning: "조끼", leftHighlight: "v", rightWord: "best", rightMeaning: "최고의", rightHighlight: "b" }
-    ]
+    id: "suffix_sion",
+    label: "sion [전/션] 덩어리",
+    priority: 92,
+    test: (w) => /sion/.exec(w),
+    titleKr: "'sion'은 목을 울려 [전] 또는 [션]!",
+    tipKr: "모음 뒤에서는 성대를 울려 [전]처럼 부드럽게 이어 읽어 보세요."
   },
   {
-    id: "s_clusters",
-    label: "sp/st/sk/sm/sn/sw",
-    title_kr: "S-자음군 — '스' 다음에 짧은 '으'를 넣지 않고 한 번에 붙이기",
-    mouth_tip_kr: "star를 '스타르'처럼 2글자로 늘리지 말고, 작은 [쓰] 숨소리 바로 뒤에 t/p/k/m/n을 딱 붙여 한 호흡에 말해요!",
-    pattern: "s-cluster",
-    regex: /\bs(?:p|t|k|m|n|w|cr|tr)[a-z]/i,
-    contrastPairs: [
-      { leftWord: "star", leftMeaning: "별", leftHighlight: "st", rightWord: "smile", rightMeaning: "미소 짓다", rightHighlight: "sm" },
-      { leftWord: "snow", leftMeaning: "눈", leftHighlight: "sn", rightWord: "swim", rightMeaning: "수영하다", rightHighlight: "sw" }
-    ]
+    id: "digraph_ph",
+    label: "ph = [f] 바람 소리",
+    priority: 94,
+    test: (w) => /ph/.exec(w),
+    titleKr: "'p'와 'h'가 만나면 [f] 소리가 나요!",
+    tipKr: "입술을 터뜨리는 [ㅍ]이 아니라 윗니로 아랫입술을 살짝 스치며 바람을 불어요."
   },
   {
-    id: "ch_vs_tr",
-    label: "ch vs tr",
-    title_kr: "ch [취] vs tr [트르] — 혀를 말아 소리 내는 차이",
-    mouth_tip_kr: "ch(chair)는 입술을 모으며 '취' 하고 힘차게 내보내고, tr(train)은 t와 r이 만나 혀를 말며 [트르] 소리가 나요.",
-    pattern: "ch/tr",
-    regex: /\b(?:ch|tr)[a-z]/i,
-    contrastPairs: [
-      { leftWord: "chair", leftMeaning: "의자", leftHighlight: "ch", rightWord: "train", rightMeaning: "기차", rightHighlight: "tr" },
-      { leftWord: "chip", leftMeaning: "조각 · 칩", leftHighlight: "ch", rightWord: "trip", rightMeaning: "여행", rightHighlight: "tr" }
-    ]
+    id: "digraph_qu",
+    label: "qu = [쿠어] 입모양",
+    priority: 91,
+    test: (w) => /qu/.exec(w),
+    titleKr: "'q' 뒤에는 언제나 'u'가 함께 [쿠어]!",
+    tipKr: "입술을 동그랗게 내밀었다가 빠르게 펴면서 [쿠어] 소리를 내요."
   },
   {
-    id: "z_vs_j",
-    label: "Z vs J",
-    title_kr: "Z [즈(울림)] vs J [쥐] — 목 울림 Z와 입천장 마찰 J",
-    mouth_tip_kr: "Z는 벌이 '윙~' 날아가듯 윗니와 아랫니 사이로 공기를 계속 울리고, J는 혀가 입천장을 한 번 치고 나와요.",
-    pattern: "z/j",
-    regex: /\b(?:z|j)[a-z]/i,
-    contrastPairs: [
-      { leftWord: "zoo", leftMeaning: "동물원", leftHighlight: "z", rightWord: "juice", rightMeaning: "주스", rightHighlight: "j" },
-      { leftWord: "zero", leftMeaning: "영 (0)", leftHighlight: "z", rightWord: "jump", rightMeaning: "점프하다", rightHighlight: "j" }
-    ]
+    id: "digraph_th",
+    label: "th 혀끝 바람 소리",
+    priority: 93,
+    test: (w) => /th/.exec(w),
+    titleKr: "'th'는 혀끝을 살짝 물고 바람을 내보내요!",
+    tipKr: "[ㅅ]이나 [ㄷ] 대신 윗니와 아랫니 사이에 혀끝을 살짝 대고 바람을 빼 보세요."
   },
   {
-    id: "short_i_vs_long_e",
-    label: "i [ɪ] vs ee/ea [iː]",
-    title_kr: "짧은 i [이/에 사이] vs 긴 ee/ea [이ː] — 입 꼬리 긴장도 구별",
-    mouth_tip_kr: "ee/ea는 입꼬리를 옆으로 힘주어 쭉 당기며 길게 [이ː], 짧은 i는 입 힘을 빼고 아주 짧고 톡 끊어지게 말해요.",
-    pattern: "i/ee",
-    regex: /ee|ea|\b[bcdfghjklmnpqrstvwxyz]+i[bcdfghjklmnpqrstvwxyz]+\b/i,
-    contrastPairs: [
-      { leftWord: "sit", leftMeaning: "앉다", leftHighlight: "i", rightWord: "seat", rightMeaning: "자리", rightHighlight: "ea" },
-      { leftWord: "ship", leftMeaning: "배", leftHighlight: "i", rightWord: "sheep", rightMeaning: "양", rightHighlight: "ee" }
-    ]
+    id: "digraph_sh",
+    label: "sh 부드러운 [쉬~]",
+    priority: 90,
+    test: (w) => /sh/.exec(w),
+    titleKr: "'sh'는 조용히 하듯 [쉬~] 소리!",
+    tipKr: "입술을 동그랗게 앞으로 내밀고 공기를 넓게 불어 내세요."
   },
   {
-    id: "ae_vs_e",
-    label: "a [æ] vs e [e]",
-    title_kr: "넓은 a [애] vs 가벼운 e [에] — 턱을 아래로 내리는 차이",
-    mouth_tip_kr: "apple, bag의 짧은 a는 턱을 아래로 크게 내려 혀를 낮추고 [애], bed, pen의 e는 입을 덜 벌리고 가볍게 [에] 해요.",
-    pattern: "a/e",
-    regex: /\b(?:a|e|[bcdfghjklmnpqrstvwxyz]+a[bcdfghjklmnpqrstvwxyz]+)\b/i,
-    contrastPairs: [
-      { leftWord: "bad", leftMeaning: "나쁜", leftHighlight: "a", rightWord: "bed", rightMeaning: "침대", rightHighlight: "e" },
-      { leftWord: "bag", leftMeaning: "가방", leftHighlight: "a", rightWord: "egg", rightMeaning: "달걀", rightHighlight: "e" }
-    ]
+    id: "digraph_ch",
+    label: "ch 힘찬 [취] 소리",
+    priority: 90,
+    test: (w) => /ch/.exec(w),
+    titleKr: "'ch'는 입술을 모았다가 힘차게 [취]!",
+    tipKr: "혀가 입천장을 막았다가 숨을 한 번에 터뜨리며 발음해요."
   },
   {
-    id: "c_hard_soft",
-    label: "c [k] vs [s]",
-    title_kr: "카멜레온 C — e, i, y 앞에선 [스], 그 외엔 [크]",
-    mouth_tip_kr: "cat, cake는 강한 [크] 소리지만, city, center, circle처럼 뒤에 e, i, y가 오면 부드러운 [스] 소리로 바뀌어요!",
-    pattern: "c",
-    regex: /\bc[a-z]/i,
-    contrastPairs: [
-      { leftWord: "cat", leftMeaning: "고양이 [크]", leftHighlight: "c", rightWord: "city", rightMeaning: "도시 [스]", rightHighlight: "c" },
-      { leftWord: "cake", leftMeaning: "케이크 [크]", leftHighlight: "c", rightWord: "circle", rightMeaning: "원 · 동그라미 [스]", rightHighlight: "c" }
-    ]
+    id: "digraph_ng",
+    label: "ng 콧소리 [ㅇ]",
+    priority: 89,
+    test: (w) => /ng/.exec(w),
+    titleKr: "'ng'는 코와 목 뒤에서 울리는 [ㅇ]!",
+    tipKr: "혀 뒷부분을 들어 올려 입 안을 막고 코 쪽으로 소리를 울려 주세요."
+  },
+
+  // 3. Vowel teams & R-controlled vowels
+  {
+    id: "vowel_ai",
+    label: "ai 이중모음 [에이]",
+    priority: 89,
+    test: (w) => /ai/.exec(w),
+    titleKr: "'ai'가 만나면 길게 [에이]!",
+    tipKr: "단모음 [애]로 끊지 말고 [에]에서 [이]로 입꼬리를 당기며 이어 소리 내요."
   },
   {
-    id: "g_hard_soft",
-    label: "g [g] vs [dʒ]",
-    title_kr: "카멜레온 G — e, i, y 앞에선 [쥐], 그 외엔 [그]",
-    mouth_tip_kr: "game, go는 [그] 소리, giant, giraffe, gentle처럼 e/i/y 앞의 g는 주로 [쥐] 소리가 나요(단, get/give는 예외!).",
-    pattern: "g",
-    regex: /\bg[a-z]/i,
-    contrastPairs: [
-      { leftWord: "go", leftMeaning: "가다 [그]", leftHighlight: "g", rightWord: "giraffe", rightMeaning: "기린 [쥐]", rightHighlight: "g" },
-      { leftWord: "game", leftMeaning: "게임 [그]", leftHighlight: "g", rightWord: "gentle", rightMeaning: "부드러운 [쥐]", rightHighlight: "g" }
-    ]
+    id: "vowel_ay",
+    label: "ay 이중모음 [에이]",
+    priority: 88,
+    test: (w) => /ay/.exec(w),
+    titleKr: "'ay'는 웃는 입모양으로 [에이]!",
+    tipKr: "[에이] 소리를 끝까지 또렷하게 유지하면서 발음해 보세요."
   },
   {
-    id: "silent_kn_wr",
-    label: "묵음 kn- / wr-",
-    title_kr: "소리 없는 첫 글자 — kn에서 k는 묵음, wr에서 w는 묵음",
-    mouth_tip_kr: "know, knife는 k를 발음하지 않고 [노우/나이프]로, write, wrong은 w를 떼고 바로 R 소리로 시작해요!",
-    pattern: "kn/wr",
-    regex: /\b(?:kn|wr)/i,
-    contrastPairs: [
-      { leftWord: "know", leftMeaning: "알다", leftHighlight: "kn", rightWord: "now", rightMeaning: "지금", rightHighlight: "n" },
-      { leftWord: "write", leftMeaning: "쓰다", leftHighlight: "wr", rightWord: "right", rightMeaning: "오른쪽", rightHighlight: "r" }
-    ]
+    id: "vowel_ea",
+    label: "ea 모음 팀",
+    priority: 87,
+    test: (w) => /ea/.exec(w),
+    titleKr: "'ea'는 주로 길게 [이:], 때로는 [에]!",
+    tipKr: "입꼬리를 양옆으로 살짝 당겨 길게 [이:] 하는지, 짧게 [에] 하는지 들어 보세요."
   },
   {
-    id: "ph_as_f",
-    label: "ph [f] vs p [p]",
-    title_kr: "ph = F [프] — p와 h가 만나면 입술 바람 F 소리!",
-    mouth_tip_kr: "photo, phone의 ph는 두 입술을 터뜨리는 [ㅍ]가 아니라, 윗니가 아랫입술을 스치는 F 바람 소리예요.",
-    pattern: "ph",
-    regex: /ph/i,
-    contrastPairs: [
-      { leftWord: "phone", leftMeaning: "전화기", leftHighlight: "ph", rightWord: "pond", rightMeaning: "연못", rightHighlight: "p" },
-      { leftWord: "photo", leftMeaning: "사진", leftHighlight: "ph", rightWord: "piano", rightMeaning: "피아노", rightHighlight: "p" }
-    ]
+    id: "vowel_ee",
+    label: "ee 긴 소리 [이:]",
+    priority: 87,
+    test: (w) => /ee/.exec(w),
+    titleKr: "'e'가 둘 모이면 환하게 [이:]!",
+    tipKr: "짧게 [이] 하지 말고 입꼬리를 당겨 길고 맑게 소리 내세요."
+  },
+  {
+    id: "vowel_oo",
+    label: "oo 입술 모음 [우]",
+    priority: 87,
+    test: (w) => /oo/.exec(w),
+    titleKr: "'oo'는 입술을 동그랗게 모아 [우]!",
+    tipKr: "한국어 [우]보다 입술을 훨씬 작고 동그랗게 앞으로 내밀어 보세요."
+  },
+  {
+    id: "vowel_ou",
+    label: "ou 이중모음 [아우]",
+    priority: 88,
+    test: (w) => /ou/.exec(w),
+    titleKr: "'ou'는 입을 크게 벌렸다 모으며 [아우]!",
+    tipKr: "처음에는 [아]로 넓게 열고 끝에는 [우]로 입술을 동그랗게 모아요."
+  },
+  {
+    id: "vowel_ow",
+    label: "ow 모음 [아우 / 오우]",
+    priority: 86,
+    test: (w) => /ow/.exec(w),
+    titleKr: "'ow'는 [아우] 또는 [오우] 소리가 나요!",
+    tipKr: "앞에 따라 입을 크게 여는 [아우]인지, 둥글게 닫는 [오우]인지 귀 기울여 보세요."
+  },
+  {
+    id: "vowel_oa",
+    label: "oa 긴 소리 [오우]",
+    priority: 86,
+    test: (w) => /oa/.exec(w),
+    titleKr: "'oa'는 앞의 'o'가 길게 [오우]!",
+    tipKr: "입술을 둥글게 모아 [오]에서 [우]로 미끄러지듯 소리 내요."
+  },
+  {
+    id: "vowel_oi_oy",
+    label: "oi / oy [오이]",
+    priority: 86,
+    test: (w) => /o[iy]/.exec(w),
+    titleKr: "'oi / oy'는 입술을 둥글렸다가 펴며 [오이]!",
+    tipKr: "둥근 [오]에서 환한 [이]로 자연스럽게 연결해 발음해요."
+  },
+  {
+    id: "vowel_au_aw",
+    label: "au / aw 깊은 [오]",
+    priority: 86,
+    test: (w) => /a[uw]/.exec(w),
+    titleKr: "'au / aw'는 입을 둥글게 벌려 깊은 [오]!",
+    tipKr: "[아]와 [오] 사이에서 턱을 살짝 내리며 길게 소리 내세요."
+  },
+  {
+    id: "vowel_all",
+    label: "al / all 깊은 [올]",
+    priority: 85,
+    test: (w) => /(?:all|al(?=[td]))/.exec(w),
+    titleKr: "'all / al'의 'a'는 둥근 [오]처럼 소리 나요!",
+    tipKr: "입을 옆으로 찢지 말고 둥글게 모아 [오] 소리에 가깝게 시작해요."
+  },
+  {
+    id: "r_vowel_ar",
+    label: "ar 혀를 마는 [아르]",
+    priority: 85,
+    test: (w) => /ar/.exec(w),
+    titleKr: "'ar'은 입을 크게 열고 혀를 뒤로!",
+    tipKr: "[아] 소리를 내면서 혀끝이 입천장에 닿지 않게 살짝 말아 보세요."
+  },
+  {
+    id: "r_vowel_or",
+    label: "or 혀를 마는 [오르]",
+    priority: 85,
+    test: (w) => /or/.exec(w),
+    titleKr: "'or'은 입술을 모으고 혀를 뒤로!",
+    tipKr: "입술을 동그랗게 오므린 채 혀끝만 살짝 들어 올려 소리 내세요."
+  },
+  {
+    id: "r_vowel_er_ir_ur",
+    label: "er / ir / ur [어~]",
+    priority: 84,
+    test: (w) => /[eiu]r/.exec(w),
+    titleKr: "'er / ir / ur'은 힘을 빼고 혀를 말아 [어~]!",
+    tipKr: "세 가지 모양 모두 혀를 살짝 말아 올린 편안한 [어~] 소리가 나요."
+  },
+
+  // 4. Consonant-le & Magic e & Double letters
+  {
+    id: "ending_le",
+    label: "끝의 -le [을]",
+    priority: 82,
+    test: (w) => /[bcdfgkptz]le$/.exec(w),
+    titleKr: "끝의 '-le'는 혀끝을 대며 가볍게 [을]!",
+    tipKr: "뒤의 'e'는 묵음이고 혀끝을 윗니 뒤 잇몸에 살짝 붙이며 마무리해요."
+  },
+  {
+    id: "magic_e",
+    label: "Magic e (끝 묵음 e)",
+    priority: 83,
+    test: (w) => /[aiou][bcdfghjkmnpqrstvwxyz]e$/.exec(w),
+    titleKr: "끝의 'e'가 앞 모음을 길게 바꿔 주는 Magic e!",
+    tipKr: "끝 'e'는 소리를 내지 말고, 앞 모음을 알파벳 이름([에이/아이/오우/유])대로 길게 읽어요."
+  },
+  {
+    id: "double_consonant",
+    label: "쌍자음 한 번에 읽기",
+    priority: 80,
+    test: (w) => /([bcdfghjklmnpqrstvwxz])\1/.exec(w),
+    titleKr: "같은 자음이 둘이어도 소리는 한 번만!",
+    tipKr: "두 번 끊어 읽지 말고 앞 모음은 짧고 힘 있게, 자음은 한 번에 넘어가요."
+  },
+
+  // 5. Key Korean learner consonant contrasts (f/v, r/l, soft c/g, z/j/x)
+  {
+    id: "cons_f",
+    label: "f 입술 스치는 바람",
+    priority: 79,
+    test: (w) => /f/.exec(w),
+    titleKr: "'f'는 [ㅍ]이 아니라 아랫입술 바람 소리!",
+    tipKr: "두 입술을 붙이지 말고, 윗니로 아랫입술을 살짝 대고 '후~' 바람만 불어요."
+  },
+  {
+    id: "cons_v",
+    label: "v 입술 진동 소리",
+    priority: 79,
+    test: (w) => /v/.exec(w),
+    titleKr: "'v'는 아랫입술에 목울림을 얹어요!",
+    tipKr: "윗니로 아랫입술을 살짝 스치면서 [ㅂ] 대신 성대를 '브~' 울려 보세요."
+  },
+  {
+    id: "cons_z",
+    label: "z 벌처럼 [즈~] 진동",
+    priority: 78,
+    test: (w) => /z/.exec(w),
+    titleKr: "'z'는 꿀벌 날갯짓처럼 진동하는 [즈~]!",
+    tipKr: "윗니와 아랫니 사이로 소리를 내며 목이 지잉 울리는지 손으로 느껴 보세요."
+  },
+  {
+    id: "soft_c",
+    label: "soft c = [ㅅ] 소리",
+    priority: 77,
+    test: (w) => /c(?=[eiy])/.exec(w),
+    titleKr: "'c' 뒤에 e, i, y가 오면 [ㅅ] 소리!",
+    tipKr: "[ㅋ]이 아니라 날씬하고 가벼운 [ㅅ] 소리로 소리 내 보세요."
+  },
+  {
+    id: "soft_g",
+    label: "soft g = [ㅈ] 소리",
+    priority: 77,
+    test: (w) => /g(?=[eiy])/.exec(w),
+    titleKr: "'g' 뒤에 e, i, y가 오면 부드러운 [ㅈ]!",
+    tipKr: "[ㄱ]이 아니라 입술을 살짝 내밀며 [ㅈ] 소리로 읽어 봐요."
+  },
+  {
+    id: "cons_x",
+    label: "x = [크스] 두 소리",
+    priority: 76,
+    test: (w) => /x/.exec(w),
+    titleKr: "'x'는 [크]와 [스]가 빠르게 이어져요!",
+    tipKr: "[크스]를 한 박자 안에 또렷하게 붙여서 발음해 보세요."
+  },
+  {
+    id: "cons_r",
+    label: "r 혀가 안 닿는 [ㄹ]",
+    priority: 75,
+    test: (w) => /r/.exec(w),
+    titleKr: "'r'은 혀끝이 입천장에 절대 닿지 않아요!",
+    tipKr: "입술을 살짝 오므리고 혀를 입 가운데에 띄운 채 [우러]처럼 시작해요."
+  },
+  {
+    id: "cons_l",
+    label: "l 혀끝 붙는 맑은 [ㄹ]",
+    priority: 74,
+    test: (w) => /l/.exec(w),
+    titleKr: "'l'은 혀끝을 윗니 뒤 잇몸에 딱!",
+    tipKr: "혀끝을 윗니 바로 뒤 딱딱한 잇몸에 붙였다가 맑게 [ㄹ] 소리 내세요."
+  },
+  {
+    id: "cons_j",
+    label: "j 입술 내미는 [쥐]",
+    priority: 73,
+    test: (w) => /j/.exec(w),
+    titleKr: "'j'는 한국어 [ㅈ]보다 입술을 동그랗게!",
+    tipKr: "입술을 살짝 앞으로 모으고 힘 있게 터뜨려 [쥐]처럼 시작하세요."
+  },
+  {
+    id: "cons_p",
+    label: "p 힘찬 입술 바람 [ㅍ]",
+    priority: 70,
+    test: (w) => /p/.exec(w),
+    titleKr: "'p'는 두 입술을 꼭 다물었다가 '파!' 터뜨려요!",
+    tipKr: "입 앞에 손을 대고 숨바람이 닿을 만큼 또렷하게 터뜨려 보세요."
+  },
+  {
+    id: "cons_b",
+    label: "b 입술 울림 [ㅂ]",
+    priority: 69,
+    test: (w) => /b/.exec(w),
+    titleKr: "'b'는 아랫입술을 깨물지 않고 두 입술로 [ㅂ]!",
+    tipKr: "'v'와 달리 두 입술을 다물었다가 목을 울리며 떼세요."
+  },
+  {
+    id: "cons_end_t_d",
+    label: "끝소리 [트 / 드]",
+    priority: 64,
+    test: (w) => /[td]$/.exec(w),
+    titleKr: "단어 끝 't / d'는 아주 가볍게!",
+    tipKr: "끝에 [트으] 하고 모음을 붙이지 말고 혀끝으로 공기만 살짝 멈춰 주세요."
+  },
+  {
+    id: "short_vowel_fallback",
+    label: "짧고 또렷한 모음",
+    priority: 50,
+    test: (w) => /[aeiouy]/.exec(w),
+    titleKr: "첫 모음의 입모양을 또렷하게 잡아요!",
+    tipKr: "입 모양을 뭉개지 말고 첫 모음을 분명하게 열어 소리 내 보세요."
   }
 ];
 
-function scoreAndExtractWords(rule, wordsList, weight) {
-  let score = 0;
-  const matched = [];
-  for (const w of wordsList) {
-    const str = String(w.word || "").trim();
-    if (!str) continue;
-    const m = str.match(rule.regex);
-    if (m) {
-      score += weight;
-      matched.push({
-        word: str,
-        meaning_kr: w.meaning_kr || "",
-        matchStart: m.index ?? 0,
-        matchEnd: (m.index ?? 0) + m[0].length
-      });
-    }
-  }
-  return { score, matched };
+function normalizeCandidateWord(wordObj) {
+  if (!wordObj || typeof wordObj !== "object") return null;
+  const word = String(wordObj.word || wordObj.derived_word || "").trim();
+  const meaningKr = String(wordObj.meaning_kr || wordObj.meaningKr || wordObj.derived_meaning_kr || "").trim();
+  if (!word || !meaningKr) return null;
+  const id = String(wordObj.id || word.toLowerCase());
+  const imageUrl = wordObj.image_url || wordObj.imageUrl || null;
+  return { id, word, meaningKr, imageUrl };
 }
 
-/**
- * Selects 2-3 high-yield confusing pronunciation lessons tailored to today's studied words.
- */
-function selectPronunciationFocusItems({
-  unitWords = [],
-  quizWords = [],
-  wrongWords = [],
-  maxItems = 3
-}) {
-  const scored = PRONUNCIATION_RULES.map((rule) => {
-    const wHit = scoreAndExtractWords(rule, wrongWords, 5);
-    const qHit = scoreAndExtractWords(rule, quizWords, 2);
-    const uHit = scoreAndExtractWords(rule, unitWords, 1);
-    const totalScore = wHit.score + qHit.score + Math.min(4, uHit.score);
+function analyzeWordPronunciationPoint(wordObj) {
+  const clean = normalizeCandidateWord(wordObj) || {
+    id: String(wordObj?.id || wordObj?.word || "w"),
+    word: String(wordObj?.word || "").trim() || "word",
+    meaningKr: String(wordObj?.meaning_kr || wordObj?.meaningKr || "").trim(),
+    imageUrl: wordObj?.image_url || wordObj?.imageUrl || null
+  };
 
-    const dedupMap = new Map();
-    for (const item of [...wHit.matched, ...qHit.matched, ...uHit.matched]) {
-      if (!dedupMap.has(item.word)) dedupMap.set(item.word, item);
-      if (dedupMap.size >= 3) break;
+  const rawWord = clean.word;
+  const lower = rawWord.toLowerCase();
+
+  let bestRule = null;
+  let bestMatch = null;
+  let bestScore = -1;
+
+  for (const rule of PHONICS_WORD_RULES) {
+    const match = rule.test(lower);
+    if (!match) continue;
+    // Prefer rules with higher priority; break ties earlier in the word for visibility
+    const score = rule.priority * 10 - match.index * 0.05;
+    if (score > bestScore) {
+      bestScore = score;
+      bestRule = rule;
+      bestMatch = match;
     }
+  }
 
-    return {
-      rule,
-      score: totalScore,
-      matchedTodayWords: Array.from(dedupMap.values())
-    };
+  let matchStart = 0;
+  let matchEnd = Math.min(rawWord.length, 2);
+  if (bestMatch && typeof bestMatch.index === "number") {
+    matchStart = bestMatch.index;
+    matchEnd = Math.min(rawWord.length, bestMatch.index + Math.max(1, bestMatch[0].length));
+  } else {
+    bestRule = PHONICS_WORD_RULES[PHONICS_WORD_RULES.length - 1];
+    matchStart = 0;
+    matchEnd = Math.min(rawWord.length, 1);
+  }
+
+  const focusText = rawWord.slice(matchStart, matchEnd) || rawWord.slice(0, 1);
+
+  return {
+    wordId: clean.id,
+    word: rawWord,
+    meaningKr: clean.meaningKr,
+    imageUrl: clean.imageUrl,
+    ruleId: bestRule.id,
+    phonicsLabel: bestRule.label,
+    focusText,
+    matchStart,
+    matchEnd,
+    titleKr: bestRule.titleKr,
+    mouthTipKr: bestRule.tipKr,
+    priority: bestRule.priority
+  };
+}
+
+function deterministicHash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i += 1) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function buildSameUnitListenOptions(targetItem, allAnalyzedPool) {
+  const targetLower = targetItem.word.toLowerCase();
+  const candidates = allAnalyzedPool.filter((c) => c.word.toLowerCase() !== targetLower);
+
+  // Score distractors strictly within the same unit:
+  // favor same opening letter + close length + contrasting rule so listening discrimination is meaningful
+  const scored = candidates.map((cand) => {
+    const cLower = cand.word.toLowerCase();
+    let score = 0;
+    if (cLower[0] === targetLower[0]) score += 30;
+    if (cLower.slice(0, 2) === targetLower.slice(0, 2)) score += 25;
+    if (cand.ruleId !== targetItem.ruleId) score += 20;
+    const lenDiff = Math.abs(cLower.length - targetLower.length);
+    score += Math.max(0, 15 - lenDiff * 4);
+    // Tiny deterministic tiebreaker
+    score += (deterministicHash(`${targetLower}:${cLower}`) % 7);
+    return { cand, score };
   });
 
   scored.sort((a, b) => b.score - a.score);
-  const picked = scored.filter((item) => item.score > 0).slice(0, maxItems);
+  const distractorCount = Math.min(2, scored.length);
+  const chosenDistractors = scored.slice(0, distractorCount).map((s) => s.cand);
 
-  // Guarantee at least 2 helpful starter checkpoints if a tiny unit had few regex hits
-  if (picked.length < 2) {
-    const pickedIds = new Set(picked.map((p) => p.rule.id));
-    for (const fallbackId of ["l_vs_r", "f_vs_p", "s_vs_sh"]) {
-      if (picked.length >= Math.min(2, maxItems)) break;
-      if (pickedIds.has(fallbackId)) continue;
-      const entry = scored.find((s) => s.rule.id === fallbackId);
-      if (entry) {
-        picked.push(entry);
-        pickedIds.add(fallbackId);
+  const rawOptions = [targetItem, ...chosenDistractors].map((entry) => ({
+    wordId: entry.wordId,
+    word: entry.word,
+    meaningKr: entry.meaningKr,
+    phonicsLabel: entry.phonicsLabel,
+    focusText: entry.focusText,
+    matchStart: entry.matchStart,
+    matchEnd: entry.matchEnd,
+    isCorrect: entry.word.toLowerCase() === targetLower
+  }));
+
+  // Deterministic order rotation/shuffle per target word so correct choice isn't always first
+  const seed = deterministicHash(targetLower);
+  const shuffled = [...rawOptions];
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = (seed + i * 31) % (i + 1);
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function buildDay1ListenSession({
+  unitWords = [],
+  quizWords = [],
+  wrongWords = [],
+  practicedWordIds = [],
+  maxWords = 6
+}) {
+  // Deduplicate current unit words strictly
+  const seenWords = new Set();
+  const cleanPool = [];
+  for (const w of unitWords || []) {
+    const norm = normalizeCandidateWord(w);
+    if (!norm) continue;
+    const key = norm.word.toLowerCase();
+    if (seenWords.has(key)) continue;
+    seenWords.add(key);
+    cleanPool.push(norm);
+  }
+
+  if (cleanPool.length === 0) {
+    return { mode: "day1_listen", items: [] };
+  }
+
+  const analyzedPool = cleanPool.map((w) => analyzeWordPronunciationPoint(w));
+  const targetCount = Math.min(analyzedPool.length, Math.max(1, Number(maxWords) || 6));
+
+  const wrongSet = new Set(
+    (wrongWords || []).map((w) => String(typeof w === "string" ? w : w?.id || w?.word || "").toLowerCase())
+  );
+  const quizSet = new Set(
+    (quizWords || []).map((w) => String(typeof w === "string" ? w : w?.id || w?.word || "").toLowerCase())
+  );
+  const practicedSet = new Set((practicedWordIds || []).map((id) => String(id).toLowerCase()));
+
+  const isInSet = (item, set) =>
+    set.has(String(item.wordId).toLowerCase()) || set.has(item.word.toLowerCase());
+
+  const remaining = [...analyzedPool];
+  const chosen = [];
+  const ruleCounts = Object.create(null);
+
+  while (chosen.length < targetCount && remaining.length > 0) {
+    let bestIdx = 0;
+    let bestScore = -Infinity;
+
+    for (let i = 0; i < remaining.length; i += 1) {
+      const item = remaining[i];
+      let score = item.priority;
+      if (isInSet(item, wrongSet)) score += 1000;
+      if (!isInSet(item, practicedSet)) score += 400;
+      if (isInSet(item, quizSet)) score += 200;
+      const repeatPenalty = (ruleCounts[item.ruleId] || 0) * 120;
+      score -= repeatPenalty;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestIdx = i;
       }
+    }
+
+    const picked = remaining.splice(bestIdx, 1)[0];
+    ruleCounts[picked.ruleId] = (ruleCounts[picked.ruleId] || 0) + 1;
+    chosen.push(picked);
+  }
+
+  const items = chosen.map((item) => ({
+    ...item,
+    listenPromptKr: `오늘 배운 단어 소리를 잘 듣고, "${item.focusText}" (${item.phonicsLabel}) 소리가 정확히 들리는 단어를 골라보세요!`,
+    listenOptions: buildSameUnitListenOptions(item, analyzedPool)
+  }));
+
+  return {
+    mode: "day1_listen",
+    items
+  };
+}
+
+function buildDay2SpeakSession(pendingWords = [], unitWords = []) {
+  const unitLookup = new Map();
+  for (const u of unitWords || []) {
+    const norm = normalizeCandidateWord(u);
+    if (norm) {
+      unitLookup.set(norm.id.toLowerCase(), norm);
+      unitLookup.set(norm.word.toLowerCase(), norm);
     }
   }
 
-  return picked.map(({ rule, matchedTodayWords }) => {
-    const pairIdx = Math.floor(Math.random() * rule.contrastPairs.length);
-    const pair = rule.contrastPairs[pairIdx] || rule.contrastPairs[0];
-    const correctSide = Math.random() < 0.5 ? "left" : "right";
-    const audioWord = correctSide === "left" ? pair.leftWord : pair.rightWord;
+  const seen = new Set();
+  const items = [];
 
-    return {
-      ruleId: rule.id,
-      label: rule.label,
-      titleKr: rule.title_kr,
-      mouthTipKr: rule.mouth_tip_kr,
-      matchedTodayWords,
-      pair,
-      earQuiz: {
-        promptKr: "포포가 들려주는 단어를 잘 듣고, 알맞은 단어를 골라보세요!",
-        audioWord,
-        correctSide,
-        leftOption: pair.leftWord,
-        rightOption: pair.rightWord
-      }
+  for (const raw of pendingWords || []) {
+    const rawId = String(raw?.wordId || raw?.id || "").toLowerCase();
+    const rawWordLower = String(raw?.word || "").toLowerCase();
+    const matched = unitLookup.get(rawId) || unitLookup.get(rawWordLower);
+    const merged = {
+      id: raw?.wordId || raw?.id || matched?.id || rawWordLower,
+      word: raw?.word || matched?.word || "",
+      meaning_kr: raw?.meaningKr || raw?.meaning_kr || matched?.meaningKr || "",
+      image_url: raw?.imageUrl || raw?.image_url || matched?.imageUrl || null
     };
-  });
+    const analyzed = analyzeWordPronunciationPoint(merged);
+    if (!analyzed.word || seen.has(analyzed.word.toLowerCase())) continue;
+    seen.add(analyzed.word.toLowerCase());
+    items.push({
+      ...analyzed,
+      speakPromptKr: `어제 콕콕 짚어본 "${analyzed.phonicsLabel}" 포인트를 떠올리며, 이번엔 직접 소리 내어 발음해 볼까요?`
+    });
+  }
+
+  return {
+    mode: "day2_speak",
+    items
+  };
 }
 
 module.exports = {
-  PRONUNCIATION_RULES,
-  selectPronunciationFocusItems
+  PHONICS_WORD_RULES,
+  analyzeWordPronunciationPoint,
+  buildDay1ListenSession,
+  buildDay2SpeakSession
 };

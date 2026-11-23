@@ -248,6 +248,7 @@ function initSqliteDatabase() {
       current_s3_unit TEXT NOT NULL DEFAULT 's3_pre_un',
       completed_s3_units_json TEXT NOT NULL DEFAULT '[]',
       pronunciation_done_date TEXT,
+      pronunciation_cycle_json TEXT NOT NULL DEFAULT '{}',
       updated_at TEXT NOT NULL
     );
 
@@ -310,7 +311,8 @@ function initSqliteDatabase() {
     "ALTER TABLE vocab_bank ADD COLUMN image_url TEXT",
     "ALTER TABLE vocab_bank ADD COLUMN is_abstract INTEGER NOT NULL DEFAULT 0",
     "ALTER TABLE student_vocab_progress ADD COLUMN s1_quiz_mode TEXT NOT NULL DEFAULT 'meaning'",
-    "ALTER TABLE student_vocab_progress ADD COLUMN pronunciation_done_date TEXT"
+    "ALTER TABLE student_vocab_progress ADD COLUMN pronunciation_done_date TEXT",
+    "ALTER TABLE student_vocab_progress ADD COLUMN pronunciation_cycle_json TEXT NOT NULL DEFAULT '{}'"
   ];
   for (const sql of alterStmts) {
     try {

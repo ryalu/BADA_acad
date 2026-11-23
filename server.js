@@ -43,6 +43,7 @@ const {
 } = require("./db");
 const {
   evaluatePopoSpeech,
+  evaluateWordPronunciationWithAI,
   generateTeacherQuestions,
   generateParentFeedbackMessage
 } = require("./ai-engine");
@@ -437,6 +438,7 @@ const server = http.createServer(async (req, res) => {
           stage: Number(body.stage) || 1,
           unitKey: String(body.unitKey || "A").trim(),
           tier: body.tier ? String(body.tier).trim() : undefined,
+          forceMode: body.forceMode ? String(body.forceMode).trim() : undefined,
           quizWordIds: Array.isArray(body.quizWordIds) ? body.quizWordIds : [],
           wrongWordIds: Array.isArray(body.wrongWordIds) ? body.wrongWordIds : []
         });
@@ -446,10 +448,33 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
+    if (pathname === "/api/vocab/pronunciation-eval" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req, 4 * 1024 * 1024);
+        const result = await evaluateWordPronunciationWithAI({
+          targetWord: String(body.targetWord || "").trim(),
+          phonicsLabel: String(body.phonicsLabel || "").trim(),
+          mouthTipKr: String(body.mouthTipKr || "").trim(),
+          audioDataUrl: String(body.audioDataUrl || ""),
+          attemptNumber: Number(body.attemptNumber) || 1
+        });
+        return sendJson(res, 200, result);
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
     if (pathname === "/api/vocab/pronunciation-complete" && req.method === "POST") {
       try {
         const body = await parseJsonBody(req);
-        const state = await completePronunciationFocusToday(String(body.userId || "").trim());
+        const state = await completePronunciationFocusToday({
+          userId: String(body.userId || "").trim(),
+          completedMode: body.completedMode ? String(body.completedMode).trim() : "day1_listen",
+          stage: body.stage ? Number(body.stage) : undefined,
+          unitKey: body.unitKey ? String(body.unitKey).trim() : undefined,
+          tier: body.tier ? String(body.tier).trim() : undefined,
+          words: Array.isArray(body.words) ? body.words : []
+        });
         return sendJson(res, 200, { ok: true, ...state });
       } catch (err) {
         return sendJson(res, 400, { ok: false, error: err.message });

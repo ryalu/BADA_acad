@@ -183,6 +183,7 @@ CREATE TABLE IF NOT EXISTS student_vocab_progress (
   current_s3_unit VARCHAR(60) NOT NULL DEFAULT 's3_pre_un',
   completed_s3_units_json JSONB NOT NULL DEFAULT '[]'::jsonb,
   pronunciation_done_date VARCHAR(20),
+  pronunciation_cycle_json JSONB NOT NULL DEFAULT '{}'::jsonb,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -190,6 +191,7 @@ ALTER TABLE vocab_bank ADD COLUMN IF NOT EXISTS image_url TEXT;
 ALTER TABLE vocab_bank ADD COLUMN IF NOT EXISTS is_abstract BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE student_vocab_progress ADD COLUMN IF NOT EXISTS s1_quiz_mode VARCHAR(20) NOT NULL DEFAULT 'meaning';
 ALTER TABLE student_vocab_progress ADD COLUMN IF NOT EXISTS pronunciation_done_date VARCHAR(20);
+ALTER TABLE student_vocab_progress ADD COLUMN IF NOT EXISTS pronunciation_cycle_json JSONB NOT NULL DEFAULT '{}'::jsonb;
 
 CREATE TABLE IF NOT EXISTS student_vocab_attempts (
   id VARCHAR(100) PRIMARY KEY,
