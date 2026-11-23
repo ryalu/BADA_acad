@@ -198,6 +198,8 @@ function initSqliteDatabase() {
       mh_no INTEGER,
       elem_unit_key TEXT,
       mh_unit_key TEXT,
+      image_url TEXT,
+      is_abstract INTEGER NOT NULL DEFAULT 0,
       phonics_spans_json TEXT NOT NULL DEFAULT '[]',
       phonics_unit_ids_json TEXT NOT NULL DEFAULT '[]'
     );
@@ -234,6 +236,7 @@ function initSqliteDatabase() {
     CREATE TABLE IF NOT EXISTS student_vocab_progress (
       user_id TEXT PRIMARY KEY,
       vocab_tier TEXT NOT NULL DEFAULT 'all',
+      s1_quiz_mode TEXT NOT NULL DEFAULT 'meaning',
       current_stage INTEGER NOT NULL DEFAULT 1,
       current_unit_key TEXT NOT NULL DEFAULT 'A',
       unit_started_at TEXT NOT NULL,
@@ -244,6 +247,7 @@ function initSqliteDatabase() {
       completed_s2_units_json TEXT NOT NULL DEFAULT '[]',
       current_s3_unit TEXT NOT NULL DEFAULT 's3_pre_un',
       completed_s3_units_json TEXT NOT NULL DEFAULT '[]',
+      pronunciation_done_date TEXT,
       updated_at TEXT NOT NULL
     );
 
@@ -302,7 +306,11 @@ function initSqliteDatabase() {
     "ALTER TABLE vocab_chunks ADD COLUMN sentence_translations_json TEXT DEFAULT '[]'",
     "ALTER TABLE vocab_chunks ADD COLUMN speaking_questions_json TEXT DEFAULT '[]'",
     "ALTER TABLE vocab_chunks ADD COLUMN page_illustrations_json TEXT DEFAULT '[]'",
-    "ALTER TABLE vocab_chunks ADD COLUMN worksheets_json TEXT DEFAULT '{}'"
+    "ALTER TABLE vocab_chunks ADD COLUMN worksheets_json TEXT DEFAULT '{}'",
+    "ALTER TABLE vocab_bank ADD COLUMN image_url TEXT",
+    "ALTER TABLE vocab_bank ADD COLUMN is_abstract INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE student_vocab_progress ADD COLUMN s1_quiz_mode TEXT NOT NULL DEFAULT 'meaning'",
+    "ALTER TABLE student_vocab_progress ADD COLUMN pronunciation_done_date TEXT"
   ];
   for (const sql of alterStmts) {
     try {

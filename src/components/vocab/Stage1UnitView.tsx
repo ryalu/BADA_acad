@@ -21,6 +21,7 @@ import type {
 import { playSoftTone, speakEnglish } from "../../utils/speech";
 import { OceanProgressGauge } from "./OceanProgressGauge";
 import { PhonicsWordDisplay } from "./PhonicsWordDisplay";
+import { PronunciationFocusView } from "./PronunciationFocusView";
 
 interface Stage1UnitViewProps {
   userId: string;
@@ -30,7 +31,7 @@ interface Stage1UnitViewProps {
   onBackHome: () => void;
 }
 
-type Stage1Mode = "study" | "daily_quiz" | "final_test";
+type Stage1Mode = "study" | "daily_quiz" | "final_test" | "pronunciation";
 
 export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
   userId,
@@ -40,8 +41,9 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
   onBackHome
 }) => {
   const { progress, daysElapsed, monthReady, todayKst } = state;
+  const activeTier = progress.vocab_tier || "all";
   const activeUnitKey = progress.current_unit_key || "A";
-  const storageKey = `bada_vocab_seen_${userId}_${todayKst}_s1_${activeUnitKey}`;
+  const storageKey = `bada_vocab_seen_${userId}_${todayKst}_s1_${activeTier}_${activeUnitKey}`;
 
   const [unitMeta, setUnitMeta] = useState<VocabUnit | null>(null);
   const [words, setWords] = useState<VocabWord[]>([]);
@@ -97,7 +99,7 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
       setLoadingUnit(true);
       try {
         const res = await fetch(
-          `/api/vocab/unit?stage=1&unitKey=${encodeURIComponent(activeUnitKey)}`
+          `/api/vocab/unit?stage=1&tier=${encodeURIComponent(activeTier)}&unitKey=${encodeURIComponent(activeUnitKey)}`
         );
         if (!res.ok) return;
         const data = await res.json();
@@ -116,16 +118,7 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
     return () => {
       active = false;
     };
-  }, [activeUnitKey]);
-
-  // Auto-return to Student Home 2.2s after a spotless Daily Quiz
-  useEffect(() => {
-    if (!attemptResult || mode !== "daily_quiz" || wrongWords.length > 0) return;
-    const timer = window.setTimeout(() => {
-      onBackHome();
-    }, 2200);
-    return () => window.clearTimeout(timer);
-  }, [attemptResult, mode, wrongWords.length, onBackHome]);
+  }, [activeTier, activeUnitKey]);
 
   const activeWord = words[wordIdx] || words[0];
   const seenSet = new Set(seenIds);
@@ -204,9 +197,11 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
+          tier: activeTier,
           stage: 1,
           unitKey: activeUnitKey,
-          attemptType
+          attemptType,
+          quizMode: progress.s1_quiz_mode || "meaning"
         })
       });
       const data = await res.json();
@@ -239,7 +234,8 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
     const q = quizQuestions[quizIdx];
     if (!q) return;
 
-    const isRight = opt === q.correctMeaning;
+    const expectedAnswer = q.correctAnswer || q.correctMeaning;
+    const isRight = opt === expectedAnswer;
     setSelectedOption(opt);
     const nextCorrect = isRight ? correctCount + 1 : correctCount;
     const nextWrong = isRight ? wrongWords : [...wrongWords, q];
@@ -267,6 +263,7 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userId,
+            tier: activeTier,
             stage: 1,
             unitKey: activeUnitKey,
             attemptType,
@@ -325,6 +322,21 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
           <div className="py-12 text-center text-sm font-bold text-slate-500">단어를 불러오는 중...</div>
         ) : activeWord ? (
           <div className="space-y-6">
+            {state.todayQuizAttempted && !state.todayPronunciationDone && (
+              <button
+                type="button"
+                onClick={() => setMode("pronunciation")}
+                className="max-w-4xl mx-auto w-full card-clear-glass rounded-2xl px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 text-left hover:bg-white/55 transition cursor-pointer"
+              >
+                <span className="text-sm font-extrabold text-sky-900">
+                  오늘 퀴즈는 완료했어요! 마지막 &apos;헷갈리는 발음 콕콕&apos;만 끝내면 탐험 완료 도장이 찍혀요.
+                </span>
+                <span className="shrink-0 inline-flex items-center gap-1 px-4 py-1.5 rounded-full btn-water-glass text-xs font-extrabold">
+                  발음 학습하기 <ArrowRight className="w-3.5 h-3.5" />
+                </span>
+              </button>
+            )}
+
             <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-center gap-6">
               <OceanProgressGauge
                 seenCount={validSeenCount}
@@ -338,22 +350,43 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
                     <span>
                       {wordIdx + 1} / {words.length}
                     </span>
-                    {seenSet.has(activeWord.id) ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100/70 border border-emerald-300/70 text-emerald-800">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        확인 완료
-                      </span>
-                    ) : (
-                      <span className="px-2.5 py-0.5 rounded-full bg-white/50 border border-white/80 text-slate-600">
-                        미확인
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      {activeWord.image_url && (
+                        <span className="px-2.5 py-0.5 rounded-full bg-white/50 border border-white/80 text-slate-600">
+                          {activeWord.is_abstract ? "상황 만화" : "그림 단어"}
+                        </span>
+                      )}
+                      {seenSet.has(activeWord.id) ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100/70 border border-emerald-300/70 text-emerald-800">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          확인 완료
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-0.5 rounded-full bg-white/50 border border-white/80 text-slate-600">
+                          미확인
+                        </span>
+                      )}
+                    </div>
                   </div>
+
+                  {activeWord.image_url && (
+                    <button
+                      type="button"
+                      onClick={revealCurrentWord}
+                      className="block mx-auto focus:outline-none cursor-pointer"
+                    >
+                      <img
+                        src={activeWord.image_url}
+                        alt={activeWord.word}
+                        className="w-44 h-44 sm:w-52 sm:h-52 rounded-2xl object-cover border-2 border-white/85 shadow-md mx-auto bg-white/60"
+                      />
+                    </button>
+                  )}
 
                   <button
                     type="button"
                     onClick={revealCurrentWord}
-                    className="w-full py-3 focus:outline-none cursor-pointer"
+                    className="w-full py-2 focus:outline-none cursor-pointer"
                   >
                     <PhonicsWordDisplay word={activeWord.word} mode="initial" size="lg" />
                   </button>
@@ -501,11 +534,20 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
                                   : "btn-clear-glass"
                             }`}
                           >
-                            <div className="flex items-center justify-between gap-1">
-                              <span className="storybook-font text-base font-extrabold text-slate-900 truncate">
-                                <span className="text-sky-700">{w.word.slice(0, 1)}</span>
-                                {w.word.slice(1)}
-                              </span>
+                            <div className="flex items-center justify-between gap-1.5">
+                              <div className="flex items-center gap-2 min-w-0">
+                                {w.image_url && (
+                                  <img
+                                    src={w.image_url}
+                                    alt=""
+                                    className="w-8 h-8 rounded-lg object-cover border border-white/80 shrink-0"
+                                  />
+                                )}
+                                <span className="storybook-font text-base font-extrabold text-slate-900 truncate">
+                                  <span className="text-sky-700">{w.word.slice(0, 1)}</span>
+                                  {w.word.slice(1)}
+                                </span>
+                              </div>
                               {isChecked && (
                                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                               )}
@@ -592,9 +634,11 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
                     : attemptResult.passed
                       ? "80% 이상 통과! 다음 알파벳이 열렸어요."
                       : "아쉽지만 80% 미만이에요. 한 달 더 복습하고 다시 도전해요!"
-                  : wrongWords.length === 0
-                    ? "오늘의 10단어 퀴즈 완료! 잠시 후 학습 맵으로 돌아갑니다."
-                    : "오늘의 퀴즈를 완료했어요! 아래 틀린 단어만 한 번 눌러 소리를 들어보세요."}
+                  : !state.todayPronunciationDone
+                    ? "퀴즈 완료! 이제 마지막 '헷갈리는 발음 콕콕'을 마치면 탐험 완료 도장이 찍힙니다."
+                    : wrongWords.length === 0
+                      ? "오늘의 10단어 퀴즈를 모두 맞혔어요!"
+                      : "오늘의 퀴즈를 완료했어요! 아래 틀린 단어를 눌러 소리를 확인해 보세요."}
               </p>
             </div>
 
@@ -621,7 +665,16 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
             )}
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              {mode === "daily_quiz" ? (
+              {!state.todayPronunciationDone ? (
+                <button
+                  type="button"
+                  onClick={() => setMode("pronunciation")}
+                  className="px-7 py-3 rounded-full btn-water-glass text-sm font-extrabold inline-flex items-center gap-2"
+                >
+                  필수 마무리 · 헷갈리는 발음 학습하기
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : mode === "daily_quiz" ? (
                 <button
                   type="button"
                   onClick={onBackHome}
@@ -664,62 +717,106 @@ export const Stage1UnitView: React.FC<Stage1UnitViewProps> = ({
             </div>
           </div>
         ) : quizQuestions[quizIdx] ? (
-          <div className="max-w-xl mx-auto space-y-5">
-            <div className="card-clear-glass rounded-3xl p-6 md:p-8 text-center space-y-4">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                <span>
-                  {mode === "final_test" ? "파이널 테스트" : "오늘의 퀴즈"} · {quizIdx + 1} /{" "}
-                  {quizQuestions.length}
-                </span>
-                <span className="text-slate-700">맞힌 개수 {correctCount}</span>
-              </div>
+          (() => {
+            const q = quizQuestions[quizIdx];
+            const isPictureQuiz = q.questionType === "picture_to_word" && Boolean(q.imageUrl);
+            const expectedAnswer = q.correctAnswer || q.correctMeaning;
 
-              <div className="py-2">
-                <PhonicsWordDisplay word={quizQuestions[quizIdx].word} mode="initial" size="lg" />
-              </div>
+            return (
+              <div className="max-w-xl mx-auto space-y-5">
+                <div className="card-clear-glass rounded-3xl p-6 md:p-8 text-center space-y-4">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+                    <span>
+                      {mode === "final_test" ? "파이널 테스트" : "오늘의 퀴즈"} · {quizIdx + 1} /{" "}
+                      {quizQuestions.length}
+                    </span>
+                    <span className="text-slate-700">맞힌 개수 {correctCount}</span>
+                  </div>
 
-              <button
-                type="button"
-                onClick={() => speakEnglish(quizQuestions[quizIdx].word, 0.85, 1.04)}
-                className="btn-clear-glass inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold"
-              >
-                <Volume2 className="w-3.5 h-3.5 text-slate-700" />
-                발음 듣기
-              </button>
-            </div>
+                  {isPictureQuiz ? (
+                    <div className="space-y-3">
+                      <div className="text-xs font-extrabold text-sky-900">
+                        그림과 소리를 듣고 알맞은 영단어를 골라보세요!
+                      </div>
+                      <img
+                        src={q.imageUrl || ""}
+                        alt="퀴즈 그림"
+                        className="w-48 h-48 sm:w-56 sm:h-56 rounded-2xl object-cover border-2 border-white/90 shadow-md mx-auto bg-white/60"
+                      />
+                      {selectedOption && (
+                        <div className="text-base font-extrabold text-slate-900">
+                          <span className="storybook-font text-xl text-sky-900">{q.word}</span>
+                          <span className="ml-2 text-sm text-slate-600">({q.correctMeaning})</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="py-2">
+                      <PhonicsWordDisplay word={q.word} mode="initial" size="lg" />
+                    </div>
+                  )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {quizQuestions[quizIdx].options.map((opt) => {
-                const q = quizQuestions[quizIdx];
-                const isPicked = selectedOption === opt;
-                const isCorrect = opt === q.correctMeaning;
-                let style = "btn-clear-glass";
-                if (selectedOption) {
-                  if (isCorrect) {
-                    style = "bg-emerald-100/75 border-2 border-emerald-500 text-emerald-950 backdrop-blur-md";
-                  } else if (isPicked) {
-                    style = "bg-rose-100/75 border-2 border-rose-500 text-rose-950 backdrop-blur-md";
-                  } else {
-                    style = "bg-white/25 border border-white/50 text-slate-400 backdrop-blur-sm";
-                  }
-                }
-                return (
                   <button
-                    key={opt}
                     type="button"
-                    disabled={Boolean(selectedOption) || submitting}
-                    onClick={() => handleChooseOption(opt)}
-                    className={`p-4 rounded-2xl text-base font-extrabold transition ${style}`}
+                    onClick={() => speakEnglish(q.word, 0.85, 1.04)}
+                    className="btn-clear-glass inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold"
                   >
-                    {opt}
+                    <Volume2 className="w-3.5 h-3.5 text-slate-700" />
+                    {isPictureQuiz ? "발음 다시 듣기" : "발음 듣기"}
                   </button>
-                );
-              })}
-            </div>
-          </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {q.options.map((opt) => {
+                    const isPicked = selectedOption === opt;
+                    const isCorrect = opt === expectedAnswer;
+                    let style = "btn-clear-glass";
+                    if (selectedOption) {
+                      if (isCorrect) {
+                        style = "bg-emerald-100/75 border-2 border-emerald-500 text-emerald-950 backdrop-blur-md";
+                      } else if (isPicked) {
+                        style = "bg-rose-100/75 border-2 border-rose-500 text-rose-950 backdrop-blur-md";
+                      } else {
+                        style = "bg-white/25 border border-white/50 text-slate-400 backdrop-blur-sm";
+                      }
+                    }
+                    return (
+                      <button
+                        key={opt}
+                        type="button"
+                        disabled={Boolean(selectedOption) || submitting}
+                        onClick={() => handleChooseOption(opt)}
+                        className={`p-4 rounded-2xl font-extrabold transition ${
+                          isPictureQuiz ? "storybook-font text-xl" : "text-base"
+                        } ${style}`}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()
         ) : (
           <div className="py-10 text-center text-sm text-slate-500">문제를 불러오지 못했습니다.</div>
         )
+      )}
+
+      {/* Mode 4: Mandatory Confusing Pronunciation Focus */}
+      {mode === "pronunciation" && (
+        <PronunciationFocusView
+          userId={userId}
+          stage={1}
+          unitKey={activeUnitKey}
+          tier={activeTier}
+          quizWordIds={quizQuestions.map((q) => q.wordId)}
+          wrongWordIds={wrongWords.map((w) => w.wordId)}
+          onComplete={(nextState) => {
+            onStateChange(nextState);
+            onBackHome();
+          }}
+        />
       )}
     </div>
   );

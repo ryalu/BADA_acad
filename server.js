@@ -37,7 +37,9 @@ const {
   getVocabUnitContent,
   buildVocabQuiz,
   submitVocabAttempt,
-  updateStudentVocabSettings
+  updateStudentVocabSettings,
+  getPronunciationFocusForStudent,
+  completePronunciationFocusToday
 } = require("./db");
 const {
   evaluatePopoSpeech,
@@ -371,7 +373,7 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === "/api/vocab/unit" && req.method === "GET") {
       try {
-        const tier = String(urlObj.searchParams.get("tier") || "elem_800").trim();
+        const tier = String(urlObj.searchParams.get("tier") || "all").trim();
         const stage = Number(urlObj.searchParams.get("stage")) || 1;
         const unitKey = String(urlObj.searchParams.get("unitKey") || "A").trim();
         const content = await getVocabUnitContent({ tier, stage, unitKey });
@@ -386,10 +388,11 @@ const server = http.createServer(async (req, res) => {
         const body = await parseJsonBody(req);
         const quiz = await buildVocabQuiz({
           userId: String(body.userId || "").trim(),
-          tier: String(body.tier || "elem_800").trim(),
+          tier: body.tier ? String(body.tier).trim() : undefined,
           stage: Number(body.stage) || 1,
           unitKey: String(body.unitKey || "A").trim(),
-          attemptType: body.attemptType === "final_test" ? "final_test" : "daily_quiz"
+          attemptType: body.attemptType === "final_test" ? "final_test" : "daily_quiz",
+          quizMode: body.quizMode ? String(body.quizMode).trim() : undefined
         });
         return sendJson(res, 200, { ok: true, ...quiz });
       } catch (err) {
@@ -402,7 +405,7 @@ const server = http.createServer(async (req, res) => {
         const body = await parseJsonBody(req);
         const result = await submitVocabAttempt({
           userId: String(body.userId || "").trim(),
-          tier: String(body.tier || "elem_800").trim(),
+          tier: body.tier ? String(body.tier).trim() : undefined,
           stage: Number(body.stage) || 1,
           unitKey: String(body.unitKey || "A").trim(),
           attemptType: body.attemptType === "final_test" ? "final_test" : "daily_quiz",
@@ -420,6 +423,33 @@ const server = http.createServer(async (req, res) => {
       try {
         const body = await parseJsonBody(req);
         const state = await updateStudentVocabSettings(body);
+        return sendJson(res, 200, { ok: true, ...state });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/vocab/pronunciation-focus" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const focus = await getPronunciationFocusForStudent({
+          userId: String(body.userId || "").trim(),
+          stage: Number(body.stage) || 1,
+          unitKey: String(body.unitKey || "A").trim(),
+          tier: body.tier ? String(body.tier).trim() : undefined,
+          quizWordIds: Array.isArray(body.quizWordIds) ? body.quizWordIds : [],
+          wrongWordIds: Array.isArray(body.wrongWordIds) ? body.wrongWordIds : []
+        });
+        return sendJson(res, 200, { ok: true, ...focus });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/vocab/pronunciation-complete" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const state = await completePronunciationFocusToday(String(body.userId || "").trim());
         return sendJson(res, 200, { ok: true, ...state });
       } catch (err) {
         return sendJson(res, 400, { ok: false, error: err.message });

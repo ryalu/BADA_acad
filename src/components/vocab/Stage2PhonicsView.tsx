@@ -24,6 +24,7 @@ import type {
 import { playSoftTone, speakEnglish } from "../../utils/speech";
 import { OceanProgressGauge } from "./OceanProgressGauge";
 import { PhonicsWordDisplay } from "./PhonicsWordDisplay";
+import { PronunciationFocusView } from "./PronunciationFocusView";
 
 interface Stage2PhonicsViewProps {
   userId: string;
@@ -56,15 +57,16 @@ export const Stage2PhonicsView: React.FC<Stage2PhonicsViewProps> = ({
   onBackHome
 }) => {
   const { progress, units, todayKst } = state;
+  const activeTier = progress.vocab_tier || "all";
   const stage2Units = units.stage2;
   const activeUnitId = progress.current_s2_unit || stage2Units[0]?.id || "s2_long_a";
-  const storageKey = `bada_vocab_seen_${userId}_${todayKst}_s2_${activeUnitId}`;
+  const storageKey = `bada_vocab_seen_${userId}_${todayKst}_s2_${activeTier}_${activeUnitId}`;
 
   const [unitMeta, setUnitMeta] = useState<VocabUnit | null>(null);
   const [words, setWords] = useState<VocabWord[]>([]);
   const [loadingUnit, setLoadingUnit] = useState(true);
 
-  const [mode, setMode] = useState<"study" | "quiz">("study");
+  const [mode, setMode] = useState<"study" | "quiz" | "pronunciation">("study");
   const [wordIdx, setWordIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [seenIds, setSeenIds] = useState<string[]>([]);
@@ -126,7 +128,7 @@ export const Stage2PhonicsView: React.FC<Stage2PhonicsViewProps> = ({
       setLoadingUnit(true);
       try {
         const res = await fetch(
-          `/api/vocab/unit?stage=2&unitKey=${encodeURIComponent(activeUnitId)}`
+          `/api/vocab/unit?stage=2&tier=${encodeURIComponent(activeTier)}&unitKey=${encodeURIComponent(activeUnitId)}`
         );
         if (!res.ok) return;
         const data = await res.json();
@@ -145,16 +147,7 @@ export const Stage2PhonicsView: React.FC<Stage2PhonicsViewProps> = ({
     return () => {
       active = false;
     };
-  }, [activeUnitId]);
-
-  // Auto-return home after spotless daily quiz completion
-  useEffect(() => {
-    if (!attemptResult || wrongWords.length > 0 || attemptResult.advancedToStage === 3) return;
-    const timer = window.setTimeout(() => {
-      onBackHome();
-    }, 2200);
-    return () => window.clearTimeout(timer);
-  }, [attemptResult, wrongWords.length, onBackHome]);
+  }, [activeTier, activeUnitId]);
 
   const activeWord = words[wordIdx] || words[0];
   const seenSet = new Set(seenIds);
@@ -253,6 +246,7 @@ export const Stage2PhonicsView: React.FC<Stage2PhonicsViewProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
+          tier: activeTier,
           stage: 2,
           unitKey: activeUnitId,
           attemptType: "daily_quiz"
@@ -315,6 +309,7 @@ export const Stage2PhonicsView: React.FC<Stage2PhonicsViewProps> = ({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               userId,
+              tier: activeTier,
               stage: 2,
               unitKey: activeUnitId,
               attemptType: "daily_quiz",
@@ -434,6 +429,21 @@ export const Stage2PhonicsView: React.FC<Stage2PhonicsViewProps> = ({
           <div className="py-12 text-center text-sm font-bold text-slate-500">단어를 불러오는 중...</div>
         ) : activeWord ? (
           <div className="space-y-6">
+            {state.todayQuizAttempted && !state.todayPronunciationDone && (
+              <button
+                type="button"
+                onClick={() => setMode("pronunciation")}
+                className="max-w-4xl mx-auto w-full card-clear-glass rounded-2xl px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 text-left hover:bg-white/55 transition cursor-pointer"
+              >
+                <span className="text-sm font-extrabold text-sky-900">
+                  오늘 퀴즈는 완료했어요! 마지막 &apos;헷갈리는 발음 콕콕&apos;만 끝내면 탐험 완료 도장이 찍혀요.
+                </span>
+                <span className="shrink-0 inline-flex items-center gap-1 px-4 py-1.5 rounded-full btn-water-glass text-xs font-extrabold">
+                  발음 학습하기 <ArrowRight className="w-3.5 h-3.5" />
+                </span>
+              </button>
+            )}
+
             <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-center gap-6">
               <OceanProgressGauge
                 seenCount={validSeenCount}
@@ -461,6 +471,20 @@ export const Stage2PhonicsView: React.FC<Stage2PhonicsViewProps> = ({
                       )}
                     </div>
                   </div>
+
+                  {activeWord.image_url && activeTier !== "mid_high" && (
+                    <button
+                      type="button"
+                      onClick={revealCurrentWord}
+                      className="block mx-auto focus:outline-none cursor-pointer"
+                    >
+                      <img
+                        src={activeWord.image_url}
+                        alt={activeWord.word}
+                        className="w-36 h-36 rounded-2xl object-cover border-2 border-white/85 shadow-sm mx-auto bg-white/60"
+                      />
+                    </button>
+                  )}
 
                   <button
                     type="button"
@@ -671,9 +695,11 @@ export const Stage2PhonicsView: React.FC<Stage2PhonicsViewProps> = ({
             <p className="text-sm font-bold text-slate-700">
               {attemptResult.advancedToStage === 3
                 ? "2단계 파닉스 전 과정을 완주했어요! 3단계 접두·접미사 확장이 열립니다."
-                : wrongWords.length === 0
-                  ? "오늘 스펠링 테스트 완료! 잠시 후 학습 맵으로 돌아갑니다."
-                  : "오늘 스펠링 테스트를 마쳤어요! 틀린 단어 발음을 확인한 뒤 학습 맵으로 돌아가세요."}
+                : !state.todayPronunciationDone
+                  ? "스펠링 테스트 완료! 마지막 '헷갈리는 발음 콕콕'까지 마치면 탐험 완료 도장이 찍힙니다."
+                  : wrongWords.length === 0
+                    ? "오늘 스펠링 테스트를 모두 맞혔어요!"
+                    : "오늘 스펠링 테스트를 마쳤어요! 틀린 단어 발음을 확인한 뒤 학습 맵으로 돌아가세요."}
             </p>
 
             {wrongWords.length > 0 && (
@@ -696,22 +722,35 @@ export const Stage2PhonicsView: React.FC<Stage2PhonicsViewProps> = ({
             )}
 
             <div className="flex flex-wrap items-center justify-center gap-3">
-              {attemptResult.advancedToStage === 3 && onEnterNextStage && (
+              {!state.todayPronunciationDone ? (
                 <button
                   type="button"
-                  onClick={() => onEnterNextStage(3)}
-                  className="px-6 py-3 rounded-full btn-water-glass text-sm font-bold"
+                  onClick={() => setMode("pronunciation")}
+                  className="px-7 py-3 rounded-full btn-water-glass text-sm font-extrabold inline-flex items-center gap-2"
                 >
-                  3단계 확장 학습 시작 →
+                  필수 마무리 · 헷갈리는 발음 학습하기
+                  <ArrowRight className="w-4 h-4" />
                 </button>
+              ) : (
+                <>
+                  {attemptResult.advancedToStage === 3 && onEnterNextStage && (
+                    <button
+                      type="button"
+                      onClick={() => onEnterNextStage(3)}
+                      className="px-6 py-3 rounded-full btn-water-glass text-sm font-bold"
+                    >
+                      3단계 확장 학습 시작 →
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={onBackHome}
+                    className="px-7 py-3 rounded-full btn-water-glass text-sm font-extrabold"
+                  >
+                    학습 맵으로 돌아가기 →
+                  </button>
+                </>
               )}
-              <button
-                type="button"
-                onClick={onBackHome}
-                className="px-7 py-3 rounded-full btn-water-glass text-sm font-extrabold"
-              >
-                학습 맵으로 돌아가기 →
-              </button>
             </div>
           </div>
         ) : activeQuizQ ? (
@@ -844,6 +883,22 @@ export const Stage2PhonicsView: React.FC<Stage2PhonicsViewProps> = ({
         ) : (
           <div className="py-10 text-center text-sm text-slate-500">문제를 불러오지 못했습니다.</div>
         )
+      )}
+
+      {/* Mode 3: Mandatory Confusing Pronunciation Focus */}
+      {mode === "pronunciation" && (
+        <PronunciationFocusView
+          userId={userId}
+          stage={2}
+          unitKey={activeUnitId}
+          tier={activeTier}
+          quizWordIds={quizQuestions.map((q) => q.wordId)}
+          wrongWordIds={wrongWords.map((w) => w.wordId)}
+          onComplete={(nextState) => {
+            onStateChange(nextState);
+            onBackHome();
+          }}
+        />
       )}
     </div>
   );

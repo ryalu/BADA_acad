@@ -209,5 +209,7 @@ module.exports = {
   getVocabUnitContent: vocabMod.getVocabUnitContent,
   buildVocabQuiz: vocabMod.buildVocabQuiz,
   submitVocabAttempt: vocabMod.submitVocabAttempt,
-  updateStudentVocabSettings: vocabMod.updateStudentVocabSettings
+  updateStudentVocabSettings: vocabMod.updateStudentVocabSettings,
+  getPronunciationFocusForStudent: vocabMod.getPronunciationFocusForStudent,
+  completePronunciationFocusToday: vocabMod.completePronunciationFocusToday
 };

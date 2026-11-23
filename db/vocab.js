@@ -1,13 +1,17 @@
 /**
  * 3-Stage Vocabulary DB Module (PostgreSQL Primary + SQLite Auto-Fallback)
- * - Stage 1: A-Z monthly initial-phonics & meaning study (daily 10-question quiz + 80% final test)
+ * - 3 Teacher-Selectable Tiers: `elem_800` (800), `mid_high` (1,800), `all` (2,483)
+ * - Stage 1: A-Z monthly initial-phonics & meaning study (concrete-first, image cards,
+ *            daily meaning or picture-to-word quiz + 80% final test)
  * - Stage 2: Visualized phonics & spelling mastery (red highlights, tile-pick or keyboard typing)
  * - Stage 3: Prefix & Suffix morphological word expansion families
+ * - Mandatory Post-Quiz Confusing Pronunciation Mini-Learning ("헷갈리는 발음 콕콕")
  */
 
 const fs = require("node:fs");
 const path = require("node:path");
 const { getPgPool, getSqliteDb, parseJsonField, getKstTodayDateString } = require("./connection");
+const { selectPronunciationFocusItems } = require("./pronunciationRules");
 
 const MASTER_JSON_PATH = path.resolve(__dirname, "..", "data", "vocab_master.json");
 
@@ -40,6 +44,21 @@ function shuffleArray(arr) {
   return copy;
 }
 
+function normalizeVocabTier(rawTier) {
+  const clean = String(rawTier || "").trim();
+  return ["elem_800", "mid_high", "all"].includes(clean) ? clean : "all";
+}
+
+function normalizeS1QuizMode(rawMode) {
+  const clean = String(rawMode || "").trim();
+  return ["meaning", "picture_to_word", "mixed"].includes(clean) ? clean : "meaning";
+}
+
+function normalizeSingleStage1Key(rawKey) {
+  const ch = String(rawKey || "A").trim().slice(0, 1).toUpperCase();
+  return /^[A-WY-Z]$/.test(ch) ? ch : "A";
+}
+
 function formatVocabWordRow(r) {
   return {
     id: r.id,
@@ -53,6 +72,8 @@ function formatVocabWordRow(r) {
     mh_no: r.mh_no ?? null,
     elem_unit_key: r.elem_unit_key ?? null,
     mh_unit_key: r.mh_unit_key ?? null,
+    image_url: r.image_url || null,
+    is_abstract: Boolean(r.is_abstract),
     phonics_spans: parseJsonField(r.phonics_spans_json, []),
     phonics_unit_ids: parseJsonField(r.phonics_unit_ids_json, [])
   };
@@ -61,7 +82,8 @@ function formatVocabWordRow(r) {
 function formatVocabProgressRow(r) {
   return {
     user_id: r.user_id,
-    vocab_tier: r.vocab_tier || "all",
+    vocab_tier: normalizeVocabTier(r.vocab_tier),
+    s1_quiz_mode: normalizeS1QuizMode(r.s1_quiz_mode),
     current_stage: Number(r.current_stage) || 1,
     current_unit_key: r.current_unit_key || "A",
     unit_started_at: r.unit_started_at || getKstTodayDateString(),
@@ -72,6 +94,7 @@ function formatVocabProgressRow(r) {
     completed_s2_units: parseJsonField(r.completed_s2_units_json, []),
     current_s3_unit: r.current_s3_unit || "s3_pre_un",
     completed_s3_units: parseJsonField(r.completed_s3_units_json, []),
+    pronunciation_done_date: r.pronunciation_done_date || null,
     updated_at: r.updated_at
   };
 }
@@ -111,6 +134,7 @@ async function syncVocabMasterData() {
     const client = await pgPool.connect();
     try {
       await client.query("BEGIN");
+      await client.query("DELETE FROM vocab_units");
       await runChunkedPgUpsert(
         client,
         units,
@@ -131,8 +155,8 @@ async function syncVocabMasterData() {
       await runChunkedPgUpsert(
         client,
         words,
-        200,
-        ["", "", "", "", "", "", "", "", "", "", "", "::jsonb", "::jsonb"],
+        180,
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "::jsonb", "::jsonb"],
         (w) => [
           w.id,
           w.word,
@@ -145,13 +169,15 @@ async function syncVocabMasterData() {
           w.mh_no ?? null,
           w.elem_unit_key ?? null,
           w.mh_unit_key ?? null,
+          w.image_url || null,
+          Boolean(w.is_abstract),
           JSON.stringify(w.phonics_spans || []),
           JSON.stringify(w.phonics_unit_ids || [])
         ],
         `INSERT INTO vocab_bank (
            id, word, display_word, meaning_kr, initial_letter,
            is_elem_800, is_mid_high, elem_no, mh_no, elem_unit_key, mh_unit_key,
-           phonics_spans_json, phonics_unit_ids_json
+           image_url, is_abstract, phonics_spans_json, phonics_unit_ids_json
          )`,
         `ON CONFLICT (id) DO UPDATE SET
            word = EXCLUDED.word,
@@ -164,6 +190,8 @@ async function syncVocabMasterData() {
            mh_no = EXCLUDED.mh_no,
            elem_unit_key = EXCLUDED.elem_unit_key,
            mh_unit_key = EXCLUDED.mh_unit_key,
+           image_url = EXCLUDED.image_url,
+           is_abstract = EXCLUDED.is_abstract,
            phonics_spans_json = EXCLUDED.phonics_spans_json,
            phonics_unit_ids_json = EXCLUDED.phonics_unit_ids_json`
       );
@@ -230,6 +258,7 @@ async function syncVocabMasterData() {
   const sqliteDb = getSqliteDb();
   sqliteDb.exec("BEGIN");
   try {
+    sqliteDb.exec("DELETE FROM vocab_units");
     const unitStmt = sqliteDb.prepare(`
       INSERT INTO vocab_units (id, tier, stage, unit_key, title_kr, rule_summary_kr, word_count, sort_order)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -250,8 +279,8 @@ async function syncVocabMasterData() {
       INSERT INTO vocab_bank (
         id, word, display_word, meaning_kr, initial_letter,
         is_elem_800, is_mid_high, elem_no, mh_no, elem_unit_key, mh_unit_key,
-        phonics_spans_json, phonics_unit_ids_json
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        image_url, is_abstract, phonics_spans_json, phonics_unit_ids_json
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         word = excluded.word,
         display_word = excluded.display_word,
@@ -263,6 +292,8 @@ async function syncVocabMasterData() {
         mh_no = excluded.mh_no,
         elem_unit_key = excluded.elem_unit_key,
         mh_unit_key = excluded.mh_unit_key,
+        image_url = excluded.image_url,
+        is_abstract = excluded.is_abstract,
         phonics_spans_json = excluded.phonics_spans_json,
         phonics_unit_ids_json = excluded.phonics_unit_ids_json
     `);
@@ -279,6 +310,8 @@ async function syncVocabMasterData() {
         w.mh_no ?? null,
         w.elem_unit_key ?? null,
         w.mh_unit_key ?? null,
+        w.image_url || null,
+        w.is_abstract ? 1 : 0,
         JSON.stringify(w.phonics_spans || []),
         JSON.stringify(w.phonics_unit_ids || [])
       );
@@ -344,28 +377,46 @@ async function seedVocabIfEmpty() {
   if (!fs.existsSync(MASTER_JSON_PATH)) {
     return { skipped: true, reason: "no_vocab_master_json" };
   }
+  const master = JSON.parse(fs.readFileSync(MASTER_JSON_PATH, "utf8"));
+  const masterImgCount = Array.isArray(master.words) ? master.words.filter((w) => Boolean(w.image_url)).length : 0;
+
   const pgPool = getPgPool();
   if (pgPool) {
-    const { rows } = await pgPool.query("SELECT COUNT(*)::int AS cnt FROM vocab_bank");
-    const { rows: uRows } = await pgPool.query(
-      "SELECT COUNT(*)::int AS cnt FROM vocab_units WHERE stage = 1 AND tier = 'all'"
+    const { rows } = await pgPool.query(
+      "SELECT COUNT(*)::int AS cnt, COUNT(*) FILTER (WHERE image_url IS NOT NULL)::int AS img_cnt FROM vocab_bank"
     );
-    if (rows[0].cnt > 0 && uRows[0].cnt > 0) {
+    const { rows: uRows } = await pgPool.query(
+      "SELECT COUNT(*)::int AS cnt FROM vocab_units WHERE stage = 1 AND tier = 'elem_800'"
+    );
+    if (rows[0].cnt > 0 && uRows[0].cnt === 25 && rows[0].img_cnt >= masterImgCount) {
       return { skipped: true, reason: "already_seeded", count: rows[0].cnt };
     }
     return await syncVocabMasterData();
   }
-  const cnt = getSqliteDb().prepare("SELECT COUNT(*) AS cnt FROM vocab_bank").get().cnt;
-  const uCnt = getSqliteDb()
-    .prepare("SELECT COUNT(*) AS cnt FROM vocab_units WHERE stage = 1 AND tier = 'all'")
+  const sqliteDb = getSqliteDb();
+  const bankStat = sqliteDb
+    .prepare("SELECT COUNT(*) AS cnt, SUM(CASE WHEN image_url IS NOT NULL THEN 1 ELSE 0 END) AS img_cnt FROM vocab_bank")
+    .get();
+  const uCnt = sqliteDb
+    .prepare("SELECT COUNT(*) AS cnt FROM vocab_units WHERE stage = 1 AND tier = 'elem_800'")
     .get().cnt;
-  if (cnt > 0 && uCnt > 0) return { skipped: true, reason: "already_seeded", count: cnt };
+  if (bankStat.cnt > 0 && uCnt === 25 && Number(bankStat.img_cnt || 0) >= masterImgCount) {
+    return { skipped: true, reason: "already_seeded", count: bankStat.cnt };
+  }
   return await syncVocabMasterData();
 }
 
-function normalizeSingleStage1Key(rawKey) {
-  const ch = String(rawKey || "A").trim().slice(0, 1).toUpperCase();
-  return /^[A-WY-Z]$/.test(ch) ? ch : "A";
+function inferDefaultsForNewStudent(u = {}) {
+  const age = Number(u.age) || 9;
+  const gradeLabel = String(u.grade_label || "");
+  const isKindergarten = age <= 7 || /유치/.test(gradeLabel);
+  const isElementary = !isKindergarten && (age <= 12 || /초등/.test(gradeLabel));
+
+  return {
+    vocab_tier: isKindergarten || isElementary ? "elem_800" : "mid_high",
+    s1_quiz_mode: isKindergarten ? "picture_to_word" : "meaning",
+    s2_input_mode: age >= 11 ? "typing" : "tiles"
+  };
 }
 
 async function getOrInitStudentVocabProgress(userId) {
@@ -380,30 +431,32 @@ async function getOrInitStudentVocabProgress(userId) {
     const { rows } = await pgPool.query("SELECT * FROM student_vocab_progress WHERE user_id = $1 LIMIT 1", [cleanUid]);
     if (rows.length > 0) {
       const row = rows[0];
+      const normTier = normalizeVocabTier(row.vocab_tier);
+      const normMode = normalizeS1QuizMode(row.s1_quiz_mode);
       const normKey = normalizeSingleStage1Key(row.current_unit_key);
-      if (row.vocab_tier !== "all" || normKey !== row.current_unit_key) {
+      if (normTier !== row.vocab_tier || normMode !== row.s1_quiz_mode || normKey !== row.current_unit_key) {
         await pgPool.query(
-          "UPDATE student_vocab_progress SET vocab_tier = 'all', current_unit_key = $1, updated_at = NOW() WHERE user_id = $2",
-          [normKey, cleanUid]
+          "UPDATE student_vocab_progress SET vocab_tier = $1, s1_quiz_mode = $2, current_unit_key = $3, updated_at = NOW() WHERE user_id = $4",
+          [normTier, normMode, normKey, cleanUid]
         );
-        row.vocab_tier = "all";
+        row.vocab_tier = normTier;
+        row.s1_quiz_mode = normMode;
         row.current_unit_key = normKey;
       }
       return formatVocabProgressRow(row);
     }
 
-    const uRes = await pgPool.query("SELECT age FROM users WHERE id = $1 LIMIT 1", [cleanUid]);
-    const u = uRes.rows[0] || { age: 9 };
-    const defaultInputMode = Number(u.age) >= 11 ? "typing" : "tiles";
+    const uRes = await pgPool.query("SELECT age, grade_label FROM users WHERE id = $1 LIMIT 1", [cleanUid]);
+    const defaults = inferDefaultsForNewStudent(uRes.rows[0]);
 
     await pgPool.query(
       `INSERT INTO student_vocab_progress (
-         user_id, vocab_tier, current_stage, current_unit_key, unit_started_at,
+         user_id, vocab_tier, s1_quiz_mode, current_stage, current_unit_key, unit_started_at,
          completed_s1_units_json, early_test_unlocked,
          current_s2_unit, s2_input_mode, completed_s2_units_json,
          current_s3_unit, completed_s3_units_json
-       ) VALUES ($1,'all',1,'A',$2,'[]'::jsonb,FALSE,'s2_long_a',$3,'[]'::jsonb,'s3_pre_un','[]'::jsonb)`,
-      [cleanUid, todayKst, defaultInputMode]
+       ) VALUES ($1,$2,$3,1,'A',$4,'[]'::jsonb,FALSE,'s2_long_a',$5,'[]'::jsonb,'s3_pre_un','[]'::jsonb)`,
+      [cleanUid, defaults.vocab_tier, defaults.s1_quiz_mode, todayKst, defaults.s2_input_mode]
     );
     const created = await pgPool.query("SELECT * FROM student_vocab_progress WHERE user_id = $1 LIMIT 1", [cleanUid]);
     return formatVocabProgressRow(created.rows[0]);
@@ -412,30 +465,33 @@ async function getOrInitStudentVocabProgress(userId) {
   const sqliteDb = getSqliteDb();
   const existing = sqliteDb.prepare("SELECT * FROM student_vocab_progress WHERE user_id = ? LIMIT 1").get(cleanUid);
   if (existing) {
+    const normTier = normalizeVocabTier(existing.vocab_tier);
+    const normMode = normalizeS1QuizMode(existing.s1_quiz_mode);
     const normKey = normalizeSingleStage1Key(existing.current_unit_key);
-    if (existing.vocab_tier !== "all" || normKey !== existing.current_unit_key) {
+    if (normTier !== existing.vocab_tier || normMode !== existing.s1_quiz_mode || normKey !== existing.current_unit_key) {
       sqliteDb
-        .prepare("UPDATE student_vocab_progress SET vocab_tier = 'all', current_unit_key = ?, updated_at = ? WHERE user_id = ?")
-        .run(normKey, nowIso, cleanUid);
-      existing.vocab_tier = "all";
+        .prepare("UPDATE student_vocab_progress SET vocab_tier = ?, s1_quiz_mode = ?, current_unit_key = ?, updated_at = ? WHERE user_id = ?")
+        .run(normTier, normMode, normKey, nowIso, cleanUid);
+      existing.vocab_tier = normTier;
+      existing.s1_quiz_mode = normMode;
       existing.current_unit_key = normKey;
     }
     return formatVocabProgressRow(existing);
   }
 
-  const u = sqliteDb.prepare("SELECT age FROM users WHERE id = ? LIMIT 1").get(cleanUid) || { age: 9 };
-  const defaultInputMode = Number(u.age) >= 11 ? "typing" : "tiles";
+  const u = sqliteDb.prepare("SELECT age, grade_label FROM users WHERE id = ? LIMIT 1").get(cleanUid) || {};
+  const defaults = inferDefaultsForNewStudent(u);
 
   sqliteDb
     .prepare(
       `INSERT INTO student_vocab_progress (
-         user_id, vocab_tier, current_stage, current_unit_key, unit_started_at,
+         user_id, vocab_tier, s1_quiz_mode, current_stage, current_unit_key, unit_started_at,
          completed_s1_units_json, early_test_unlocked,
          current_s2_unit, s2_input_mode, completed_s2_units_json,
          current_s3_unit, completed_s3_units_json, updated_at
-       ) VALUES (?, 'all', 1, 'A', ?, '[]', 0, 's2_long_a', ?, '[]', 's3_pre_un', '[]', ?)`
+       ) VALUES (?, ?, ?, 1, 'A', ?, '[]', 0, 's2_long_a', ?, '[]', 's3_pre_un', '[]', ?)`
     )
-    .run(cleanUid, todayKst, defaultInputMode, nowIso);
+    .run(cleanUid, defaults.vocab_tier, defaults.s1_quiz_mode, todayKst, defaults.s2_input_mode, nowIso);
 
   return formatVocabProgressRow(sqliteDb.prepare("SELECT * FROM student_vocab_progress WHERE user_id = ? LIMIT 1").get(cleanUid));
 }
@@ -450,11 +506,7 @@ async function getStudentVocabState(userId) {
   let attempts = [];
 
   if (pgPool) {
-    const uRes = await pgPool.query(
-      `SELECT * FROM vocab_units
-       WHERE (stage = 1 AND tier = 'all') OR stage IN (2, 3)
-       ORDER BY stage ASC, sort_order ASC`
-    );
+    const uRes = await pgPool.query("SELECT * FROM vocab_units ORDER BY stage ASC, sort_order ASC");
     units = uRes.rows;
 
     const aRes = await pgPool.query(
@@ -469,13 +521,7 @@ async function getStudentVocabState(userId) {
     }));
   } else {
     const sqliteDb = getSqliteDb();
-    units = sqliteDb
-      .prepare(
-        `SELECT * FROM vocab_units
-         WHERE (stage = 1 AND tier = 'all') OR stage IN (2, 3)
-         ORDER BY stage ASC, sort_order ASC`
-      )
-      .all();
+    units = sqliteDb.prepare("SELECT * FROM vocab_units ORDER BY stage ASC, sort_order ASC").all();
 
     attempts = sqliteDb
       .prepare(
@@ -490,7 +536,16 @@ async function getStudentVocabState(userId) {
       }));
   }
 
-  const todayDailyQuizDone = attempts.some((a) => toKstDate(a.created_at) === todayKst);
+  const stage1All = units.filter((u) => Number(u.stage) === 1);
+  const stage1ByTier = {
+    elem_800: stage1All.filter((u) => u.tier === "elem_800"),
+    mid_high: stage1All.filter((u) => u.tier === "mid_high"),
+    all: stage1All.filter((u) => u.tier === "all")
+  };
+
+  const todayQuizAttempted = attempts.some((a) => toKstDate(a.created_at) === todayKst);
+  const todayPronunciationDone = progress.pronunciation_done_date === todayKst;
+  const todayDailyQuizDone = todayQuizAttempted && todayPronunciationDone;
 
   const recentWrongWordIds = Array.from(
     new Set(
@@ -506,10 +561,13 @@ async function getStudentVocabState(userId) {
     todayKst,
     daysElapsed,
     monthReady: daysElapsed >= 30 || progress.early_test_unlocked,
+    todayQuizAttempted,
+    todayPronunciationDone,
     todayDailyQuizDone,
     recentWrongWordIds,
+    stage1ByTier,
     units: {
-      stage1: units.filter((u) => Number(u.stage) === 1),
+      stage1: stage1ByTier[progress.vocab_tier] || stage1ByTier.all,
       stage2: units.filter((u) => Number(u.stage) === 2),
       stage3: units.filter((u) => Number(u.stage) === 3)
     },
@@ -517,7 +575,19 @@ async function getStudentVocabState(userId) {
   };
 }
 
-async function getVocabUnitContent({ stage = 1, unitKey = "A" }) {
+function sortWordsConcreteFirst(words, tier) {
+  const rank = (w) => {
+    if (tier === "elem_800") return w.is_abstract ? 1 : 0;
+    if (tier === "all") return w.is_elem_800 ? (w.is_abstract ? 1 : 0) : 2;
+    return 0;
+  };
+  return [...words]
+    .sort((a, b) => rank(a) - rank(b) || a.word.toLowerCase().localeCompare(b.word.toLowerCase()))
+    .map((w) => (tier === "mid_high" ? { ...w, image_url: null } : w));
+}
+
+async function getVocabUnitContent({ tier = "all", stage = 1, unitKey = "A" }) {
+  const cleanTier = normalizeVocabTier(tier);
   const numStage = Number(stage) || 1;
   const cleanKey = String(unitKey || "").trim();
   const pgPool = getPgPool();
@@ -526,63 +596,93 @@ async function getVocabUnitContent({ stage = 1, unitKey = "A" }) {
     const cleanLetter = normalizeSingleStage1Key(cleanKey);
     if (pgPool) {
       const unitRes = await pgPool.query(
-        "SELECT * FROM vocab_units WHERE stage = 1 AND tier = 'all' AND unit_key = $1 LIMIT 1",
-        [cleanLetter]
+        "SELECT * FROM vocab_units WHERE stage = 1 AND tier = $1 AND unit_key = $2 LIMIT 1",
+        [cleanTier, cleanLetter]
       );
+      const tierWhere =
+        cleanTier === "elem_800"
+          ? "AND is_elem_800 = TRUE"
+          : cleanTier === "mid_high"
+            ? "AND is_mid_high = TRUE"
+            : "";
       const wordRes = await pgPool.query(
-        "SELECT * FROM vocab_bank WHERE initial_letter = $1 ORDER BY LOWER(word) ASC",
+        `SELECT * FROM vocab_bank WHERE initial_letter = $1 ${tierWhere} ORDER BY LOWER(word) ASC`,
         [cleanLetter]
       );
       return {
         stage: 1,
-        tier: "all",
+        tier: cleanTier,
         unit: unitRes.rows[0] || null,
-        words: wordRes.rows.map(formatVocabWordRow),
+        words: sortWordsConcreteFirst(wordRes.rows.map(formatVocabWordRow), cleanTier),
         affixItems: []
       };
     }
 
     const sqliteDb = getSqliteDb();
     const unit = sqliteDb
-      .prepare("SELECT * FROM vocab_units WHERE stage = 1 AND tier = 'all' AND unit_key = ? LIMIT 1")
-      .get(cleanLetter);
+      .prepare("SELECT * FROM vocab_units WHERE stage = 1 AND tier = ? AND unit_key = ? LIMIT 1")
+      .get(cleanTier, cleanLetter);
+    const tierWhere =
+      cleanTier === "elem_800"
+        ? "AND is_elem_800 = 1"
+        : cleanTier === "mid_high"
+          ? "AND is_mid_high = 1"
+          : "";
     const words = sqliteDb
-      .prepare("SELECT * FROM vocab_bank WHERE initial_letter = ? ORDER BY LOWER(word) ASC")
+      .prepare(`SELECT * FROM vocab_bank WHERE initial_letter = ? ${tierWhere} ORDER BY LOWER(word) ASC`)
       .all(cleanLetter)
       .map(formatVocabWordRow);
-    return { stage: 1, tier: "all", unit: unit || null, words, affixItems: [] };
+    return {
+      stage: 1,
+      tier: cleanTier,
+      unit: unit || null,
+      words: sortWordsConcreteFirst(words, cleanTier),
+      affixItems: []
+    };
   }
 
   if (numStage === 2) {
+    let unit = null;
+    let rawWords = [];
     if (pgPool) {
       const unitRes = await pgPool.query("SELECT * FROM vocab_units WHERE stage = 2 AND id = $1 LIMIT 1", [cleanKey]);
+      unit = unitRes.rows[0] || null;
       const wordRes = await pgPool.query(
         `SELECT * FROM vocab_bank
          WHERE phonics_unit_ids_json @> $1::jsonb
          ORDER BY LOWER(word) ASC`,
         [JSON.stringify([cleanKey])]
       );
-      return {
-        stage: 2,
-        tier: "all",
-        unit: unitRes.rows[0] || null,
-        words: wordRes.rows.map(formatVocabWordRow),
-        affixItems: []
-      };
+      rawWords = wordRes.rows.map(formatVocabWordRow);
+    } else {
+      const sqliteDb = getSqliteDb();
+      unit = sqliteDb.prepare("SELECT * FROM vocab_units WHERE stage = 2 AND id = ? LIMIT 1").get(cleanKey);
+      rawWords = sqliteDb
+        .prepare(
+          `SELECT * FROM vocab_bank
+           WHERE instr(phonics_unit_ids_json, ?) > 0
+           ORDER BY LOWER(word) ASC`
+        )
+        .all(`"${cleanKey}"`)
+        .map(formatVocabWordRow)
+        .filter((w) => w.phonics_unit_ids.includes(cleanKey));
     }
 
-    const sqliteDb = getSqliteDb();
-    const unit = sqliteDb.prepare("SELECT * FROM vocab_units WHERE stage = 2 AND id = ? LIMIT 1").get(cleanKey);
-    const words = sqliteDb
-      .prepare(
-        `SELECT * FROM vocab_bank
-         WHERE instr(phonics_unit_ids_json, ?) > 0
-         ORDER BY LOWER(word) ASC`
-      )
-      .all(`"${cleanKey}"`)
-      .map(formatVocabWordRow)
-      .filter((w) => w.phonics_unit_ids.includes(cleanKey));
-    return { stage: 2, tier: "all", unit: unit || null, words, affixItems: [] };
+    const tierFiltered =
+      cleanTier === "elem_800"
+        ? rawWords.filter((w) => w.is_elem_800)
+        : cleanTier === "mid_high"
+          ? rawWords.filter((w) => w.is_mid_high)
+          : rawWords;
+    const chosen = tierFiltered.length >= 6 ? tierFiltered : rawWords;
+
+    return {
+      stage: 2,
+      tier: cleanTier,
+      unit,
+      words: sortWordsConcreteFirst(chosen, cleanTier),
+      affixItems: []
+    };
   }
 
   // Stage 3
@@ -594,7 +694,7 @@ async function getVocabUnitContent({ stage = 1, unitKey = "A" }) {
     );
     return {
       stage: 3,
-      tier: "all",
+      tier: cleanTier,
       unit: unitRes.rows[0] || null,
       words: [],
       affixItems: affRes.rows.map((a) => ({
@@ -615,7 +715,7 @@ async function getVocabUnitContent({ stage = 1, unitKey = "A" }) {
       root_in_pdf: Boolean(a.root_in_pdf),
       derived_in_pdf: Boolean(a.derived_in_pdf)
     }));
-  return { stage: 3, tier: "all", unit: unit || null, words: [], affixItems };
+  return { stage: 3, tier: cleanTier, unit: unit || null, words: [], affixItems };
 }
 
 function buildMaskForPhonicsWord(word, span) {
@@ -634,29 +734,44 @@ function buildMaskForPhonicsWord(word, span) {
 
 async function buildVocabQuiz({
   userId,
+  tier,
   stage = 1,
   unitKey = "A",
-  attemptType = "daily_quiz"
+  attemptType = "daily_quiz",
+  quizMode
 }) {
   const numStage = Number(stage) || 1;
   const normalizedKey = numStage === 1 ? normalizeSingleStage1Key(unitKey) : unitKey;
-  const content = await getVocabUnitContent({ stage: numStage, unitKey: normalizedKey });
   const pgPool = getPgPool();
 
-  // Fetch recent wrong IDs if userId present
+  let effectiveTier = tier ? normalizeVocabTier(tier) : "all";
+  let effectiveQuizMode = quizMode ? normalizeS1QuizMode(quizMode) : "meaning";
   let wrongSet = new Set();
+
   if (userId) {
     const state = await getStudentVocabState(userId);
+    if (!tier) effectiveTier = state.progress.vocab_tier;
+    if (!quizMode) effectiveQuizMode = state.progress.s1_quiz_mode;
     wrongSet = new Set(state.recentWrongWordIds || []);
   }
 
+  const content = await getVocabUnitContent({ tier: effectiveTier, stage: numStage, unitKey: normalizedKey });
+
   if (numStage === 1) {
     const allUnitWords = content.words;
-    if (allUnitWords.length === 0) return { stage: 1, attemptType, questions: [] };
+    if (allUnitWords.length === 0) return { stage: 1, tier: effectiveTier, attemptType, questions: [] };
 
     let chosen = [];
     if (attemptType === "final_test") {
       chosen = shuffleArray(allUnitWords);
+    } else if (effectiveQuizMode === "picture_to_word" && effectiveTier !== "mid_high") {
+      const imaged = allUnitWords.filter((w) => Boolean(w.image_url));
+      const pool = imaged.length >= 10 ? imaged : allUnitWords;
+      const wrongOnes = shuffleArray(pool.filter((w) => wrongSet.has(w.id))).slice(0, 3);
+      const wrongIds = new Set(wrongOnes.map((w) => w.id));
+      const imagedRest = shuffleArray(imaged.filter((w) => !wrongIds.has(w.id)));
+      const nonImagedRest = shuffleArray(allUnitWords.filter((w) => !wrongIds.has(w.id) && !w.image_url));
+      chosen = shuffleArray([...wrongOnes, ...imagedRest, ...nonImagedRest].slice(0, Math.min(10, allUnitWords.length)));
     } else {
       const wrongOnes = shuffleArray(allUnitWords.filter((w) => wrongSet.has(w.id))).slice(0, 3);
       const wrongIds = new Set(wrongOnes.map((w) => w.id));
@@ -664,20 +779,69 @@ async function buildVocabQuiz({
       chosen = shuffleArray([...wrongOnes, ...rest.slice(0, Math.max(0, 10 - wrongOnes.length))]);
     }
 
-    let distractorMeanings = [];
+    const tierWhere =
+      effectiveTier === "elem_800"
+        ? "WHERE is_elem_800 = TRUE"
+        : effectiveTier === "mid_high"
+          ? "WHERE is_mid_high = TRUE"
+          : "";
+    const sqliteTierWhere =
+      effectiveTier === "elem_800"
+        ? "WHERE is_elem_800 = 1"
+        : effectiveTier === "mid_high"
+          ? "WHERE is_mid_high = 1"
+          : "";
+
+    let distractorRows = [];
     if (pgPool) {
       const { rows } = await pgPool.query(
-        "SELECT meaning_kr FROM vocab_bank ORDER BY RANDOM() LIMIT 120"
+        `SELECT word, meaning_kr, is_elem_800 FROM vocab_bank ${tierWhere} ORDER BY RANDOM() LIMIT 160`
       );
-      distractorMeanings = rows.map((r) => r.meaning_kr);
+      distractorRows = rows;
     } else {
-      const rows = getSqliteDb()
-        .prepare("SELECT meaning_kr FROM vocab_bank ORDER BY RANDOM() LIMIT 120")
+      distractorRows = getSqliteDb()
+        .prepare(`SELECT word, meaning_kr, is_elem_800 FROM vocab_bank ${sqliteTierWhere} ORDER BY RANDOM() LIMIT 160`)
         .all();
-      distractorMeanings = rows.map((r) => r.meaning_kr);
     }
 
-    const questions = chosen.map((w) => {
+    const distractorMeanings = distractorRows.map((r) => r.meaning_kr);
+    const sameUnitElemWords = allUnitWords.filter((w) => w.is_elem_800).map((w) => w.word);
+    const globalElemWords = distractorRows.filter((r) => Boolean(r.is_elem_800)).map((r) => r.word);
+    const fallbackGlobalWords = distractorRows.map((r) => r.word);
+
+    const questions = chosen.map((w, idx) => {
+      const canUsePicture = effectiveTier !== "mid_high" && Boolean(w.image_url);
+      const usePicture =
+        canUsePicture &&
+        (effectiveQuizMode === "picture_to_word" || (effectiveQuizMode === "mixed" && idx % 2 === 0));
+
+      if (usePicture) {
+        const sameLetterWrongs = shuffleArray(
+          Array.from(new Set(sameUnitElemWords.filter((word) => word && word !== w.word)))
+        );
+        const globalWrongs = shuffleArray(
+          Array.from(
+            new Set([...globalElemWords, ...fallbackGlobalWords].filter((word) => word && word !== w.word))
+          )
+        );
+        const combinedWrongs = [];
+        for (const cand of [...sameLetterWrongs, ...globalWrongs]) {
+          if (combinedWrongs.length >= 3) break;
+          if (!combinedWrongs.includes(cand)) combinedWrongs.push(cand);
+        }
+        return {
+          wordId: w.id,
+          word: w.word,
+          displayWord: w.display_word,
+          initialLetter: w.initial_letter,
+          questionType: "picture_to_word",
+          imageUrl: w.image_url,
+          correctMeaning: w.meaning_kr,
+          correctAnswer: w.word,
+          options: shuffleArray([w.word, ...combinedWrongs])
+        };
+      }
+
       const wrongs = shuffleArray(
         Array.from(new Set(distractorMeanings.filter((m) => m && m !== w.meaning_kr)))
       ).slice(0, 3);
@@ -686,16 +850,20 @@ async function buildVocabQuiz({
         word: w.word,
         displayWord: w.display_word,
         initialLetter: w.initial_letter,
+        questionType: "meaning",
+        imageUrl: effectiveTier === "mid_high" ? null : w.image_url || null,
         correctMeaning: w.meaning_kr,
+        correctAnswer: w.meaning_kr,
         options: shuffleArray([w.meaning_kr, ...wrongs])
       };
     });
 
     return {
       stage: 1,
-      tier: "all",
+      tier: effectiveTier,
       unitKey: normalizedKey,
       attemptType,
+      quizMode: effectiveQuizMode,
       totalCount: questions.length,
       questions
     };
@@ -752,7 +920,7 @@ async function buildVocabQuiz({
 
     return {
       stage: 2,
-      tier: "all",
+      tier: effectiveTier,
       unitKey,
       attemptType,
       totalCount: questions.length,
@@ -795,7 +963,7 @@ async function buildVocabQuiz({
 
   return {
     stage: 3,
-    tier: "all",
+    tier: effectiveTier,
     unitKey,
     attemptType,
     totalCount: questions.length,
@@ -805,6 +973,7 @@ async function buildVocabQuiz({
 
 async function submitVocabAttempt({
   userId,
+  tier,
   stage = 1,
   unitKey = "A",
   attemptType = "daily_quiz",
@@ -813,6 +982,7 @@ async function submitVocabAttempt({
   wrongWordIds = []
 }) {
   const progress = await getOrInitStudentVocabProgress(userId);
+  const effectiveTier = tier ? normalizeVocabTier(tier) : progress.vocab_tier;
   const numStage = Number(stage) || 1;
   const cleanUnitKey = numStage === 1 ? normalizeSingleStage1Key(unitKey) : unitKey;
   const total = Math.max(1, Number(totalCount) || 1);
@@ -832,8 +1002,8 @@ async function submitVocabAttempt({
       `INSERT INTO student_vocab_attempts (
          id, user_id, tier, stage, unit_key, attempt_type,
          total_count, correct_count, score_pct, passed, wrong_word_ids_json
-       ) VALUES ($1,$2,'all',$3,$4,$5,$6,$7,$8,$9,$10::jsonb)`,
-      [attemptId, userId, numStage, cleanUnitKey, attemptType, total, correct, scorePct, passed, JSON.stringify(cleanWrong)]
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)`,
+      [attemptId, userId, effectiveTier, numStage, cleanUnitKey, attemptType, total, correct, scorePct, passed, JSON.stringify(cleanWrong)]
     );
   } else {
     sqliteDb
@@ -841,11 +1011,12 @@ async function submitVocabAttempt({
         `INSERT INTO student_vocab_attempts (
            id, user_id, tier, stage, unit_key, attempt_type,
            total_count, correct_count, score_pct, passed, wrong_word_ids_json, created_at
-         ) VALUES (?, ?, 'all', ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(
         attemptId,
         userId,
+        effectiveTier,
         numStage,
         cleanUnitKey,
         attemptType,
@@ -866,12 +1037,13 @@ async function submitVocabAttempt({
     const unitRows = pgPool
       ? (
           await pgPool.query(
-            "SELECT unit_key FROM vocab_units WHERE stage = 1 AND tier = 'all' ORDER BY sort_order ASC"
+            "SELECT unit_key FROM vocab_units WHERE stage = 1 AND tier = $1 ORDER BY sort_order ASC",
+            [effectiveTier]
           )
         ).rows
       : sqliteDb
-          .prepare("SELECT unit_key FROM vocab_units WHERE stage = 1 AND tier = 'all' ORDER BY sort_order ASC")
-          .all();
+          .prepare("SELECT unit_key FROM vocab_units WHERE stage = 1 AND tier = ? ORDER BY sort_order ASC")
+          .all(effectiveTier);
     const orderedKeys = unitRows.map((r) => r.unit_key);
 
     if (passed) {
@@ -890,20 +1062,20 @@ async function submitVocabAttempt({
       if (pgPool) {
         await pgPool.query(
           `UPDATE student_vocab_progress
-           SET vocab_tier = 'all', current_stage = $1, completed_s1_units_json = $2::jsonb, current_unit_key = $3,
-               unit_started_at = $4, early_test_unlocked = FALSE, updated_at = NOW()
-           WHERE user_id = $5`,
-          [nextStage, JSON.stringify(Array.from(doneSet)), nextKey, todayKst, userId]
+           SET vocab_tier = $1, current_stage = $2, completed_s1_units_json = $3::jsonb, current_unit_key = $4,
+               unit_started_at = $5, early_test_unlocked = FALSE, updated_at = NOW()
+           WHERE user_id = $6`,
+          [effectiveTier, nextStage, JSON.stringify(Array.from(doneSet)), nextKey, todayKst, userId]
         );
       } else {
         sqliteDb
           .prepare(
             `UPDATE student_vocab_progress
-             SET vocab_tier = 'all', current_stage = ?, completed_s1_units_json = ?, current_unit_key = ?,
+             SET vocab_tier = ?, current_stage = ?, completed_s1_units_json = ?, current_unit_key = ?,
                  unit_started_at = ?, early_test_unlocked = 0, updated_at = ?
              WHERE user_id = ?`
           )
-          .run(nextStage, JSON.stringify(Array.from(doneSet)), nextKey, todayKst, nowIso, userId);
+          .run(effectiveTier, nextStage, JSON.stringify(Array.from(doneSet)), nextKey, todayKst, nowIso, userId);
       }
     } else {
       needsExtraMonth = true;
@@ -988,7 +1160,8 @@ async function updateStudentVocabSettings(payload) {
   const userId = String(payload.userId || "").trim();
   const prev = await getOrInitStudentVocabProgress(userId);
 
-  const nextTier = "all";
+  const nextTier = payload.vocab_tier ? normalizeVocabTier(payload.vocab_tier) : prev.vocab_tier;
+  const nextS1QuizMode = payload.s1_quiz_mode ? normalizeS1QuizMode(payload.s1_quiz_mode) : prev.s1_quiz_mode;
   const nextStage = [1, 2, 3].includes(Number(payload.current_stage))
     ? Number(payload.current_stage)
     : prev.current_stage;
@@ -1015,23 +1188,35 @@ async function updateStudentVocabSettings(payload) {
   if (pgPool) {
     await pgPool.query(
       `UPDATE student_vocab_progress
-       SET vocab_tier = $1, current_stage = $2, current_unit_key = $3, unit_started_at = $4,
-           early_test_unlocked = $5, current_s2_unit = $6, s2_input_mode = $7, current_s3_unit = $8,
+       SET vocab_tier = $1, s1_quiz_mode = $2, current_stage = $3, current_unit_key = $4, unit_started_at = $5,
+           early_test_unlocked = $6, current_s2_unit = $7, s2_input_mode = $8, current_s3_unit = $9,
            updated_at = NOW()
-       WHERE user_id = $9`,
-      [nextTier, nextStage, nextUnitKey, nextStartedAt, nextEarly, nextS2Unit, nextS2Mode, nextS3Unit, userId]
+       WHERE user_id = $10`,
+      [
+        nextTier,
+        nextS1QuizMode,
+        nextStage,
+        nextUnitKey,
+        nextStartedAt,
+        nextEarly,
+        nextS2Unit,
+        nextS2Mode,
+        nextS3Unit,
+        userId
+      ]
     );
   } else {
     getSqliteDb()
       .prepare(
         `UPDATE student_vocab_progress
-         SET vocab_tier = ?, current_stage = ?, current_unit_key = ?, unit_started_at = ?,
+         SET vocab_tier = ?, s1_quiz_mode = ?, current_stage = ?, current_unit_key = ?, unit_started_at = ?,
              early_test_unlocked = ?, current_s2_unit = ?, s2_input_mode = ?, current_s3_unit = ?,
              updated_at = ?
          WHERE user_id = ?`
       )
       .run(
         nextTier,
+        nextS1QuizMode,
         nextStage,
         nextUnitKey,
         nextStartedAt,
@@ -1047,6 +1232,87 @@ async function updateStudentVocabSettings(payload) {
   return await getStudentVocabState(userId);
 }
 
+async function getPronunciationFocusForStudent({
+  userId,
+  stage = 1,
+  unitKey = "A",
+  tier,
+  quizWordIds = [],
+  wrongWordIds = []
+}) {
+  let effectiveTier = tier ? normalizeVocabTier(tier) : "all";
+  let effectiveStage = Number(stage) || 1;
+  let effectiveKey = String(unitKey || "A").trim();
+
+  if (userId) {
+    const state = await getStudentVocabState(userId);
+    if (!tier) effectiveTier = state.progress.vocab_tier;
+    if (!stage) effectiveStage = state.progress.current_stage;
+    if (!unitKey) {
+      effectiveKey =
+        effectiveStage === 1
+          ? state.progress.current_unit_key
+          : effectiveStage === 2
+            ? state.progress.current_s2_unit
+            : state.progress.current_s3_unit;
+    }
+  }
+
+  const content = await getVocabUnitContent({
+    tier: effectiveTier,
+    stage: effectiveStage,
+    unitKey: effectiveKey
+  });
+
+  const unitWords =
+    effectiveStage === 3
+      ? (content.affixItems || []).flatMap((it) => [
+          { id: it.id, word: it.derived_word, meaning_kr: it.derived_meaning_kr },
+          { id: `${it.id}_root`, word: it.root_word, meaning_kr: it.root_meaning_kr }
+        ])
+      : content.words || [];
+
+  const quizSet = new Set(Array.isArray(quizWordIds) ? quizWordIds : []);
+  const wrongSet = new Set(Array.isArray(wrongWordIds) ? wrongWordIds : []);
+  const quizWords = unitWords.filter((w) => quizSet.has(w.id));
+  const wrongWords = unitWords.filter((w) => wrongSet.has(w.id));
+
+  const items = selectPronunciationFocusItems({
+    unitWords,
+    quizWords,
+    wrongWords,
+    maxItems: 3
+  });
+
+  return {
+    stage: effectiveStage,
+    unitKey: effectiveKey,
+    tier: effectiveTier,
+    items
+  };
+}
+
+async function completePronunciationFocusToday(userId) {
+  const cleanUid = String(userId || "").trim();
+  if (!cleanUid) throw new Error("학생 ID가 필요합니다.");
+  await getOrInitStudentVocabProgress(cleanUid);
+  const todayKst = getKstTodayDateString();
+  const pgPool = getPgPool();
+
+  if (pgPool) {
+    await pgPool.query(
+      "UPDATE student_vocab_progress SET pronunciation_done_date = $1, updated_at = NOW() WHERE user_id = $2",
+      [todayKst, cleanUid]
+    );
+  } else {
+    getSqliteDb()
+      .prepare("UPDATE student_vocab_progress SET pronunciation_done_date = ?, updated_at = ? WHERE user_id = ?")
+      .run(todayKst, new Date().toISOString(), cleanUid);
+  }
+
+  return await getStudentVocabState(cleanUid);
+}
+
 module.exports = {
   syncVocabMasterData,
   seedVocabIfEmpty,
@@ -1055,5 +1321,7 @@ module.exports = {
   getVocabUnitContent,
   buildVocabQuiz,
   submitVocabAttempt,
-  updateStudentVocabSettings
+  updateStudentVocabSettings,
+  getPronunciationFocusForStudent,
+  completePronunciationFocusToday
 };

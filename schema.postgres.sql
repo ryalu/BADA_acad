@@ -133,6 +133,8 @@ CREATE TABLE IF NOT EXISTS vocab_bank (
   mh_no INTEGER,
   elem_unit_key VARCHAR(30),
   mh_unit_key VARCHAR(30),
+  image_url TEXT,
+  is_abstract BOOLEAN NOT NULL DEFAULT FALSE,
   phonics_spans_json JSONB NOT NULL DEFAULT '[]'::jsonb,
   phonics_unit_ids_json JSONB NOT NULL DEFAULT '[]'::jsonb
 );
@@ -169,6 +171,7 @@ CREATE TABLE IF NOT EXISTS vocab_affix_items (
 CREATE TABLE IF NOT EXISTS student_vocab_progress (
   user_id VARCHAR(80) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   vocab_tier VARCHAR(20) NOT NULL DEFAULT 'all',
+  s1_quiz_mode VARCHAR(20) NOT NULL DEFAULT 'meaning',
   current_stage INTEGER NOT NULL DEFAULT 1,
   current_unit_key VARCHAR(40) NOT NULL DEFAULT 'A',
   unit_started_at VARCHAR(20) NOT NULL,
@@ -179,8 +182,14 @@ CREATE TABLE IF NOT EXISTS student_vocab_progress (
   completed_s2_units_json JSONB NOT NULL DEFAULT '[]'::jsonb,
   current_s3_unit VARCHAR(60) NOT NULL DEFAULT 's3_pre_un',
   completed_s3_units_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  pronunciation_done_date VARCHAR(20),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE vocab_bank ADD COLUMN IF NOT EXISTS image_url TEXT;
+ALTER TABLE vocab_bank ADD COLUMN IF NOT EXISTS is_abstract BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE student_vocab_progress ADD COLUMN IF NOT EXISTS s1_quiz_mode VARCHAR(20) NOT NULL DEFAULT 'meaning';
+ALTER TABLE student_vocab_progress ADD COLUMN IF NOT EXISTS pronunciation_done_date VARCHAR(20);
 
 CREATE TABLE IF NOT EXISTS student_vocab_attempts (
   id VARCHAR(100) PRIMARY KEY,

@@ -19,6 +19,7 @@ import type {
 } from "../../types";
 import { playSoftTone, speakEnglish } from "../../utils/speech";
 import { OceanProgressGauge } from "./OceanProgressGauge";
+import { PronunciationFocusView } from "./PronunciationFocusView";
 
 interface Stage3AffixViewProps {
   userId: string;
@@ -42,7 +43,7 @@ export const Stage3AffixView: React.FC<Stage3AffixViewProps> = ({
   const [items, setItems] = useState<VocabAffixItem[]>([]);
   const [loadingUnit, setLoadingUnit] = useState(true);
 
-  const [mode, setMode] = useState<"study" | "quiz">("study");
+  const [mode, setMode] = useState<"study" | "quiz" | "pronunciation">("study");
   const [itemIdx, setItemIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [seenIds, setSeenIds] = useState<string[]>([]);
@@ -110,15 +111,6 @@ export const Stage3AffixView: React.FC<Stage3AffixViewProps> = ({
       active = false;
     };
   }, [activeUnitId]);
-
-  // Auto-return to Student Home 2.2s after spotless quiz
-  useEffect(() => {
-    if (!attemptResult || wrongItems.length > 0) return;
-    const timer = window.setTimeout(() => {
-      onBackHome();
-    }, 2200);
-    return () => window.clearTimeout(timer);
-  }, [attemptResult, wrongItems.length, onBackHome]);
 
   const activeItem = items[itemIdx] || items[0];
   const seenSet = new Set(seenIds);
@@ -350,6 +342,21 @@ export const Stage3AffixView: React.FC<Stage3AffixViewProps> = ({
           <div className="py-12 text-center text-sm font-bold text-slate-500">단어 패밀리를 불러오는 중...</div>
         ) : activeItem ? (
           <div className="space-y-6">
+            {state.todayQuizAttempted && !state.todayPronunciationDone && (
+              <button
+                type="button"
+                onClick={() => setMode("pronunciation")}
+                className="max-w-4xl mx-auto w-full card-clear-glass rounded-2xl px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 text-left hover:bg-white/55 transition cursor-pointer"
+              >
+                <span className="text-sm font-extrabold text-sky-900">
+                  오늘 퀴즈는 완료했어요! 마지막 &apos;헷갈리는 발음 콕콕&apos;만 끝내면 탐험 완료 도장이 찍혀요.
+                </span>
+                <span className="shrink-0 inline-flex items-center gap-1 px-4 py-1.5 rounded-full btn-water-glass text-xs font-extrabold">
+                  발음 학습하기 <ArrowRight className="w-3.5 h-3.5" />
+                </span>
+              </button>
+            )}
+
             <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-center gap-6">
               <OceanProgressGauge
                 seenCount={validSeenCount}
@@ -511,9 +518,11 @@ export const Stage3AffixView: React.FC<Stage3AffixViewProps> = ({
               {attemptResult.score_pct}% ({attemptResult.correct_count} / {attemptResult.total_count})
             </div>
             <p className="text-sm font-bold text-slate-700">
-              {wrongItems.length === 0
-                ? "오늘 확장 퀴즈 완료! 잠시 후 학습 맵으로 돌아갑니다."
-                : "오늘 확장 퀴즈를 마쳤어요! 아래 틀린 표현을 확인한 뒤 학습 맵으로 돌아가세요."}
+              {!state.todayPronunciationDone
+                ? "확장 퀴즈 완료! 마지막 '헷갈리는 발음 콕콕'을 마치면 탐험 완료 도장이 찍힙니다."
+                : wrongItems.length === 0
+                  ? "오늘 확장 퀴즈를 모두 맞혔어요!"
+                  : "오늘 확장 퀴즈를 마쳤어요! 아래 틀린 표현을 확인한 뒤 학습 맵으로 돌아가세요."}
             </p>
             {wrongItems.length > 0 && (
               <div className="text-left space-y-2 pt-2 border-t border-white/60">
@@ -537,13 +546,24 @@ export const Stage3AffixView: React.FC<Stage3AffixViewProps> = ({
               </div>
             )}
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={onBackHome}
-                className="px-7 py-3 rounded-full btn-water-glass text-sm font-extrabold"
-              >
-                학습 맵으로 돌아가기 →
-              </button>
+              {!state.todayPronunciationDone ? (
+                <button
+                  type="button"
+                  onClick={() => setMode("pronunciation")}
+                  className="px-7 py-3 rounded-full btn-water-glass text-sm font-extrabold inline-flex items-center gap-2"
+                >
+                  필수 마무리 · 헷갈리는 발음 학습하기
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onBackHome}
+                  className="px-7 py-3 rounded-full btn-water-glass text-sm font-extrabold"
+                >
+                  학습 맵으로 돌아가기 →
+                </button>
+              )}
             </div>
           </div>
         ) : quizQuestions[quizIdx] ? (
@@ -650,6 +670,21 @@ export const Stage3AffixView: React.FC<Stage3AffixViewProps> = ({
         ) : (
           <div className="py-10 text-center text-sm text-slate-500">문제를 불러오지 못했습니다.</div>
         )
+      )}
+
+      {mode === "pronunciation" && (
+        <PronunciationFocusView
+          userId={userId}
+          stage={3}
+          unitKey={activeUnitId}
+          tier={progress.vocab_tier || "all"}
+          quizWordIds={quizQuestions.map((q) => q.itemId)}
+          wrongWordIds={wrongItems.map((w) => w.itemId)}
+          onComplete={(nextState) => {
+            onStateChange(nextState);
+            onBackHome();
+          }}
+        />
       )}
     </div>
   );

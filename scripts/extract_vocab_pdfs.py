@@ -17,6 +17,59 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ELEM_PDF = os.path.join(ROOT_DIR, "data", "word_raw", "교육부지정 초등영단어 800.pdf")
 MH_PDF = os.path.join(ROOT_DIR, "data", "word_raw", "교육부 지정 중고등 필수단어.pdf")
 OUT_JSON = os.path.join(ROOT_DIR, "data", "vocab_master.json")
+PROMPTS_JSON = os.path.join(ROOT_DIR, "data", "elem_vocab_prompts.json")
+VOCAB_IMG_DIR = os.path.join(ROOT_DIR, "public", "vocab-images")
+
+CURATED_ABSTRACT_WORDS = {
+    "a", "about", "above", "across", "after", "again", "against", "ago", "all", "almost",
+    "alone", "along", "already", "also", "although", "always", "among", "an", "and",
+    "another", "any", "anybody", "anyone", "anything", "anywhere", "around", "as", "at",
+    "away", "back", "bad", "be", "because", "become", "before", "behind", "believe",
+    "below", "beside", "best", "better", "between", "beyond", "both", "but", "by",
+    "can", "cannot", "care", "cause", "certain", "chance", "change", "clear", "close",
+    "could", "different", "difficult", "do", "down", "during", "each", "early", "easy",
+    "either", "else", "end", "enough", "even", "ever", "every", "everybody", "everyone",
+    "everything", "everywhere", "example", "except", "excuse", "fact", "false", "far",
+    "fast", "feel", "few", "finally", "find", "fine", "first", "for", "forever", "forget",
+    "forward", "free", "from", "front", "full", "fun", "future", "general", "get", "glad",
+    "good", "great", "guess", "half", "happen", "hard", "have", "he", "help", "her",
+    "here", "hers", "herself", "high", "him", "himself", "his", "hope", "how", "however",
+    "i", "idea", "if", "important", "in", "inside", "instead", "into", "it", "its",
+    "itself", "just", "keep", "kind", "know", "last", "late", "later", "least", "leave",
+    "left", "less", "let", "life", "like", "likely", "little", "long", "lot", "love",
+    "low", "luck", "lucky", "main", "make", "many", "may", "maybe", "me", "mean",
+    "meaning", "middle", "might", "mind", "mine", "minute", "moment", "more", "most",
+    "mostly", "much", "must", "my", "myself", "name", "near", "nearly", "necessary",
+    "need", "neither", "never", "new", "next", "nice", "no", "nobody", "none", "nor",
+    "not", "nothing", "now", "number", "of", "off", "often", "oh", "ok", "okay", "old",
+    "on", "once", "one", "only", "open", "or", "order", "other", "our", "ours",
+    "ourselves", "out", "outside", "over", "own", "part", "past", "peace", "perhaps",
+    "plan", "please", "point", "polite", "poor", "possible", "power", "present",
+    "pretty", "probably", "problem", "promise", "proud", "public", "quick", "quiet",
+    "quite", "rather", "ready", "real", "really", "reason", "remember", "right", "round",
+    "rule", "sad", "safe", "same", "save", "say", "second", "secret", "seem", "self",
+    "sense", "several", "shall", "she", "short", "should", "side", "simple", "since",
+    "slow", "small", "so", "some", "somebody", "someone", "something", "sometimes",
+    "somewhere", "soon", "sorry", "sort", "special", "start", "still", "stop", "strange",
+    "strong", "such", "suddenly", "sure", "surprise", "sweet", "tell", "than", "thank",
+    "that", "the", "their", "theirs", "them", "themselves", "then", "there", "these",
+    "they", "thing", "think", "this", "those", "though", "through", "till", "time", "to",
+    "today", "together", "tomorrow", "too", "toward", "true", "truth", "try", "turn",
+    "twice", "under", "understand", "until", "up", "upon", "us", "use", "useful",
+    "usual", "usually", "very", "wait", "want", "way", "we", "weak", "welcome", "well",
+    "what", "whatever", "when", "where", "whether", "which", "while", "who", "whole",
+    "whom", "whose", "why", "will", "wish", "with", "within", "without", "wonder",
+    "word", "work", "worry", "worst", "would", "wrong", "yes", "yesterday", "yet", "you",
+    "young", "your", "yours", "yourself",
+}
+
+
+def load_curated_prompts():
+    if os.path.exists(PROMPTS_JSON):
+        with open(PROMPTS_JSON, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("words", {})
+    return {}
 
 
 def clean_elem_meaning(raw_m: str) -> str:
@@ -167,133 +220,41 @@ INITIAL_SOUND_GUIDE = {
 
 def build_stage1_units(words_list, tier: str):
     """
-    Build balanced Stage 1 A-Z units (skipping X=0, grouping tiny adjacent letters,
-    splitting >70 word letters alphabetically into balanced chunks).
+    Build unified Stage 1 single-letter A-Z units for `elem_800` or `mid_high`
+    (25 letters; X has 0 words in both PDFs).
     """
     is_elem = tier == "elem_800"
     field_flag = "is_elem_800" if is_elem else "is_mid_high"
     unit_field = "elem_unit_key" if is_elem else "mh_unit_key"
+    id_prefix = "s1_elem" if is_elem else "s1_mh"
+    tier_label = "초등 기초" if is_elem else "중고등 필수"
 
     by_letter = defaultdict(list)
     for w in words_list:
         if w[field_flag]:
             by_letter[w["initial_letter"]].append(w)
-    for lt in by_letter:
-        by_letter[lt].sort(key=lambda x: x["word"])
 
-    if is_elem:
-        groups = [
-            ("A", ["A"], "A 단어 · 첫소리 [애/에이]"),
-            ("B", ["B"], "B 단어 · 첫소리 [브]"),
-            ("C", ["C"], "C 단어 · 첫소리 [크/스]"),
-            ("D", ["D"], "D 단어 · 첫소리 [드]"),
-            ("E", ["E"], "E 단어 · 첫소리 [에/이]"),
-            ("F", ["F"], "F 단어 · 첫소리 [프]"),
-            ("G", ["G"], "G 단어 · 첫소리 [그/쥐]"),
-            ("H", ["H"], "H 단어 · 첫소리 [흐]"),
-            ("I-J-K", ["I", "J", "K"], "I · J · K 묶음 단어"),
-            ("L", ["L"], "L 단어 · 첫소리 [을]"),
-            ("M", ["M"], "M 단어 · 첫소리 [므]"),
-            ("N", ["N"], "N 단어 · 첫소리 [느]"),
-            ("O", ["O"], "O 단어 · 첫소리 [오/아]"),
-            ("P", ["P"], "P 단어 · 첫소리 [프]"),
-            ("Q-R", ["Q", "R"], "Q · R 묶음 단어"),
-            ("S-1", ["S"], "S 단어 (1) · 앞부분"),
-            ("S-2", ["S"], "S 단어 (2) · 뒷부분"),
-            ("T", ["T"], "T 단어 · 첫소리 [트]"),
-            ("U-V", ["U", "V"], "U · V 묶음 단어"),
-            ("W", ["W"], "W 단어 · 첫소리 [우]"),
-            ("Y-Z", ["Y", "Z"], "Y · Z 묶음 단어"),
-        ]
-        units = []
-        for idx, (ukey, letters, title_kr) in enumerate(groups, 1):
-            if ukey == "S-1":
-                chunk = by_letter["S"][: (len(by_letter["S"]) + 1) // 2]
-            elif ukey == "S-2":
-                chunk = by_letter["S"][(len(by_letter["S"]) + 1) // 2 :]
-            else:
-                chunk = []
-                for lt in letters:
-                    chunk.extend(by_letter[lt])
-            for item in chunk:
-                item[unit_field] = ukey
-            guide = " / ".join(INITIAL_SOUND_GUIDE[lt] for lt in letters if lt in INITIAL_SOUND_GUIDE)
-            units.append({
-                "id": f"s1_elem_{ukey.lower()}",
-                "tier": "elem_800",
-                "stage": 1,
-                "unit_key": ukey,
-                "title_kr": title_kr,
-                "rule_summary_kr": f"첫 글자 소리 익히기: {guide}",
-                "word_count": len(chunk),
-                "sort_order": idx,
-            })
-        return units
-
-    # Mid/High 1800: group J-K, U-V, W-Y-Z, merge Q into Q-R-1, split any >70 letter
-    spec_sequence = [
-        ("A", ["A"]),
-        ("B", ["B"]),
-        ("C", ["C"]),
-        ("D", ["D"]),
-        ("E", ["E"]),
-        ("F", ["F"]),
-        ("G", ["G"]),
-        ("H", ["H"]),
-        ("I", ["I"]),
-        ("J-K", ["J", "K"]),
-        ("L", ["L"]),
-        ("M", ["M"]),
-        ("N", ["N"]),
-        ("O", ["O"]),
-        ("P", ["P"]),
-        ("Q-R", ["Q", "R"]),
-        ("S", ["S"]),
-        ("T", ["T"]),
-        ("U-V", ["U", "V"]),
-        ("W-Y-Z", ["W", "Y", "Z"]),
-    ]
     units = []
     sort_idx = 0
-    for base_key, letters in spec_sequence:
-        pool = []
-        for lt in letters:
-            pool.extend(by_letter[lt])
-        if len(pool) <= 70:
-            sort_idx += 1
-            for item in pool:
-                item[unit_field] = base_key
-            guide = " / ".join(INITIAL_SOUND_GUIDE[lt] for lt in letters if lt in INITIAL_SOUND_GUIDE)
-            units.append({
-                "id": f"s1_mh_{base_key.lower()}",
-                "tier": "mid_high",
-                "stage": 1,
-                "unit_key": base_key,
-                "title_kr": f"{base_key} 필수 단어 ({len(pool)}개)",
-                "rule_summary_kr": f"첫소리 · 핵심 어휘: {guide}",
-                "word_count": len(pool),
-                "sort_order": sort_idx,
-            })
-        else:
-            parts_cnt = math.ceil(len(pool) / 70)
-            part_size = math.ceil(len(pool) / parts_cnt)
-            for p_i in range(parts_cnt):
-                sort_idx += 1
-                sub = pool[p_i * part_size : (p_i + 1) * part_size]
-                ukey = f"{base_key}-{p_i + 1}"
-                for item in sub:
-                    item[unit_field] = ukey
-                guide = " / ".join(INITIAL_SOUND_GUIDE[lt] for lt in letters if lt in INITIAL_SOUND_GUIDE)
-                units.append({
-                    "id": f"s1_mh_{ukey.lower()}",
-                    "tier": "mid_high",
-                    "stage": 1,
-                    "unit_key": ukey,
-                    "title_kr": f"{base_key} ({p_i + 1}/{parts_cnt}) 필수 단어",
-                    "rule_summary_kr": f"첫소리 · 핵심 어휘: {guide}",
-                    "word_count": len(sub),
-                    "sort_order": sort_idx,
-                })
+    for code in range(ord("A"), ord("Z") + 1):
+        lt = chr(code)
+        chunk = by_letter[lt]
+        if not chunk:
+            continue
+        sort_idx += 1
+        for item in chunk:
+            item[unit_field] = lt
+        guide = INITIAL_SOUND_GUIDE.get(lt, lt)
+        units.append({
+            "id": f"{id_prefix}_{lt.lower()}",
+            "tier": tier,
+            "stage": 1,
+            "unit_key": lt,
+            "title_kr": f"{lt} {tier_label} 단어 · {guide}",
+            "rule_summary_kr": f"첫 글자 소리 익히기: {guide} ({len(chunk)}단어)",
+            "word_count": len(chunk),
+            "sort_order": sort_idx,
+        })
     return units
 
 
@@ -663,7 +624,22 @@ def main():
                 "phonics_unit_ids": [],
             }
 
+    curated_prompts = load_curated_prompts()
     words_list = sorted(merged.values(), key=lambda x: (x["word"], x["elem_no"] or 9999))
+    for w_rec in words_list:
+        cur = curated_prompts.get(w_rec["id"])
+        if cur is not None and "is_abstract" in cur:
+            w_rec["is_abstract"] = bool(cur["is_abstract"])
+        else:
+            w_rec["is_abstract"] = (
+                w_rec["word"] in CURATED_ABSTRACT_WORDS
+                or str(w_rec["meaning_kr"]).strip().startswith("~")
+            )
+        webp_path = os.path.join(VOCAB_IMG_DIR, f"{w_rec['id']}.webp")
+        if w_rec["is_elem_800"] and os.path.exists(webp_path) and os.path.getsize(webp_path) > 500:
+            w_rec["image_url"] = f"/vocab-images/{w_rec['id']}.webp"
+        else:
+            w_rec["image_url"] = None
 
     s1_all_units = build_stage1_all_units(words_list)
     s1_elem_units = build_stage1_units(words_list, "elem_800")

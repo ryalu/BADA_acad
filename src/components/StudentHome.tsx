@@ -190,6 +190,9 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
     (u) => u.id === vocabState.progress.current_s3_unit
   );
   const todayVocabDone = Boolean(vocabState?.todayDailyQuizDone);
+  const vocabNeedsPronunciation = Boolean(
+    vocabState?.todayQuizAttempted && !vocabState?.todayPronunciationDone
+  );
   const monthReady = Boolean(vocabState?.monthReady);
   const daysElapsed = vocabState?.daysElapsed || 0;
   const monthProgressPct = Math.min(100, Math.round((daysElapsed / 30) * 100));
@@ -336,6 +339,8 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                     <CheckCircle2 className="w-3.5 h-3.5 text-sky-700" />
                     탐험 완료!
                   </>
+                ) : vocabNeedsPronunciation ? (
+                  "발음 마무리 남음"
                 ) : monthReady ? (
                   "파이널 테스트 가능!"
                 ) : (
@@ -416,7 +421,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
               onClick={onOpenVocab}
               className="w-full py-3.5 px-5 rounded-2xl btn-water-glass text-base font-extrabold inline-flex items-center justify-center gap-2"
             >
-              단어 시작하기
+              {vocabNeedsPronunciation ? "헷갈리는 발음 마무리하기" : "단어 시작하기"}
               <ArrowRight className="w-4 h-4" />
             </button>
           )}

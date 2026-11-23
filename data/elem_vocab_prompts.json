@@ -1,0 +1,141 @@
+{
+  "style_anchor": "Cute Korean children's storybook 2D cartoon illustration, clean soft dark-brown rounded ink outlines, warm cheerful pastel gouache coloring, expressive friendly character or clear object, centered single visual scene on a clean soft warm-white background, strictly no text, no letters, no numbers, no speech-bubble words, no watermark, square 1:1 composition.",
+  "words": {
+    "vb_act": {
+      "is_abstract": false,
+      "scene_prompt": "Cute smiling child performing joyfully on a tiny wooden storybook stage with velvet red curtains and holding a shiny cardboard star prop, cheerful spotlight glow."
+    },
+    "vb_address": {
+      "is_abstract": false,
+      "scene_prompt": "Cozy pastel cottage front gate with a cute blue mailbox and an envelope featuring a tiny painted house emblem and stamp icon, no letters or numbers anywhere."
+    },
+    "vb_afraid": {
+      "is_abstract": false,
+      "scene_prompt": "Cute chibi child gasping with wide eyes and stepping back shyly in surprise from a tiny friendly cartoon spider hanging on a silk thread."
+    },
+    "vb_afternoon": {
+      "is_abstract": false,
+      "scene_prompt": "Warm sunny golden afternoon park scene with a happy child sitting on a wooden bench eating an ice cream snack under a bright high sun and fluffy clouds."
+    },
+    "vb_age": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful child wearing a cute party hat smiling behind a pastel birthday cake decorated with colorful glowing candles, joyful celebration."
+    },
+    "vb_air": {
+      "is_abstract": false,
+      "scene_prompt": "Fresh clear sky-blue breeze swirling gently in playful curved ribbons carrying floating fluffy white dandelion seeds and soft clouds."
+    },
+    "vb_airport": {
+      "is_abstract": false,
+      "scene_prompt": "Cute mini airport terminal building with rounded glass windows, a control tower with radar dish, blank rooftop without any signs or words, and a cheerful colorful cartoon passenger airplane taking off above the runway into a sunny pastel sky."
+    },
+    "vb_album": {
+      "is_abstract": false,
+      "scene_prompt": "Open cozy hardcover photo album book lying flat, filled with cute tiny colorful cartoon picture snapshots of a puppy, sunny beach, and happy family."
+    },
+    "vb_angry": {
+      "is_abstract": false,
+      "scene_prompt": "Cute chibi child with puffed pink cheeks, furrowed brows, crossed arms, and tiny cartoon steam puffs floating above their head, funny harmless cartoon expression."
+    },
+    "vb_animal": {
+      "is_abstract": false,
+      "scene_prompt": "Adorable group of smiling cartoon animals standing happily together on green meadow grass: a puppy, fluffy white bunny, baby lion cub, and baby giraffe."
+    },
+    "vb_answer": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful elementary child sitting at a classroom desk enthusiastically raising one hand high with a bright glowing golden lightbulb icon floating above their head."
+    },
+    "vb_apartment": {
+      "is_abstract": false,
+      "scene_prompt": "Charming pastel multi-story apartment building with cozy sunny balconies, green potted plants, a tiny cat in a window, and warm glowing windows."
+    },
+    "vb_apple": {
+      "is_abstract": false,
+      "scene_prompt": "Shiny bright red apple with a cute green leaf and tiny cheerful sparkle highlight sitting neatly at center."
+    },
+    "vb_arm": {
+      "is_abstract": false,
+      "scene_prompt": "Cheerful sporty child in a yellow t-shirt smiling and happily raising and flexing their own bent arm while pointing toward the arm with the other hand."
+    },
+    "vb_arrive": {
+      "is_abstract": false,
+      "scene_prompt": "Happy child traveler rolling a cute small yellow suitcase and stepping cheerfully off a pastel platform beside a cute rounded train arched gate featuring only a tiny train picture icon and zero letters or signs."
+    },
+    "vb_ask": {
+      "is_abstract": false,
+      "scene_prompt": "Curious cute child tilting head and raising a hand toward a kind smiling teacher, with a small simple pastel thought bubble showing only a rounded question mark symbol."
+    },
+    "vb_aunt": {
+      "is_abstract": false,
+      "scene_prompt": "Warm smiling young woman in a pastel cardigan holding hands kindly with a happy little child while walking together along a sunny park path."
+    },
+    "vb_autumn": {
+      "is_abstract": false,
+      "scene_prompt": "Cozy autumn park scene under warm golden sunlight with swirling orange and red maple leaves falling and a cute fluffy squirrel hugging an acorn."
+    },
+    "vb_a": {
+      "is_abstract": true,
+      "scene_prompt": "Cute cheerful child holding up one index finger happily while presenting a single shiny red apple resting on a small round pastel plate."
+    },
+    "vb_about": {
+      "is_abstract": true,
+      "scene_prompt": "Cute child sitting on a cushion reading an open picture book while a fluffy white thought-cloud above their head shows a friendly little green dinosaur."
+    },
+    "vb_across": {
+      "is_abstract": true,
+      "scene_prompt": "Cute happy puppy walking cheerfully from the left meadow to the right meadow over a tiny arched wooden bridge spanning a sparkling blue stream."
+    },
+    "vb_after": {
+      "is_abstract": true,
+      "scene_prompt": "Two-scene mini storybook comic side by side: left frame shows a child eating lunch, gentle curved orange arrow in center pointing right to the child happily brushing teeth."
+    },
+    "vb_again": {
+      "is_abstract": true,
+      "scene_prompt": "Cheerful child smiling beside colorful wooden toy blocks, rebuilding a tower with a glowing pastel circular repeat arrow hovering gently above."
+    },
+    "vb_ago": {
+      "is_abstract": true,
+      "scene_prompt": "Cute 9-year-old child smiling wistfully while looking up at a soft dreamy memory cloud showing their tiny toddler self holding a toy rattle."
+    },
+    "vb_all": {
+      "is_abstract": true,
+      "scene_prompt": "Five adorable animal friends (bear, bunny, duckling, kitten, puppy) standing shoulder to shoulder gathered inside one warm glowing ring cheering happily together."
+    },
+    "vb_along": {
+      "is_abstract": true,
+      "scene_prompt": "Happy child and little puppy strolling forward side by side following a long winding pastel riverside walkway lined with colorful flowers."
+    },
+    "vb_always": {
+      "is_abstract": true,
+      "scene_prompt": "Three cozy mini circular vignettes arranged cleanly showing sun rising morning, bright daytime, and starry night sky, each with the same child hugging a teddy bear."
+    },
+    "vb_among": {
+      "is_abstract": true,
+      "scene_prompt": "Cute tiny red smiling ladybug sitting happily right in the middle surrounded closely by a big lush cluster of cheerful yellow and white daisies."
+    },
+    "vb_and": {
+      "is_abstract": true,
+      "scene_prompt": "Cute smiling child happily holding a bright red apple in the left hand and a sunny yellow banana in the right hand, linked by a joyful pastel ribbon bow."
+    },
+    "vb_any": {
+      "is_abstract": true,
+      "scene_prompt": "Cute woven wicker basket brimming with assorted colorful pastel wrapped candies and sweets while a child's open hand reaches happily to pick one."
+    },
+    "vb_around": {
+      "is_abstract": true,
+      "scene_prompt": "Two happy children and colorful butterflies holding hands and skipping playfully in a big circle around one lush round green tree."
+    },
+    "vb_as": {
+      "is_abstract": true,
+      "scene_prompt": "Cute child dressed up playfully wearing a neat little white doctor coat and toy stethoscope giving a gentle checkup to a sitting plush teddy bear."
+    },
+    "vb_at": {
+      "is_abstract": true,
+      "scene_prompt": "Cute child standing neatly with a small backpack right beside a cute pastel bus stop pole with a glowing tiny coral location-pin icon above that exact spot."
+    },
+    "vb_away": {
+      "is_abstract": true,
+      "scene_prompt": "Cute child standing on a grassy hill beside a cozy cottage waving goodbye happily as a bright red balloon floats far away high into the sky."
+    }
+  }
+}

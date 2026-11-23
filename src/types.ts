@@ -197,6 +197,7 @@ export interface PhonicsCurriculumTier {
 
 export type VocabTier = "all" | "elem_800" | "mid_high";
 export type VocabInputMode = "tiles" | "typing";
+export type VocabS1QuizMode = "meaning" | "picture_to_word" | "mixed";
 
 export interface VocabUnit {
   id: string;
@@ -230,6 +231,8 @@ export interface VocabWord {
   mh_no: number | null;
   elem_unit_key: string | null;
   mh_unit_key: string | null;
+  image_url?: string | null;
+  is_abstract?: boolean;
   phonics_spans: VocabPhonicsSpan[];
   phonics_unit_ids: string[];
 }
@@ -255,6 +258,7 @@ export interface VocabAffixItem {
 export interface StudentVocabProgress {
   user_id: string;
   vocab_tier: VocabTier;
+  s1_quiz_mode: VocabS1QuizMode;
   current_stage: 1 | 2 | 3;
   current_unit_key: string;
   unit_started_at: string;
@@ -265,6 +269,7 @@ export interface StudentVocabProgress {
   completed_s2_units: string[];
   current_s3_unit: string;
   completed_s3_units: string[];
+  pronunciation_done_date?: string | null;
   updated_at?: string;
 }
 
@@ -288,8 +293,11 @@ export interface StudentVocabState {
   todayKst: string;
   daysElapsed: number;
   monthReady: boolean;
+  todayQuizAttempted?: boolean;
+  todayPronunciationDone?: boolean;
   todayDailyQuizDone: boolean;
   recentWrongWordIds: string[];
+  stage1ByTier?: Record<VocabTier, VocabUnit[]>;
   units: {
     stage1: VocabUnit[];
     stage2: VocabUnit[];
@@ -303,8 +311,39 @@ export interface VocabStage1Question {
   word: string;
   displayWord: string;
   initialLetter: string;
+  questionType?: "meaning" | "picture_to_word";
+  imageUrl?: string | null;
   correctMeaning: string;
+  correctAnswer?: string;
   options: string[];
+}
+
+export interface PronunciationFocusItem {
+  ruleId: string;
+  label: string;
+  titleKr: string;
+  mouthTipKr: string;
+  matchedTodayWords: {
+    word: string;
+    meaning_kr: string;
+    matchStart: number;
+    matchEnd: number;
+  }[];
+  pair: {
+    leftWord: string;
+    leftMeaning: string;
+    leftHighlight: string;
+    rightWord: string;
+    rightMeaning: string;
+    rightHighlight: string;
+  };
+  earQuiz: {
+    promptKr: string;
+    audioWord: string;
+    correctSide: "left" | "right";
+    leftOption: string;
+    rightOption: string;
+  };
 }
 
 export interface VocabStage2Question {
