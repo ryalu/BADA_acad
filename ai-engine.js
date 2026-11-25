@@ -553,8 +553,8 @@ function analyzeTextWithLLM(rawText, level = "Level 2", customKoreanText = "") {
       i === 0
         ? "원어민 호흡 1순위 핵심 청크"
         : i === 1
-        ? "장소/방향 전치사구 연결 호흡"
-        : "동사 + 묘사어 리듬 청크"
+          ? "장소/방향 전치사구 연결 호흡"
+          : "동사 + 묘사어 리듬 청크"
   }));
 
   // 4. Sentence-by-sentence Korean translations (uses optional customKoreanText if entered, else auto-translates)
@@ -893,7 +893,7 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
     const parsed = JSON.parse(data?.choices?.[0]?.message?.content || "{}");
     const styleBible = String(
       parsed.art_style_bible ||
-        "Consistent warm Pixar-style 3D painterly children's picture-book illustration, soft sunlit pastel palette, gentle rounded shapes, NO text or letters anywhere."
+      "Consistent warm Pixar-style 3D painterly children's picture-book illustration, soft sunlit pastel palette, gentle rounded shapes, NO text or letters anywhere."
     ).trim();
     const characterSheet = String(parsed.character_sheet || "").trim();
     const llmPages = Array.isArray(parsed.pages) ? parsed.pages : [];
@@ -981,10 +981,10 @@ async function analyzeTextWithLLMAsync(rawText, level = "Level 2", customKoreanT
   const sentenceTranslations =
     Array.isArray(p.sentence_translations) && p.sentence_translations.length
       ? p.sentence_translations.map((st, idx) => ({
-          index: idx,
-          en: st.en || (localFallback.sentence_translations[idx] && localFallback.sentence_translations[idx].en) || "",
-          kr: customLines[idx] || st.kr || (localFallback.sentence_translations[idx] && localFallback.sentence_translations[idx].kr) || ""
-        }))
+        index: idx,
+        en: st.en || (localFallback.sentence_translations[idx] && localFallback.sentence_translations[idx].en) || "",
+        kr: customLines[idx] || st.kr || (localFallback.sentence_translations[idx] && localFallback.sentence_translations[idx].kr) || ""
+      }))
       : localFallback.sentence_translations;
 
   const llmVocab = Array.isArray(p.vocab) && p.vocab.length ? p.vocab : [];
@@ -1005,10 +1005,10 @@ async function analyzeTextWithLLMAsync(rawText, level = "Level 2", customKoreanT
   const pageIllustrations = options.skipIllustrations
     ? []
     : await generatePageIllustrationsWithLLM({
-        title,
-        fullText: rawText,
-        level
-      });
+      title,
+      fullText: rawText,
+      level
+    });
 
   return {
     level,
@@ -1167,6 +1167,487 @@ async function generateParentFeedbackMessage({
   return `안녕하세요, 학부모님! BADA 영어입니다.\n${studentName} 학생이 이번 달 원서 《${bookTitle}》(${level}) 학습을 성실하게 이어가고 있습니다.\n현재 1주차(${weeklyProgress.w1 || 0}%), 2주차(${weeklyProgress.w2 || 0}%), 3주차(${weeklyProgress.w3 || 0}%), 4주차(${weeklyProgress.w4 || 0}%) 단계를 차근차근 밟으며 읽기 자신감이 눈에 띄게 자라고 있어요.\n${weakText}\n항상 따뜻한 응원 감사드립니다!`;
 }
 
+function makeMissingWordChallenge(rawWord) {
+  const clean = String(rawWord || "").trim();
+  const letters = clean.split("");
+  const alphaIndices = [];
+  for (let i = 0; i < letters.length; i += 1) {
+    if (/[a-zA-Z]/.test(letters[i])) alphaIndices.push(i);
+  }
+  if (alphaIndices.length <= 2) {
+    const idx = alphaIndices[alphaIndices.length - 1] ?? 0;
+    const ans = letters[idx] || clean;
+    const masked = letters.map((ch, i) => (i === idx ? "_" : ch)).join("");
+    return { missing_word: masked, missing_answer: ans };
+  }
+  // Prefer hiding a vowel or middle consonant so young learners recognize word shape
+  const middleVowelIdx = alphaIndices.find(
+    (idx, pos) => pos > 0 && pos < alphaIndices.length - 1 && /[aeiouAEIOU]/.test(letters[idx])
+  );
+  const pickIdx =
+    middleVowelIdx !== undefined ? middleVowelIdx : alphaIndices[Math.floor(alphaIndices.length / 2)];
+  const ans = letters[pickIdx];
+  const masked = letters.map((ch, i) => (i === pickIdx ? "_" : ch)).join("");
+  return { missing_word: masked, missing_answer: ans };
+}
+
+function deterministicScrambleWords(rawText, seedIdx = 0) {
+  const tokens = String(rawText || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (tokens.length <= 1) return tokens;
+  if (tokens.length === 2) return [tokens[1], tokens[0]];
+  const copy = [...tokens];
+  const shift = (seedIdx % (copy.length - 1)) + 1;
+  const rotated = [...copy.slice(shift), ...copy.slice(0, shift)];
+  if (rotated.join(" ") === tokens.join(" ")) {
+    [rotated[0], rotated[rotated.length - 1]] = [rotated[rotated.length - 1], rotated[0]];
+  }
+  return rotated;
+}
+
+function buildPatternSwapFromSentence(sentence, krText, fallbackIdx = 0) {
+  const clean = String(sentence || "").trim();
+  const punct = /[.!?]$/.test(clean) ? clean.slice(-1) : ".";
+  const body = clean.replace(/[.!?]+$/, "").trim();
+  const tokens = body.split(/\s+/).filter(Boolean);
+  if (tokens.length < 2) {
+    return {
+      base_en: clean || "I see a friend.",
+      base_kr: krText || "친구를 보아요.",
+      pattern_en: "I see a ______.",
+      pattern_kr: "나는 ______을(를) 보아요.",
+      example_en: "I see a dog.",
+      example_kr: "강아지를 보아요.",
+      swap_options: [
+        { word: "dog", meaning_kr: "강아지" },
+        { word: "cat", meaning_kr: "고양이" },
+        { word: "star", meaning_kr: "별" },
+        { word: "moon", meaning_kr: "달" }
+      ]
+    };
+  }
+  // Prefer swapping a noun near the end or concrete object word
+  const stopSet = new Set(["the", "a", "an", "on", "in", "at", "to", "by", "with", "under", "across", "through", "over", "and", "is", "are", "of", "for", "look", "see", "they", "we", "you", "it"]);
+  let swapIdx = tokens.length - 1;
+  for (let i = tokens.length - 1; i >= 1; i -= 1) {
+    const bare = tokens[i].toLowerCase().replace(/[^a-z]/g, "");
+    if (bare.length >= 3 && !stopSet.has(bare)) {
+      swapIdx = i;
+      break;
+    }
+  }
+  const targetWord = tokens[swapIdx].replace(/[^a-zA-Z'-]/g, "") || "star";
+  const prefix = tokens.slice(0, swapIdx).join(" ");
+  const suffix = tokens.slice(swapIdx + 1).join(" ");
+  const patternEn = `${prefix ? `${prefix} ` : ""}______${suffix ? ` ${suffix}` : ""}${punct}`;
+  const swapPool = [
+    [
+      { word: "dolphin", meaning_kr: "돌고래" },
+      { word: "star", meaning_kr: "별" },
+      { word: "boat", meaning_kr: "배" },
+      { word: "moon", meaning_kr: "달" }
+    ],
+    [
+      { word: "dog", meaning_kr: "강아지" },
+      { word: "cat", meaning_kr: "고양이" },
+      { word: "bear", meaning_kr: "곰" },
+      { word: "duck", meaning_kr: "오리" }
+    ],
+    [
+      { word: "apple", meaning_kr: "사과" },
+      { word: "cake", meaning_kr: "케이크" },
+      { word: "flower", meaning_kr: "꽃" },
+      { word: "rainbow", meaning_kr: "무지개" }
+    ],
+    [
+      { word: "bird", meaning_kr: "새" },
+      { word: "tree", meaning_kr: "나무" },
+      { word: "house", meaning_kr: "집" },
+      { word: "sun", meaning_kr: "태양" }
+    ]
+  ];
+  const opts = swapPool[fallbackIdx % swapPool.length];
+  const exampleEn = `${prefix ? `${prefix} ` : ""}${opts[0].word}${suffix ? ` ${suffix}` : ""}${punct}`;
+  return {
+    base_en: clean,
+    base_kr: krText || "원서 표현을 내 말로 바꿔 보아요.",
+    pattern_en: patternEn,
+    pattern_kr: `${krText ? `("${krText}"에서 ` : "("}'${targetWord}' 자리를 내 단어로 바꿔 말하기)`,
+    example_en: exampleEn,
+    example_kr: `${opts[0].meaning_kr}(으)로 바꿔 말해요.`,
+    swap_options: opts
+  };
+}
+
+function buildFallbackWorksheetsV2({ title, level, sentences, vocab, chunks, translations }) {
+  const cleanVocab = [];
+  const seenW = new Set();
+  for (const v of vocab || []) {
+    const word = String(v.surface || v.word || "").trim();
+    const key = word.toLowerCase().replace(/[^a-z']/g, "");
+    if (!key || seenW.has(key)) continue;
+    if (/^(the|a|an|is|are|am|on|in|at|to|of|by|and)$/i.test(key)) continue;
+    seenW.add(key);
+    cleanVocab.push({
+      word,
+      meaning_kr: String(v.meaning_kr || word),
+      phonics_hint: String(v.phonetic || v.popo_tip || "")
+    });
+  }
+  const allWordNames = cleanVocab.map((v) => v.word);
+  const genericDistractors = ["star", "water", "baby", "blue", "happy", "tree", "moon", "sun"];
+
+  const vocabItems = cleanVocab.slice(0, 8).map((v, idx) => {
+    const miss = makeMissingWordChallenge(v.word);
+    const pool = [...allWordNames, ...genericDistractors].filter(
+      (w) => w.toLowerCase() !== v.word.toLowerCase()
+    );
+    const d1 = pool[(idx * 2) % pool.length] || "happy";
+    const d2 = pool[(idx * 2 + 1) % pool.length] || "sun";
+    return {
+      word: v.word,
+      meaning_kr: v.meaning_kr,
+      phonics_hint: v.phonics_hint,
+      missing_word: miss.missing_word,
+      missing_answer: miss.missing_answer,
+      distractors: [d1, d2 === d1 ? "blue" : d2]
+    };
+  });
+
+  const chunkItems = (chunks || []).slice(0, 6).map((c, idx) => {
+    const en = String(c.text || "").trim();
+    const kr = String(c.meaning_kr || "").trim();
+    const toks = en.split(/\s+/).filter(Boolean);
+    const ansTok = (toks[toks.length - 1] || en).replace(/[^a-zA-Z0-9'-]/g, "");
+    const blankEn = toks
+      .map((t, ti) => (ti === toks.length - 1 ? "______" : t))
+      .join(" ");
+    return {
+      en,
+      kr,
+      daily_kr: kr,
+      scrambled_words: deterministicScrambleWords(en, idx),
+      blank_en: blankEn || "______",
+      blank_answer: ansTok
+    };
+  });
+
+  const sentenceItems = sentences.slice(0, 8).map((en, idx) => {
+    const kr = String(translations[idx]?.kr || "").trim();
+    const toks = en.split(/\s+/).filter(Boolean);
+    const pickIdx = Math.max(0, Math.min(toks.length - 1, Math.floor(toks.length / 2)));
+    const blankAns = toks[pickIdx].replace(/[^a-zA-Z0-9'-]/g, "");
+    const blankSentence = toks.map((t, i) => (i === pickIdx ? "______" : t)).join(" ");
+    const midpoint = Math.max(1, Math.floor(toks.length / 2));
+    const chunkParts =
+      toks.length >= 4
+        ? [
+          toks.slice(0, Math.ceil(toks.length / 3)).join(" "),
+          toks.slice(Math.ceil(toks.length / 3), Math.ceil((2 * toks.length) / 3)).join(" "),
+          toks.slice(Math.ceil((2 * toks.length) / 3)).join(" ")
+        ].filter(Boolean)
+        : [toks.slice(0, midpoint).join(" "), toks.slice(midpoint).join(" ")].filter(Boolean);
+    return {
+      page_index: idx,
+      en,
+      kr,
+      daily_kr: kr,
+      scrambled_chunks: chunkParts.length > 1 ? [...chunkParts.slice(1), chunkParts[0]] : chunkParts,
+      blank_sentence: blankSentence,
+      blank_answer: blankAns
+    };
+  });
+
+  const firstKr = translations[0]?.kr || sentences[0] || title;
+  const secondKr = translations[1]?.kr || sentences[1] || firstKr;
+  const trueFalseItems = [
+    {
+      statement_kr: `이 이야기의 제목은 《${title}》입니다.`,
+      statement_en: `The story title is "${title}".`,
+      answer: "O"
+    },
+    {
+      statement_kr: `${firstKr}`,
+      statement_en: sentences[0] || title,
+      answer: "O"
+    },
+    {
+      statement_kr: "이 책에는 영어 문장이 하나도 나오지 않아요.",
+      statement_en: "There are no English words in this book.",
+      answer: "X"
+    },
+    {
+      statement_kr: secondKr ? `${secondKr}` : "이야기 속 친구들은 서로 다정하게 지냅니다.",
+      statement_en: sentences[1] || sentences[0] || title,
+      answer: "O"
+    }
+  ];
+
+  const patternSwaps = sentences
+    .slice(0, 4)
+    .map((s, i) => buildPatternSwapFromSentence(s, translations[i]?.kr || "", i));
+
+  const qaItems = [
+    {
+      question_en: "Who is in this story?",
+      question_kr: "이 이야기에는 누가 나오나요?",
+      starter_en: "I see ",
+      sample_en: cleanVocab[0] ? `I see ${cleanVocab[0].word}.` : `I see friends in ${title}.`
+    },
+    {
+      question_en: "Where does the story happen?",
+      question_kr: "이야기는 어디에서 일어나나요?",
+      starter_en: "It happens ",
+      sample_en: sentences[0] || "It happens in a happy place."
+    },
+    {
+      question_en: "Which sentence do you like best?",
+      question_kr: "이 이야기에서 가장 좋아하는 문장을 골라 써 보세요.",
+      starter_en: "I like: ",
+      sample_en: sentences[0] || ""
+    }
+  ];
+
+  const miniStoryPrompts = [
+    {
+      prompt_kr: "오늘 내가 본 멋진 장면을 영어로 한 문장 써 보세요.",
+      prompt_en: "Write your own sentence about something cool you see!",
+      starter_en: patternSwaps[0]?.pattern_en || "I see a ______."
+    },
+    {
+      prompt_kr: "내가 이야기 속 주인공이 되어 다음 장면을 이어 써 보세요.",
+      prompt_en: "Imagine you are in the story! What do you do?",
+      starter_en: "Together, we "
+    }
+  ];
+
+  return {
+    version: 2,
+    book_level: level,
+    vocab_items: vocabItems,
+    chunk_items: chunkItems,
+    sentence_items: sentenceItems,
+    true_false_items: trueFalseItems,
+    pattern_swaps: patternSwaps,
+    qa_items: qaItems,
+    mini_story_prompts: miniStoryPrompts,
+    week1: {
+      title_kr: `1주차 (${title})`,
+      vocab_test: vocabItems.map((v) => ({
+        word: v.word,
+        meaning_kr: v.meaning_kr,
+        hint: v.phonics_hint
+      })),
+      comprehension: qaItems.map((q) => ({
+        question_kr: q.question_kr,
+        answer_hint_kr: q.sample_en
+      }))
+    },
+    week2: {
+      title_kr: `2주차 (${title})`,
+      chunk_writing: chunkItems.map((c) => ({ en: c.en, kr: c.kr })),
+      fill_blanks: sentenceItems.map((s) => ({
+        sentence_blank: s.blank_sentence,
+        answer: s.blank_answer,
+        kr: s.kr
+      }))
+    },
+    week3_4: {
+      title_kr: `3·4주차 (${title})`,
+      sentence_copy: sentenceItems.map((s) => ({ en: s.en, kr: s.kr })),
+      my_expressions: patternSwaps.map((p) => ({
+        base_sentence: p.base_en,
+        swap_guide_kr: p.pattern_kr,
+        example_en: p.example_en
+      }))
+    }
+  };
+}
+
+function topUpArrayByKey(primary, fallback, minCount, maxCount, keyFn) {
+  const result = [...primary];
+  const seen = new Set(result.map((item) => String(keyFn(item) || "").toLowerCase()));
+  for (const item of fallback || []) {
+    if (result.length >= maxCount || result.length >= minCount) break;
+    const k = String(keyFn(item) || "").toLowerCase();
+    if (!k || seen.has(k)) continue;
+    seen.add(k);
+    result.push(item);
+  }
+  return result.slice(0, maxCount);
+}
+
+function normalizeAndCompleteWorksheets(parsed, ctx) {
+  const fb = buildFallbackWorksheetsV2(ctx);
+  if (!parsed || typeof parsed !== "object") return fb;
+
+  const rawVocab =
+    Array.isArray(parsed.vocab_items) && parsed.vocab_items.length >= 2
+      ? parsed.vocab_items.slice(0, 8).map((v, idx) => {
+        const word = String(v?.word || fb.vocab_items[idx]?.word || "").trim();
+        const miss = makeMissingWordChallenge(word);
+        const fbItem = fb.vocab_items[idx % fb.vocab_items.length] || {};
+        const rawDist = Array.isArray(v?.distractors) ? v.distractors.filter(Boolean) : [];
+        return {
+          word,
+          meaning_kr: String(v?.meaning_kr || fbItem.meaning_kr || word),
+          phonics_hint: String(v?.phonics_hint || fbItem.phonics_hint || ""),
+          missing_word: String(miss.missing_word || word),
+          missing_answer: String(miss.missing_answer || word[0] || ""),
+          distractors:
+            rawDist.length >= 2 ? rawDist.slice(0, 2).map(String) : fbItem.distractors || ["happy", "star"]
+        };
+      })
+      : fb.vocab_items;
+  const vocabItems = topUpArrayByKey(rawVocab, fb.vocab_items, 6, 8, (x) => x.word);
+
+  const rawChunks =
+    Array.isArray(parsed.chunk_items) && parsed.chunk_items.length >= 2
+      ? parsed.chunk_items.slice(0, 6).map((c, idx) => {
+        const en = String(c?.en || fb.chunk_items[idx]?.en || "").trim();
+        const kr = String(c?.kr || fb.chunk_items[idx]?.kr || "").trim();
+        const toks = en.split(/\s+/).filter(Boolean);
+        const fallbackAns = (toks[toks.length - 1] || "").replace(/[^a-zA-Z0-9'-]/g, "");
+        return {
+          en,
+          kr,
+          daily_kr: String(c?.daily_kr || kr),
+          scrambled_words:
+            Array.isArray(c?.scrambled_words) && c.scrambled_words.length > 1
+              ? c.scrambled_words.map(String)
+              : deterministicScrambleWords(en, idx),
+          blank_en: String(
+            c?.blank_en || toks.map((t, ti) => (ti === toks.length - 1 ? "______" : t)).join(" ")
+          ),
+          blank_answer: String(c?.blank_answer || fallbackAns)
+        };
+      })
+      : fb.chunk_items;
+  const chunkItems = topUpArrayByKey(rawChunks, fb.chunk_items, 5, 6, (x) => x.en);
+
+  const rawSentences =
+    Array.isArray(parsed.sentence_items) && parsed.sentence_items.length >= 2
+      ? parsed.sentence_items.slice(0, 8).map((s, idx) => {
+        const fbItem = fb.sentence_items[idx % fb.sentence_items.length] || {};
+        const en = String(s?.en || fbItem.en || "").trim();
+        const kr = String(s?.kr || fbItem.kr || "").trim();
+        return {
+          page_index: Number.isFinite(Number(s?.page_index)) ? Number(s.page_index) : idx,
+          en,
+          kr,
+          daily_kr: String(s?.daily_kr || kr),
+          scrambled_chunks:
+            Array.isArray(s?.scrambled_chunks) && s.scrambled_chunks.length > 1
+              ? s.scrambled_chunks.map(String)
+              : fbItem.scrambled_chunks || deterministicScrambleWords(en, idx),
+          blank_sentence: String(s?.blank_sentence || fbItem.blank_sentence || en),
+          blank_answer: String(s?.blank_answer || fbItem.blank_answer || "")
+        };
+      })
+      : fb.sentence_items;
+  const sentenceItems = topUpArrayByKey(rawSentences, fb.sentence_items, 4, 8, (x) => x.en);
+
+  const trueFalseItems =
+    Array.isArray(parsed.true_false_items) && parsed.true_false_items.length >= 3
+      ? parsed.true_false_items.slice(0, 4).map((t, idx) => ({
+        statement_kr: String(t?.statement_kr || fb.true_false_items[idx % fb.true_false_items.length].statement_kr),
+        statement_en: String(t?.statement_en || fb.true_false_items[idx % fb.true_false_items.length].statement_en || ""),
+        answer: String(t?.answer || "O").toUpperCase() === "X" ? "X" : "O"
+      }))
+      : fb.true_false_items;
+
+  const patternSwaps =
+    Array.isArray(parsed.pattern_swaps) && parsed.pattern_swaps.length >= 2
+      ? parsed.pattern_swaps.slice(0, 4).map((p, idx) => {
+        const fbItem = fb.pattern_swaps[idx % fb.pattern_swaps.length];
+        return {
+          base_en: String(p?.base_en || fbItem.base_en),
+          base_kr: String(p?.base_kr || fbItem.base_kr),
+          pattern_en: String(p?.pattern_en || fbItem.pattern_en),
+          pattern_kr: String(p?.pattern_kr || fbItem.pattern_kr),
+          example_en: String(p?.example_en || fbItem.example_en),
+          example_kr: String(p?.example_kr || fbItem.example_kr),
+          swap_options:
+            Array.isArray(p?.swap_options) && p.swap_options.length >= 2
+              ? p.swap_options.slice(0, 4).map((o) => ({
+                word: String(o?.word || "").trim(),
+                meaning_kr: String(o?.meaning_kr || "").trim()
+              }))
+              : fbItem.swap_options
+        };
+      })
+      : fb.pattern_swaps;
+
+  const qaItems =
+    Array.isArray(parsed.qa_items) && parsed.qa_items.length >= 2
+      ? parsed.qa_items.slice(0, 3).map((q, idx) => {
+        const fbQ = fb.qa_items[idx % fb.qa_items.length];
+        return {
+          question_en: String(q?.question_en || fbQ.question_en),
+          question_kr: String(q?.question_kr || fbQ.question_kr),
+          starter_en: String(q?.starter_en || fbQ.starter_en),
+          sample_en: String(q?.sample_en || fbQ.sample_en)
+        };
+      })
+      : fb.qa_items;
+
+  const miniStoryPrompts =
+    Array.isArray(parsed.mini_story_prompts) && parsed.mini_story_prompts.length >= 2
+      ? parsed.mini_story_prompts.slice(0, 2).map((m, idx) => {
+        const fbM = fb.mini_story_prompts[idx % fb.mini_story_prompts.length];
+        return {
+          prompt_kr: String(m?.prompt_kr || fbM.prompt_kr),
+          prompt_en: String(m?.prompt_en || fbM.prompt_en),
+          starter_en: String(m?.starter_en || fbM.starter_en)
+        };
+      })
+      : fb.mini_story_prompts;
+
+  return {
+    version: 2,
+    book_level: ctx.level,
+    vocab_items: vocabItems,
+    chunk_items: chunkItems,
+    sentence_items: sentenceItems,
+    true_false_items: trueFalseItems,
+    pattern_swaps: patternSwaps,
+    qa_items: qaItems,
+    mini_story_prompts: miniStoryPrompts,
+    week1: {
+      title_kr: `1주차 (${ctx.title})`,
+      vocab_test: vocabItems.map((v) => ({
+        word: v.word,
+        meaning_kr: v.meaning_kr,
+        hint: v.phonics_hint
+      })),
+      comprehension: qaItems.map((q) => ({
+        question_kr: q.question_kr,
+        answer_hint_kr: q.sample_en
+      }))
+    },
+    week2: {
+      title_kr: `2주차 (${ctx.title})`,
+      chunk_writing: chunkItems.map((c) => ({ en: c.en, kr: c.kr })),
+      fill_blanks: sentenceItems.map((s) => ({
+        sentence_blank: s.blank_sentence,
+        answer: s.blank_answer,
+        kr: s.kr
+      }))
+    },
+    week3_4: {
+      title_kr: `3·4주차 (${ctx.title})`,
+      sentence_copy: sentenceItems.map((s) => ({ en: s.en, kr: s.kr })),
+      my_expressions: patternSwaps.map((p) => ({
+        base_sentence: p.base_en,
+        swap_guide_kr: p.pattern_kr,
+        example_en: p.example_en
+      }))
+    }
+  };
+}
+
 async function generateBookWorksheetsWithLLM(book) {
   const title = String(book?.title || "Storybook");
   const level = String(book?.level || "Level 2");
@@ -1180,7 +1661,9 @@ async function generateBookWorksheetsWithLLM(book) {
     .map((s) => s.trim())
     .filter(Boolean);
 
+  const ctx = { title, level, sentences, vocab, chunks, translations };
   const openaiKey = process.env.OPENAI_API_KEY || "";
+
   if (openaiKey && fullText.trim()) {
     try {
       const resp = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -1191,18 +1674,23 @@ async function generateBookWorksheetsWithLLM(book) {
         },
         body: JSON.stringify({
           model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-          temperature: 0.3,
-          max_tokens: 3500,
+          temperature: 0.25,
+          max_tokens: 4000,
           response_format: { type: "json_object" },
           messages: [
             {
               role: "system",
               content:
-                "You are an elementary English curriculum designer for BADA English. " +
-                "Create printable offline weekly practice worksheets for ONE storybook. Return ONLY valid JSON with keys `week1`, `week2`, `week3_4`: " +
-                "1) `week1`: { title_kr, vocab_test: [8-12 items of {word, meaning_kr, hint}], comprehension: [3-4 items of {question_kr (Korean question checking story understanding), answer_hint_kr}] }. " +
-                "2) `week2`: { title_kr, chunk_writing: [6-10 items of {en (key phrase/chunk from story), kr}], fill_blanks: [4-6 items of {sentence_blank (sentence with _____ for a key phrase/word), answer, kr}] }. " +
-                "3) `week3_4`: { title_kr, sentence_copy: [every sentence of the story as {en, kr}], my_expressions: [3-4 items of {base_sentence (from story), swap_guide_kr (Korean guide telling student which 1-2 words to swap to make their own sentence), example_en}] }."
+                "You are an expert English storybook activity-book designer for BADA English (Korean kindergarten to elementary students, Pre-Level ~ Level 8). " +
+                "Your goal is to help children understand the story deeply, convert naturally between spoken Korean and spoken English chunks (e.g. '저거 봐!' <-> 'Look at that!'), and personalize story patterns into their own English sentences. " +
+                "Return ONLY valid JSON with these exact keys:\n" +
+                "- `vocab_items`: 6-8 content words from the story: { word, meaning_kr (concise 1-3 words Korean), phonics_hint, missing_word (1 letter replaced with _), missing_answer (that single missing letter), distractors: [wrongWord1, wrongWord2] }\n" +
+                "- `chunk_items`: 5-6 reusable story phrases: { en, kr, daily_kr (natural conversational Korean e.g. '저 불가사리 봐!'), scrambled_words: [words in mixed order], blank_en (one key word replaced with ______), blank_answer }\n" +
+                "- `sentence_items`: up to 8 story sentences in order: { page_index (0-based integer), en, kr, daily_kr, scrambled_chunks: [2-3 phrase pieces in mixed order], blank_sentence, blank_answer }\n" +
+                "- `true_false_items`: 4 story O/X checks (include 1-2 false 'X' statements clearly contradicted by story): { statement_kr, statement_en, answer: 'O' or 'X' }\n" +
+                "- `pattern_swaps`: 3-4 reusable patterns from story sentences for personalization: { base_en, base_kr, pattern_en (use ______ for the swap slot), pattern_kr (spoken Korean frame with ______), example_en, example_kr, swap_options: 4 simple concrete nouns from {dog, cat, bear, bird, star, sun, moon, cake, apple, flower, tree, boat, car, book, ball, hat, house, duck, lion, rainbow, dolphin, ship} as {word, meaning_kr} }\n" +
+                "- `qa_items`: 3 simple story comprehension Q&A items: { question_en, question_kr, starter_en, sample_en }\n" +
+                "- `mini_story_prompts`: 2 prompts to write a short personalized line: { prompt_kr, prompt_en, starter_en }"
             },
             {
               role: "user",
@@ -1221,54 +1709,14 @@ async function generateBookWorksheetsWithLLM(book) {
       if (resp.ok) {
         const data = await resp.json();
         const parsed = JSON.parse(data?.choices?.[0]?.message?.content || "{}");
-        if (parsed.week1 && parsed.week2 && parsed.week3_4) {
-          return parsed;
-        }
+        return normalizeAndCompleteWorksheets(parsed, ctx);
       }
     } catch (err) {
       console.warn("⚠️ [BADA Worksheet] LLM 생성 실패 ➔ 기본 학습지 생성:", err.message);
     }
   }
 
-  return {
-    week1: {
-      title_kr: `1주차 핵심 단어 쓰기 & 내용 이해 (${title})`,
-      vocab_test: vocab.slice(0, 10).map((v) => ({
-        word: v.surface || v.word,
-        meaning_kr: v.meaning_kr,
-        hint: v.phonetic || ""
-      })),
-      comprehension: [
-        { question_kr: "이 이야기에는 누가 등장하나요?", answer_hint_kr: "주인공의 이름을 떠올려 보세요." },
-        { question_kr: "이야기 속 배경은 어디인가요?", answer_hint_kr: "첫 문장의 장소를 확인해 보세요." },
-        { question_kr: "이야기에서 가장 기억에 남는 장면은 무엇인가요?", answer_hint_kr: "우리말로 자유롭게 적어 보세요." }
-      ]
-    },
-    week2: {
-      title_kr: `2주차 핵심 구·표현 쓰기 & 빈칸 채우기 (${title})`,
-      chunk_writing: chunks.slice(0, 8).map((c) => ({ en: c.text, kr: c.meaning_kr })),
-      fill_blanks: sentences.slice(0, 5).map((s, idx) => {
-        const words = s.split(/\s+/);
-        const targetIdx = Math.max(0, Math.min(words.length - 1, Math.floor(words.length / 2)));
-        const ans = words[targetIdx].replace(/[^a-zA-Z0-9'-]/g, "");
-        const blanked = words.map((w, i) => (i === targetIdx ? "________" : w)).join(" ");
-        return {
-          sentence_blank: blanked,
-          answer: ans,
-          kr: translations[idx]?.kr || ""
-        };
-      })
-    },
-    week3_4: {
-      title_kr: `3·4주차 전체 문장 쓰기 & 나만의 문장 만들기 (${title})`,
-      sentence_copy: sentences.map((en, idx) => ({ en, kr: translations[idx]?.kr || "" })),
-      my_expressions: sentences.slice(0, 3).map((en) => ({
-        base_sentence: en,
-        swap_guide_kr: "위 문장에서 명사나 형용사 1~2단어를 내가 좋아하는 단어로 바꾸어 새 문장을 만들어 보세요.",
-        example_en: en
-      }))
-    }
-  };
+  return buildFallbackWorksheetsV2(ctx);
 }
 
 const SINGLE_WORD_HOMOPHONES = {

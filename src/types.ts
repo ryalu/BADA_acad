@@ -87,7 +87,78 @@ export interface PageIllustration {
   svg?: string;
 }
 
+export interface WorksheetVocabItem {
+  word: string;
+  meaning_kr: string;
+  phonics_hint?: string;
+  missing_word: string;
+  missing_answer: string;
+  distractors: string[];
+  image_url?: string | null;
+}
+
+export interface WorksheetChunkItem {
+  en: string;
+  kr: string;
+  daily_kr: string;
+  scrambled_words: string[];
+  blank_en: string;
+  blank_answer: string;
+}
+
+export interface WorksheetSentenceItem {
+  page_index: number;
+  en: string;
+  kr: string;
+  daily_kr: string;
+  scrambled_chunks: string[];
+  blank_sentence: string;
+  blank_answer: string;
+}
+
+export interface WorksheetTrueFalseItem {
+  statement_kr: string;
+  statement_en?: string;
+  answer: "O" | "X";
+}
+
+export interface WorksheetPatternSwap {
+  base_en: string;
+  base_kr: string;
+  pattern_en: string;
+  pattern_kr: string;
+  example_en: string;
+  example_kr?: string;
+  swap_options: {
+    word: string;
+    meaning_kr: string;
+    image_url?: string | null;
+  }[];
+}
+
+export interface WorksheetQaItem {
+  question_en: string;
+  question_kr: string;
+  starter_en: string;
+  sample_en?: string;
+}
+
+export interface WorksheetMiniStoryPrompt {
+  prompt_kr: string;
+  prompt_en: string;
+  starter_en: string;
+}
+
 export interface BookWorksheets {
+  version?: number;
+  book_level?: string;
+  vocab_items?: WorksheetVocabItem[];
+  chunk_items?: WorksheetChunkItem[];
+  sentence_items?: WorksheetSentenceItem[];
+  true_false_items?: WorksheetTrueFalseItem[];
+  pattern_swaps?: WorksheetPatternSwap[];
+  qa_items?: WorksheetQaItem[];
+  mini_story_prompts?: WorksheetMiniStoryPrompt[];
   week1?: {
     title_kr: string;
     vocab_test: { word: string; meaning_kr: string; hint?: string }[];

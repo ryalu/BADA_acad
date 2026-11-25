@@ -281,6 +281,7 @@ const server = http.createServer(async (req, res) => {
         const created = await createBook(body);
         const updatedBootstrap = await getAllBootstrapData();
         ensureBookIllustrations(created.book.id).catch(() => {});
+        getOrCreateBookWorksheets(created.book.id, false).catch(() => {});
         return sendJson(res, 200, {
           ok: true,
           book: created.book,
@@ -299,6 +300,7 @@ const server = http.createServer(async (req, res) => {
         const updated = await updateBook(body);
         const updatedBootstrap = await getAllBootstrapData();
         ensureBookIllustrations(updated.book.id).catch(() => {});
+        getOrCreateBookWorksheets(updated.book.id, true).catch(() => {});
         return sendJson(res, 200, {
           ok: true,
           book: updated.book,
@@ -310,13 +312,22 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    // 2.7 Generate or fetch cached offline printable worksheets for a storybook
+    // 2.7 Generate or fetch cached offline printable worksheets for a storybook (O(1) single-book payload)
     if (pathname === "/api/books/worksheets" && req.method === "POST") {
       try {
         const body = await parseJsonBody(req);
-        const worksheets = await getOrCreateBookWorksheets(body.bookId, Boolean(body.force));
-        const updatedBootstrap = await getAllBootstrapData();
-        return sendJson(res, 200, { ok: true, worksheets, books: updatedBootstrap.books });
+        const cleanBookId = String(body.bookId || "").trim();
+        const [worksheets, page_illustrations] = await Promise.all([
+          getOrCreateBookWorksheets(cleanBookId, Boolean(body.force)),
+          getBookIllustrations(cleanBookId).catch(() => [])
+        ]);
+        return sendJson(res, 200, {
+          ok: true,
+          bookId: cleanBookId,
+          has_worksheets: true,
+          worksheets,
+          page_illustrations
+        });
       } catch (err) {
         return sendJson(res, 400, { ok: false, error: err.message });
       }

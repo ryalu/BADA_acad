@@ -597,10 +597,165 @@ async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
   return { updated, skipped, engine: "sqlite" };
 }
 
-async function getOrCreateBookWorksheets(bookId, force = false) {
-  const cleanId = String(bookId || "").trim();
-  if (!cleanId) throw new Error("교재 ID가 필요합니다.");
+let cachedVocabImageMap = null;
 
+const CONCRETE_SWAP_GALLERY = [
+  { word: "dog", meaning_kr: "강아지" },
+  { word: "cat", meaning_kr: "고양이" },
+  { word: "bear", meaning_kr: "곰" },
+  { word: "bird", meaning_kr: "새" },
+  { word: "star", meaning_kr: "별" },
+  { word: "sun", meaning_kr: "태양" },
+  { word: "moon", meaning_kr: "달" },
+  { word: "cake", meaning_kr: "케이크" },
+  { word: "apple", meaning_kr: "사과" },
+  { word: "flower", meaning_kr: "꽃" },
+  { word: "tree", meaning_kr: "나무" },
+  { word: "boat", meaning_kr: "배" },
+  { word: "car", meaning_kr: "자동차" },
+  { word: "book", meaning_kr: "책" },
+  { word: "ball", meaning_kr: "공" },
+  { word: "hat", meaning_kr: "모자" },
+  { word: "house", meaning_kr: "집" },
+  { word: "duck", meaning_kr: "오리" },
+  { word: "lion", meaning_kr: "사자" },
+  { word: "rainbow", meaning_kr: "무지개" },
+  { word: "dolphin", meaning_kr: "돌고래" },
+  { word: "ship", meaning_kr: "큰 배" }
+];
+
+function getVocabIllustrationLookup() {
+  if (cachedVocabImageMap) return cachedVocabImageMap;
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const map = new Map();
+  try {
+    const masterPath = path.resolve(__dirname, "..", "data", "vocab_master.json");
+    if (fs.existsSync(masterPath)) {
+      const master = JSON.parse(fs.readFileSync(masterPath, "utf8"));
+      for (const w of master.words || []) {
+        if (w.word && w.image_url) {
+          map.set(String(w.word).trim().toLowerCase(), String(w.image_url));
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("⚠️ [BADA Worksheet] vocab_master 이미지 로드 실패:", err.message);
+  }
+  cachedVocabImageMap = map;
+  return map;
+}
+
+function findVocabImage(rawWord) {
+  const map = getVocabIllustrationLookup();
+  const clean = String(rawWord || "").toLowerCase().replace(/[^a-z]/g, "");
+  if (!clean) return null;
+  if (map.has(clean)) return map.get(clean);
+
+  const candidates = [];
+  if (clean.endsWith("ies") && clean.length > 4) candidates.push(`${clean.slice(0, -3)}y`);
+  if (clean.endsWith("es") && clean.length > 3) candidates.push(clean.slice(0, -2));
+  if (clean.endsWith("s") && clean.length > 2) candidates.push(clean.slice(0, -1));
+  if (clean.endsWith("ing") && clean.length > 5) {
+    const base = clean.slice(0, -3);
+    candidates.push(base, `${base}e`);
+    if (base.length > 2 && base[base.length - 1] === base[base.length - 2]) {
+      candidates.push(base.slice(0, -1));
+    }
+  }
+  if (clean.endsWith("ed") && clean.length > 4) {
+    const base = clean.slice(0, -2);
+    candidates.push(base, `${base}e`);
+  }
+
+  for (const cand of candidates) {
+    if (map.has(cand)) return map.get(cand);
+  }
+  return null;
+}
+
+function repairMissingWordBlank(word, existingMissing, existingAnswer) {
+  const clean = String(word || "").trim();
+  if (
+    clean &&
+    typeof existingMissing === "string" &&
+    existingMissing.length === clean.length &&
+    existingMissing.includes("_") &&
+    existingAnswer
+  ) {
+    return { missing_word: existingMissing, missing_answer: existingAnswer };
+  }
+  const letters = clean.split("");
+  const alphaIndices = [];
+  for (let i = 0; i < letters.length; i += 1) {
+    if (/[a-zA-Z]/.test(letters[i])) alphaIndices.push(i);
+  }
+  const middleVowel = alphaIndices.find(
+    (idx, pos) => pos > 0 && pos < alphaIndices.length - 1 && /[aeiouAEIOU]/.test(letters[idx])
+  );
+  const pickIdx =
+    middleVowel !== undefined
+      ? middleVowel
+      : alphaIndices[Math.floor(alphaIndices.length / 2)] ?? 0;
+  return {
+    missing_word: letters.map((ch, i) => (i === pickIdx ? "_" : ch)).join(""),
+    missing_answer: letters[pickIdx] || clean[0] || ""
+  };
+}
+
+function enrichWorksheetsWithVocabImages(worksheets) {
+  if (!worksheets || typeof worksheets !== "object") return worksheets;
+
+  const vocabItems = Array.isArray(worksheets.vocab_items)
+    ? worksheets.vocab_items.map((v) => {
+        const repaired = repairMissingWordBlank(v.word, v.missing_word, v.missing_answer);
+        return {
+          ...v,
+          ...repaired,
+          image_url: v.image_url || findVocabImage(v.word) || null
+        };
+      })
+    : [];
+
+  const patternSwaps = Array.isArray(worksheets.pattern_swaps)
+    ? worksheets.pattern_swaps.map((p, idx) => {
+        const rawOpts = Array.isArray(p.swap_options) ? p.swap_options : [];
+        const withImgs = rawOpts
+          .map((o) => ({
+            word: o.word,
+            meaning_kr: o.meaning_kr,
+            image_url: o.image_url || findVocabImage(o.word) || null
+          }))
+          .filter((o) => Boolean(o.image_url));
+
+        const seen = new Set(withImgs.map((o) => o.word.toLowerCase()));
+        const galleryStart = (idx * 4) % CONCRETE_SWAP_GALLERY.length;
+        for (let k = 0; k < CONCRETE_SWAP_GALLERY.length && withImgs.length < 4; k += 1) {
+          const item = CONCRETE_SWAP_GALLERY[(galleryStart + k) % CONCRETE_SWAP_GALLERY.length];
+          if (seen.has(item.word)) continue;
+          const img = findVocabImage(item.word);
+          if (!img) continue;
+          seen.add(item.word);
+          withImgs.push({ word: item.word, meaning_kr: item.meaning_kr, image_url: img });
+        }
+
+        return {
+          ...p,
+          swap_options: withImgs.slice(0, 4)
+        };
+      })
+    : [];
+
+  return {
+    ...worksheets,
+    vocab_items: vocabItems,
+    pattern_swaps: patternSwaps
+  };
+}
+
+const inFlightWorksheetJobs = new Map();
+
+async function runGetOrCreateBookWorksheets(cleanId, force = false) {
   const pgPool = getPgPool();
   let bookRow = null;
   let vcRow = null;
@@ -631,8 +786,15 @@ async function getOrCreateBookWorksheets(bookId, force = false) {
   }
 
   const existingWs = parseJsonField(vcRow?.worksheets_json, {});
-  if (!force && existingWs && existingWs.week1 && existingWs.week2 && existingWs.week3_4) {
-    return existingWs;
+  if (
+    !force &&
+    existingWs &&
+    Number(existingWs.version) >= 2 &&
+    Array.isArray(existingWs.vocab_items) &&
+    Array.isArray(existingWs.chunk_items) &&
+    Array.isArray(existingWs.sentence_items)
+  ) {
+    return enrichWorksheetsWithVocabImages(existingWs);
   }
 
   const hydratedBook = {
@@ -642,7 +804,8 @@ async function getOrCreateBookWorksheets(bookId, force = false) {
     sentence_translations: parseJsonField(vcRow?.sentence_translations_json, [])
   };
 
-  const worksheets = await generateBookWorksheetsWithLLM(hydratedBook);
+  const rawWorksheets = await generateBookWorksheetsWithLLM(hydratedBook);
+  const worksheets = enrichWorksheetsWithVocabImages(rawWorksheets);
   const tHash = bookRow.text_hash || hashText(bookRow.full_text);
 
   if (pgPool) {
@@ -659,6 +822,22 @@ async function getOrCreateBookWorksheets(bookId, force = false) {
   return worksheets;
 }
 
+async function getOrCreateBookWorksheets(bookId, force = false) {
+  const cleanId = String(bookId || "").trim();
+  if (!cleanId) throw new Error("교재 ID가 필요합니다.");
+
+  const jobKey = `${cleanId}:${force ? "force" : "cached"}`;
+  if (inFlightWorksheetJobs.has(jobKey)) {
+    return inFlightWorksheetJobs.get(jobKey);
+  }
+
+  const promise = runGetOrCreateBookWorksheets(cleanId, force).finally(() => {
+    inFlightWorksheetJobs.delete(jobKey);
+  });
+  inFlightWorksheetJobs.set(jobKey, promise);
+  return promise;
+}
+
 module.exports = {
   needsReanalysis,
   getOrExtractVocabAndChunksSqlite,
@@ -669,5 +848,7 @@ module.exports = {
   getBookIllustrations,
   ensureBookIllustrations,
   reanalyzeAllBooksWithLLM,
-  getOrCreateBookWorksheets
+  getOrCreateBookWorksheets,
+  findVocabImage,
+  enrichWorksheetsWithVocabImages
 };
