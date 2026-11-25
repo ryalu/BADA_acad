@@ -33,7 +33,8 @@ async function getAllBootstrapData() {
       `SELECT text_hash, book_id, vocab_json, chunks_json, core_expressions_json,
               sentence_translations_json, speaking_questions_json, lookup_count, extraction_source,
               (jsonb_array_length(COALESCE(page_illustrations_json, '[]'::jsonb)) > 0) AS has_illustrations,
-              (COALESCE(page_illustrations_json::text, '') LIKE '%"is_cover":true%') AS has_custom_cover,
+              (COALESCE(page_illustrations_json, '[]'::jsonb) @> '[{"is_cover":true}]'::jsonb
+               OR COALESCE(page_illustrations_json, '[]'::jsonb) @> '[{"page_index":-1}]'::jsonb) AS has_custom_cover,
               (COALESCE(worksheets_json, '{}'::jsonb) ? 'week1') AS has_worksheets
        FROM vocab_chunks`
     );
@@ -128,7 +129,9 @@ async function getAllBootstrapData() {
     `SELECT text_hash, book_id, vocab_json, chunks_json, core_expressions_json,
             sentence_translations_json, speaking_questions_json, lookup_count, extraction_source,
             (length(COALESCE(page_illustrations_json, '')) > 10) AS has_illustrations,
-            (instr(COALESCE(page_illustrations_json, ''), '"is_cover":true') > 0) AS has_custom_cover,
+            (instr(COALESCE(page_illustrations_json, ''), '"is_cover":true') > 0
+             OR instr(COALESCE(page_illustrations_json, ''), '"is_cover": true') > 0
+             OR instr(COALESCE(page_illustrations_json, ''), '"page_index":-1') > 0) AS has_custom_cover,
             (instr(COALESCE(worksheets_json, ''), '"week1"') > 0) AS has_worksheets
      FROM vocab_chunks WHERE text_hash = ?`
   );
