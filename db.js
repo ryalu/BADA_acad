@@ -33,6 +33,7 @@ async function getAllBootstrapData() {
       `SELECT text_hash, book_id, vocab_json, chunks_json, core_expressions_json,
               sentence_translations_json, speaking_questions_json, lookup_count, extraction_source,
               (jsonb_array_length(COALESCE(page_illustrations_json, '[]'::jsonb)) > 0) AS has_illustrations,
+              (COALESCE(page_illustrations_json::text, '') LIKE '%"is_cover":true%') AS has_custom_cover,
               (COALESCE(worksheets_json, '{}'::jsonb) ? 'week1') AS has_worksheets
        FROM vocab_chunks`
     );
@@ -83,6 +84,7 @@ async function getAllBootstrapData() {
           sentence_translations: existingSt.length ? existingSt : refreshed.sentence_translations,
           speaking_questions: existingSq.length ? existingSq : refreshed.speaking_questions,
           has_illustrations: Boolean(vc?.has_illustrations),
+          has_custom_cover: Boolean(vc?.has_custom_cover),
           has_worksheets: Boolean(vc?.has_worksheets),
           lookup_count: vc ? vc.lookup_count : 1
         });
@@ -95,6 +97,7 @@ async function getAllBootstrapData() {
           sentence_translations: parseJsonField(vc.sentence_translations_json),
           speaking_questions: parseJsonField(vc.speaking_questions_json),
           has_illustrations: Boolean(vc.has_illustrations),
+          has_custom_cover: Boolean(vc.has_custom_cover),
           has_worksheets: Boolean(vc.has_worksheets),
           lookup_count: vc.lookup_count || 1
         });
@@ -125,6 +128,7 @@ async function getAllBootstrapData() {
     `SELECT text_hash, book_id, vocab_json, chunks_json, core_expressions_json,
             sentence_translations_json, speaking_questions_json, lookup_count, extraction_source,
             (length(COALESCE(page_illustrations_json, '')) > 10) AS has_illustrations,
+            (instr(COALESCE(page_illustrations_json, ''), '"is_cover":true') > 0) AS has_custom_cover,
             (instr(COALESCE(worksheets_json, ''), '"week1"') > 0) AS has_worksheets
      FROM vocab_chunks WHERE text_hash = ?`
   );
@@ -141,6 +145,7 @@ async function getAllBootstrapData() {
         sentence_translations: upgraded.sentence_translations,
         speaking_questions: upgraded.speaking_questions,
         has_illustrations: Boolean(vc?.has_illustrations),
+        has_custom_cover: Boolean(vc?.has_custom_cover),
         has_worksheets: Boolean(vc?.has_worksheets),
         lookup_count: upgraded.lookup_count || 1
       };
@@ -153,6 +158,7 @@ async function getAllBootstrapData() {
       sentence_translations: parseJsonField(vc.sentence_translations_json),
       speaking_questions: parseJsonField(vc.speaking_questions_json),
       has_illustrations: Boolean(vc.has_illustrations),
+      has_custom_cover: Boolean(vc.has_custom_cover),
       has_worksheets: Boolean(vc.has_worksheets),
       lookup_count: vc.lookup_count || 1
     };
@@ -195,7 +201,9 @@ module.exports = {
   createBook: booksMod.createBook,
   updateBook: booksMod.updateBook,
   getBookIllustrations: booksMod.getBookIllustrations,
+  getBookCoverBuffer: booksMod.getBookCoverBuffer,
   ensureBookIllustrations: booksMod.ensureBookIllustrations,
+  getIllustrationJobStatus: booksMod.getIllustrationJobStatus,
   reanalyzeAllBooksWithLLM: booksMod.reanalyzeAllBooksWithLLM,
   saveStudentRecording: mediaMod.saveStudentRecording,
   listStudentRecordings: mediaMod.listStudentRecordings,

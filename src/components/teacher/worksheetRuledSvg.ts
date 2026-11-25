@@ -67,8 +67,8 @@ export function renderRuledSvgBlock({
     lines.push("");
   }
 
-  const padTop = Math.round(fontSize * 0.92);
-  const padBot = Math.round(fontSize * 0.34);
+  const padTop = Math.round(fontSize * 0.96);
+  const padBot = Math.round(fontSize * 0.38);
   const svgHeight = padTop + padBot;
   const baselineY = padTop;
 

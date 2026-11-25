@@ -25,7 +25,9 @@ const {
   createBook,
   updateBook,
   getBookIllustrations,
+  getBookCoverBuffer,
   ensureBookIllustrations,
+  getIllustrationJobStatus,
   reanalyzeAllBooksWithLLM,
   saveStudentRecording,
   listStudentRecordings,
@@ -272,6 +274,49 @@ const server = http.createServer(async (req, res) => {
         { ok: true, bookId, page_illustrations },
         { "Cache-Control": "private, max-age=60" }
       );
+    }
+
+    if (pathname === "/api/books/cover" && req.method === "GET") {
+      const bookId = String(urlObj.searchParams.get("bookId") || "").trim();
+      if (!bookId) {
+        return sendJson(res, 400, { ok: false, error: "bookId is required." });
+      }
+      const cover = await getBookCoverBuffer(bookId);
+      if (!cover) {
+        return sendJson(res, 404, { ok: false, error: "Custom cover not found." });
+      }
+      res.writeHead(200, {
+        "Content-Type": cover.mimeType,
+        "Content-Length": cover.buffer.length,
+        "Cache-Control": "public, max-age=3600"
+      });
+      res.end(cover.buffer);
+      return;
+    }
+
+    if (pathname === "/api/books/illustrations/regenerate" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const bookId = String(body.bookId || "").trim();
+        if (!bookId) throw new Error("bookId is required.");
+        if (body.async) {
+          ensureBookIllustrations(bookId, { force: true, onlyIllustrations: true }).catch(() => {});
+          return sendJson(res, 200, { ok: true, status: "started", bookId });
+        }
+        const result = await ensureBookIllustrations(bookId, { force: true, onlyIllustrations: true });
+        return sendJson(res, 200, { ok: true, bookId, ...result });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/books/illustrations/status" && req.method === "GET") {
+      const bookId = String(urlObj.searchParams.get("bookId") || "").trim();
+      if (!bookId) {
+        return sendJson(res, 400, { ok: false, error: "bookId is required." });
+      }
+      const status = await getIllustrationJobStatus(bookId);
+      return sendJson(res, 200, { ok: true, ...status });
     }
 
     // 2-B. Register New Book into DB (so it appears in Student Assignment Dropdown)

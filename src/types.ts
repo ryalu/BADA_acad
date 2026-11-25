@@ -81,6 +81,7 @@ export interface SpeakingQuestion {
 
 export interface PageIllustration {
   page_index: number;
+  is_cover?: boolean;
   scene_caption_kr?: string;
   key_objects?: string[];
   image_url?: string;
@@ -193,6 +194,7 @@ export interface Book {
   page_illustrations?: PageIllustration[];
   worksheets?: BookWorksheets;
   has_illustrations?: boolean;
+  has_custom_cover?: boolean;
   has_worksheets?: boolean;
 }
 

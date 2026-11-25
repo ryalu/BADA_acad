@@ -5,6 +5,7 @@
 const {
   analyzeTextWithLLM,
   analyzeTextWithLLMAsync,
+  generatePageIllustrationsWithLLM,
   generateBookWorksheetsWithLLM
 } = require("../ai-engine");
 const { getPgPool, getSqliteDb, parseJsonField, hashText } = require("./connection");
@@ -398,7 +399,7 @@ async function updateBook(payload) {
   }
 
   const analysis = await getOrExtractVocabAndChunks(full_text, level, id, false, korean_text);
-  await cleanupOrphanVocabChunks().catch(() => {});
+  await cleanupOrphanVocabChunks().catch(() => { });
 
   return {
     book: {
@@ -444,9 +445,11 @@ async function getBookIllustrations(bookId) {
   return parseJsonField(vcRow?.page_illustrations_json, []);
 }
 
-async function ensureBookIllustrations(bookId) {
-  const cleanId = String(bookId || "").trim();
-  if (!cleanId) return { updated: 0, skipped: 0, reason: "missing_book_id" };
+const inFlightIllustrationJobs = new Map();
+const illustrationJobErrors = new Map();
+
+async function runEnsureBookIllustrations(cleanId, options = {}) {
+  const { force = false, onlyIllustrations = false } = options;
   const hasExternalKey = Boolean(process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY);
   if (!hasExternalKey) {
     return { updated: 0, skipped: 0, reason: "no_external_llm_key" };
@@ -464,8 +467,32 @@ async function ensureBookIllustrations(bookId) {
     );
     const src = existingRes.rows[0]?.extraction_source || "";
     const existingIllus = parseJsonField(existingRes.rows[0]?.page_illustrations_json, []);
-    if (src.startsWith("EXTERNAL_LLM_") && existingIllus.length > 0 && Boolean(existingIllus[0]?.image_url)) {
+    if (!force && src.startsWith("EXTERNAL_LLM_") && existingIllus.length > 0 && Boolean(existingIllus[0]?.image_url)) {
       return { updated: 0, skipped: 1, engine: "postgresql" };
+    }
+
+    if (onlyIllustrations && existingRes.rows.length > 0) {
+      const nextIllus = await generatePageIllustrationsWithLLM({
+        title: b.title,
+        fullText: b.full_text,
+        level: b.level
+      });
+      if (!Array.isArray(nextIllus) || !nextIllus.some((p) => !p.is_cover && p.image_url)) {
+        throw new Error("삽화 이미지를 생성하지 못했습니다.");
+      }
+      await pgPool.query(
+        `UPDATE vocab_chunks
+         SET page_illustrations_json = $1::jsonb, extraction_source = 'EXTERNAL_LLM_OPENAI', last_hit_at = NOW()
+         WHERE text_hash = $2`,
+        [JSON.stringify(nextIllus), tHash]
+      );
+      return {
+        updated: 1,
+        skipped: 0,
+        engine: "postgresql",
+        pageCount: nextIllus.filter((p) => !p.is_cover && p.image_url).length,
+        hasCover: nextIllus.some((p) => Boolean(p.is_cover) && Boolean(p.image_url))
+      };
     }
 
     const extracted = await analyzeTextWithLLMAsync(b.full_text, b.level, "", b.title);
@@ -515,8 +542,33 @@ async function ensureBookIllustrations(bookId) {
     .get(tHash);
   const src = existing?.extraction_source || "";
   const existingIllus = parseJsonField(existing?.page_illustrations_json, []);
-  if (src.startsWith("EXTERNAL_LLM_") && existingIllus.length > 0 && Boolean(existingIllus[0]?.image_url)) {
+  if (!force && src.startsWith("EXTERNAL_LLM_") && existingIllus.length > 0 && Boolean(existingIllus[0]?.image_url)) {
     return { updated: 0, skipped: 1, engine: "sqlite" };
+  }
+
+  if (onlyIllustrations && existing) {
+    const nextIllus = await generatePageIllustrationsWithLLM({
+      title: b.title,
+      fullText: b.full_text,
+      level: b.level
+    });
+    if (!Array.isArray(nextIllus) || !nextIllus.some((p) => !p.is_cover && p.image_url)) {
+      throw new Error("삽화 이미지를 생성하지 못했습니다.");
+    }
+    sqliteDb
+      .prepare(
+        `UPDATE vocab_chunks
+         SET page_illustrations_json = ?, extraction_source = 'EXTERNAL_LLM_OPENAI', last_hit_at = ?
+         WHERE text_hash = ?`
+      )
+      .run(JSON.stringify(nextIllus), new Date().toISOString(), tHash);
+    return {
+      updated: 1,
+      skipped: 0,
+      engine: "sqlite",
+      pageCount: nextIllus.filter((p) => !p.is_cover && p.image_url).length,
+      hasCover: nextIllus.some((p) => Boolean(p.is_cover) && Boolean(p.image_url))
+    };
   }
 
   const extracted = await analyzeTextWithLLMAsync(b.full_text, b.level, "", b.title);
@@ -559,6 +611,51 @@ async function ensureBookIllustrations(bookId) {
       now
     );
   return { updated: 1, skipped: 0, engine: "sqlite" };
+}
+
+async function ensureBookIllustrations(bookId, options = {}) {
+  const cleanId = String(bookId || "").trim();
+  if (!cleanId) return { updated: 0, skipped: 0, reason: "missing_book_id" };
+  if (inFlightIllustrationJobs.has(cleanId)) {
+    return inFlightIllustrationJobs.get(cleanId);
+  }
+  illustrationJobErrors.set(cleanId, null);
+  const job = runEnsureBookIllustrations(cleanId, options)
+    .catch((err) => {
+      illustrationJobErrors.set(cleanId, err?.message || "illustration_failed");
+      throw err;
+    })
+    .finally(() => {
+      inFlightIllustrationJobs.delete(cleanId);
+    });
+  inFlightIllustrationJobs.set(cleanId, job);
+  return job;
+}
+
+async function getBookCoverBuffer(bookId) {
+  const illus = await getBookIllustrations(bookId);
+  const cover = illus.find((p) => p && (p.is_cover || Number(p.page_index) === -1) && p.image_url);
+  if (!cover || !cover.image_url) return null;
+  const m = /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/.exec(String(cover.image_url));
+  if (!m) return null;
+  return {
+    mimeType: m[1],
+    buffer: Buffer.from(m[2], "base64")
+  };
+}
+
+async function getIllustrationJobStatus(bookId) {
+  const cleanId = String(bookId || "").trim();
+  const illus = await getBookIllustrations(cleanId);
+  const storyPages = illus.filter((p) => p && !p.is_cover && Number(p.page_index) >= 0 && p.image_url);
+  const hasCover = illus.some((p) => p && (p.is_cover || Number(p.page_index) === -1) && p.image_url);
+  return {
+    bookId: cleanId,
+    running: inFlightIllustrationJobs.has(cleanId),
+    lastError: illustrationJobErrors.get(cleanId) || null,
+    hasCover,
+    pageCount: storyPages.length
+  };
 }
 
 async function reanalyzeAllBooksWithLLM({ force = false } = {}) {
@@ -708,42 +805,42 @@ function enrichWorksheetsWithVocabImages(worksheets) {
 
   const vocabItems = Array.isArray(worksheets.vocab_items)
     ? worksheets.vocab_items.map((v) => {
-        const repaired = repairMissingWordBlank(v.word, v.missing_word, v.missing_answer);
-        return {
-          ...v,
-          ...repaired,
-          image_url: v.image_url || findVocabImage(v.word) || null
-        };
-      })
+      const repaired = repairMissingWordBlank(v.word, v.missing_word, v.missing_answer);
+      return {
+        ...v,
+        ...repaired,
+        image_url: v.image_url || findVocabImage(v.word) || null
+      };
+    })
     : [];
 
   const patternSwaps = Array.isArray(worksheets.pattern_swaps)
     ? worksheets.pattern_swaps.map((p, idx) => {
-        const rawOpts = Array.isArray(p.swap_options) ? p.swap_options : [];
-        const withImgs = rawOpts
-          .map((o) => ({
-            word: o.word,
-            meaning_kr: o.meaning_kr,
-            image_url: o.image_url || findVocabImage(o.word) || null
-          }))
-          .filter((o) => Boolean(o.image_url));
+      const rawOpts = Array.isArray(p.swap_options) ? p.swap_options : [];
+      const withImgs = rawOpts
+        .map((o) => ({
+          word: o.word,
+          meaning_kr: o.meaning_kr,
+          image_url: o.image_url || findVocabImage(o.word) || null
+        }))
+        .filter((o) => Boolean(o.image_url));
 
-        const seen = new Set(withImgs.map((o) => o.word.toLowerCase()));
-        const galleryStart = (idx * 4) % CONCRETE_SWAP_GALLERY.length;
-        for (let k = 0; k < CONCRETE_SWAP_GALLERY.length && withImgs.length < 4; k += 1) {
-          const item = CONCRETE_SWAP_GALLERY[(galleryStart + k) % CONCRETE_SWAP_GALLERY.length];
-          if (seen.has(item.word)) continue;
-          const img = findVocabImage(item.word);
-          if (!img) continue;
-          seen.add(item.word);
-          withImgs.push({ word: item.word, meaning_kr: item.meaning_kr, image_url: img });
-        }
+      const seen = new Set(withImgs.map((o) => o.word.toLowerCase()));
+      const galleryStart = (idx * 4) % CONCRETE_SWAP_GALLERY.length;
+      for (let k = 0; k < CONCRETE_SWAP_GALLERY.length && withImgs.length < 4; k += 1) {
+        const item = CONCRETE_SWAP_GALLERY[(galleryStart + k) % CONCRETE_SWAP_GALLERY.length];
+        if (seen.has(item.word)) continue;
+        const img = findVocabImage(item.word);
+        if (!img) continue;
+        seen.add(item.word);
+        withImgs.push({ word: item.word, meaning_kr: item.meaning_kr, image_url: img });
+      }
 
-        return {
-          ...p,
-          swap_options: withImgs.slice(0, 4)
-        };
-      })
+      return {
+        ...p,
+        swap_options: withImgs.slice(0, 4)
+      };
+    })
     : [];
 
   return {
@@ -846,7 +943,9 @@ module.exports = {
   createBook,
   updateBook,
   getBookIllustrations,
+  getBookCoverBuffer,
   ensureBookIllustrations,
+  getIllustrationJobStatus,
   reanalyzeAllBooksWithLLM,
   getOrCreateBookWorksheets,
   findVocabImage,

@@ -80,13 +80,24 @@ function renderVocabThumb(
   imgUrl: string | null | undefined,
   alt: string,
   origin: string,
-  sizePx = 48
+  sizePx = 54
 ): string {
   const abs = toAssetUrl(imgUrl, origin);
   if (!abs) {
     return "";
   }
   return `<img class="vocab-thumb" src="${escHtml(abs)}" alt="${escHtml(alt)}" style="width:${sizePx}px;height:${sizePx}px;" />`;
+}
+
+function formatStorySentenceHtml(en: string): string {
+  const clean = String(en || "").trim().replace(/\s+/g, " ");
+  if (clean.length > 64) {
+    const m = /^(.{22,}?[,;])\s+(.{16,})$/.exec(clean);
+    if (m) {
+      return `${escHtml(m[1])}<br />${escHtml(m[2])}`;
+    }
+  }
+  return escHtml(clean);
 }
 
 function extractNormalizedData(targetBook: Book, ws: BookWorksheets) {
@@ -382,7 +393,7 @@ function buildWeek1Pages({
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> 그림과 뜻을 보고 알맞은 영단어와 선으로 이어 보세요.</div>
         ${renderMatchingColumns(
           setA.map((w) => ({
-            labelHtml: `<div class="match-left-row">${renderVocabThumb(w.image_url, w.word, origin, 42)}<span class="kr-label">${escHtml(w.meaning_kr)}</span></div>`
+            labelHtml: `<div class="match-left-row">${renderVocabThumb(w.image_url, w.word, origin, 54)}<span class="kr-label">${escHtml(w.meaning_kr)}</span></div>`
           })),
           setA.map((w) => ({
             labelHtml: `<span class="en-word-big">${escHtml(w.word)}</span>`
@@ -400,7 +411,7 @@ function buildWeek1Pages({
                   <strong class="kr-label">${escHtml(w.meaning_kr)}</strong>
                   <span class="en-chip">${escHtml(w.word)}</span>
                 </div>
-                ${renderRuledSvgBlock({ text: w.word, showShadow: true, fontSize: 27, maxChars: 15, svgWidth: 260, theme })}
+                ${renderRuledSvgBlock({ text: w.word, showShadow: true, fontSize: 31, maxChars: 14, svgWidth: 245, theme })}
               </div>`
             )
             .join("")}
@@ -427,7 +438,7 @@ function buildWeek1Pages({
               return `
                 <div class="choice-row" style="border-color:${theme.softBorder};">
                   <div class="choice-prompt">
-                    ${renderVocabThumb(w.image_url, w.word, origin, 44)}
+                    ${renderVocabThumb(w.image_url, w.word, origin, 54)}
                     <span class="kr-label">${escHtml(w.meaning_kr)}</span>
                   </div>
                   <div class="choice-pills">
@@ -448,7 +459,7 @@ function buildWeek1Pages({
                 <div class="trace-head">
                   <strong class="kr-label">${escHtml(w.meaning_kr)}</strong>
                 </div>
-                ${renderRuledSvgBlock({ text: w.word, showShadow: true, fontSize: 27, maxChars: 15, svgWidth: 260, theme })}
+                ${renderRuledSvgBlock({ text: w.word, showShadow: true, fontSize: 31, maxChars: 14, svgWidth: 245, theme })}
               </div>`
             )
             .join("")}
@@ -467,22 +478,22 @@ function buildWeek1Pages({
     studentName,
     pageLabel: "Week 1 · Day 3",
     bodyHtml: `
-      <div class="q-block">
+      <div class="q-block q-block-grow">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> 알맞은 알파벳을 채우고 3선 노트에 한 번 더 써 보세요.</div>
-        <div class="list-stack">
+        <div class="list-stack list-stack-grow">
           ${day3Words
             .map(
               (w) => `
               <div class="missing-row" style="border-color:${theme.softBorder};">
                 <div class="missing-left">
-                  ${renderVocabThumb(w.image_url, w.word, origin, 40)}
+                  ${renderVocabThumb(w.image_url, w.word, origin, 52)}
                   <div>
                     <div class="kr-label">${escHtml(w.meaning_kr)}</div>
                     <div class="missing-word">${escHtml(w.missing_word)}</div>
                   </div>
                 </div>
                 <div class="missing-write">
-                  ${renderRuledSvgBlock({ text: w.word, showShadow: true, fontSize: 26, maxChars: 16, svgWidth: 270, theme })}
+                  ${renderRuledSvgBlock({ text: w.word, showShadow: true, fontSize: 29, maxChars: 15, svgWidth: 255, theme })}
                 </div>
               </div>`
             )
@@ -509,23 +520,23 @@ function buildWeek1Pages({
           ${bankWords.map((bw) => `<span class="bank-chip">${escHtml(bw)}</span>`).join("")}
         </div>
       </div>
-      <div class="q-block">
+      <div class="q-block q-block-grow">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> Look at the picture and write the English word.</div>
-        <div class="two-col">
+        <div class="two-col two-col-grow">
           ${day4Words
             .map(
               (w) => `
               <div class="trace-card" style="border-color:${theme.softBorder};">
                 <div class="trace-head">
-                  ${renderVocabThumb(w.image_url, w.word, origin, 36)}
+                  ${renderVocabThumb(w.image_url, w.word, origin, 48)}
                   <strong class="kr-label">${escHtml(w.meaning_kr)}</strong>
                 </div>
                 ${renderRuledSvgBlock({
                   text: w.word,
                   showShadow: supportEarlyShadow,
-                  fontSize: 26,
-                  maxChars: 15,
-                  svgWidth: 260,
+                  fontSize: 30,
+                  maxChars: 14,
+                  svgWidth: 245,
                   theme
                 })}
               </div>`
@@ -551,7 +562,7 @@ function buildWeek1Pages({
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> 이번 주 단어를 알맞은 뜻과 선으로 이어 보세요.</div>
         ${renderMatchingColumns(
           day5Match.map((w) => ({
-            labelHtml: `<div class="match-left-row">${renderVocabThumb(w.image_url, w.word, origin, 36)}<span class="kr-label">${escHtml(w.meaning_kr)}</span></div>`
+            labelHtml: `<div class="match-left-row">${renderVocabThumb(w.image_url, w.word, origin, 46)}<span class="kr-label">${escHtml(w.meaning_kr)}</span></div>`
           })),
           day5Match.map((w) => ({
             labelHtml: `<span class="en-word-big">${escHtml(w.word)}</span>`
@@ -578,8 +589,8 @@ function buildWeek1Pages({
       <div class="q-block">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">3</span> 내가 기억하는 단어 2개를 직접 써 보세요.</div>
         <div class="two-col">
-          ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 26, maxChars: 15, svgWidth: 260, theme })}
-          ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 26, maxChars: 15, svgWidth: 260, theme })}
+          ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 30, maxChars: 14, svgWidth: 245, theme })}
+          ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 30, maxChars: 14, svgWidth: 245, theme })}
         </div>
       </div>`
   });
@@ -637,7 +648,7 @@ function buildWeek2Pages({
                   <strong class="kr-label">${escHtml(c.daily_kr || c.kr)}</strong>
                   <span class="en-chip">${escHtml(c.en)}</span>
                 </div>
-                ${renderRuledSvgBlock({ text: c.en, showShadow: true, fontSize: 23, maxChars: 34, svgWidth: 540, theme })}
+                ${renderRuledSvgBlock({ text: c.en, showShadow: true, fontSize: 27, maxChars: 30, svgWidth: 490, theme })}
               </div>`
             )
             .join("")}
@@ -696,12 +707,12 @@ function buildWeek2Pages({
       <div class="q-block">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">2</span> Trace the expressions.</div>
         <div class="list-stack">
-          ${setA.slice(0, 3)
+          ${setA.slice(0, 2)
             .map(
               (c) => `
               <div class="trace-card" style="border-color:${theme.softBorder};background:${theme.softBg};">
                 <div class="trace-head"><strong class="kr-label">${escHtml(c.daily_kr || c.kr)}</strong></div>
-                ${renderRuledSvgBlock({ text: c.en, showShadow: true, fontSize: 23, maxChars: 34, svgWidth: 540, theme })}
+                ${renderRuledSvgBlock({ text: c.en, showShadow: true, fontSize: 27, maxChars: 30, svgWidth: 490, theme })}
               </div>`
             )
             .join("")}
@@ -720,9 +731,9 @@ function buildWeek2Pages({
     studentName,
     pageLabel: "Week 2 · Day 3",
     bodyHtml: `
-      <div class="q-block">
+      <div class="q-block q-block-grow">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> 섞인 단어 카드를 우리말 뜻 순서에 맞게 배열해 써 보세요.</div>
-        <div class="list-stack">
+        <div class="list-stack list-stack-grow">
           ${day3Chunks
             .map(
               (c, idx) => `
@@ -734,7 +745,7 @@ function buildWeek2Pages({
                 <div class="scramble-row">
                   ${(c.scrambled_words || []).map((w) => `<span class="word-tile">${escHtml(w)}</span>`).join("")}
                 </div>
-                ${renderRuledSvgBlock({ text: c.en, showShadow: true, fontSize: 23, maxChars: 34, svgWidth: 540, theme })}
+                ${renderRuledSvgBlock({ text: c.en, showShadow: true, fontSize: 27, maxChars: 30, svgWidth: 490, theme })}
               </div>`
             )
             .join("")}
@@ -753,9 +764,9 @@ function buildWeek2Pages({
     studentName,
     pageLabel: "Week 2 · Day 4",
     bodyHtml: `
-      <div class="q-block">
+      <div class="q-block q-block-grow">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> 우리말을 보고 영어로 3번 말한 뒤 □에 표시(✓)하고 빈칸을 채워 보세요.</div>
-        <div class="list-stack">
+        <div class="list-stack list-stack-grow">
           ${day4Chunks
             .map(
               (c) => `
@@ -768,9 +779,9 @@ function buildWeek2Pages({
                 ${renderRuledSvgBlock({
                   text: c.en,
                   showShadow: supportEarlyShadow,
-                  fontSize: 22,
-                  maxChars: 36,
-                  svgWidth: 540,
+                  fontSize: 26,
+                  maxChars: 32,
+                  svgWidth: 490,
                   theme
                 })}
               </div>`
@@ -897,7 +908,7 @@ function buildWeek3Pages({
                   <strong class="kr-label">${escHtml(s.kr)}</strong>
                 </div>
                 ${showShadowW34 ? "" : `<div class="model-line-en">${escHtml(s.en)}</div>`}
-                ${renderRuledSvgBlock({ text: s.en, showShadow: showShadowW34, fontSize: 21, maxChars: 38, svgWidth: 540, theme })}
+                ${renderRuledSvgBlock({ text: s.en, showShadow: showShadowW34, fontSize: 24, maxChars: 34, svgWidth: 490, theme })}
               </div>`
             )
             .join("")}
@@ -941,7 +952,7 @@ function buildWeek3Pages({
               <div class="trace-card" style="border-color:${theme.softBorder};background:${theme.softBg};">
                 <div class="trace-head"><strong class="kr-label">${escHtml(s.kr)}</strong></div>
                 ${showShadowW34 ? "" : `<div class="model-line-en">${escHtml(s.en)}</div>`}
-                ${renderRuledSvgBlock({ text: s.en, showShadow: showShadowW34, fontSize: 21, maxChars: 38, svgWidth: 540, theme })}
+                ${renderRuledSvgBlock({ text: s.en, showShadow: showShadowW34, fontSize: 24, maxChars: 34, svgWidth: 490, theme })}
               </div>`
             )
             .join("")}
@@ -949,7 +960,7 @@ function buildWeek3Pages({
       </div>`
   });
 
-  // Week 3 · Day 3 (KR): 패턴 바꿔 끼우기 ① (Look at the [___] + 그림 단어 4개 보기)
+  // Week 3 · Day 3 (KR): 패턴 바꿔 끼우기 ①
   const swapA = data.patternSwaps[0];
   const swapB = data.patternSwaps[1] || data.patternSwaps[0];
   const day3 = wrapWorksheetPage({
@@ -972,15 +983,15 @@ function buildWeek3Pages({
               .map(
                 (opt) => `
                 <div class="swap-card">
-                  ${renderVocabThumb(opt.image_url, opt.word, origin, 44)}
+                  ${renderVocabThumb(opt.image_url, opt.word, origin, 58)}
                   <div class="swap-word">${escHtml(opt.word)}</div>
                   <div class="swap-kr">${escHtml(opt.meaning_kr)}</div>
                 </div>`
               )
               .join("")}
           </div>
-          ${renderRuledSvgBlock({ text: swapA.example_en, showShadow: showShadowW34, fontSize: 21, maxChars: 38, svgWidth: 540, theme })}
-          ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 21, maxChars: 38, svgWidth: 540, theme })}
+          ${renderRuledSvgBlock({ text: swapA.example_en, showShadow: showShadowW34, fontSize: 24, maxChars: 34, svgWidth: 490, theme })}
+          ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 24, maxChars: 34, svgWidth: 490, theme })}
         </div>
       </div>
       <div class="q-block">
@@ -988,7 +999,7 @@ function buildWeek3Pages({
         <div class="pattern-box" style="border-color:${theme.softBorder};">
           <div class="pattern-line-base">${escHtml(swapB.base_en)}</div>
           <div class="pattern-slot" style="color:${theme.primaryDark};">${escHtml(swapB.pattern_en)}</div>
-          ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 21, maxChars: 38, svgWidth: 540, theme })}
+          ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 24, maxChars: 34, svgWidth: 490, theme })}
         </div>
       </div>`
   });
@@ -1003,7 +1014,7 @@ function buildWeek3Pages({
     studentName,
     pageLabel: "Week 3 · Day 4",
     bodyHtml: `
-      <div class="q-block">
+      <div class="q-block q-block-grow">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> Draw your own picture and write your English sentence!</div>
         <div class="draw-frame" style="border-color:${theme.primary};">
           <div class="draw-corner-hint" style="color:${theme.primaryDark};">${escHtml(swapA.pattern_en)}</div>
@@ -1011,7 +1022,7 @@ function buildWeek3Pages({
       </div>
       <div class="q-block">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">2</span> My Sentence</div>
-        ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 23, maxChars: 36, minLines: 2, svgWidth: 540, theme })}
+        ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 26, maxChars: 32, minLines: 2, svgWidth: 490, theme })}
       </div>`
   });
 
@@ -1033,9 +1044,9 @@ function buildWeek3Pages({
           ${bankWords.map((bw) => `<span class="bank-chip">${escHtml(bw)}</span>`).join("")}
         </div>
       </div>
-      <div class="q-block">
+      <div class="q-block q-block-grow">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> 우리말 뜻을 보고 원서 문장을 바르게 완성해 보세요.</div>
-        <div class="list-stack">
+        <div class="list-stack list-stack-grow">
           ${day5Sents
             .map(
               (s) => `
@@ -1045,9 +1056,9 @@ function buildWeek3Pages({
                 ${renderRuledSvgBlock({
                   text: s.en,
                   showShadow: showShadowW34,
-                  fontSize: 20,
-                  maxChars: 38,
-                  svgWidth: 540,
+                  fontSize: 24,
+                  maxChars: 34,
+                  svgWidth: 490,
                   theme
                 })}
               </div>`
@@ -1087,9 +1098,9 @@ function buildWeek4Pages({
     studentName,
     pageLabel: "Week 4 · Day 1",
     bodyHtml: `
-      <div class="q-block">
+      <div class="q-block q-block-grow">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> Put the parts in order and write the sentence.</div>
-        <div class="list-stack">
+        <div class="list-stack list-stack-grow">
           ${sents.slice(0, 3)
             .map(
               (s, idx) => `
@@ -1104,9 +1115,9 @@ function buildWeek4Pages({
                 ${renderRuledSvgBlock({
                   text: s.en,
                   showShadow: showShadowW34,
-                  fontSize: 20,
-                  maxChars: 38,
-                  svgWidth: 540,
+                  fontSize: 24,
+                  maxChars: 34,
+                  svgWidth: 490,
                   theme
                 })}
               </div>`
@@ -1131,9 +1142,9 @@ function buildWeek4Pages({
     studentName,
     pageLabel: "Week 4 · Day 2",
     bodyHtml: `
-      <div class="q-block">
+      <div class="q-block q-block-grow">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> 우리말을 보자마자 영어로 3번 말하고 □에 체크(✓)한 뒤 써 보세요.</div>
-        <div class="list-stack">
+        <div class="list-stack list-stack-grow">
           ${recallItems
             .map(
               (it) => `
@@ -1145,9 +1156,9 @@ function buildWeek4Pages({
                 ${renderRuledSvgBlock({
                   text: it.en,
                   showShadow: showShadowW34,
-                  fontSize: 20,
-                  maxChars: 38,
-                  svgWidth: 540,
+                  fontSize: 24,
+                  maxChars: 34,
+                  svgWidth: 490,
                   theme
                 })}
               </div>`
@@ -1169,17 +1180,17 @@ function buildWeek4Pages({
     studentName,
     pageLabel: "Week 4 · Day 3",
     bodyHtml: `
-      <div class="q-block">
+      <div class="q-block q-block-grow">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> 내가 작가가 되어 장면을 그리고 2문장 이야기를 만들어 보세요.</div>
         <div class="draw-frame draw-frame-sm" style="border-color:${theme.primary};"></div>
-        <div class="list-stack" style="margin-top:8px;">
+        <div class="list-stack" style="margin-top:10px;">
           <div class="mini-story-card" style="border-color:${theme.softBorder};background:${theme.softBg};">
             <div class="kr-small">${escHtml(promptA.prompt_kr)} <span class="starter-tag">${escHtml(promptA.starter_en)}</span></div>
-            ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 21, maxChars: 38, svgWidth: 540, theme })}
+            ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 25, maxChars: 34, svgWidth: 490, theme })}
           </div>
           <div class="mini-story-card" style="border-color:${theme.softBorder};background:${theme.softBg};">
             <div class="kr-small">${escHtml(promptB.prompt_kr)} <span class="starter-tag">${escHtml(promptB.starter_en)}</span></div>
-            ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 21, maxChars: 38, svgWidth: 540, theme })}
+            ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 25, maxChars: 34, svgWidth: 490, theme })}
           </div>
         </div>
       </div>`
@@ -1195,9 +1206,9 @@ function buildWeek4Pages({
     studentName,
     pageLabel: "Week 4 · Day 4",
     bodyHtml: `
-      <div class="q-block">
+      <div class="q-block q-block-grow">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">1</span> Answer the questions about the story.</div>
-        <div class="list-stack">
+        <div class="list-stack list-stack-grow">
           ${data.qaItems.slice(0, 3)
             .map(
               (qa, idx) => `
@@ -1205,7 +1216,7 @@ function buildWeek4Pages({
                 <div class="qa-en"><strong>Q${idx + 1}.</strong> ${escHtml(qa.question_en)}</div>
                 <div class="kr-small">${escHtml(qa.question_kr)}</div>
                 <div class="starter-line">${escHtml(qa.starter_en)} __________________________</div>
-                ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 21, maxChars: 38, svgWidth: 540, theme })}
+                ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 25, maxChars: 34, svgWidth: 490, theme })}
               </div>`
             )
             .join("")}
@@ -1233,7 +1244,7 @@ function buildWeek4Pages({
       </div>
       <div class="q-block">
         <div class="q-title"><span class="q-num" style="background:${theme.primary};">2</span> 이 책에서 내가 가장 자신 있는 문장 1개를 써 보세요.</div>
-        ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 22, maxChars: 36, minLines: 2, svgWidth: 540, theme })}
+        ${renderRuledSvgBlock({ text: "", showShadow: false, fontSize: 26, maxChars: 32, minLines: 2, svgWidth: 490, theme })}
       </div>
       <div class="star-box" style="background:${theme.softBg};border-color:${theme.softBorder};">
         <div class="kr-label">원서 한 권 완료! 별을 색칠해 주세요.</div>
@@ -1246,64 +1257,75 @@ function buildWeek4Pages({
 
 function buildStorybookCoverPage({
   targetBook,
+  coverUrl,
   theme,
   nameMode,
-  studentName,
-  origin
+  studentName
 }: {
   targetBook: Book;
+  coverUrl: string;
   theme: WorksheetTheme;
   nameMode: WorksheetNameMode;
   studentName: string;
-  origin: string;
 }): string {
-  const coverImg = toAssetUrl(theme.coverImageUrl, origin);
   const shownName = nameMode === "student" ? studentName : "";
 
   return `
-    <section class="sheet-page cover-page" style="background:linear-gradient(160deg, ${theme.coverBgStart} 0%, #ffffff 52%, ${theme.coverBgEnd} 100%);">
-      <div class="cover-top-row">
-        <span class="cover-level-pill" style="background:${theme.primary};color:#fff;">${escHtml(targetBook.level)}</span>
-        <span class="cover-brand" style="color:${theme.primaryDark};">BADA ENGLISH</span>
-      </div>
+    <section class="sheet-page cover-page" style="background:linear-gradient(160deg, ${theme.coverBgStart} 0%, #ffffff 50%, ${theme.coverBgEnd} 100%);">
+      ${
+        coverUrl
+          ? `<img src="${escHtml(coverUrl)}" alt="${escHtml(targetBook.title)}" class="cover-full-bg" />`
+          : `<div class="cover-bg-motif">${theme.motifSvg}</div>`
+      }
+      <div class="cover-overlay">
+        <div class="cover-top-wash">
+          <div class="cover-top-row">
+            <span class="cover-level-pill" style="background:${theme.primary};color:#fff;">${escHtml(targetBook.level)}</span>
+            <span class="cover-brand" style="color:${theme.primaryDark};">BADA ENGLISH</span>
+          </div>
+          <div class="cover-title-wrap">
+            <h1 class="cover-title" style="color:${theme.primaryDark};">${escHtml(targetBook.title)}</h1>
+            <p class="cover-subtitle">${escHtml(targetBook.subtitle_kr || "")}</p>
+          </div>
+        </div>
 
-      <div class="cover-art-frame" style="border-color:${theme.softBorder};">
-        ${
-          coverImg
-            ? `<img src="${escHtml(coverImg)}" alt="${escHtml(targetBook.title)}" class="cover-art-img" />`
-            : `<div class="cover-art-fallback">${theme.motifSvg}</div>`
-        }
-      </div>
-
-      <div class="cover-title-wrap">
-        <h1 class="cover-title" style="color:${theme.primaryDark};">${escHtml(targetBook.title)}</h1>
-        <p class="cover-subtitle">${escHtml(targetBook.subtitle_kr || "")}</p>
-      </div>
-
-      <div class="cover-nameplate" style="border-color:${theme.primary};">
-        <div class="cover-nameplate-label" style="color:${theme.primaryDark};">This book belongs to · 이름</div>
-        <div class="cover-nameplate-value">${escHtml(shownName)}</div>
+        <div class="cover-bottom-area">
+          <div class="cover-nameplate" style="border-color:${theme.primary};">
+            <div class="cover-nameplate-label" style="color:${theme.primaryDark};">This book belongs to · 이름</div>
+            <div class="cover-nameplate-value">${escHtml(shownName)}</div>
+          </div>
+        </div>
       </div>
     </section>`;
 }
 
 function buildAuthenticStoryPages({
   targetBook,
-  pageIllustrations,
+  storyPageIllustrations,
+  fallbackCoverUrl,
   theme,
   origin
 }: {
   targetBook: Book;
-  pageIllustrations: PageIllustration[];
+  storyPageIllustrations: PageIllustration[];
+  fallbackCoverUrl: string;
   theme: WorksheetTheme;
   origin: string;
 }): string[] {
   const spreads = splitBookIntoContextPages(targetBook);
-  const fallbackCover = toAssetUrl(theme.coverImageUrl, origin);
 
   return spreads.map((spread, idx) => {
-    const illUrl = toAssetUrl(pageIllustrations[idx]?.image_url || fallbackCover, origin);
-    const englishParagraph = spread.sentences.map((s) => s.en).join(" ");
+    const matched =
+      storyPageIllustrations.find((p) => Number(p.page_index) === spread.pageIndex) ||
+      storyPageIllustrations[idx];
+    const illUrl = toAssetUrl(matched?.image_url || fallbackCoverUrl, origin);
+    const totalChars = spread.sentences.reduce((acc, s) => acc + s.en.length, 0);
+    const sizeClass =
+      totalChars <= 70
+        ? "story-text-xl"
+        : totalChars <= 135
+          ? "story-text-lg"
+          : "story-text-md";
 
     return `
       <section class="sheet-page story-page">
@@ -1314,8 +1336,13 @@ function buildAuthenticStoryPages({
               : `<div class="story-art-empty">${theme.motifSvg}</div>`
           }
         </div>
-        <div class="story-text-area">
-          <p class="story-english-text">${escHtml(englishParagraph)}</p>
+        <div class="story-text-area ${sizeClass}">
+          ${spread.sentences
+            .map(
+              (s) =>
+                `<p class="story-sentence">${formatStorySentenceHtml(s.en)}</p>`
+            )
+            .join("")}
         </div>
         <div class="story-page-num" style="color:${theme.primaryDark};">- ${idx + 1} -</div>
       </section>`;
@@ -1354,6 +1381,25 @@ export function buildWorksheetDocumentHtml({
       ? pageIllustrations
       : targetBook.page_illustrations || [];
 
+  const coverIll = effectiveIllustrations.find(
+    (p) => Boolean(p?.is_cover) || Number(p?.page_index) === -1
+  );
+  const storyPageIlls = effectiveIllustrations.filter(
+    (p) => !p?.is_cover && Number(p?.page_index) >= 0
+  );
+
+  const customCoverEndpoint = targetBook.has_custom_cover
+    ? `/api/books/cover?bookId=${encodeURIComponent(targetBook.id)}&v=${encodeURIComponent(targetBook.text_hash || "1")}`
+    : "";
+  const resolvedCoverUrl = toAssetUrl(
+    coverIll?.image_url ||
+      customCoverEndpoint ||
+      theme.coverImageUrl ||
+      storyPageIlls[0]?.image_url ||
+      "",
+    origin
+  );
+
   const normalizedMode: WorksheetPrintMode =
     weekKey === "week3_4_study"
       ? "week3"
@@ -1369,7 +1415,7 @@ export function buildWorksheetDocumentHtml({
     pages = buildWeek2Pages({
       targetBook,
       data,
-      pageIllustrations: effectiveIllustrations,
+      pageIllustrations: storyPageIlls,
       theme,
       nameMode,
       studentName,
@@ -1379,7 +1425,7 @@ export function buildWorksheetDocumentHtml({
     pages = buildWeek3Pages({
       targetBook,
       data,
-      pageIllustrations: effectiveIllustrations,
+      pageIllustrations: storyPageIlls,
       theme,
       nameMode,
       studentName,
@@ -1388,11 +1434,17 @@ export function buildWorksheetDocumentHtml({
   } else if (normalizedMode === "week4") {
     pages = buildWeek4Pages({ targetBook, data, theme, nameMode, studentName });
   } else {
-    // Integrated Monthly Activity Book: Cover + Story Pages + Week 1..4 (Days 1..5 = 20 days)
-    const cover = buildStorybookCoverPage({ targetBook, theme, nameMode, studentName, origin });
+    const cover = buildStorybookCoverPage({
+      targetBook,
+      coverUrl: resolvedCoverUrl,
+      theme,
+      nameMode,
+      studentName
+    });
     const storyPages = buildAuthenticStoryPages({
       targetBook,
-      pageIllustrations: effectiveIllustrations,
+      storyPageIllustrations: storyPageIlls,
+      fallbackCoverUrl: resolvedCoverUrl,
       theme,
       origin
     });
@@ -1400,7 +1452,7 @@ export function buildWorksheetDocumentHtml({
     const w2 = buildWeek2Pages({
       targetBook,
       data,
-      pageIllustrations: effectiveIllustrations,
+      pageIllustrations: storyPageIlls,
       theme,
       nameMode,
       studentName,
@@ -1409,7 +1461,7 @@ export function buildWorksheetDocumentHtml({
     const w3 = buildWeek3Pages({
       targetBook,
       data,
-      pageIllustrations: effectiveIllustrations,
+      pageIllustrations: storyPageIlls,
       theme,
       nameMode,
       studentName,
@@ -1478,7 +1530,7 @@ export function buildWorksheetDocumentHtml({
     width: 184mm;
     height: 268mm;
     margin: 12px auto;
-    padding: 9mm 10mm;
+    padding: 8mm 9mm;
     background: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 18px rgba(15, 23, 42, 0.12);
@@ -1531,73 +1583,79 @@ export function buildWorksheetDocumentHtml({
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding-bottom: 6px;
+    padding-bottom: 7px;
     border-bottom: 2.5px solid;
     margin-bottom: 10px;
+    flex-shrink: 0;
   }
   .header-left { display: flex; align-items: center; gap: 8px; }
   .header-icon { display: inline-flex; align-items: center; }
   .header-book {
     font-family: "Fredoka", "Jua", sans-serif;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 700;
     color: #0f172a;
   }
   .header-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
   .day-pill {
     font-family: "Fredoka", sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
-    padding: 2px 10px;
+    padding: 3px 12px;
     border-radius: 999px;
     border: 1.5px solid;
   }
   .header-date, .header-meta-row {
-    font-size: 12px;
+    font-size: 13px;
     color: #334155;
     display: flex;
-    gap: 10px;
+    gap: 12px;
   }
 
   .sheet-body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 4px 0;
     overflow: hidden;
   }
   .sheet-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: 6px;
+    padding-top: 7px;
     border-top: 1px dashed #e2e8f0;
+    flex-shrink: 0;
   }
   .footer-page {
     font-family: "Fredoka", sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
   }
 
-  .q-block { display: flex; flex-direction: column; gap: 8px; }
+  .q-block { display: flex; flex-direction: column; gap: 11px; }
+  .q-block-grow { flex: 1; }
   .q-title {
-    font-size: 15.5px;
+    font-size: 18.5px;
     font-weight: 700;
     color: #0f172a;
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
+    line-height: 1.35;
   }
   .q-num {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 27px;
+    height: 27px;
     border-radius: 999px;
     color: #ffffff;
     font-family: "Fredoka", sans-serif;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     flex-shrink: 0;
   }
@@ -1605,95 +1663,87 @@ export function buildWorksheetDocumentHtml({
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 19px;
-    height: 19px;
+    width: 23px;
+    height: 23px;
     border-radius: 999px;
     background: #e2e8f0;
     color: #334155;
     font-family: "Fredoka", sans-serif;
-    font-size: 11.5px;
+    font-size: 13px;
     font-weight: 700;
   }
 
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .list-stack { display: flex; flex-direction: column; gap: 9px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .two-col-grow { flex: 1; align-content: space-between; }
+  .list-stack { display: flex; flex-direction: column; gap: 13px; }
+  .list-stack-grow { flex: 1; justify-content: space-between; }
 
-  .match-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 46px; row-gap: 8px; }
-  .match-col { display: flex; flex-direction: column; gap: 8px; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 50px; row-gap: 12px; }
+  .match-col { display: flex; flex-direction: column; gap: 12px; }
   .match-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    padding: 6px 10px;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 12px;
+    gap: 10px;
+    padding: 9px 13px;
+    border: 1.8px solid #cbd5e1;
+    border-radius: 14px;
     background: #ffffff;
-    min-height: 46px;
+    min-height: 58px;
   }
   .match-card-right { justify-content: flex-start; }
-  .match-left-row { display: flex; align-items: center; gap: 8px; }
+  .match-left-row { display: flex; align-items: center; gap: 10px; }
   .match-dot {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 999px;
-    border: 2px solid #64748b;
+    border: 2.2px solid #64748b;
     background: #ffffff;
     flex-shrink: 0;
   }
 
   .vocab-thumb {
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 10px;
     background: #ffffff;
     border: 1px solid #e2e8f0;
     flex-shrink: 0;
   }
-  .thumb-placeholder {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: #f1f5f9;
-    color: #94a3b8;
-    font-weight: 800;
-    flex-shrink: 0;
-  }
-  .kr-label { font-size: 15px; font-weight: 700; color: #1e293b; }
-  .kr-small { font-size: 13.5px; font-weight: 700; color: #334155; }
-  .kr-big-prompt { font-size: 16.5px; font-weight: 700; color: #0f172a; }
+  .kr-label { font-size: 18px; font-weight: 700; color: #1e293b; }
+  .kr-small { font-size: 15.5px; font-weight: 700; color: #334155; }
+  .kr-big-prompt { font-size: 19.5px; font-weight: 700; color: #0f172a; }
   .en-word-big {
     font-family: "Andika", sans-serif;
-    font-size: 20px;
+    font-size: 25px;
     font-weight: 700;
     color: #0f172a;
   }
   .en-chunk {
     font-family: "Andika", sans-serif;
-    font-size: 16.5px;
+    font-size: 20.5px;
     font-weight: 700;
     color: #0f172a;
   }
   .en-chip {
     font-family: "Andika", sans-serif;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 700;
     color: #334155;
     margin-left: 6px;
   }
 
   .trace-card {
-    padding: 8px 11px;
-    border: 1.5px solid;
-    border-radius: 12px;
+    padding: 11px 14px;
+    border: 1.8px solid;
+    border-radius: 14px;
   }
-  .trace-head { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+  .trace-head { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
   .model-line-en {
     font-family: "Andika", sans-serif;
-    font-size: 16px;
+    font-size: 18.5px;
     font-weight: 700;
     color: #1e293b;
-    margin-bottom: 3px;
+    margin-bottom: 5px;
   }
 
   svg.ruled-svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -1708,21 +1758,21 @@ export function buildWorksheetDocumentHtml({
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    padding: 8px 12px;
-    border: 1.5px solid;
-    border-radius: 12px;
+    gap: 12px;
+    padding: 11px 15px;
+    border: 1.8px solid;
+    border-radius: 14px;
     background: #ffffff;
   }
-  .choice-prompt { display: flex; align-items: center; gap: 8px; }
-  .choice-pills { display: flex; gap: 10px; flex-wrap: wrap; }
-  .choice-pills-col { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+  .choice-prompt { display: flex; align-items: center; gap: 10px; }
+  .choice-pills { display: flex; gap: 11px; flex-wrap: wrap; }
+  .choice-pills-col { display: flex; flex-direction: column; gap: 7px; margin-top: 6px; }
   .circle-opt {
     font-family: "Andika", sans-serif;
-    font-size: 16.5px;
+    font-size: 19.5px;
     font-weight: 700;
-    padding: 4px 12px;
-    border: 1.5px solid #cbd5e1;
+    padding: 5px 15px;
+    border: 1.8px solid #cbd5e1;
     border-radius: 999px;
     color: #0f172a;
     background: #f8fafc;
@@ -1730,139 +1780,184 @@ export function buildWorksheetDocumentHtml({
 
   .missing-row {
     display: grid;
-    grid-template-columns: 1fr 1.3fr;
+    grid-template-columns: 1fr 1.25fr;
     align-items: center;
-    gap: 12px;
-    padding: 8px 12px;
-    border: 1.5px solid;
-    border-radius: 12px;
+    gap: 14px;
+    padding: 11px 15px;
+    border: 1.8px solid;
+    border-radius: 14px;
   }
-  .missing-left { display: flex; align-items: center; gap: 10px; }
+  .missing-left { display: flex; align-items: center; gap: 12px; }
   .missing-word {
     font-family: "Andika", sans-serif;
-    font-size: 21px;
+    font-size: 26px;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     color: #0f172a;
   }
 
   .word-bank {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
-    padding: 8px 12px;
-    border: 1.5px solid;
-    border-radius: 12px;
+    padding: 10px 14px;
+    border: 1.8px solid;
+    border-radius: 14px;
   }
-  .bank-title { font-family: "Fredoka", sans-serif; font-size: 13.5px; font-weight: 700; }
-  .bank-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .bank-title { font-family: "Fredoka", sans-serif; font-size: 15.5px; font-weight: 700; }
+  .bank-chips { display: flex; gap: 10px; flex-wrap: wrap; }
   .bank-chip {
     font-family: "Andika", sans-serif;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 700;
-    padding: 2px 10px;
+    padding: 3px 13px;
     background: #ffffff;
-    border: 1px solid #cbd5e1;
+    border: 1.5px solid #cbd5e1;
     border-radius: 999px;
   }
 
   .scene-quiz-card {
-    padding: 8px;
-    border: 1.5px solid;
-    border-radius: 12px;
+    padding: 10px;
+    border: 1.8px solid;
+    border-radius: 14px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
   }
   .scene-mini-img {
     width: 100%;
-    height: 112px;
+    height: 145px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 10px;
   }
-  .kr-caption { font-size: 13.5px; font-weight: 700; color: #334155; }
+  .kr-caption { font-size: 15.5px; font-weight: 700; color: #334155; }
 
-  .scramble-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 6px; }
+  .scramble-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 8px; }
   .word-tile {
     font-family: "Andika", sans-serif;
-    font-size: 14.5px;
+    font-size: 17.5px;
     font-weight: 700;
-    padding: 3px 10px;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 8px;
+    padding: 4px 13px;
+    border: 1.8px solid #cbd5e1;
+    border-radius: 10px;
     background: #f8fafc;
   }
 
-  .speak-card { padding: 9px 12px; border: 1.5px solid; border-radius: 12px; }
-  .speak-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
-  .check-trio { display: flex; gap: 6px; font-size: 18px; color: #475569; }
-  .blank-line-en { font-family: "Andika", sans-serif; font-size: 16.5px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .speak-card { padding: 12px 15px; border: 1.8px solid; border-radius: 14px; }
+  .speak-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+  .check-trio { display: flex; gap: 8px; font-size: 22px; color: #475569; }
+  .blank-line-en { font-family: "Andika", sans-serif; font-size: 19px; font-weight: 700; color: #1e293b; margin-bottom: 5px; }
 
-  .order-scene-card { padding: 7px; border: 1.5px solid; border-radius: 12px; }
-  .order-head { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
-  .order-circle { font-family: "Fredoka", sans-serif; font-size: 14px; font-weight: 700; color: #0f172a; white-space: nowrap; }
-  .order-thumb { width: 100%; height: 86px; object-fit: cover; border-radius: 8px; }
+  .order-scene-card { padding: 9px; border: 1.8px solid; border-radius: 14px; }
+  .order-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .order-circle { font-family: "Fredoka", sans-serif; font-size: 16px; font-weight: 700; color: #0f172a; white-space: nowrap; }
+  .order-thumb { width: 100%; height: 116px; object-fit: cover; border-radius: 10px; }
 
   .tf-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 7px 12px;
-    border: 1.5px solid;
-    border-radius: 12px;
+    gap: 14px;
+    padding: 10px 14px;
+    border: 1.8px solid;
+    border-radius: 14px;
   }
-  .tf-kr { font-size: 14.5px; font-weight: 700; color: #0f172a; }
-  .tf-en { font-family: "Andika", sans-serif; font-size: 12.5px; color: #475569; margin-top: 2px; }
-  .tf-ox { font-family: "Fredoka", sans-serif; font-size: 20px; font-weight: 700; color: #334155; white-space: nowrap; }
+  .tf-kr { font-size: 17px; font-weight: 700; color: #0f172a; }
+  .tf-en { font-family: "Andika", sans-serif; font-size: 14.5px; color: #475569; margin-top: 3px; }
+  .tf-ox { font-family: "Fredoka", sans-serif; font-size: 24px; font-weight: 700; color: #334155; white-space: nowrap; }
 
-  .pattern-box { padding: 10px 12px; border: 1.5px solid; border-radius: 14px; display: flex; flex-direction: column; gap: 6px; }
-  .pattern-line-base { font-family: "Andika", sans-serif; font-size: 15px; font-weight: 700; color: #334155; }
-  .pattern-slot { font-family: "Andika", sans-serif; font-size: 19px; font-weight: 700; }
-  .swap-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 4px 0; }
+  .pattern-box { padding: 12px 14px; border: 1.8px solid; border-radius: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .pattern-line-base { font-family: "Andika", sans-serif; font-size: 17.5px; font-weight: 700; color: #334155; }
+  .pattern-slot { font-family: "Andika", sans-serif; font-size: 22px; font-weight: 700; }
+  .swap-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 4px 0; }
   .swap-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    padding: 6px;
+    gap: 3px;
+    padding: 8px;
     background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
   }
-  .swap-word { font-family: "Andika", sans-serif; font-size: 14.5px; font-weight: 700; color: #0f172a; }
-  .swap-kr { font-size: 12px; color: #475569; font-weight: 700; }
+  .swap-word { font-family: "Andika", sans-serif; font-size: 17px; font-weight: 700; color: #0f172a; }
+  .swap-kr { font-size: 13.5px; color: #475569; font-weight: 700; }
 
   .draw-frame {
-    height: 118mm;
-    border: 2px dashed;
-    border-radius: 16px;
+    height: 148mm;
+    border: 2.5px dashed;
+    border-radius: 18px;
     background: #ffffff;
     position: relative;
-    padding: 10px;
+    padding: 12px;
   }
-  .draw-frame-sm { height: 78mm; }
-  .draw-corner-hint { font-family: "Andika", sans-serif; font-size: 15px; font-weight: 700; opacity: 0.72; }
+  .draw-frame-sm { height: 94mm; }
+  .draw-corner-hint { font-family: "Andika", sans-serif; font-size: 18px; font-weight: 700; opacity: 0.72; }
 
-  .mini-story-card { padding: 9px 12px; border: 1.5px solid; border-radius: 12px; }
-  .starter-tag { font-family: "Andika", sans-serif; font-size: 13.5px; font-weight: 700; color: #0369a1; margin-left: 6px; }
-  .qa-en { font-family: "Andika", sans-serif; font-size: 16px; font-weight: 700; color: #0f172a; }
-  .starter-line { font-family: "Andika", sans-serif; font-size: 15.5px; font-weight: 700; color: #334155; margin: 4px 0; }
+  .mini-story-card { padding: 12px 15px; border: 1.8px solid; border-radius: 14px; }
+  .starter-tag { font-family: "Andika", sans-serif; font-size: 16px; font-weight: 700; color: #0369a1; margin-left: 8px; }
+  .qa-en { font-family: "Andika", sans-serif; font-size: 18.5px; font-weight: 700; color: #0f172a; }
+  .starter-line { font-family: "Andika", sans-serif; font-size: 18px; font-weight: 700; color: #334155; margin: 5px 0; }
 
   .star-box {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
-    border: 1.5px solid;
-    border-radius: 14px;
+    padding: 14px 18px;
+    border: 1.8px solid;
+    border-radius: 16px;
   }
-  .stars-row { font-size: 26px; letter-spacing: 0.08em; }
+  .stars-row { font-size: 32px; letter-spacing: 0.1em; }
 
-  /* Cover Page */
-  .cover-page { justify-content: space-between; padding: 12mm; }
-  .cover-top-row { display: flex; justify-content: space-between; align-items: center; }
+  /* Full-Bleed Picture-Book Front Cover */
+  .cover-page {
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover-full-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+  .cover-bg-motif {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(2.4);
+    opacity: 0.65;
+    z-index: 0;
+  }
+  .cover-overlay {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .cover-top-wash {
+    padding: 11mm 11mm 16mm;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.90) 0%,
+      rgba(255, 255, 255, 0.66) 66%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+  .cover-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
   .cover-level-pill {
     font-family: "Fredoka", sans-serif;
     font-size: 15px;
@@ -1870,74 +1965,91 @@ export function buildWorksheetDocumentHtml({
     padding: 4px 16px;
     border-radius: 999px;
   }
-  .cover-brand { font-family: "Fredoka", sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; }
-  .cover-art-frame {
-    height: 106mm;
-    border-radius: 20px;
-    border: 3px solid;
-    background: #ffffff;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .cover-brand {
+    font-family: "Fredoka", sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-shadow: 0 1px 6px rgba(255, 255, 255, 0.9);
   }
-  .cover-art-img { width: 100%; height: 100%; object-fit: cover; }
-  .cover-title-wrap { text-align: center; padding: 4px 8px; }
+  .cover-title-wrap { text-align: center; padding: 2px 6px; }
   .cover-title {
     font-family: "Fredoka", "Jua", sans-serif;
-    font-size: 29px;
-    line-height: 1.2;
+    font-size: 35px;
+    line-height: 1.18;
     margin: 0 0 6px;
+    text-shadow: 0 2px 12px rgba(255, 255, 255, 0.96), 0 0 4px rgba(255, 255, 255, 0.96);
   }
-  .cover-subtitle { font-family: "Jua", sans-serif; font-size: 18px; color: #475569; margin: 0; }
+  .cover-subtitle {
+    font-family: "Jua", sans-serif;
+    font-size: 20px;
+    color: #1e293b;
+    margin: 0;
+    text-shadow: 0 1px 8px rgba(255, 255, 255, 0.95);
+  }
+  .cover-bottom-area {
+    padding: 12mm 16mm 11mm;
+    background: linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(255, 255, 255, 0.25) 65%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
   .cover-nameplate {
-    border: 2.5px dashed;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.92);
-    padding: 10px 18px;
-    min-height: 27mm;
+    border: 3px dashed;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.94);
+    padding: 10px 20px;
+    min-height: 29mm;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12);
   }
-  .cover-nameplate-label { font-family: "Fredoka", "Jua", sans-serif; font-size: 13px; font-weight: 700; }
-  .cover-nameplate-value { font-family: "Jua", sans-serif; font-size: 25px; font-weight: 700; color: #0f172a; min-height: 30px; }
+  .cover-nameplate-label { font-family: "Fredoka", "Jua", sans-serif; font-size: 14px; font-weight: 700; }
+  .cover-nameplate-value { font-family: "Jua", sans-serif; font-size: 27px; font-weight: 700; color: #0f172a; min-height: 32px; }
 
-  /* Authentic Picture-Book Pages (Top Illustration + Bottom English Text Only) */
+  /* Authentic Picture-Book Pages (Top Illustration + Bigger Sentence-by-Sentence English Text Only) */
   .story-page { justify-content: space-between; }
   .story-art-frame {
-    height: 145mm;
+    height: 142mm;
     border-radius: 18px;
     border: 2px solid;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
   }
   .story-art-img { width: 100%; height: 100%; object-fit: cover; }
   .story-text-area {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 14px;
     padding: 10px 14px;
+    text-align: center;
   }
-  .story-english-text {
+  .story-sentence {
     font-family: "Andika", sans-serif;
-    font-size: 21px;
-    line-height: 1.7;
     font-weight: 700;
     color: #0f172a;
-    text-align: center;
     margin: 0;
   }
+  .story-text-xl .story-sentence { font-size: 31px; line-height: 1.5; }
+  .story-text-lg .story-sentence { font-size: 27px; line-height: 1.48; }
+  .story-text-md .story-sentence { font-size: 23.5px; line-height: 1.44; }
   .story-page-num {
     font-family: "Fredoka", sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     text-align: center;
+    flex-shrink: 0;
   }
 
   .pad-box {

@@ -189,6 +189,10 @@ export const BookCover: React.FC<BookCoverProps> = ({
   className = ""
 }) => {
   const theme = detectCoverTheme(book);
+  const customCoverUrl = book.has_custom_cover
+    ? `/api/books/cover?bookId=${encodeURIComponent(book.id)}&v=${encodeURIComponent(book.text_hash || "1")}`
+    : undefined;
+  const resolvedCoverImageUrl = customCoverUrl || theme.imageUrl;
 
   if (size === "sm") {
     return (
@@ -198,10 +202,10 @@ export const BookCover: React.FC<BookCoverProps> = ({
           onClick ? "cursor-pointer hover:scale-[1.03] transition" : ""
         } ${className}`}
       >
-        {theme.imageUrl && (
+        {resolvedCoverImageUrl && (
           <>
             <img
-              src={theme.imageUrl}
+              src={resolvedCoverImageUrl}
               alt={book.title}
               className="absolute inset-0 w-full h-full object-cover"
             />
@@ -217,7 +221,7 @@ export const BookCover: React.FC<BookCoverProps> = ({
             {book.title}
           </div>
         </div>
-        {!theme.imageUrl && (
+        {!resolvedCoverImageUrl && (
           <div className="h-8 w-full relative z-10">
             <CuteCharacterSvg themeId={theme.id} accent={theme.accentColor} />
           </div>
@@ -238,10 +242,10 @@ export const BookCover: React.FC<BookCoverProps> = ({
         onClick ? "cursor-pointer hover:shadow-xl hover:-translate-y-0.5 transition" : ""
       } ${className}`}
     >
-      {theme.imageUrl && (
+      {resolvedCoverImageUrl && (
         <>
           <img
-            src={theme.imageUrl}
+            src={resolvedCoverImageUrl}
             alt={book.title}
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -262,7 +266,7 @@ export const BookCover: React.FC<BookCoverProps> = ({
         </span>
       </div>
 
-      {!theme.imageUrl && (
+      {!resolvedCoverImageUrl && (
         <div className="pl-3 my-2 h-24 w-full relative z-10">
           <CuteCharacterSvg themeId={theme.id} accent={theme.accentColor} />
         </div>

@@ -849,6 +849,40 @@ function splitSentencesIntoPages(rawText) {
   return pages;
 }
 
+async function generateSingleImageB64(prompt, size = "1536x1024", openaiKey = "") {
+  const tryModels = [process.env.OPENAI_IMAGE_MODEL || "gpt-image-1-mini", "gpt-image-1.5"];
+  const quality = size === "1024x1536" ? "medium" : process.env.OPENAI_IMAGE_QUALITY || "low";
+
+  for (const model of tryModels) {
+    try {
+      const imgRes = await fetch("https://api.openai.com/v1/images/generations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiKey}`
+        },
+        body: JSON.stringify({
+          model,
+          prompt,
+          size,
+          quality,
+          output_format: "jpeg",
+          output_compression: size === "1024x1536" ? 78 : 75
+        })
+      });
+      if (!imgRes.ok) continue;
+      const imgData = await imgRes.json();
+      const b64 = imgData?.data?.[0]?.b64_json || "";
+      if (b64) {
+        return `data:image/jpeg;base64,${b64}`;
+      }
+    } catch (_) {
+      // try fallback model
+    }
+  }
+  return "";
+}
+
 async function generatePageIllustrationsWithLLM({ title = "", fullText = "", level = "Level 2" }) {
   const pages = splitSentencesIntoPages(fullText);
   if (pages.length === 0) return [];
@@ -875,10 +909,11 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
           {
             role: "system",
             content:
-              "You are a children's picture-book art director ensuring 100% visual consistency across every page of ONE storybook. " +
-              "Step 1: Define `art_style_bible` (consistent 3D painterly picture-book style, lighting, and pastel color palette for the whole book) and `character_sheet` (exact fixed visual design of EVERY character — colors, clothes/accessories, species — AND species rule: if the protagonist is an owl or woodland animal like Little Hoo, ALL classmates, teachers, and background characters MUST also be cute woodland animals like owls, bunnies, squirrels, bears, NEVER human children; if Popo is a baby blue whale, Popo always has the exact same sky-blue body, cream belly, big smiling eyes, and ocean friends). " +
-              "Step 2: For each page, write `scene_action` describing the exact pose, setting, and EVERY concrete noun/object on that page so young students can understand the English text visually, with NO text or letters anywhere in the image. " +
-              "Return ONLY JSON: { \"art_style_bible\": \"...\", \"character_sheet\": \"...\", \"pages\": [ { \"page_index\": 0, \"scene_caption_kr\": \"짧은 한국어 장면 설명 (~해요 체)\", \"key_objects\": [\"starfish\", \"sandy floor\"], \"scene_action\": \"...\" } ] }."
+              "You are a children's picture-book art director designing ONE unified illustrated storybook where the FRONT COVER and EVERY INSIDE SPREAD look painted by the exact same artist with 100% consistent characters, palette, lighting, and tone. " +
+              "Step 1: Define `art_style_bible` (explicit medium, brushwork, warm pastel palette, sunlit/cozy lighting shared across the cover and every page) and `character_sheet` (exact fixed visual design of EVERY character — species, colors, clothes/accessories, proportions — AND species rule: if the protagonist is an owl or woodland animal like Little Hoo, ALL classmates, teachers, and background characters MUST also be cute woodland animals like owls, bunnies, squirrels, bears, NEVER human children; if Popo is a baby blue whale, Popo always keeps the exact sky-blue body and cream belly). " +
+              "Step 2: Define `cover_scene` for the vertical picture-book front cover: place the protagonist and main setting charmingly in the middle 55% of the composition, keep the top 22% calm/airy sky, canopy, or clean pastel backdrop for overlaid title text, and keep the bottom 18% uncluttered ground for a nameplate — STRICTLY NO text, letters, numbers, logos, or borders in the image. " +
+              "Step 3: For each inside page, write `scene_action` using the exact same `art_style_bible` and `character_sheet`, depicting EVERY concrete noun/object clearly with NO text anywhere in the image. " +
+              "Return ONLY JSON: { \"art_style_bible\": \"...\", \"character_sheet\": \"...\", \"cover_scene\": \"...\", \"pages\": [ { \"page_index\": 0, \"scene_caption_kr\": \"짧은 한국어 장면 설명 (~해요 체)\", \"key_objects\": [\"starfish\", \"sandy floor\"], \"scene_action\": \"...\" } ] }."
           },
           {
             role: "user",
@@ -893,70 +928,83 @@ async function generatePageIllustrationsWithLLM({ title = "", fullText = "", lev
     const parsed = JSON.parse(data?.choices?.[0]?.message?.content || "{}");
     const styleBible = String(
       parsed.art_style_bible ||
-      "Consistent warm Pixar-style 3D painterly children's picture-book illustration, soft sunlit pastel palette, gentle rounded shapes, NO text or letters anywhere."
+        "Consistent warm painterly children's picture-book illustration, soft sunlit pastel palette, gentle rounded shapes, cohesive storybook tone, ZERO text or letters anywhere."
     ).trim();
     const characterSheet = String(parsed.character_sheet || "").trim();
+    const sharedPrefix = `${styleBible}${characterSheet ? ` Characters (identical appearance on cover and every page): ${characterSheet}.` : ""}`;
+    const coverScene = String(
+      parsed.cover_scene ||
+        `Iconic warm picture-book cover scene for "${title}", protagonist centered in their sunlit world, calm open sky/backdrop in top 22% and calm ground in bottom 18%.`
+    ).trim();
     const llmPages = Array.isArray(parsed.pages) ? parsed.pages : [];
 
-    const results = [];
-    for (const p of pages) {
-      const match = llmPages.find((lp) => Number(lp.page_index) === p.page_index) || llmPages[p.page_index];
+    const pageJobs = pages.map((p) => {
+      const match =
+        llmPages.find((lp) => Number(lp.page_index) === p.page_index) || llmPages[p.page_index];
       const sceneAction = String(match?.scene_action || match?.image_prompt || p.text).trim();
-      const visualPrompt = `${styleBible} ${characterSheet ? `Characters (keep exact same appearance on every page): ${characterSheet}. ` : ""}Scene for this page: ${sceneAction}. Wide horizontal 3:2 storybook illustration, zero text or letters in the image.`;
-
-      let imageUrl = "";
-      try {
-        let imgRes = await fetch("https://api.openai.com/v1/images/generations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${openaiKey}`
-          },
-          body: JSON.stringify({
-            model: process.env.OPENAI_IMAGE_MODEL || "gpt-image-1-mini",
-            prompt: visualPrompt,
-            size: "1536x1024",
-            quality: process.env.OPENAI_IMAGE_QUALITY || "low",
-            output_format: "jpeg",
-            output_compression: 75
-          })
-        });
-
-        if (!imgRes.ok) {
-          imgRes = await fetch("https://api.openai.com/v1/images/generations", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${openaiKey}`
-            },
-            body: JSON.stringify({
-              model: "gpt-image-1.5",
-              prompt: visualPrompt,
-              size: "1536x1024",
-              quality: "low",
-              output_format: "jpeg",
-              output_compression: 75
-            })
-          });
-        }
-
-        if (imgRes.ok) {
-          const imgData = await imgRes.json();
-          const b64 = imgData?.data?.[0]?.b64_json || "";
-          if (b64) {
-            imageUrl = `data:image/jpeg;base64,${b64}`;
-          }
-        }
-      } catch (imgErr) {
-        console.warn(`⚠️ [BADA IMG] Page ${p.page_index} 이미지 생성 실패:`, imgErr.message);
-      }
-
-      results.push({
+      const visualPrompt = `${sharedPrefix} Inside story spread for page ${p.page_index + 1}: ${sceneAction}. Wide horizontal 3:2 children's book illustration matching the front cover artwork seamlessly, ZERO text, letters, or numbers in the image.`;
+      return {
+        kind: "page",
         page_index: p.page_index,
         scene_caption_kr: String(match?.scene_caption_kr || "이야기 장면 그림"),
         key_objects: Array.isArray(match?.key_objects) ? match.key_objects.slice(0, 5) : [],
-        image_url: imageUrl
-      });
+        prompt: visualPrompt,
+        size: "1536x1024"
+      };
+    });
+
+    const coverPrompt = `${sharedPrefix} Vertical 2:3 full-bleed children's picture-book front cover illustration for "${title}": ${coverScene}. Main subject framed in the middle 55%, calm airy open backdrop in the top 22%, uncluttered ground in the bottom 18%, STRICTLY ZERO text, title letters, numbers, or frames anywhere in the artwork.`;
+    const allJobs = [
+      ...pageJobs,
+      {
+        kind: "cover",
+        page_index: -1,
+        scene_caption_kr: "통합 표지 일러스트",
+        key_objects: [],
+        prompt: coverPrompt,
+        size: "1024x1536"
+      }
+    ];
+
+    const outputs = new Array(allJobs.length);
+    const concurrency = 3;
+    let cursor = 0;
+
+    async function worker() {
+      while (cursor < allJobs.length) {
+        const myIdx = cursor;
+        cursor += 1;
+        const job = allJobs[myIdx];
+        const imageUrl = await generateSingleImageB64(job.prompt, job.size, openaiKey);
+        outputs[myIdx] = { job, imageUrl };
+      }
+    }
+
+    await Promise.all(
+      Array.from({ length: Math.min(concurrency, allJobs.length) }, () => worker())
+    );
+
+    const results = [];
+    let coverResult = null;
+    for (const out of outputs) {
+      if (!out) continue;
+      const entry = {
+        page_index: out.job.page_index,
+        ...(out.job.kind === "cover" ? { is_cover: true } : {}),
+        scene_caption_kr: out.job.scene_caption_kr,
+        key_objects: out.job.key_objects,
+        image_url: out.imageUrl || ""
+      };
+      if (out.job.kind === "cover") {
+        if (entry.image_url) coverResult = entry;
+      } else {
+        results.push(entry);
+      }
+    }
+
+    results.sort((a, b) => Number(a.page_index) - Number(b.page_index));
+    if (coverResult) {
+      results.push(coverResult);
     }
     return results;
   } catch (err) {
