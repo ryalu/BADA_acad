@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ArrowLeft, Compass, LogOut } from "lucide-react";
-import type { Book, PhonicsCurriculumTier, StudentUser, TeacherAccount } from "./types";
+import type { Book, PhonicsCurriculumTier, SeasonalSong, StudentUser, TeacherAccount } from "./types";
 import { getStudentCurrentWeek } from "./utils/bookHelpers";
 import { EntryPortal } from "./components/EntryPortal";
 import { StudentHome } from "./components/StudentHome";
@@ -9,6 +9,7 @@ import { FlashcardDeck } from "./components/FlashcardDeck";
 import { SpeakingStage } from "./components/SpeakingStage";
 import { CurriculumPlayground } from "./components/CurriculumPlayground";
 import { VocabStudio } from "./components/vocab/VocabStudio";
+import { SeasonalSongStudio } from "./components/song/SeasonalSongStudio";
 import { TreasureBookshelf } from "./components/TreasureBookshelf";
 import { TeacherDashboard, type TeacherTab } from "./components/TeacherDashboard";
 import { OceanBackdrop } from "./components/OceanBackdrop";
@@ -18,6 +19,8 @@ export default function App() {
   const [teachers, setTeachers] = useState<TeacherAccount[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const [phonicsCurriculum, setPhonicsCurriculum] = useState<PhonicsCurriculumTier[]>([]);
+  const [seasonalSongs, setSeasonalSongs] = useState<SeasonalSong[]>([]);
+  const [selectedSongId, setSelectedSongId] = useState<string>("");
   const [selectedUserId, setSelectedUserId] = useState<string>("stu_hajun");
   const [loggedTeacher, setLoggedTeacher] = useState<TeacherAccount | null>(null);
   const [route, setRoute] = useState<string>(() => window.location.pathname || "/");
@@ -47,6 +50,9 @@ export default function App() {
       }
       if (data.phonicsCurriculum?.length) {
         setPhonicsCurriculum(data.phonicsCurriculum);
+      }
+      if (Array.isArray(data.seasonalSongs)) {
+        setSeasonalSongs(data.seasonalSongs);
       }
     } catch {
       setApiError(true);
@@ -210,9 +216,11 @@ export default function App() {
         ? "coaching"
         : route.includes("/worksheets")
           ? "worksheets"
-          : route.includes("/database")
-            ? "database"
-            : "home";
+          : route.includes("/songs")
+            ? "songs"
+            : route.includes("/database")
+              ? "database"
+              : "home";
 
     return (
       <>
@@ -223,6 +231,7 @@ export default function App() {
           users={users}
           teachers={teachers}
           books={books}
+          seasonalSongs={seasonalSongs}
           loggedTeacher={loggedTeacher || teachers[0]}
           selectedUserId={selectedUserId}
           onSelectStudent={handleSelectStudent}
@@ -230,6 +239,7 @@ export default function App() {
             if (payload.users) setUsers(payload.users);
             if (payload.teachers) setTeachers(payload.teachers);
             if (payload.books) setBooks(payload.books);
+            if (payload.seasonalSongs) setSeasonalSongs(payload.seasonalSongs);
             if (payload.loggedTeacher) setLoggedTeacher(payload.loggedTeacher);
           }}
           onLogout={() => navigate("/")}
@@ -258,11 +268,13 @@ export default function App() {
     ? "learn"
     : route.includes("/vocab")
       ? "vocab"
-      : route.includes("/curriculum")
-        ? "curriculum"
-        : route.includes("/treasure")
-          ? "treasure"
-          : "home";
+      : route.includes("/song")
+        ? "song"
+        : route.includes("/curriculum")
+          ? "curriculum"
+          : route.includes("/treasure")
+            ? "treasure"
+            : "home";
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col">
@@ -343,6 +355,7 @@ export default function App() {
           <StudentHome
             user={currentUser}
             book={currentBook}
+            seasonalSongs={seasonalSongs}
             onStartWeek={(wk) => {
               setCurrentWeek(wk);
               setLearnStep(1);
@@ -353,6 +366,19 @@ export default function App() {
               setCurrSubview("upper");
               navigate("/student/curriculum");
             }}
+            onOpenSeasonalSong={(songId) => {
+              if (songId) setSelectedSongId(songId);
+              navigate("/student/song");
+            }}
+          />
+        )}
+
+        {studentPage === "song" && (
+          <SeasonalSongStudio
+            user={currentUser}
+            songs={seasonalSongs}
+            initialSongId={selectedSongId}
+            onBackHome={() => navigate("/student")}
           />
         )}
 

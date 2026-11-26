@@ -41,13 +41,22 @@ const {
   submitVocabAttempt,
   updateStudentVocabSettings,
   getPronunciationFocusForStudent,
-  completePronunciationFocusToday
+  completePronunciationFocusToday,
+  seedSeasonalSongsIfEmpty,
+  listSeasonalSongs,
+  getSeasonalSongAudio,
+  saveSeasonalSong,
+  toggleSeasonalSong,
+  deleteSeasonalSong,
+  listStudentSongProgress,
+  updateStudentSongProgress
 } = require("./db");
 const {
   evaluatePopoSpeech,
   evaluateWordPronunciationWithAI,
   generateTeacherQuestions,
-  generateParentFeedbackMessage
+  generateParentFeedbackMessage,
+  analyzeSongLyricsWithLLM
 } = require("./ai-engine");
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -537,6 +546,142 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
+    // 4-C. Seasonal Bonus Songs APIs (Christmas Carols / Pop Songs + HTTP Range Audio Streaming)
+    if (pathname === "/api/songs" && req.method === "GET") {
+      try {
+        const activeOnly = urlObj.searchParams.get("activeOnly") === "1";
+        const songs = await listSeasonalSongs({ activeOnly });
+        return sendJson(res, 200, { ok: true, songs });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/songs/audio" && req.method === "GET") {
+      try {
+        const songId = String(urlObj.searchParams.get("songId") || "").trim();
+        const audio = await getSeasonalSongAudio(songId);
+        if (!audio || !audio.buffer || audio.buffer.length === 0) {
+          return sendJson(res, 404, { ok: false, error: "Audio not found" });
+        }
+        const total = audio.buffer.length;
+        const rangeHeader = req.headers.range;
+        if (rangeHeader && /^bytes=\d*-\d*$/i.test(rangeHeader.trim())) {
+          const m = /^bytes=(\d*)-(\d*)$/i.exec(rangeHeader.trim());
+          const start = m[1] ? Math.min(total - 1, Number(m[1])) : 0;
+          const end = m[2] ? Math.min(total - 1, Number(m[2])) : total - 1;
+          if (start > end || start >= total) {
+            res.writeHead(416, {
+              ...SECURITY_HEADERS,
+              "Content-Range": `bytes */${total}`
+            });
+            res.end();
+            return;
+          }
+          const chunk = audio.buffer.subarray(start, end + 1);
+          res.writeHead(206, {
+            ...SECURITY_HEADERS,
+            "Content-Type": audio.mimeType || "audio/mpeg",
+            "Content-Range": `bytes ${start}-${end}/${total}`,
+            "Accept-Ranges": "bytes",
+            "Content-Length": chunk.length,
+            "Cache-Control": "public, max-age=3600"
+          });
+          res.end(chunk);
+          return;
+        }
+        res.writeHead(200, {
+          ...SECURITY_HEADERS,
+          "Content-Type": audio.mimeType || "audio/mpeg",
+          "Content-Length": total,
+          "Accept-Ranges": "bytes",
+          "Cache-Control": "public, max-age=3600"
+        });
+        res.end(audio.buffer);
+        return;
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/songs/analyze" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const analysis = await analyzeSongLyricsWithLLM({
+          title: String(body.title || "").trim(),
+          rawLyrics: String(body.rawLyrics || body.raw_lyrics || "").trim(),
+          track: body.track === "senior" ? "senior" : "junior"
+        });
+        return sendJson(res, 200, { ok: true, ...analysis });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/songs/save" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req, 18 * 1024 * 1024);
+        const song = await saveSeasonalSong(body);
+        const songs = await listSeasonalSongs();
+        return sendJson(res, 200, { ok: true, song, songs });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/songs/toggle" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const songs = await toggleSeasonalSong({
+          songId: body.songId || "",
+          isActive: body.isActive,
+          seasonKey: body.seasonKey || ""
+        });
+        return sendJson(res, 200, { ok: true, songs });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/songs/delete" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const songs = await deleteSeasonalSong(body.songId);
+        return sendJson(res, 200, { ok: true, songs });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/songs/progress" && req.method === "GET") {
+      try {
+        const userId = urlObj.searchParams.get("userId") || null;
+        const progress = await listStudentSongProgress(userId);
+        return sendJson(res, 200, { ok: true, progress });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
+    if (pathname === "/api/songs/progress" && req.method === "POST") {
+      try {
+        const body = await parseJsonBody(req);
+        const resData = await updateStudentSongProgress({
+          userId: body.userId,
+          songId: body.songId,
+          week1Done: Boolean(body.week1Done),
+          week2Done: Boolean(body.week2Done),
+          week3Done: Boolean(body.week3Done),
+          week4Done: Boolean(body.week4Done),
+          quizScore: Number(body.quizScore) || 0,
+          recordingId: body.recordingId || ""
+        });
+        return sendJson(res, 200, { ok: true, ...resData });
+      } catch (err) {
+        return sendJson(res, 400, { ok: false, error: err.message });
+      }
+    }
+
     // 5. Teacher SaaS 4th-Week AI Recommended Questions endpoint
     if (pathname === "/api/teacher/questions" && req.method === "POST") {
       const body = await parseJsonBody(req);
@@ -760,6 +905,17 @@ async function startServer() {
       vocabSeedRes.skipped
         ? `📚 [BADA Vocab] 어휘 DB 준비 완료 (기존 시드 유지: ${vocabSeedRes.count ?? "ok"})`
         : `📚 [BADA Vocab] 어휘 DB 자동 시드 완료: ${vocabSeedRes.words}개 단어 / ${vocabSeedRes.units}개 유닛 / ${vocabSeedRes.affixItems}개 접사 (${vocabSeedRes.engine})`
+    );
+  }
+  const songSeedRes = await seedSeasonalSongsIfEmpty().catch((err) => {
+    console.warn("⚠️ [BADA Song] 시즌송 시드 적재 오류:", err.message);
+    return null;
+  });
+  if (songSeedRes) {
+    console.log(
+      songSeedRes.skipped
+        ? `🎵 [BADA Song] 시즌송 DB 준비 완료 (기존 곡 유지: ${songSeedRes.count ?? "ok"})`
+        : `🎵 [BADA Song] 크리스마스 시즌송 2곡 시드 완료 (${songSeedRes.engine})`
     );
   }
   const info = getDbEngineInfo();

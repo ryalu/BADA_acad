@@ -1,22 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Download, MessageCircle, RefreshCw, RotateCcw } from "lucide-react";
-import type { Book, StudentRecording, StudentUser, TeacherQuestion } from "../../types";
+import type { Book, SeasonalSong, StudentRecording, StudentUser, TeacherQuestion } from "../../types";
 import { playSoftTone } from "../../utils/speech";
 import { TeacherVocabPanel } from "./TeacherVocabPanel";
 
 interface TeacherCoachingTabProps {
   users: StudentUser[];
   books: Book[];
+  seasonalSongs?: SeasonalSong[];
   currentUser: StudentUser;
   currentBook: Book;
   onSelectStudent: (userId: string) => void;
-  onChangeTab: (tab: "home" | "coaching" | "worksheets" | "database") => void;
+  onChangeTab: (tab: "home" | "coaching" | "worksheets" | "songs" | "database") => void;
   onDataUpdated: (payload: { users?: StudentUser[] }) => void;
 }
 
 export const TeacherCoachingTab: React.FC<TeacherCoachingTabProps> = ({
   users,
   books,
+  seasonalSongs = [],
   currentUser,
   currentBook,
   onSelectStudent,
@@ -245,7 +247,11 @@ export const TeacherCoachingTab: React.FC<TeacherCoachingTabProps> = ({
         ) : (
           <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
             {studentRecordings.map((rec) => {
-              const recBook = books.find((b) => b.id === rec.book_id);
+              const isSongRec = rec.book_id.startsWith("song:");
+              const recSong = isSongRec
+                ? seasonalSongs.find((s) => s.id === rec.book_id.slice(5))
+                : null;
+              const recBook = isSongRec ? null : books.find((b) => b.id === rec.book_id);
               return (
                 <div key={rec.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -254,7 +260,7 @@ export const TeacherCoachingTab: React.FC<TeacherCoachingTabProps> = ({
                         {rec.week_num}주차 · {rec.repeat_num}회차
                       </span>
                       <span className="text-xs font-semibold text-slate-700">
-                        {recBook?.title || rec.book_id}
+                        {isSongRec ? `시즌송 · ${recSong?.title || rec.book_id.slice(5)}` : recBook?.title || rec.book_id}
                       </span>
                       {typeof rec.ai_feedback?.score === "number" && (
                         <span className="text-xs font-bold text-emerald-700">

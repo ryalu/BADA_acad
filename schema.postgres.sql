@@ -213,3 +213,43 @@ CREATE INDEX IF NOT EXISTS idx_vocab_bank_elem_unit ON vocab_bank(elem_unit_key)
 CREATE INDEX IF NOT EXISTS idx_vocab_bank_mh_unit ON vocab_bank(mh_unit_key);
 CREATE INDEX IF NOT EXISTS idx_vocab_units_stage ON vocab_units(stage, tier, sort_order);
 CREATE INDEX IF NOT EXISTS idx_vocab_attempts_user ON student_vocab_attempts(user_id, stage, created_at DESC);
+
+-- ============================================================================
+-- SEASONAL BONUS SONGS (CHRISTMAS CAROLS / POP SONGS / YOUTUBE & MP3)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS seasonal_songs (
+  id VARCHAR(80) PRIMARY KEY,
+  season_key VARCHAR(40) NOT NULL DEFAULT 'christmas',
+  season_label VARCHAR(100) NOT NULL DEFAULT '12월 크리스마스 스페셜',
+  track VARCHAR(20) NOT NULL DEFAULT 'junior',
+  title TEXT NOT NULL,
+  subtitle_kr TEXT NOT NULL DEFAULT '',
+  artist_label TEXT NOT NULL DEFAULT 'Traditional Christmas Carol',
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  youtube_url TEXT NOT NULL DEFAULT '',
+  audio_mime VARCHAR(80) NOT NULL DEFAULT '',
+  audio_filename TEXT NOT NULL DEFAULT '',
+  audio_bytes BYTEA,
+  raw_lyrics TEXT NOT NULL DEFAULT '',
+  lines_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  vocab_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS student_song_progress (
+  id VARCHAR(160) PRIMARY KEY,
+  user_id VARCHAR(80) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  song_id VARCHAR(80) NOT NULL REFERENCES seasonal_songs(id) ON DELETE CASCADE,
+  week1_done BOOLEAN NOT NULL DEFAULT FALSE,
+  week2_done BOOLEAN NOT NULL DEFAULT FALSE,
+  week3_done BOOLEAN NOT NULL DEFAULT FALSE,
+  week4_done BOOLEAN NOT NULL DEFAULT FALSE,
+  practice_days_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+  quiz_best_score INTEGER NOT NULL DEFAULT 0,
+  recording_id VARCHAR(80),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_seasonal_songs_track ON seasonal_songs(is_active, track, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_student_song_progress_user ON student_song_progress(user_id, song_id);

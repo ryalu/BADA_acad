@@ -495,3 +495,58 @@ export interface VocabAttemptResult {
   needsExtraMonth: boolean;
 }
 
+export type SongTrack = "junior" | "senior";
+
+export interface SongLyricLine {
+  index: number;
+  section: string;
+  en: string;
+  kr: string;
+  start_sec?: number | null;
+  end_sec?: number | null;
+  blank_word?: string;
+  distractors?: string[];
+}
+
+export interface SongVocabItem {
+  word: string;
+  meaning_kr: string;
+  phonetic?: string;
+  tip_kr?: string;
+  line_index?: number;
+}
+
+export interface SeasonalSong {
+  id: string;
+  season_key: string;
+  season_label: string;
+  track: SongTrack;
+  title: string;
+  subtitle_kr: string;
+  artist_label: string;
+  is_active: boolean;
+  youtube_url: string;
+  audio_mime: string;
+  audio_filename: string;
+  has_audio: boolean;
+  raw_lyrics: string;
+  lines: SongLyricLine[];
+  vocab: SongVocabItem[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface StudentSongProgress {
+  id: string;
+  user_id: string;
+  song_id: string;
+  week1_done: boolean;
+  week2_done: boolean;
+  week3_done: boolean;
+  week4_done: boolean;
+  practice_days: string[];
+  quiz_best_score: number;
+  recording_id?: string | null;
+  updated_at?: string;
+}
+

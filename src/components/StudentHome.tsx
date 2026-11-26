@@ -6,12 +6,19 @@ import {
   CheckCircle2,
   GraduationCap,
   Layers,
+  Music,
   Sparkles,
   X
 } from "lucide-react";
-import type { Book, StudentUser, StudentVocabState } from "../types";
+import type { Book, SeasonalSong, StudentSongProgress, StudentUser, StudentVocabState } from "../types";
 import { getStudentCurrentWeek } from "../utils/bookHelpers";
+import { getSeasonVisualMeta, pickRecommendedSongForStudent } from "../utils/songHelpers";
 import { BookCover } from "./BookCover";
+import {
+  SeasonalCardAmbient,
+  SeasonalPopoAvatar,
+  SeasonalTopCap
+} from "./song/SeasonalDecorations";
 
 const TREASURE_STAGES = [
   {
@@ -75,9 +82,11 @@ function getKstTodayDateString(): string {
 interface StudentHomeProps {
   user: StudentUser;
   book: Book;
+  seasonalSongs?: SeasonalSong[];
   onStartWeek: (weekNum: 1 | 2 | 3 | 4) => void;
   onOpenVocab: () => void;
   onOpenAgeTrack: () => void;
+  onOpenSeasonalSong?: (songId?: string) => void;
 }
 
 const PopoCompleteStamp: React.FC = () => (
@@ -104,9 +113,11 @@ const PopoCompleteStamp: React.FC = () => (
 export const StudentHome: React.FC<StudentHomeProps> = ({
   user,
   book,
+  seasonalSongs = [],
   onStartWeek,
   onOpenVocab,
-  onOpenAgeTrack
+  onOpenAgeTrack,
+  onOpenSeasonalSong
 }) => {
   const activeWk = getStudentCurrentWeek(user);
   const activeWeekProg = Number(user[`progress_w${activeWk}` as keyof StudentUser] || 0);
@@ -128,6 +139,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
   );
 
   const [vocabState, setVocabState] = useState<StudentVocabState | null>(null);
+  const [songProgressMap, setSongProgressMap] = useState<Record<string, StudentSongProgress>>({});
   const [showTreasureModal, setShowTreasureModal] = useState(false);
   const [animPearls, setAnimPearls] = useState(0);
 
@@ -146,7 +158,24 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
         // ignore network hiccup on home badge fetch
       }
     };
+    const loadSongs = async () => {
+      try {
+        const res = await fetch(`/api/songs/progress?userId=${encodeURIComponent(user.id)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (active && data.ok && Array.isArray(data.progress)) {
+          const map: Record<string, StudentSongProgress> = {};
+          for (const p of data.progress as StudentSongProgress[]) {
+            map[p.song_id] = p;
+          }
+          setSongProgressMap(map);
+        }
+      } catch {
+        // ignore
+      }
+    };
     void loadVocab();
+    void loadSongs();
     return () => {
       active = false;
     };
@@ -527,6 +556,88 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
           )}
         </section>
       </div>
+
+      {/* Seasonal Bonus Special Banner (Optional, independent from 3 core daily missions) */}
+      {(() => {
+        const featuredSong = pickRecommendedSongForStudent(seasonalSongs, user);
+        if (!featuredSong || !onOpenSeasonalSong) return null;
+        const meta = getSeasonVisualMeta(featuredSong.season_key);
+        const prog = songProgressMap[featuredSong.id];
+        const popoAccessory = featuredSong.track === "senior" ? "rudolph" : "santa";
+        const weekFlags = [
+          { num: 1, done: Boolean(prog?.week1_done) },
+          { num: 2, done: Boolean(prog?.week2_done) },
+          { num: 3, done: Boolean(prog?.week3_done) },
+          { num: 4, done: Boolean(prog?.week4_done) }
+        ];
+        return (
+          <section className="relative pt-2">
+            <SeasonalTopCap seasonKey={featuredSong.season_key} />
+            <div className={`relative rounded-3xl p-5 md:p-6 pt-8 ${meta.cardClass} ${meta.accentRingClass}`}>
+              <SeasonalCardAmbient seasonKey={featuredSong.season_key} />
+
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <SeasonalPopoAvatar
+                    seasonKey={featuredSong.season_key}
+                    accessory={popoAccessory}
+                    size="md"
+                  />
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[11px] font-black shadow-2xs ${meta.pillBgClass}`}>
+                        <Sparkles className="w-3 h-3" />
+                        BONUS SPECIAL · {featuredSong.season_label}
+                      </span>
+                      {featuredSong.has_audio && (
+                        <span className="px-2 py-0.5 rounded-full bg-sky-50/95 border border-sky-200 text-[10px] font-extrabold text-sky-700">
+                          MP3 음원
+                        </span>
+                      )}
+                      {featuredSong.youtube_url && (
+                        <span className="px-2 py-0.5 rounded-full bg-rose-50/95 border border-rose-200 text-[10px] font-extrabold text-rose-700">
+                          유튜브
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="storybook-font text-lg md:text-xl font-black text-slate-900">
+                      {featuredSong.title}
+                    </h3>
+                    <p className="text-xs font-semibold text-slate-600">{featuredSong.subtitle_kr}</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    {weekFlags.map((w) => (
+                      <span
+                        key={w.num}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold border ${
+                          w.done
+                            ? meta.progressDoneClass
+                            : "bg-white/75 border-white/90 text-slate-600"
+                        }`}
+                      >
+                        {w.num}주
+                      </span>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => onOpenSeasonalSong(featuredSong.id)}
+                    className={`px-5 py-3 rounded-2xl ${meta.ctaBtnClass} text-sm font-extrabold inline-flex items-center gap-2 whitespace-nowrap`}
+                  >
+                    <Music className="w-4 h-4" />
+                    {prog?.week4_done ? "캐롤 다시 부르기" : "노래 부르러 가기"}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Animated Pearl Treasure Chest Voyage Popup */}
       {showTreasureModal && (

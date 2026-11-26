@@ -9,6 +9,7 @@ const usersMod = require("./db/users");
 const booksMod = require("./db/books");
 const mediaMod = require("./db/media");
 const vocabMod = require("./db/vocab");
+const songsMod = require("./db/songs");
 
 const {
   getPgPool,
@@ -116,7 +117,8 @@ async function getAllBootstrapData() {
       basic_words: parseJsonField(r.basic_words_json, [])
     }));
 
-    return { users, teachers: teachersRes.rows, books, phonicsCurriculum, dbEngine: activeDbEngine };
+    const seasonalSongs = await songsMod.listSeasonalSongs().catch(() => []);
+    return { users, teachers: teachersRes.rows, books, phonicsCurriculum, seasonalSongs, dbEngine: activeDbEngine };
   }
 
   const sqliteDb = getSqliteDb();
@@ -180,7 +182,8 @@ async function getAllBootstrapData() {
       basic_words: parseJsonField(r.basic_words_json, [])
     }));
 
-  return { users, teachers, books, phonicsCurriculum, dbEngine: activeDbEngine };
+  const seasonalSongs = await songsMod.listSeasonalSongs().catch(() => []);
+  return { users, teachers, books, phonicsCurriculum, seasonalSongs, dbEngine: activeDbEngine };
 }
 
 module.exports = {
@@ -222,5 +225,13 @@ module.exports = {
   submitVocabAttempt: vocabMod.submitVocabAttempt,
   updateStudentVocabSettings: vocabMod.updateStudentVocabSettings,
   getPronunciationFocusForStudent: vocabMod.getPronunciationFocusForStudent,
-  completePronunciationFocusToday: vocabMod.completePronunciationFocusToday
+  completePronunciationFocusToday: vocabMod.completePronunciationFocusToday,
+  seedSeasonalSongsIfEmpty: songsMod.seedSeasonalSongsIfEmpty,
+  listSeasonalSongs: songsMod.listSeasonalSongs,
+  getSeasonalSongAudio: songsMod.getSeasonalSongAudio,
+  saveSeasonalSong: songsMod.saveSeasonalSong,
+  toggleSeasonalSong: songsMod.toggleSeasonalSong,
+  deleteSeasonalSong: songsMod.deleteSeasonalSong,
+  listStudentSongProgress: songsMod.listStudentSongProgress,
+  updateStudentSongProgress: songsMod.updateStudentSongProgress
 };

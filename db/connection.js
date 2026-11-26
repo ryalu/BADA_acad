@@ -272,6 +272,43 @@ function initSqliteDatabase() {
     CREATE INDEX IF NOT EXISTS idx_vocab_bank_mh_unit ON vocab_bank(mh_unit_key);
     CREATE INDEX IF NOT EXISTS idx_vocab_units_stage ON vocab_units(stage, tier, sort_order);
     CREATE INDEX IF NOT EXISTS idx_vocab_attempts_user ON student_vocab_attempts(user_id, stage, created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS seasonal_songs (
+      id TEXT PRIMARY KEY,
+      season_key TEXT NOT NULL DEFAULT 'christmas',
+      season_label TEXT NOT NULL DEFAULT '12월 크리스마스 스페셜',
+      track TEXT NOT NULL DEFAULT 'junior',
+      title TEXT NOT NULL,
+      subtitle_kr TEXT NOT NULL DEFAULT '',
+      artist_label TEXT NOT NULL DEFAULT 'Traditional Christmas Carol',
+      is_active INTEGER NOT NULL DEFAULT 1,
+      youtube_url TEXT NOT NULL DEFAULT '',
+      audio_mime TEXT NOT NULL DEFAULT '',
+      audio_filename TEXT NOT NULL DEFAULT '',
+      audio_bytes BLOB,
+      raw_lyrics TEXT NOT NULL DEFAULT '',
+      lines_json TEXT NOT NULL DEFAULT '[]',
+      vocab_json TEXT NOT NULL DEFAULT '[]',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS student_song_progress (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      song_id TEXT NOT NULL,
+      week1_done INTEGER NOT NULL DEFAULT 0,
+      week2_done INTEGER NOT NULL DEFAULT 0,
+      week3_done INTEGER NOT NULL DEFAULT 0,
+      week4_done INTEGER NOT NULL DEFAULT 0,
+      practice_days_json TEXT NOT NULL DEFAULT '[]',
+      quiz_best_score INTEGER NOT NULL DEFAULT 0,
+      recording_id TEXT,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_seasonal_songs_track ON seasonal_songs(is_active, track, updated_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_student_song_progress_user ON student_song_progress(user_id, song_id);
   `);
 
   const upsertPhonicsStmt = sqliteDb.prepare(`

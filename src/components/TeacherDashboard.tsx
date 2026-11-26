@@ -1,12 +1,13 @@
 import React from "react";
-import { BookPlus, FileText, LogOut, Users, Video } from "lucide-react";
-import type { Book, StudentUser, TeacherAccount } from "../types";
+import { BookPlus, FileText, LogOut, Music, Users, Video } from "lucide-react";
+import type { Book, SeasonalSong, StudentUser, TeacherAccount } from "../types";
 import { TeacherStudentsTab } from "./teacher/TeacherStudentsTab";
 import { TeacherCoachingTab } from "./teacher/TeacherCoachingTab";
 import { TeacherWorksheetsTab } from "./teacher/TeacherWorksheetsTab";
 import { TeacherBooksTab } from "./teacher/TeacherBooksTab";
+import { TeacherSongsTab } from "./teacher/TeacherSongsTab";
 
-export type TeacherTab = "home" | "coaching" | "worksheets" | "database";
+export type TeacherTab = "home" | "coaching" | "worksheets" | "songs" | "database";
 
 interface TeacherDashboardProps {
   activeTab: TeacherTab;
@@ -14,6 +15,7 @@ interface TeacherDashboardProps {
   users: StudentUser[];
   teachers: TeacherAccount[];
   books: Book[];
+  seasonalSongs?: SeasonalSong[];
   loggedTeacher: TeacherAccount;
   selectedUserId: string;
   onSelectStudent: (userId: string) => void;
@@ -21,6 +23,7 @@ interface TeacherDashboardProps {
     users?: StudentUser[];
     teachers?: TeacherAccount[];
     books?: Book[];
+    seasonalSongs?: SeasonalSong[];
     loggedTeacher?: TeacherAccount;
   }) => void;
   onLogout: () => void;
@@ -32,6 +35,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   users,
   teachers,
   books,
+  seasonalSongs = [],
   loggedTeacher,
   selectedUserId,
   onSelectStudent,
@@ -45,6 +49,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
     { id: "home", label: "학생 관리 & 원서 배정", icon: <Users className="w-4 h-4" /> },
     { id: "coaching", label: "학생 학습 관리", icon: <Video className="w-4 h-4" /> },
     { id: "worksheets", label: "오프라인 학습지", icon: <FileText className="w-4 h-4" /> },
+    { id: "songs", label: "시즌송 · 캐롤 관리", icon: <Music className="w-4 h-4" /> },
     { id: "database", label: "원서 교재 등록 · 관리", icon: <BookPlus className="w-4 h-4" /> }
   ];
 
@@ -112,6 +117,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
           <TeacherCoachingTab
             users={users}
             books={books}
+            seasonalSongs={seasonalSongs}
             currentUser={currentUser}
             currentBook={currentBook}
             onSelectStudent={onSelectStudent}
@@ -127,6 +133,16 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             currentUser={currentUser}
             currentBook={currentBook}
             onSelectStudent={onSelectStudent}
+            onDataUpdated={onDataUpdated}
+          />
+        )}
+
+        {activeTab === "songs" && (
+          <TeacherSongsTab
+            users={users}
+            seasonalSongs={seasonalSongs}
+            onSelectStudent={onSelectStudent}
+            onChangeTab={onChangeTab}
             onDataUpdated={onDataUpdated}
           />
         )}

@@ -11,7 +11,7 @@ interface TeacherStudentsTabProps {
   loggedTeacher: TeacherAccount;
   selectedUserId: string;
   onSelectStudent: (userId: string) => void;
-  onChangeTab: (tab: "home" | "coaching" | "worksheets" | "database") => void;
+  onChangeTab: (tab: "home" | "coaching" | "worksheets" | "songs" | "database") => void;
   onDataUpdated: (payload: {
     users?: StudentUser[];
     teachers?: TeacherAccount[];

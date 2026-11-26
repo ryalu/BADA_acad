@@ -2116,9 +2116,163 @@ async function evaluateWordPronunciationWithAI({
   };
 }
 
+function buildDeterministicSongAnalysis({ rawLyrics = "", track = "junior" }) {
+  const rawLines = String(rawLyrics || "")
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  let currentSection = "Verse 1";
+  const lyricEntries = [];
+  for (const raw of rawLines) {
+    const secMatch = /^\[([^\]]+)\]$/.exec(raw);
+    if (secMatch) {
+      currentSection = secMatch[1].trim();
+      continue;
+    }
+    lyricEntries.push({ section: currentSection, en: raw });
+  }
+
+  const allContentWords = [];
+  for (const entry of lyricEntries) {
+    const tokens = entry.en.split(/\s+/).map((w) => w.replace(/[^a-zA-Z']/g, "")).filter(Boolean);
+    for (const t of tokens) {
+      const low = t.toLowerCase();
+      if (low.length >= 3 && !["the", "and", "for", "you", "all", "are", "our", "out", "with"].includes(low)) {
+        allContentWords.push(t);
+      }
+    }
+  }
+  const uniqueContent = [...new Set(allContentWords)];
+  const extraDistractors = ["snowflake", "winter", "smile", "bright", "music", "happy", "ribbon", "gift"];
+
+  const lines = lyricEntries.map((item, idx) => {
+    const tokens = item.en.split(/\s+/).map((w) => w.replace(/[^a-zA-Z']/g, "")).filter((w) => w.length >= 3);
+    const blankWord = tokens[tokens.length - 1] || item.en.split(/\s+/)[0]?.replace(/[^a-zA-Z']/g, "") || "";
+    const distractors = [...uniqueContent, ...extraDistractors]
+      .filter((w) => w.toLowerCase() !== blankWord.toLowerCase())
+      .slice(0, 2);
+
+    return {
+      index: idx,
+      section: item.section,
+      en: item.en,
+      kr: translateSentenceToKorean(item.en),
+      start_sec: null,
+      end_sec: null,
+      blank_word: blankWord,
+      distractors: distractors.length >= 2 ? distractors : ["winter", "smile"]
+    };
+  });
+
+  const vocab = [];
+  const seenVocab = new Set();
+  for (let i = 0; i < lines.length && vocab.length < 8; i += 1) {
+    const tokens = lines[i].en.split(/\s+/).map((w) => w.replace(/[^a-zA-Z']/g, "")).filter(Boolean);
+    for (const tok of tokens) {
+      const low = tok.toLowerCase();
+      if (low.length < 3 || seenVocab.has(low)) continue;
+      if (["the", "and", "for", "you", "are", "with", "this", "that"].includes(low)) continue;
+      seenVocab.add(low);
+      const hit = lookupLexiconWithStemming(low);
+      vocab.push({
+        word: tok,
+        meaning_kr: hit ? hit.kr : track === "junior" ? `${low} (노래 핵심어)` : `${low} (캐롤 주요 단어)`,
+        phonetic: hit ? hit.phonetic : `/${low}/`,
+        tip_kr: hit ? hit.tip : "리듬에 맞춰 큰 소리로 따라 불러 보아요!",
+        line_index: i
+      });
+      if (vocab.length >= 8) break;
+    }
+  }
+
+  return { lines, vocab };
+}
+
+async function analyzeSongLyricsWithLLM({ title = "", rawLyrics = "", track = "junior" }) {
+  const fallback = buildDeterministicSongAnalysis({ rawLyrics, track });
+  if (fallback.lines.length === 0) return fallback;
+
+  const openaiKey = String(process.env.OPENAI_API_KEY || "").trim();
+  if (!openaiKey) return fallback;
+
+  try {
+    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${openaiKey}`
+      },
+      body: JSON.stringify({
+        model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+        temperature: 0.25,
+        max_tokens: 3500,
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a friendly English song & phonics curriculum designer for Korean kids (BADA English). " +
+              "Analyze the given English song lyrics for " +
+              (track === "senior" ? "upper-elementary learners (grades 4-6)" : "younger elementary learners (kindergarten - grade 3)") +
+              ". Return ONLY valid JSON with:\n" +
+              "1) `lines`: array matching EVERY lyric line in exact order (exclude `[Section]` markers from lines, put them in `section`), each object having `{ index (0-based), section (e.g. 'Chorus', 'Verse 1'), en (exact lyric line), kr (warm, natural Korean translation for kids ~해요/~보아요), blank_word (one clear singable target word from that line), distractors (array of 2 plausible but wrong English words) }`.\n" +
+              "2) `vocab`: 6-8 key words or short expressions from the song: `{ word, meaning_kr (concise 1-4 word Korean), phonetic (IPA), tip_kr (friendly 1-sentence Korean singing/meaning tip), line_index (0-based index of the line where it appears) }`."
+          },
+          {
+            role: "user",
+            content: `Title: ${title}\nTrack: ${track}\nLyrics:\n${rawLyrics.trim()}`
+          }
+        ]
+      })
+    });
+
+    if (!resp.ok) return fallback;
+    const data = await resp.json();
+    const parsed = JSON.parse(data?.choices?.[0]?.message?.content || "{}");
+    const llmLines = Array.isArray(parsed.lines) ? parsed.lines : [];
+    const mergedLines = fallback.lines.map((fbLine, idx) => {
+      const m = llmLines.find((item) => Number(item?.index) === idx) || llmLines[idx];
+      if (!m || !m.en) return fbLine;
+      const dist = Array.isArray(m.distractors) ? m.distractors.map((d) => String(d || "").trim()).filter(Boolean) : [];
+      return {
+        index: idx,
+        section: String(m.section || fbLine.section || "Verse"),
+        en: String(m.en || fbLine.en).trim(),
+        kr: String(m.kr || fbLine.kr).trim(),
+        start_sec: null,
+        end_sec: null,
+        blank_word: String(m.blank_word || fbLine.blank_word || "").trim(),
+        distractors: dist.length >= 2 ? dist.slice(0, 2) : fbLine.distractors
+      };
+    });
+
+    const llmVocab = Array.isArray(parsed.vocab) ? parsed.vocab : [];
+    const mergedVocab =
+      llmVocab.length >= 3
+        ? llmVocab.slice(0, 8).map((v) => ({
+            word: String(v?.word || "").trim(),
+            meaning_kr: String(v?.meaning_kr || "").trim(),
+            phonetic: String(v?.phonetic || "").trim(),
+            tip_kr: String(v?.tip_kr || "노래를 들으며 함께 따라 해 보아요!").trim(),
+            line_index: Number.isFinite(Number(v?.line_index)) ? Number(v.line_index) : 0
+          })).filter((v) => v.word)
+        : fallback.vocab;
+
+    return {
+      lines: mergedLines,
+      vocab: mergedVocab.length > 0 ? mergedVocab : fallback.vocab
+    };
+  } catch (err) {
+    console.warn("⚠️ [BADA Song AI] 가사 분석 fallback:", err.message);
+    return fallback;
+  }
+}
+
 module.exports = {
   analyzeTextWithLLM,
   analyzeTextWithLLMAsync,
+  analyzeSongLyricsWithLLM,
   generatePageIllustrationsWithLLM,
   analyzePronunciationWithLLM,
   generateParentFeedbackMessage,
